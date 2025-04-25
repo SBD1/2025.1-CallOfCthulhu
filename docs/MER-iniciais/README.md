@@ -2,6 +2,7 @@
 ## Monstros
 ![monstros](/docs/MER-iniciais/monstros.png)
 ## Itens
+![Itens](/docs/MER-iniciais/Itens.png)
 ## Região
 ## Missões
 ![missoes](missoes.png)
