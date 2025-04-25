@@ -4,4 +4,5 @@
 ## Itens
 ## Região
 ## Missões
+![missoes](missoes.png)
 ## Personagem
