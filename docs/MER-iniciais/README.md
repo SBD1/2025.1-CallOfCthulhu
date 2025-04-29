@@ -8,3 +8,4 @@
 ## Missões
 ![missoes](missoes.png)
 ## Personagem
+![personagem](personagem.png)
