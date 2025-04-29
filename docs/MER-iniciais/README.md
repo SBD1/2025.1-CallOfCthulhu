@@ -4,6 +4,7 @@
 ## Itens
 ![Itens](/docs/MER-iniciais/Itens.png)
 ## Região
+![Região](/docs/MER-iniciais/Mapa.jpeg)
 ## Missões
 ![missoes](missoes.png)
 ## Personagem
