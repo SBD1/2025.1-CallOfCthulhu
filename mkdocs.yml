@@ -1,7 +1,6 @@
 site_name: Call of Cthulhu
 site_description: Documentação de desenvolvimento do Projeto Call of Cthulhu da Disciplina Bancos de Dados da Universidade de Brasília
 repo_name: "2025.1-Call_of_Cthulhu"
-repo_url: https://github.com/SBD1/2025.1-Call_of_Cthulhu
 
 nav:
   - Início: index.md
@@ -12,12 +11,13 @@ nav:
       - Final: entregas/entrega-final.md
   - Referências: referencias/referencias.md 
   - Backlog: backlog/backlog.md
-
+# Tema
 theme:
   name: material
   language: pt-BR
   custom_dir: overrides
-
+  logo:
+  favicon:
   features:
     - content.code.annotate
     - content.tabs.link
@@ -25,9 +25,8 @@ theme:
     - navigation.instant
     - navigation.top
     - navigation.tracking
-    - navigation.footer
-
-
+    
+# Paleta
   palette:
     - scheme: default
       primary: "deep purple"
@@ -42,10 +41,6 @@ theme:
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
-
-  language: pt-BR
-  logo:
-  favicon:
   
 # For image rendering
 markdown_extensions:
@@ -63,21 +58,3 @@ plugins:
        zoomable: true
        draggable: true
        caption_position: bottom
-
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/wChrstphr
-      name: "Christopher Paraizo"
-    - icon: fontawesome/brands/github
-      link: https://github.com/JJOAOMARCOSS
-      name: "João Marcos"
-    - icon: fontawesome/brands/github
-      link: https://github.com/Cayoalencar
-      name: "Cayo Alencar"
-    - icon: fontawesome/brands/github
-      link: https://github.com/luizfaria1989
-      name: "Luiz Faria"
-    - icon: fontawesome/brands/github
-      link: https://github.com/igorvdaniel
-      name: "Igor Daniel"
