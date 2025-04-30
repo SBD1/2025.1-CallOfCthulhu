@@ -16,6 +16,7 @@ nav:
 theme:
   name: material
   language: pt-BR
+  custom_dir: overrides
 
   features:
     - content.code.annotate
@@ -32,16 +33,17 @@ theme:
       primary: "deep purple"
       accent: "deep purple"
       toggle:
-        icon: material/toggle-switch-off-outline
+        icon: material/weather-night
         name: Switch to dark mode
 
     - scheme: slate
       primary: "deep purple"
       accent: "deep purple"
       toggle:
-        icon: material/toggle-switch
+        icon: material/weather-sunny
         name: Switch to light mode
 
+  language: pt-BR
   logo:
   favicon:
   
