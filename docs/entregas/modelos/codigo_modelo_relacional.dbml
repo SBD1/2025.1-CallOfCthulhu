@@ -1,0 +1,254 @@
+Table PersonagemJogavel{
+  id int [primary key]
+  nome string
+  ocupacao string
+  idade int
+  sexo char
+  residencia string
+  local_nascimento string
+  forca int
+  destreza int
+  constituicao int
+  tamanho int
+  aparencia int
+  inteligencia int 
+  poder int 
+  educacao int
+  ideia int
+  conhecimento int
+  movimento int
+  sorte int
+}
+
+Table NPC{
+  id int [primary key]
+  nome string
+  ocupacao string
+  idade int
+  sexo char
+  residencia string
+  local_nascimento string
+  script_dialogo string
+}
+
+Table Inventario{
+  id int [primary key]
+}
+
+Table Templo{
+  id_templo int [primary key]
+  nome string
+  descricao string
+}
+
+Table Andar{
+  numero int [primary key]
+  descricao string
+}
+
+Table Sala{
+  id_sala int [primary key]
+  descricao string
+}
+
+Table Corredor{
+  status boolean
+  descricao string
+  id_corredor int [primary key]
+}
+
+Table Pts_de_magia{
+  id int [primary key]
+  valor_base int
+  PM_max int
+}
+
+Table Sanidade{
+  id int [primary key]
+  sanidade_maxima int
+  sanidade_atual int
+  insanidade_temporaria boolean
+  insanidade_indefinida boolean
+}
+
+Table Pericia{
+  id int [primary key]
+  valor int
+  eh_de_ocupacao boolean
+}
+
+Table Agressivo{
+  id_monstro int [primary key]
+  nome string
+  descricao string
+  defesa int
+  vida int
+  tipo char
+  catalisador_agressividade int
+  poder int
+}
+
+Table Psiquico{
+  loucura_induzida int
+}
+
+Table Monstro_magico{
+  pontos_magia int
+}
+
+Table Fisico{
+  velocidade_ataque int
+}
+
+Table Pacifico{
+  id_monstro int [primary key]
+  nome string
+  descricao string
+  defesa int
+  vida int
+  tipo char
+  motivo_passividade string
+}
+
+Table Sobrenatural{
+  conhecimento_proibido int
+}
+
+Table Humoide{
+  conhecimento_geografico int
+}
+
+Table InstanciaMonstro{
+  Id_instancia_monstro int
+}
+
+Table Missao{
+  id_missao int [primary key]
+  nome string
+  descricao string
+  tipo int
+  ordem string
+}
+
+Table Magico{
+    id_item int [primary key]
+    tipo char
+    nome string
+    descricao string
+    valor int
+    funcao string
+    qts_usos int
+    id_feitico int
+    custo_sanidade int
+}
+
+Table Cura{
+    id_item int [primary key]
+    tipo char
+    nome string
+    descricao string
+    valor int
+    funcao string
+    qts_usos int
+    qtd_pontos_sanidade_recupera int
+    qtd_pontos_vida_recupera int
+}
+
+Table Armadura{
+    id_item int [primary key]
+    tipo char
+    nome string
+    descricao string
+    valor int
+    atributo_necessario string
+    durabilidade int
+    pericia_necessaria string
+    funcao string
+    qtd_atributo_recebe int
+    tipo_atributo_recebe string
+    qtd_dano_mitigado st
+}
+
+Table Arma{
+    id_item int [primary key]
+    tipo char
+    nome string
+    descricao string
+    valor int
+    atributo_necessario string
+    durabilidade int
+    pericia_necessaria string
+    funcao string
+    alcance int
+    tipo_municao string
+    tipo_dano string
+    dano int
+}
+
+Table Feitico_status{
+    id_feitico int [primary key]
+    nome string
+    descricao string
+    qtd_pontos_de_magia int
+    qtd_buff_debuff int
+    status_afetado string
+}
+
+Table Feitico_dano{
+    id_feitico int [primary key]
+    nome string
+    descricao string
+    qtd_pontos_de_magia int
+    tipo_dano string
+    qtd_dano int
+}
+
+Table Instancia_de_item{
+  id_instancia_item int [primary key]
+}
+
+Table Tipo_item{
+  id_item char [primary key]
+  tipo_item char
+
+}
+
+Table Tipo_monstro{
+  id int [primary key]
+  id_monstro int
+  agressivo boolean
+  fisico boolean
+  psiquico boolean
+  humoide boolean
+  sobrenatural boolean
+}
+
+Ref: NPC.id < Inventario.id
+
+Ref: PersonagemJogavel.id < Missao.id_missao
+Ref: PersonagemJogavel.id < Sanidade.id
+Ref: PersonagemJogavel.id < Pts_de_magia.id
+Ref: PersonagemJogavel.id < Pericia.id
+Ref: PersonagemJogavel.id < Inventario.id
+
+Ref: Templo.id_templo < Andar.numero
+
+Ref: Andar.numero < Sala.id_sala
+
+Ref: Sala.id_sala < Corredor.id_corredor
+
+Ref: Tipo_item.id_item < Cura.id_item
+Ref: Tipo_item.id_item < Magico.id_item
+Ref: Tipo_item.id_item < Armadura.id_item
+Ref: Tipo_item.id_item < Arma.id_item
+
+Ref: Instancia_de_item.id_instancia_item < Tipo_item.id_item
+Ref: Instancia_de_item.id_instancia_item < Sala.id_sala
+
+Ref: Feitico_status.id_feitico < Magico.id_item
+Ref: Feitico_dano.id_feitico < Magico.id_item
+
+Ref: Instancia_de_item.id_instancia_item < Inventario.id
+
+
+
