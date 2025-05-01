@@ -1,3 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://mdsreq-fga-unb.github.io/2025.1-T02-CallOfCthulhu/</loc>
+         <lastmod>2025-05-01</lastmod>
+    </url>
+    <url>
+         <loc>https://mdsreq-fga-unb.github.io/2025.1-T02-CallOfCthulhu/backlog/backlog/</loc>
+         <lastmod>2025-05-01</lastmod>
+    </url>
+    <url>
+         <loc>https://mdsreq-fga-unb.github.io/2025.1-T02-CallOfCthulhu/entregas/MER/</loc>
+         <lastmod>2025-05-01</lastmod>
+    </url>
+    <url>
+         <loc>https://mdsreq-fga-unb.github.io/2025.1-T02-CallOfCthulhu/entregas/entrega-final/</loc>
+         <lastmod>2025-05-01</lastmod>
+    </url>
+    <url>
+         <loc>https://mdsreq-fga-unb.github.io/2025.1-T02-CallOfCthulhu/entregas/entrega1/</loc>
+         <lastmod>2025-05-01</lastmod>
+    </url>
+    <url>
+         <loc>https://mdsreq-fga-unb.github.io/2025.1-T02-CallOfCthulhu/entregas/entrega2/</loc>
+         <lastmod>2025-05-01</lastmod>
+    </url>
+    <url>
+         <loc>https://mdsreq-fga-unb.github.io/2025.1-T02-CallOfCthulhu/entregas/entrega3/</loc>
+         <lastmod>2025-05-01</lastmod>
+    </url>
+    <url>
+         <loc>https://mdsreq-fga-unb.github.io/2025.1-T02-CallOfCthulhu/referencias/referencias/</loc>
+         <lastmod>2025-05-01</lastmod>
+    </url>
 </urlset>
