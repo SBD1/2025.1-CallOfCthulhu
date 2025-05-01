@@ -1,34 +1,46 @@
-name: Continuous Integration for Deployment of MkDocs
+name: Integração Continua e Deploy da Documentação
 on:
   push:
     branches:
-      - main
+      - docs
     paths:
       - 'docs/**'        
       - 'mkdocs.yml'  
+  pull_request:
+    branches:
+      - docs
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+  workflow_dispatch:
+
 permissions:
   contents: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v5
+          
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.x
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v4
-        with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material
-      - run: pip install \
-          mkdocs-material \
-          mkdocs-glightbox \
-      
-      - run: mkdocs gh-deploy --force
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+       
+      - name: Deploy documentation
+        run: |
+          mkdocs gh-deploy --force 

@@ -1,18 +1,11 @@
 site_name: Call of Cthulhu
-site_description: Documentação de desenvolvimento do Projeto Call of Cthulhu da Disciplina Bancos de Dados da Universidade de Brasília
-repo_name: "2025.1-Call_of_Cthulhu"
-repo_url: https://github.com/SBD1/2025.1-CallOfCthulhu
+site_description: Documentação Oficial do Projeto Call of Cthulhu da Disciplina Bancos de Dados da Universidade de Brasília
+site_url: https://mdsreq-fga-unb.github.io/2025.1-T02-CallOfCthulhu
+site_author: Grupo 01 - Engenharia de Requisitos - UnB
+repo_name: CallofCthulhu
+repo_url: https://github.com/mdsreq-fga-unb/2025.1-T02-CallOfCthulhu
+edit_uri: edit/docs/docs/
 
-nav:
-  - Início: index.md
-  - Entregas:
-      - Primeira: entregas/entrega1.md
-      - Segunda: entregas/entrega2.md
-      - Terceira: entregas/entrega3.md
-      - Final: entregas/entrega-final.md
-  - Referências: referencias/referencias.md 
-  - Backlog: backlog/backlog.md
-# Tema
 theme:
   name: material
   language: pt-BR
@@ -26,28 +19,34 @@ theme:
     - navigation.instant
     - navigation.top
     - navigation.tracking
-    
 # Paleta
   palette:
-    - scheme: default
-      primary: teal
-      accent: light green
+    # Modo claro
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: "teal"
+      accent: "brown"
       toggle:
         icon: material/weather-night
-        name: Switch to dark mode
-
-    - scheme: slate
-      primary: teal
-      accent: light green
+        name: Mudar para o tema escuro
+    # Modo escuro
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: "teal"
+      accent: "brown"
       toggle:
         icon: material/weather-sunny
-        name: Switch to light mode
+        name: Mudar para o tema claro
   
 # For image rendering
 markdown_extensions:
   - attr_list
   - md_in_html
   - pymdownx.blocks.caption
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight
 
 plugins:
   - glightbox:
@@ -59,6 +58,16 @@ plugins:
        zoomable: true
        draggable: true
        caption_position: bottom
+
+nav:
+  - Início: index.md
+  - Entregas:
+      - Primeira: entregas/entrega1.md
+      - Segunda: entregas/entrega2.md
+      - Terceira: entregas/entrega3.md
+      - Final: entregas/entrega-final.md
+  - Referências: referencias/referencias.md 
+  - Backlog: backlog/backlog.md
 
 # Extra CSS
 extra_css:
