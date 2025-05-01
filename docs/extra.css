@@ -1,0 +1,25 @@
+/* Deixa imagens com cantos arredondados */
+img {
+  border-radius: 8px;
+}
+
+/* Botões de código mais bonitos */
+.md-typeset .highlight > pre {
+  border-radius: 8px;
+}
+
+/* Deixa tabelas mais suaves */
+.md-typeset table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Fonte do texto um pouco maior */
+body {
+  font-size: 17px;
+}
+
+.md-header__button.md-logo img {
+    width: 50px !important;  /* Ajuste o valor conforme necessário */
+    height: auto !important;
+}

@@ -10,6 +10,8 @@ theme:
   name: material
   language: pt-BR
   custom_dir: overrides
+  logo: assets/logo.png  # Adiciona o logo
+  favicon: assets/favicon.ico  # Adiciona o favicon
   features:
     - content.code.annotate
     - content.tabs.link
@@ -66,3 +68,7 @@ nav:
       - Final: entregas/entrega-final.md
   - Referências: referencias/referencias.md 
   - Backlog: backlog/backlog.md
+
+# Extra CSS
+extra_css:
+  - extra.css  # Arquivo CSS customizado
