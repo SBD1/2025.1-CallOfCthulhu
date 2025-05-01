@@ -34,6 +34,7 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
     - **Sobrenatural**
     - **Humanóide**
 - **InstanciaMonstro**
+- **Batalha**
 
 ### 2. Atributos
 
@@ -96,12 +97,6 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
 **InstanciaMonstro Está em Corredor**
 - Uma InstanciaMonstro está em apenas um Corredor (1,1) e um Corerdor contém nenhuma ou várias InstanciaMonstro (0,N).
 
-**Missao realiza Sala**
-- Uma Missão pode ser realizada em uma Sala e uma Sala pode realizar uma Missão(1, 1).
-
-**Personagemjogavel protagoniza Missão**
-- Um Personagemjogavel protagoniza uma ou várias Missão (1, n) e uma Missão é protagonizada por nenhum ou vários Personagemjogavel (0, n).
-
 **Monstro possui InstanciaMonstro**
 - Um Monstro possui nenhuma ou várias InstanciaMonstro (0, n) e uma InstanciaMonstro possui apenas um Monstro (1,1).
 
@@ -114,6 +109,17 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
 **Missão requer Instancia de Item**
 - Uma Missao requer nenhuma ou várias Instancia de Item (0,N) e uma Instancia de Item é requerida por nenhuma ou várias missões (0,N).
 
+**NPC possui Missao**
+- Um NPC possui uma ou várias missões e uma missão é possuída por apenas um NPC.
+
+**NPC entrega Missao para PersonagemJogavel**
+-Um NPC entrega nenhuma ou várias missões para PersonagemJogavel e PersonagemJogavel recebe missão de nenhum ou vários NPC. 
+
+**PersonagemJogavel enfrenta InstanciaMonstro**
+-Um PersonagemJogavel enfrenta nenhum ou várias InstanciaMonstro e uma InstanciaMonstro enfrenta nenhum ou um PersonagemJogavel.
+
+**Batalha dropa Instancia de Item**
+- Uma Batalha dropa nenhuma ou várias Instancia de Item e uma Instância de Item é dropada por nenhum ou apenas uma batalha.
 
 
 
