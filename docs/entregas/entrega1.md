@@ -45,3 +45,9 @@
   ![personagem](../assets/personagem.png){ width="700" }
   <figcaption>DER personagem</figcaption>
 </figure>
+
+### Total
+<figure markdown="span">
+  ![total](../assets/total.png){ width="700" }
+  <figcaption>DER personagem</figcaption>
+</figure>
