@@ -340,6 +340,22 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 
 
 
+## Entidade: Missao
+### Tabela: missoes
+#### Descrição:  a entidade missoes armazena as missoe disponíveis no jogo, com seu id, nome, descrição, tipo, ordem e npc que a disponibiliza.
+#### Observação: 
+| Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
+| :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
+| id | int | Identificador único da missao| 1 - 5000 | Não | PK | |
+| nome | varchar[100] | Nome da missao | a-z, A,z | Não | |
+| descricao | varchar[500] | Descrição da missao | a-z, A,z | Não | |
+| tipo | int | Codigo tipo da missao | 1 - 100 | Não | |
+| ordem | varchar[100] | Ordem da missao | a-z, A,z | Não | |
+| id_npc | int | Quantidade de Dano do feitiço | 1 - 5000 | Não | FK |
+
+
+
+
 # Tabelas Provindas de Relacionamentos, Especializações e Generalizações
 ### Tabela: tipos_monstro
 #### Descrição:  a tabela tipos_monstro possui o identificador único e o tipo do monstro
