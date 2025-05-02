@@ -12,7 +12,7 @@
 ## Prototipos Iniciais de Cada Conjunto de Entidades de Call of Ctchullu
 ### Monstros
 <figure markdown="span">
-![Monstro](../../assets/monstros.png){ width="700" }
+<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/6e4997cd2c101c50dbf5ebd2e8610175c3ac5d81/docs/assets/monstros.png">
   <figcaption>DER monstros</figcaption>
 </figure>
 
@@ -20,7 +20,7 @@
 
 ### Itens
 <figure markdown="span">
-![Itens](../../assets/itens.png){ width="700" }
+<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/6e4997cd2c101c50dbf5ebd2e8610175c3ac5d81/docs/assets/itens.png">
   <figcaption>DER itens</figcaption>
 </figure>
 
@@ -28,7 +28,7 @@
 
 ### Região
 <figure markdown="span">
-![Mapa](../../assets/mapa.jpeg){ width="700" }
+<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/6e4997cd2c101c50dbf5ebd2e8610175c3ac5d81/docs/assets/mapa.jpeg">
   <figcaption>DER região</figcaption>
 </figure>
 
@@ -36,7 +36,7 @@
 
 ### Missões
 <figure markdown="span">
-![Missão](../../assets/missoes.png){ width="700" }
+<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/6e4997cd2c101c50dbf5ebd2e8610175c3ac5d81/docs/assets/missoes.png">
   <figcaption>DER missões</figcaption>
 </figure>
 
@@ -44,12 +44,12 @@
 
 ### Personagem
 <figure markdown="span">
-![Personagem](../../assets/personagem.png){ width="700" }
+<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/6e4997cd2c101c50dbf5ebd2e8610175c3ac5d81/docs/assets/personagem.png">
   <figcaption>DER personagem</figcaption>
 </figure>
 
 ### Total
 <figure markdown="span">
-![DER](../../assets/DER_Total.png)
+<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/6e4997cd2c101c50dbf5ebd2e8610175c3ac5d81/docs/assets/DER_Total.png">
   <figcaption>DER completo</figcaption>
 </figure>
