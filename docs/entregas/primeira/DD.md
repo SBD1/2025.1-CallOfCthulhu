@@ -51,16 +51,16 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | int | Identificador único do personagem | 1 - 5000 | Não | PK | |
 | nome | varchar[100] | Nome completo do personagem  | a-z, A,z | Não | |
-| pts_de_magia | int | Identificador de magia que o personagem possui | 10 - 100 | Não | FK | Valor base = x |
-| pericia | int | Identificador de perícia que o personagem possui | 1 - 5000 | Não | FK |
-| sanidade | int | Identificador de sanidade mental que o personagem possui | 1 - 5000 | Não | FK |
+| id_pt_de_magia | int | Identificador de magia que o personagem possui | 10 - 100 | Não | FK | Valor base = x |
+| id_pericia | int | Identificador de perícia que o personagem possui | 1 - 5000 | Não | FK |
+| id_sanidade | int | Identificador de sanidade mental que o personagem possui | 1 - 5000 | Não | FK |
 | ocupacao | varchar[100] | Ocupação do personagem na história do jogo | a-z, A,z | Não | |
 | idade | int | Idade do personagem | 1 - 200 | Não | |
 | sexo | char[1] | Sexo do personagem | F, M | Não | |
 | residencia | varchar[200] | Descrição de onde o personagem reside | a-z, A-z, !-/ | Não | |
 | local_nascimento | varchar[100] | Local onde o personagem nasceu | a-z, A-z, !-/ | Não | | 
-| armadura | int | Identificador de qual armadura o personagem equipa | 1 - 5000 | Não | FK |
-| arma | int | Identificador de qual arma o personagem equipa | 1 - 5000 | Não | FK |
+| id_armadura | int | Identificador de qual armadura o personagem equipa | 1 - 5000 | Não | FK |
+| id_arma | int | Identificador de qual arma o personagem equipa | 1 - 5000 | Não | FK |
 | forca | int | Pontos de força que o personagem possui | 1 - 100 | Não |  |
 | destreza | int | Pontos de destreza que o personagem possui | 1 - 100 | Não |  |
 | constituicao | int | Pontos de constituição que o personagem possui | 1 - 100 | Não |  |
@@ -75,7 +75,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | sorte | int | Pontos de sorte que o personagem possui | 1 - 100 | Não |  |
 | inventario | int | Identificador de inventário do personagem | 1 - 5000 | Não | FK |
 | localBoolean | boolean | Verifica onde o personagem está, sendo 1 para sala e 0 para corredor | 1-0 | Não | | 
-| local | int | Local onde o personagem está | 1 - 5000 | Não | FK |
+| id_local | int | Local onde o personagem está | 1 - 5000 | Não | FK |
 
 ## Entidade: Sanidade
 ### Tabela: sanidades
@@ -125,7 +125,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_templo | int | Identificador único do templo | 1 - 5000 | Não | PK | |
+| id | int | Identificador único do templo | 1 - 5000 | Não | PK | |
 | nome | varchar[100] | Nome do templo | a-z, A-z | Não | | | 
 | descricao | varchar[200] | Descrição do templo |  a-z, A-z, !-/ | Não | | | 
 
@@ -137,10 +137,10 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| numero | int | Número do andar | 1 - 50 | Não | PK | |
+| id | int | Número do andar | 1 - 50 | Não | PK | |
 | descricao | varchar[200] | Descrição do andar |  a-z, A-z, !-/ | Não | | | 
 | salaInicial | int | Sala inicial daquele andar | 1 - 5000 | Não | FK | |
-| Templo | int | Templo no qual aquele andar está contido | 1 - 5000 | Não | FK | |
+| id_templo | int | Templo no qual aquele andar está contido | 1 - 5000 | Não | FK | |
 
 ## Entidade: Sala
 ### Tabela: salas
@@ -150,7 +150,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_sala | int | Identificador único da sala | 1 - 5000 | Não | PK | |
+| id | int | Identificador único da sala | 1 - 5000 | Não | PK | |
 | descricao | varchar[200] | Descrição da sala |  a-z, A-z, !-/ | Não | | | 
 
 ## Entidade: Corredor
@@ -161,7 +161,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_corredor | int | Identificador único da sala | 1 - 5000 | Não | PK | |
+| id | int | Identificador único da sala | 1 - 5000 | Não | PK | |
 | status | boolean | Verifica se o corredor pode ser acessado ou não: 0 para inativo e 1 para ativo | Não | | 
 | descricao | varchar[200] | Descrição do corredor |  a-z, A-z, !-/ | Não | | | 
 
@@ -173,19 +173,20 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 #### Observação: essa tabela possui chave estrangeira para as entidades ``Pacífico``, ``Agressivo``, ``Corredor`` e ``Sala``
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| Id_instancia_monstro | int | Identificador único da instância do monstro | 1 - 5000 | Não | PK | |
+| id | int | Identificador único da instância do monstro | 1 - 5000 | Não | PK | |
 | id_monstro | int | Identificador do tipo daquele monstro | 1 - 5000 | Não | FK | |
 | localBoolean | boolean | Verifica onde a instância do monstro está, sendo 1 para sala e 0 para corredor | Não | | 
-| local | int | Identificador do tipo daquele monstro | 1 - 5000 | Não | FK | |
+| id_local | int | Identificador do local daquele monstro | 1 - 5000 | Não | FK | |
+| id_instancia_de_item | int | Identificador do item daquele monstro | 1 - 5000 | Não | FK | |
 
 ## Entidade: Pacifico
 ### Tabela: pacificos
 #### Descrição: a entidade Pacifico armazena informações sobre monstros de comportamento passivo, detalhando suas características físicas. como defesa, vitalidade, o motivo da sua não agressividade e seu nome.
 
-#### Observação: essa entidade possui chave estrangeira para a tabela ``tipos_pacificos``.
+#### Observação: .
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_monstro | int | Identificador único do monstro pacífico | 1 - 5000 | Não | PK e FK | |
+| id | int | Identificador único do monstro pacífico | 1 - 5000 | Não | PK e FK | |
 | nome | varchar[100] | Nome do monstro pacífico | a-z, A,z | Não | |
 | descricao | varchar[100] | Descrição do monstro pacífico | a-z, A,z | Não | |
 | defesa | int | Defesa do monstro pacífico | 1 - 50 | Não | |
@@ -196,10 +197,10 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 ### Tabela: agressivos
 #### Descrição: 
 
-#### Observação: essa entidade possui chave estrangeira para a tabela ``tipos_agressivos``.
+#### Observação: .
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_monstro | int | Identificador único do monstro agressivo | 1 - 5000 | Não | PK e FK | |
+| id | int | Identificador único do monstro agressivo | 1 - 5000 | Não | PK e FK | |
 | nome | varchar[100] | Nome do monstro agressivo | a-z, A,z | Não | |
 | descricao | varchar[100] | Descrição do monstro agressivo | a-z, A,z | Não | |
 | defesa | int | Defesa do monstro agressivo | 1 - 50 | Não | |
@@ -214,7 +215,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 #### Observação: 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_item | int | Identificador único do item | 1 - 5000 | Não |  | |
+| id | int | Identificador único do item | 1 - 5000 | Não |  | |
 | atributo_necessario | varchar[100] | Atributo necessário para que a arma seja utilizada | a-z, A,z | Não | |
 | qtd_atributo_necessario | int | Quantidade de atributos necessário para que a arma seja utilizada pelo personagem | 1 - 50 | Não | |
 | durabilidade | int | Durabilidade da arma | 1 - 100 | Não | |
@@ -231,7 +232,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 #### Observação: 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_item | int | Identificador único da amardura | 1 - 5000 | Não |  | |
+| id | int | Identificador único da amardura | 1 - 5000 | Não |  | |
 | atributo_necessario | varchar[100] | Atributo necessário para que a armadura seja utilizada | a-z, A,z | Não | |
 | qtd_atributo_necessario | int | Quantidade de atributos necessário para que a armadura seja utilizada pelo personagem | 1 - 50 | Não | |
 | durabilidade | int | Durabilidade da armadura | 1 - 100 | Não | |
@@ -261,7 +262,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 #### Observação: 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_item | int | Identificador único do item de cura | 1 - 5000 | Não | PK e FK | |
+| id | int | Identificador único do item de cura | 1 - 5000 | Não | PK e FK | |
 | funcao | varchar[100] | Função do item de cura | a-z, A,z | Não | |
 | qtd_usos | int | Quantidade de usos desse item de cura | 1 - 10 | Não | |
 | qtd_pontos_sanidade_recupera | int | Quantidade de pontos de sanidade que esse item recupera | 1 - 100 | Não | |
@@ -274,24 +275,21 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 #### Observação: essa entidade possui chave estrangeira para as entidades ``Item``, ``Sala``, ``Batalha`` e as tabelas ``inventario_possui_instancia_item``.
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_instancia_item | int | Identificador único da instância de item | 1 - 5000 | Não | PK | |
+| id | int | Identificador único da instância de item | 1 - 5000 | Não | PK | |
 | id_item | int | Identificador único do item | 1 - 5000 | Não | FK | |
 | durabilidade | int | Durabilidade da de item | 1 - 100 | Não | |
-| sala | int | Sala no qual esse item está | 1 - 100 | Não |  |
-| missao_requer | int | Item necessário para poder realizar uma missão | 1 - 100 | Não | FK |
-| missao_recompensa | int | Recompensa que uma missão da para o personagem ao ser concluída | 1 - 100 | Não | FK |
-| batalha_jogador | int | Identificador de jogador na batalha | 1 - 100 | Não | FK |
-| batalha_monstro | int | Identificador de monstro na batalha | 1 - 100 | Não | FK |
-
+| id_sala | int | Sala no qual esse item está | 1 - 100 | Não |  |
+| id_missao_requer | int | Item necessário para poder realizar uma missão | 1 - 100 | Não | FK |
+| id_missao_recompensa | int | Recompensa que uma missão da para o personagem ao ser concluída | 1 - 100 | Não | FK |
 
 ## Entidade: Magico
-### Tabela: magico
+### Tabela: magicos
 #### Descrição: a entidade mágico armazena informações sobre itens mágicos que podem ser utilizados por personagens, incluindo seu identificador único, função principal, quantidade de usos disponíveis e o custo em pontos de sanidade para cada utilização. 
 
-#### Observação: essa entidade é chave estrangeira para a tabela ``tipo_feitico``
+#### Observação: essa entidade possui chave estrangeira para a tabela ``tipo_feitico``
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_item | int | Identificador único do item de mágico | 1 - 5000 | Não | PK | |
+| id | int | Identificador único do item de mágico | 1 - 5000 | Não | PK | |
 | id_feitico | int | Identificador único do feitiço mágico | 1 - 5000 | Não | PK e FK | |
 | funcao | varchar[100] | Função do item mágico | a-z, A,z | Não | |
 | qtd_usos | int | Quantidade de usos desse item mágico | 1 - 10 | Não | |
@@ -305,7 +303,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 #### Observação: essa entidade é chave estrangeira para ``Tipo_feitiço``
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_feitico | int | Identificador único do feitiço que afeta status | 1 - 5000 | Não | PK | |
+| id | int | Identificador único do feitiço que afeta status | 1 - 5000 | Não | PK | |
 | nome | varchar[100] | Nome do feitiço status | a-z, A,z | Não | |
 | descricao | varchar[100] | Descrição do feitiço status | a-z, A,z | Não | |
 | qtd_pontos_de_magia | int | Quantidade de pontos de magia | 1 - 5000 | Não | |
@@ -322,7 +320,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 #### Observação: 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_feitico | int | Identificador único do feitiço que afeta status | 1 - 5000 | Não | PK | |
+| id | int | Identificador único do feitiço que afeta status | 1 - 5000 | Não | PK | |
 | nome | varchar[100] | Nome do feitiço dano | a-z, A,z | Não | |
 | descricao | varchar[100] | Descrição do feitiço dano | a-z, A,z | Não | |
 | qtd_pontos_de_magia | int | Quantidade de pontos de magia do feitiço | 1 - 100 | Não | |

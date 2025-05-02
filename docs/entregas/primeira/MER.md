@@ -57,10 +57,10 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
   - **Arma**: <ins>id</ins>, atributo_necessário, durabilidade, perícia_necessária, função, alcance, tipo_munição, tipo_dano, dano  
 - **Instância de Item**: <ins>id</ins>, id_item, durabilidade, id_sala, missao_requer, missao_recompensa, batalha_jogador, batalha_monstro  
 - **Feitiço**  
-  - **Status**: <ins>id</ins>, nome, descrição, qtd_pontos_de_magia, qtd_buff_debuff, status_afetado  
+  - **Status**: <ins>id</ins>, nome, descrição, qtd_pontos_de_magia, qtd_buff_debuff, status_afetado, buff_ou_debuff
   - **Dano**: <ins>id</ins>, nome, descrição, qtd_pontos_de_magia, tipo_dano, qtd_dano  
 - **Templo**: <ins>id</ins>, nome, descrição  
-- **Andar**: <ins>id</ins>, descrição, sala_inicial, templo_id  
+- **Andar**: <ins>id</ins>, descrição, id_sala_inicial, templo_id  
 - **Sala**: <ins>id</ins>, descrição  
 - **Corredor**: <ins>id</ins>, status, descrição  
 - **NPC**: <ins>id</ins>, nome, ocupação, idade, sexo, residência, local_nascimento, script_dialogo, localBoolean, id_local  
@@ -73,8 +73,8 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
 - **Monstro**: <ins>id_monstro</ins>, tipo  
 - **Agressivo**: <ins>id</ins>, nome, descrição, defesa, vida, catalisador_agressividade, poder, fisico, psiquico, magico, velocidade_ataque, loucura_induzida, ponto_magia, id_feitiço  
 - **Pacífico**: <ins>id</ins>, nome, descrição, defesa, vida, motivo_passividade, humanidade, sobrenatural, conhecimento_geografico, conhecimento_proibido  
-- **InstanciaMonstro**: <ins>id</ins>, id_monstro, localBoolean, local  
-- **Batalha**: <ins>jogador</ins>, <ins>monstro</ins>
+- **InstanciaMonstro**: <ins>id</ins>, id_monstro, localBoolean, id_local  
+- **Batalha**: <ins>id_jogador</ins>, <ins>id_monstro</ins>
 
 ### 3. Relacionamentos
 
@@ -156,8 +156,8 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
 **PersonagemJogavel enfrenta InstanciaMonstro**
 -Um PersonagemJogavel enfrenta nenhum ou várias InstanciaMonstro e uma InstanciaMonstro enfrenta nenhum ou um PersonagemJogavel.
 
-**Batalha dropa Instancia de Item**
-- Uma Batalha dropa nenhuma ou várias Instancia de Item e uma Instância de Item é dropada por nenhum ou apenas uma batalha.
+**InstanciaMonstro possui Instancia de Item**
+- Uma InstanciaMonstro possui nenhuma ou várias Instancia de Item e uma Instância de Item é possuida por nenhum ou apenas uma InstanciaMonstro.
 
 
 
