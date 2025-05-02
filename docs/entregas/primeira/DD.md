@@ -3,7 +3,8 @@
 | Versão |    Data    | Descrição               | Autor                                                                                                                 |
 | :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `1.0`  | 01/05/25 | Criação do documento DD | [Christopher Paraizo](https://github.com/wChrstphr)                                                                  |
-| `1.1`  | 02/05/25 | Populando o DD | [Christopher Paraizo](https://github.com/wChrstphr)                                                                  |
+| `1.1`  | 02/05/25 | Populando o DD | [Christopher Paraizo](https://github.com/wChrstphr)   |
+| `1.2`  | 02/05/25 | Populando o DD - Entidades | [Christopher Paraizo](https://github.com/wChrstphr)      |                                                            |
 
 # DD - Dicionário de Dados
 
