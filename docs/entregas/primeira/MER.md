@@ -48,6 +48,34 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
 
 ### 2. Atributos
 
+- **Item**: <ins>id</ins>, tipo, nome, descrição, valor  
+- **Consumível**  
+  - **Cura**: <ins>id</ins>, função, qts_usos, qtd_pontos_sanidade_recupera, qtd_pontos_vida_recupera  
+  - **Mágico**: <ins>id</ins>, id_feitiço, função, qts_usos, custo_sanidade  
+- **Equipável**  
+  - **Armadura**: <ins>id_item</ins>, atributo_necessário, durabilidade, perícia_necessária, função, qtd_atributo_recebe, tipo_atributo_recebe, qtd_dano_mitigado  
+  - **Arma**: <ins>id</ins>, atributo_necessário, durabilidade, perícia_necessária, função, alcance, tipo_munição, tipo_dano, dano  
+- **Instância de Item**: <ins>id</ins>, id_item, durabilidade, id_sala, missao_requer, missao_recompensa, batalha_jogador, batalha_monstro  
+- **Feitiço**  
+  - **Status**: <ins>id</ins>, nome, descrição, qtd_pontos_de_magia, qtd_buff_debuff, status_afetado  
+  - **Dano**: <ins>id</ins>, nome, descrição, qtd_pontos_de_magia, tipo_dano, qtd_dano  
+- **Templo**: <ins>id</ins>, nome, descrição  
+- **Andar**: <ins>id</ins>, descrição, sala_inicial, templo_id  
+- **Sala**: <ins>id</ins>, descrição  
+- **Corredor**: <ins>id</ins>, status, descrição  
+- **NPC**: <ins>id</ins>, nome, ocupação, idade, sexo, residência, local_nascimento, script_dialogo, localBoolean, id_local  
+- **PersonagemJogavel**: <ins>id</ins>, nome, id_pt_de_magia, id_pericia, id_sanidade, ocupação, idade, sexo, residência, local_nascimento, id_armadura, id_arma, força, destreza, constituição, tamanho, aparência, inteligência, poder, educação, ideia, conhecimento, movimento, sorte, id_inventario, localBoolean, id_local  
+- **Inventário**: <ins>id</ins>, tamanho  
+- **Sanidade**: <ins>id</ins>, sanidade_maxima, sanidade_atual, insanidade_temporaria, insanidade_indefinida  
+- **Pontos de Magia**: <ins>id</ins>, valor_base, PM_max  
+- **Perícia**: <ins>id</ins>, valor, eh_de_ocupacao  
+- **Missão**: <ins>id</ins>, nome, descrição, tipo, ordem, id_npc  
+- **Monstro**: <ins>id_monstro</ins>, tipo  
+- **Agressivo**: <ins>id</ins>, nome, descrição, defesa, vida, catalisador_agressividade, poder, fisico, psiquico, magico, velocidade_ataque, loucura_induzida, ponto_magia, id_feitiço  
+- **Pacífico**: <ins>id</ins>, nome, descrição, defesa, vida, motivo_passividade, humanidade, sobrenatural, conhecimento_geografico, conhecimento_proibido  
+- **InstanciaMonstro**: <ins>id</ins>, id_monstro, localBoolean, local  
+- **Batalha**: <ins>jogador</ins>, <ins>monstro</ins>
+
 ### 3. Relacionamentos
 
 **Item possui Instância de Item**
