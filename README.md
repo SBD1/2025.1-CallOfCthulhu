@@ -10,12 +10,12 @@ Repositório do grupo 1 de Banco de Dados 1 para desenvolvimento do jogo inspira
 Com base no universo criado por HP Lovecraft, Call of Cthulhu busca contar a história de um personagem principal que enfrenta criaturas sobrenaturais enquanto soluciona missões de outros personagens. O jogo foi modelado com base em um RPG, assim os personagens, montros e itens possuem caracteristicas semelhantes as presentes nos livros de mestre.
 
 ## Entregas
-![alt text](image.png)
 ### Entrega 1
 
-- [Diagrama entidade relacionamento](./docs/entregas/modelos/DER_Total.brM3)
-- [Modelo entidade relacionamento](./docs/entregas/MER.md)
-- [Dicionário de Dados]()
+- [Diagrama entidade relacionamento](./docs/entregas/primeira/DER.md)
+- [Modelo entidade relacionamento](./docs/entregas/primeira/MER.md)
+- [Modelo lógico](./docs/entregas/primeira/ML.md)
+- [Dicionário de Dados](./docs/entregas/primeira/DD.md)
 
 ## Integrantes
 
