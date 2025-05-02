@@ -5,11 +5,12 @@
 | Versão |    Data    | Descrição               | Autor                                                                                                                 |
 | :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `0.1`  | 02/05/25 |  Adicinando a figura e link do modelo lógico  |        Equipe                |
+| `0.2`  | 02/05/25 | Atualizando as imagens | [João Marcos](https://github.com/JJOAOMARCOS) |
 
 ## Modelo Lógico
 
 <figure markdown="span">
-  <img src="../../assets/ML.png">
+![](../../assets/ML.png)
   <figcaption>Modelo Lógico</figcaption>
 </figure>
 

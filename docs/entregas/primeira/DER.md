@@ -6,12 +6,13 @@
 | :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `0.1`  | 02/05/25 |  Atualizando imagem do DER total  |        Equipe                |
 | `0.2`  | 02/05/25 | Atualizando as imagens do documento | [Luiz Guilherme](https://github.com/luizfaria1989) |
+| `0.3`  | 02/05/25 | Atualizando as imagens | [João Marcos](https://github.com/JJOAOMARCOS) |
 
 
 ## Prototipos Iniciais de Cada Conjunto de Entidades de Call of Ctchullu
 ### Monstros
 <figure markdown="span">
-  <img src="../../assets/monstros.png">
+![Monstro](../../assets/monstros.png){ width="700" }
   <figcaption>DER monstros</figcaption>
 </figure>
 
@@ -19,7 +20,7 @@
 
 ### Itens
 <figure markdown="span">
-  <img src="../../assets/itens.png">
+![Itens](../../assets/itens.png){ width="700" }
   <figcaption>DER itens</figcaption>
 </figure>
 
@@ -27,7 +28,7 @@
 
 ### Região
 <figure markdown="span">
-  <img src="../../assets/mapa.jpeg">
+![Mapa](../../assets/mapa.jpeg){ width="700" }
   <figcaption>DER região</figcaption>
 </figure>
 
@@ -35,7 +36,7 @@
 
 ### Missões
 <figure markdown="span">
-  <img src="../../assets/missoes.png">
+![Missão](../../assets/missoes.png){ width="700" }
   <figcaption>DER missões</figcaption>
 </figure>
 
@@ -43,13 +44,12 @@
 
 ### Personagem
 <figure markdown="span">
-  <img src="../../assets/personagem.png">
-  ![personagem](../assets/personagem.png){ width="700" }
+![Personagem](../../assets/personagem.png){ width="700" }
   <figcaption>DER personagem</figcaption>
 </figure>
 
 ### Total
 <figure markdown="span">
-  <img src="../../assets/DER_Total.png">
+![DER](../../assets/DER_Total.png)
   <figcaption>DER completo</figcaption>
 </figure>
