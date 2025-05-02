@@ -51,3 +51,9 @@
   ![total](../assets/DER_Total.png){ width="700" }
   <figcaption>DER completo</figcaption>
 </figure>
+
+### Modelo Lógico
+<figure markdown="span">
+  ![total](../assets/ML.png){ width="700" }
+  <figcaption>Modelo Lógico</figcaption>
+</figure>
