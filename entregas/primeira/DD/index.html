@@ -1441,6 +1441,54 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#entidade-missao" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entidade: Missao
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Entidade: Missao">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tabela-missoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tabela: missoes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tabela: missoes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#descricao-a-entidade-missoes-armazena-as-missoe-disponiveis-no-jogo-com-seu-id-nome-descricao-tipo-ordem-e-npc-que-a-disponibiliza" class="md-nav__link">
+    <span class="md-ellipsis">
+      Descrição: a entidade missoes armazena as missoe disponíveis no jogo, com seu id, nome, descrição, tipo, ordem e npc que a disponibiliza.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observacao_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      Observação:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3206,6 +3254,54 @@
         
           <li class="md-nav__item">
   <a href="#observacao_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Observação:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#entidade-missao" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entidade: Missao
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Entidade: Missao">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tabela-missoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tabela: missoes
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tabela: missoes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#descricao-a-entidade-missoes-armazena-as-missoe-disponiveis-no-jogo-com-seu-id-nome-descricao-tipo-ordem-e-npc-que-a-disponibiliza" class="md-nav__link">
+    <span class="md-ellipsis">
+      Descrição: a entidade missoes armazena as missoe disponíveis no jogo, com seu id, nome, descrição, tipo, ordem e npc que a disponibiliza.
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observacao_13" class="md-nav__link">
     <span class="md-ellipsis">
       Observação:
     </span>
@@ -5125,6 +5221,79 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 <td style="text-align: center;">1 - 25</td>
 <td style="text-align: center;">Não</td>
 <td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="entidade-missao">Entidade: Missao</h2>
+<h3 id="tabela-missoes">Tabela: missoes</h3>
+<h4 id="descricao-a-entidade-missoes-armazena-as-missoe-disponiveis-no-jogo-com-seu-id-nome-descricao-tipo-ordem-e-npc-que-a-disponibiliza">Descrição:  a entidade missoes armazena as missoe disponíveis no jogo, com seu id, nome, descrição, tipo, ordem e npc que a disponibiliza.</h4>
+<h4 id="observacao_13">Observação:</h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Nome Variável</th>
+<th style="text-align: center;">Tipo</th>
+<th style="text-align: center;">Descrição</th>
+<th style="text-align: center;">Valores permitidos</th>
+<th style="text-align: center;">Permite valores nulos?</th>
+<th style="text-align: center;">É chave?</th>
+<th style="text-align: center;">Observações</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">id</td>
+<td style="text-align: center;">int</td>
+<td style="text-align: center;">Identificador único da missao</td>
+<td style="text-align: center;">1 - 5000</td>
+<td style="text-align: center;">Não</td>
+<td style="text-align: center;">PK</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: center;">nome</td>
+<td style="text-align: center;">varchar[100]</td>
+<td style="text-align: center;">Nome da missao</td>
+<td style="text-align: center;">a-z, A,z</td>
+<td style="text-align: center;">Não</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: center;">descricao</td>
+<td style="text-align: center;">varchar[500]</td>
+<td style="text-align: center;">Descrição da missao</td>
+<td style="text-align: center;">a-z, A,z</td>
+<td style="text-align: center;">Não</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: center;">tipo</td>
+<td style="text-align: center;">int</td>
+<td style="text-align: center;">Codigo tipo da missao</td>
+<td style="text-align: center;">1 - 100</td>
+<td style="text-align: center;">Não</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: center;">ordem</td>
+<td style="text-align: center;">varchar[100]</td>
+<td style="text-align: center;">Ordem da missao</td>
+<td style="text-align: center;">a-z, A,z</td>
+<td style="text-align: center;">Não</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td style="text-align: center;">id_npc</td>
+<td style="text-align: center;">int</td>
+<td style="text-align: center;">Quantidade de Dano do feitiço</td>
+<td style="text-align: center;">1 - 5000</td>
+<td style="text-align: center;">Não</td>
+<td style="text-align: center;">FK</td>
 <td style="text-align: center;"></td>
 </tr>
 </tbody>
