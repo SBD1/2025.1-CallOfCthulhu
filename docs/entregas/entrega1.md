@@ -4,7 +4,7 @@
 
 | Versão |    Data    | Descrição               | Autor                                                                                                                 |
 | :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `0.1`  |  |  |                                                                     |
+| `0.1`  | 02/05/25 |  Atualizando imagem do DER total  |        Equipe                |
 
 
 ## Prototipos Iniciais de Cada Conjunto de Entidades de Call of Ctchullu
