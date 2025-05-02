@@ -61,11 +61,26 @@ plugins:
 
 nav:
   - Início: index.md
-  - Entregas:
-      - Primeira: entregas/entrega1.md
-      - Segunda: entregas/entrega2.md
-      - Terceira: entregas/entrega3.md
-      - Final: entregas/entrega-final.md
+  - Entregas 1:
+      - DER: entregas/primeira/DER.md
+      - MER: entregas/primeira/MER.md
+      - ML: entregas/primeira/ML.md
+      - DD: entregas/primeira/DD.md
+  - Entregas 2:
+      - DER: entregas/segunda/DER.md
+      - MER: entregas/segunda/MER.md
+      - ML: entregas/segunda/ML.md
+      - DD: entregas/segunda/DD.md
+  - Entregas 3:
+      - DER: entregas/terceira/DER.md
+      - MER: entregas/terceira/MER.md
+      - ML: entregas/terceira/ML.md
+      - DD: entregas/terceira/DD.md
+  - Entregas Final:
+      - DER: entregas/final/DER.md
+      - MER: entregas/final/MER.md
+      - ML: entregas/final/ML.md
+      - DD: entregas/final/DD.md
   - Referências: referencias/referencias.md 
   - Backlog: backlog/backlog.md
 
