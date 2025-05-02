@@ -7,7 +7,7 @@
 ## Modelo Lógico
 
 <figure markdown="span">
-  <img src="../../assets/ML.png">
+<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/be9f41704cd1620aa79b8a48786f9ec49bf6923c/docs/assets/ML.png">
   <figcaption>Modelo Lógico</figcaption>
 </figure>
 
