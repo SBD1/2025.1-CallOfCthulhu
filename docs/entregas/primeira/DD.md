@@ -4,7 +4,8 @@
 | :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `1.0`  | 01/05/25 | Criação do documento DD | [Christopher Paraizo](https://github.com/wChrstphr)                                                                  |
 | `1.1`  | 02/05/25 | Populando o DD | [Christopher Paraizo](https://github.com/wChrstphr)   |
-| `1.2`  | 02/05/25 | Populando o DD - Entidades | [Christopher Paraizo](https://github.com/wChrstphr)      |                                                            |
+| `1.2`  | 02/05/25 | Populando o DD com as tabelas de entidades | [Christopher Paraizo](https://github.com/wChrstphr) e [João Marcos](https://github.com/JJOAOMARCOSS)   |
+| `1.3`  | 02/05/25 | Populando o DD com as tabelas provindas de relacionamentos, generalizações e especializações | [Christopher Paraizo](https://github.com/wChrstphr)      |                                                            |
 
 # DD - Dicionário de Dados
 
@@ -19,7 +20,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 > - Descrição detalhada da finalidade e conteúdo da variável;
 > - Outras informações relevantes, como unidades de medida, formatos ou regras de coleta.
 
-# Tabelas provindas de Entidades
+# Tabelas Provindas de Entidades
 ## Entidade: NPC
 ### Tabela: npcs
 #### Descrição: A entidade NPC (Non-Player-Character) guarda as informações sobre seu identificador único, informações pessoais como nome, ocupação, idade, sexo, residência, local de nascimento e script de diálogo além do local em que está.
@@ -40,7 +41,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | id_local | int | Local onde o NPC está | 1 - 5000 | Não | FK |
 
 
-## Entidade: PersonagemJogavel
+## Entidade: Personagem Jogável
 ### Tabela: personagens_jogaveis
 
 #### Descrição: A entidade Personagem Jogável armazena informações sobre o identificador único, dados pessoais (nome, ocupação, idade, sexo, residência, local de nascimento), atributos de status (força, destreza, magia, inteligência, sorte, entre outros), equipamentos (arma, armadura), inventário e localização atual do personagem controlado pelo jogador. Inclui também características físicas e habilidades específicas, como tamanho, aparência, educação e conhecimento, essenciais para interações e mecânicas de jogo.
@@ -91,8 +92,20 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | insanidade_temporaria | boolean | Insaidade temporária produzida por algum evento externo | 1-0 | Não | |
 | insanidade_indefinida | boolean | Insanidade sem tempo determinado e que só terminará após uma ação específica | 1-0 | Não | | 
 
-## Entidade: Pericia
+## Entidade: Perícia
 ### Tabela: pericias
+#### Descrição: a entidade pontos de pericia possui identificar único, valor da perícia e se é de ocupação do personagem.
+
+#### Observação: 
+
+| Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
+| :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
+| id | int | Identificador único dos pontos de perícia do personagem | 1 - 5000 | Não | PK | |
+| valor | int | Valor da perícia do personagem | 10 - 100 | Não | | Valor padrão = 10 | 
+| de_ocupacao | boolean | A perícia é de ocupação do personagem ou não?  | 1-0 | Não | 0 para sim e 1 para não | 
+
+## Entidade: Pontos de Magia
+### Tabela: pts_de_magia
 #### Descrição: a entidade pontos de magia gerencia os recursos mágicos de um personagem, registrando seu identificador único, valor base de pontos de magia e o máximo possível de PM (Pontos de Magia). 
 
 #### Observação: 
@@ -101,8 +114,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | int | Identificador único dos pontos de perícia do personagem | 1 - 5000 | Não | PK | |
 | valor_base | int | Valor base dos pontos de magia do personagem | 10 - 100 | Não | | Valor padrão = 10 | 
-| valor | int | Valor da perícia do personagem | 10 - 100 | Não | | Valor padrão = 10 | 
-| de_ocupacao | boolean | A perícia é de ocupação do personagem ou não?  | 1-0 | Não | 0 para sim e 1 para não | 
+| PM_max | int | Valor máximo de pontos de magia do personagem | 10 - 100 | Não | |  | 
 
 ## Entidade: Inventario
 ### Tabela: inventarios
@@ -166,7 +178,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | descricao | varchar[200] | Descrição do corredor |  a-z, A-z, !-/ | Não | | | 
 
 
-## Entidade: InstanciaMonstro
+## Entidade: Instancia de Monstro
 ### intancias_monstros
 #### Descrição: a entidade InstanciaMonstro registra as instâncias específicas de monstros presentes no sistema. Armazena o identificador único da instância, a referência ao monstro base, e informações sobre sua localização.
 
@@ -268,7 +280,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | qtd_pontos_sanidade_recupera | int | Quantidade de pontos de sanidade que esse item recupera | 1 - 100 | Não | |
 | qtd_pontos_vida_recupera | int | Quantidade de pontos de vida que esse item recupera | 1 - 100 | Não | |
 
-## Entidade: Instancia_de_item
+## Entidade: Instância de Item
 ### Tabela: instancias_de_itens
 #### Descrição: a entidade Instância de item registra as ocorrências específicas de itens no jogo, contendo identificador único, referência ao item original, durabilidade, sala em que está, missões a qual está associado e batalhas .
 
@@ -282,7 +294,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | id_missao_requer | int | Item necessário para poder realizar uma missão | 1 - 100 | Não | FK |
 | id_missao_recompensa | int | Recompensa que uma missão da para o personagem ao ser concluída | 1 - 100 | Não | FK |
 
-## Entidade: Magico
+## Entidade: Mágico
 ### Tabela: magicos
 #### Descrição: a entidade mágico armazena informações sobre itens mágicos que podem ser utilizados por personagens, incluindo seu identificador único, função principal, quantidade de usos disponíveis e o custo em pontos de sanidade para cada utilização. 
 
@@ -296,7 +308,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | custo_sanidade | int | Quantidade de pontos de sanidade que esse item mágico custa ao personagem por utilizá-lo | 1 - 100 | Não | |
 
 
-## Entidade: Feitico_status
+## Entidade: Feitiço Status
 ### Tabela: feiticos_status
 #### Descrição:  a entidade Feitico_status armazena informações sobre feitiços que afetam o status de personagens, incluindo seu identificador único, nome, descrição, quantidade de pontos de magia consumidos, tipo e intensidade do efeito (buff ou debuff) e o status afetado. Além disso, está vinculada à entidade Tipo_feitiço por meio de chave estrangeira.
 
@@ -312,8 +324,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | status_afetado | varchar[100] | Status que sera afetado | a-z, A,z | Não | |
 
 
-
-## Entidade: Feitico_dano
+## Entidade: Feitiço Dano
 ### Tabela: feiticos_dano
 #### Descrição:  a entidade Feitico_dano armazena informações sobre feitiços que causam dano direto, incluindo seu identificador único, nome, descrição, quantidade de pontos de magia consumidos, tipo de dano causado e a quantidade de dano gerado. Além disso, está vinculada à entidade Tipo_feitiço por meio de chave estrangeira.
 
@@ -326,6 +337,70 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | qtd_pontos_de_magia | int | Quantidade de pontos de magia do feitiço | 1 - 100 | Não | |
 | tipo_dano | varchar[100] | Tipo de dano do feitiço | a-z, A,z | Não | |
 | qtd_dano | int | Quantidade de Dano do feitiço | 1 - 25 | Não | |
+
+
+
+# Tabelas Provindas de Relacionamentos, Especializações e Generalizações
+### Tabela: tipos_monstro
+#### Descrição:  a tabela tipos_monstro possui o identificador único e o tipo do monstro
+#### Observação: essa tabela possui chave estrangeira para as tabelas ``agressivos`` e ``pacificos``
+| Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
+| :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
+| id_monstro | int | Identificador único do feitiço que afeta status | 1 - 5000 | Não | PK e FK | |
+| tipo | varchar[100] | Tipo do monstro | a-z, A,z | Não | |
+
+### Tabela: batalhas
+#### Descrição:  a tabela batalhas possui identificadores do jogador e do monstro envolvidos na batalha.
+#### Observação: essa tabela possui chave estrangeira para as tabelas ``instancias_monstro`` e ``personagens_jogaveis``
+| Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
+| :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
+| id_jogador | int | Identificador único do jogador envolvido na batalha | 1 - 5000 | Não | PK e FK | |
+| id_monstro | int | Identificador único do monstro envolvido na batalha | 1 - 5000 | Não | PK e FK | |
+
+### Tabela: corredores_sala_destino
+#### Descrição:  a tabela corredores_sala_destino possui identificadores únicos de sala e corredor na transição entre salas.
+#### Observação: essa tabela possui chave estrangeira para as tabelas ``salas`` e ``corredores``
+| Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
+| :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
+| id_sala | int | Identificador único da sala destino ou origem | 1 - 5000 | Não | PK e FK | |
+| id_corredor | int | Identificador único do corredor destino ou origem | 1 - 5000 | Não | PK e FK | |
+
+### Tabela: tipos_personagem
+#### Descrição:  a tabela tipos_personagem armazena informações para identificação única do personagem, assim como seu tipo.
+#### Observação: essa tabela possui chave estrangeira para as tabelas ``personagens_jogaveis`` e ``npcs``.
+| Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
+| :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
+| id_personagem | int | Identificador único do personagem | 1 - 5000 | Não | PK e FK | |
+| tipo | varchar[100] | Tipo do personagem | a-z, A-Z | Não | | |
+
+### Tabela: inventarios_possuem_instancias_item
+#### Descrição:  a tabela inventarios_possuem_instancias_item armazena os identificadores únicos de instância de item e de inventário.
+#### Observação: essa tabela possui chave estrangeira para as tabelas ``inventarios`` e ``instancias_de_item``.
+| Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
+| :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
+| id_instancias_de_item | int | Identificador único da instancia de item | 1 - 5000 | Não | PK e FK | |
+| id_invetario | int | Identificador único do inventário | 1 - 5000  | Não | PK e FK | |
+
+### Tabela: entrega_missoes
+#### Descrição:  a tabela entrega_missoes armazena os identificadores únicos de jogador e de npc, na interação de entre de missões.
+#### Observação: essa tabela possui chave estrangeira para as tabelas ``personagens_jogaveis`` e ``npcs``.
+| Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
+| :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
+| id_jogador | int | Identificador único do jogador | 1 - 5000 | Não | PK e FK | |
+| id_npc | int | Identificador único do NPC | 1 - 5000  | Não | PK e FK | |
+
+### Tabela: tipos_feitico
+#### Descrição:  a tabela tipos_feitico armazena o identificador único e o tipo do feitiço.
+#### Observação: essa tabela possui chave estrangeira para as tabelas ``feiticos_dano`` e ``feiticos_status``.
+| Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
+| :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
+| id | int | Identificador único do feitiço | 1 - 5000 | Não | PK e FK | |
+| tipo | varchar[100] | Tipo do feitiço | a-z, A-Z | Não | | |
+
+
+
+
+
 
 
 
