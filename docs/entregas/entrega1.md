@@ -48,6 +48,6 @@
 
 ### Total
 <figure markdown="span">
-  ![total](../assets/DER_total.png){ width="700" }
+  ![total](../assets/DER_Total.png){ width="700" }
   <figcaption>DER completo</figcaption>
 </figure>
