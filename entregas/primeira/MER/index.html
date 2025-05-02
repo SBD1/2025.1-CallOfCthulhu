@@ -1100,6 +1100,35 @@
 <li><strong>Batalha</strong></li>
 </ul>
 <h3 id="2-atributos">2. Atributos</h3>
+<ul>
+<li><strong>Item</strong>: <ins>id</ins>, tipo, nome, descrição, valor  </li>
+<li><strong>Consumível</strong>  </li>
+<li><strong>Cura</strong>: <ins>id</ins>, função, qts_usos, qtd_pontos_sanidade_recupera, qtd_pontos_vida_recupera  </li>
+<li><strong>Mágico</strong>: <ins>id</ins>, id_feitiço, função, qts_usos, custo_sanidade  </li>
+<li><strong>Equipável</strong>  </li>
+<li><strong>Armadura</strong>: <ins>id_item</ins>, atributo_necessário, durabilidade, perícia_necessária, função, qtd_atributo_recebe, tipo_atributo_recebe, qtd_dano_mitigado  </li>
+<li><strong>Arma</strong>: <ins>id</ins>, atributo_necessário, durabilidade, perícia_necessária, função, alcance, tipo_munição, tipo_dano, dano  </li>
+<li><strong>Instância de Item</strong>: <ins>id</ins>, id_item, durabilidade, id_sala, missao_requer, missao_recompensa, batalha_jogador, batalha_monstro  </li>
+<li><strong>Feitiço</strong>  </li>
+<li><strong>Status</strong>: <ins>id</ins>, nome, descrição, qtd_pontos_de_magia, qtd_buff_debuff, status_afetado  </li>
+<li><strong>Dano</strong>: <ins>id</ins>, nome, descrição, qtd_pontos_de_magia, tipo_dano, qtd_dano  </li>
+<li><strong>Templo</strong>: <ins>id</ins>, nome, descrição  </li>
+<li><strong>Andar</strong>: <ins>id</ins>, descrição, sala_inicial, templo_id  </li>
+<li><strong>Sala</strong>: <ins>id</ins>, descrição  </li>
+<li><strong>Corredor</strong>: <ins>id</ins>, status, descrição  </li>
+<li><strong>NPC</strong>: <ins>id</ins>, nome, ocupação, idade, sexo, residência, local_nascimento, script_dialogo, localBoolean, id_local  </li>
+<li><strong>PersonagemJogavel</strong>: <ins>id</ins>, nome, id_pt_de_magia, id_pericia, id_sanidade, ocupação, idade, sexo, residência, local_nascimento, id_armadura, id_arma, força, destreza, constituição, tamanho, aparência, inteligência, poder, educação, ideia, conhecimento, movimento, sorte, id_inventario, localBoolean, id_local  </li>
+<li><strong>Inventário</strong>: <ins>id</ins>, tamanho  </li>
+<li><strong>Sanidade</strong>: <ins>id</ins>, sanidade_maxima, sanidade_atual, insanidade_temporaria, insanidade_indefinida  </li>
+<li><strong>Pontos de Magia</strong>: <ins>id</ins>, valor_base, PM_max  </li>
+<li><strong>Perícia</strong>: <ins>id</ins>, valor, eh_de_ocupacao  </li>
+<li><strong>Missão</strong>: <ins>id</ins>, nome, descrição, tipo, ordem, id_npc  </li>
+<li><strong>Monstro</strong>: <ins>id_monstro</ins>, tipo  </li>
+<li><strong>Agressivo</strong>: <ins>id</ins>, nome, descrição, defesa, vida, catalisador_agressividade, poder, fisico, psiquico, magico, velocidade_ataque, loucura_induzida, ponto_magia, id_feitiço  </li>
+<li><strong>Pacífico</strong>: <ins>id</ins>, nome, descrição, defesa, vida, motivo_passividade, humanidade, sobrenatural, conhecimento_geografico, conhecimento_proibido  </li>
+<li><strong>InstanciaMonstro</strong>: <ins>id</ins>, id_monstro, localBoolean, local  </li>
+<li><strong>Batalha</strong>: <ins>jogador</ins>, <ins>monstro</ins></li>
+</ul>
 <h3 id="3-relacionamentos">3. Relacionamentos</h3>
 <p><strong>Item possui Instância de Item</strong>
 - Um tipo de item pode possuir nenhuma ou várias (0,N) Instâncias, uma Instância está relacionada a apenas um tipo de Item (1,1).</p>
