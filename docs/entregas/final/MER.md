@@ -1,3 +1,9 @@
+## Histórico de versões
+
+| Versão |    Data    | Descrição               | Autor                                                                                                                 |
+| :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `1.0`  | 02/05/25 | Adicionando o modelo entidade relacionamento | Equipe
+
 O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve os objetos (entidades) envolvidos em um negócio, com suas características (atributos) e como elas se relacionam entre si (relacionamentos).
 
 ### 1. Entidades
