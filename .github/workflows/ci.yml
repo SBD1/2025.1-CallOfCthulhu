@@ -2,13 +2,13 @@ name: Integração Continua e Deploy da Documentação
 on:
   push:
     branches:
-      - docs
+      - main
     paths:
       - 'docs/**'        
       - 'mkdocs.yml'  
   pull_request:
     branches:
-      - docs
+      - main
     paths:
       - 'docs/**'
       - 'mkdocs.yml'
