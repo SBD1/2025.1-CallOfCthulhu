@@ -19,6 +19,8 @@ Até o momento, foram elaborados e entregues os seguintes artefatos de modelagem
 
 # Gravação da reunião de brainstorming
 
-<p style="text-align: center"><iframe width="560" height="315" src="https://youtu.be/3iIDdbY61Yo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></p>
+<p style="text-align: center">
+  <iframe width="560" height="315" src="https://www.youtube.com/embed/3iIDdbY61Yo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</p>
 
 <p style="text-align: center"><a href="https://youtu.be/3iIDdbY61Yo" target="_blank">Clique aqui para assistir no YouTube</a></p>
