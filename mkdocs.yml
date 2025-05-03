@@ -61,6 +61,7 @@ plugins:
 
 nav:
   - Início: index.md
+  - Apresentação: entregas/apresentacao/apresentacao.md
   - Entregas 1:
       - DER: entregas/primeira/DER.md
       - MER: entregas/primeira/MER.md

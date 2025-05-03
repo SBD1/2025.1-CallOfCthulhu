@@ -1,8 +1,13 @@
 # Call of Cthulhu
 
 Documentação do projeto de Bancos de Dados 1
-
 Repositório do grupo 1 de Banco de Dados 1 para desenvolvimento do jogo inspirado nos RPGs de Call of Cthulhu.
+
+<figure markdown="span">
+<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/main/docs/assets/logo.png">
+  <figcaption>Call of Cthulhu</figcaption>
+  <font size="3"><p style="text-align: center">Fonte: [João Marcos Moraes](https://github.com/JJOAOMARCOSS).</p></font>
+</figure>
 
 ## Descrição
 
