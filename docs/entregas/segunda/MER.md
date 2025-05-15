@@ -1,3 +1,12 @@
+# Entrega 2
+
+## Histórico de versões
+
+| Versão |    Data    | Descrição               | Autor                                                                                                                 |
+| :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `0.1`  | 02/05/25 |  Adicionando o modelo entidade relacionamento  |        Equipe                |
+| `0.2`  | 15/05/25 | Adicionando a entidade Diálogos | [Luiz Guilherme](https://github.com/luizfaria1989) |
+
 O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve os objetos (entidades) envolvidos em um negócio, com suas características (atributos) e como elas se relacionam entre si (relacionamentos).
 
 ### 1. Entidades
@@ -35,6 +44,7 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
     - **Humanóide**
 - **InstanciaMonstro**
 - **Batalha**
+- **Diálogos**
 
 ### 2. Atributos
 
@@ -114,6 +124,9 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
 
 **NPC entrega Missao para PersonagemJogavel**
 -Um NPC entrega nenhuma ou várias missões para PersonagemJogavel e PersonagemJogavel recebe missão de nenhum ou vários NPC. 
+
+**NPC possui Diálogos**
+- Um NPC possui zero ou vários diálogos para PersonagemJogavel e PersonagemJogavel interaje com um e somente um diálogo de NPC
 
 **PersonagemJogavel enfrenta InstanciaMonstro**
 -Um PersonagemJogavel enfrenta nenhum ou várias InstanciaMonstro e uma InstanciaMonstro enfrenta nenhum ou um PersonagemJogavel.
