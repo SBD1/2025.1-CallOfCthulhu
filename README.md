@@ -28,3 +28,15 @@ Com base no universo criado por HP Lovecraft, Call of Cthulhu busca contar a his
     <td align="center"><a href="https://github.com/luizfaria1989"><img style="border-radius: 50%;" src="https://github.com/luizfaria1989.png" width="100px;" alt=""/><br /><sub><b>Luiz Guilherme</b></sub></a></td> 
   </tr> 
 </table>
+
+## Como rodar o banco com o Docker
+1. Tenha instalado o [Docker Engine](https://docs.docker.com/engine/install/)
+2. No terminal e com o Docker rodando, execute o seguinte comando para rodar o container em modo _detached_, em background:
+    ````bash
+    docker compose up -d
+    ```` 
+3. A estrutura segue o seguinte padrão: ``docker exec -it <container-name> psql -U <DB_user> <DB_name>``. Para acessar o banco pelo psql, rode:
+    ````bash
+    docker exec -it 20251-callofcthulhu-db-1 psql -U postgres call_of_chtulhu
+    ````
+**Obs**: caso o passo 3 não funcione, troque "20251-callofcthulhu-db-1", pelo nome criado pelo seu docker. Para isso, rode ``docker ps -a``, pegue o nome do container que está rodando e troque pelo comando do passo 3.
