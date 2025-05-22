@@ -1,4 +1,4 @@
-# Entrega 1
+# Entrega 2
 
 ## Histórico de versões
 
@@ -6,6 +6,9 @@
 | :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `0.1`  | 02/05/25 |  Atualizando imagem do DER total  |        Equipe                |
 | `0.2`  | 02/05/25 | Atualizando as imagens do documento | [Luiz Guilherme](https://github.com/luizfaria1989) |
+| `0.3`  | 02/05/25 | Atualizando as imagens | [João Marcos](https://github.com/JJOAOMARCOS) |
+| `0.4`  | 15/05/25 |  Normalizando o DER  |        [Luiz](https://github.com/luizfaria1989)                |
+| `0.5`  | 19/05/25 |  Atualizando as imagens  |        [Luiz](https://github.com/luizfaria1989)                |
 
 
 ## Prototipos Iniciais de Cada Conjunto de Entidades de Call of Ctchullu
@@ -43,7 +46,7 @@
 
 ### Personagem
 <figure markdown="span">
-<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/6e4997cd2c101c50dbf5ebd2e8610175c3ac5d81/docs/assets/personagem.png">
+<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/normalizacao-do-banco/docs/assets/personagemV2.png">
   <figcaption>DER personagem</figcaption>
 </figure>
 
