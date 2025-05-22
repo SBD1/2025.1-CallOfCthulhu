@@ -89,7 +89,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#1-entidades" class="md-skip">
+        <a href="#entrega-2" class="md-skip">
           Pular para conteúdo
         </a>
       
@@ -479,6 +479,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -511,6 +513,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -519,6 +523,16 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Histórico de versões
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Histórico de versões">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#1-entidades" class="md-nav__link">
     <span class="md-ellipsis">
       1. Entidades
@@ -526,8 +540,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#2-atributos" class="md-nav__link">
     <span class="md-ellipsis">
       2. Atributos
@@ -535,13 +549,18 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#3-relacionamentos" class="md-nav__link">
     <span class="md-ellipsis">
       3. Relacionamentos
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -942,6 +961,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -950,6 +971,16 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Histórico de versões
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Histórico de versões">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#1-entidades" class="md-nav__link">
     <span class="md-ellipsis">
       1. Entidades
@@ -957,8 +988,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#2-atributos" class="md-nav__link">
     <span class="md-ellipsis">
       2. Atributos
@@ -966,13 +997,18 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#3-relacionamentos" class="md-nav__link">
     <span class="md-ellipsis">
       3. Relacionamentos
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -995,8 +1031,32 @@
   
 
 
-  <h1>MER</h1>
-
+<h1 id="entrega-2">Entrega 2</h1>
+<h2 id="historico-de-versoes">Histórico de versões</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Versão</th>
+<th style="text-align: center;">Data</th>
+<th>Descrição</th>
+<th>Autor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><code>0.1</code></td>
+<td style="text-align: center;">02/05/25</td>
+<td>Adicionando o modelo entidade relacionamento</td>
+<td>Equipe</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>0.2</code></td>
+<td style="text-align: center;">15/05/25</td>
+<td>Adicionando a entidade Diálogos</td>
+<td><a href="https://github.com/luizfaria1989">Luiz Guilherme</a></td>
+</tr>
+</tbody>
+</table>
 <p>O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve os objetos (entidades) envolvidos em um negócio, com suas características (atributos) e como elas se relacionam entre si (relacionamentos).</p>
 <h3 id="1-entidades">1. Entidades</h3>
 <ul>
@@ -1047,6 +1107,7 @@
 </li>
 <li><strong>InstanciaMonstro</strong></li>
 <li><strong>Batalha</strong></li>
+<li><strong>Diálogos</strong></li>
 </ul>
 <h3 id="2-atributos">2. Atributos</h3>
 <h3 id="3-relacionamentos">3. Relacionamentos</h3>
@@ -1100,6 +1161,8 @@
 - Um NPC possui uma ou várias missões e uma missão é possuída por apenas um NPC.</p>
 <p><strong>NPC entrega Missao para PersonagemJogavel</strong>
 -Um NPC entrega nenhuma ou várias missões para PersonagemJogavel e PersonagemJogavel recebe missão de nenhum ou vários NPC. </p>
+<p><strong>NPC possui Diálogos</strong>
+- Um NPC possui zero ou vários diálogos para PersonagemJogavel e PersonagemJogavel interaje com um e somente um diálogo de NPC</p>
 <p><strong>PersonagemJogavel enfrenta InstanciaMonstro</strong>
 -Um PersonagemJogavel enfrenta nenhum ou várias InstanciaMonstro e uma InstanciaMonstro enfrenta nenhum ou um PersonagemJogavel.</p>
 <p><strong>Batalha dropa Instancia de Item</strong>
