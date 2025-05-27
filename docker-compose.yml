@@ -6,8 +6,9 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=call_of_chtulhu
+      - POSTGRES_DB=call_of_cthulhu
     volumes:
       - pg-data:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d  # pasta local com scripts SQL
 volumes:
   pg-data:
