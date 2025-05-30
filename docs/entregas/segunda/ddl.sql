@@ -195,16 +195,16 @@ DROP TABLE IF EXISTS public.personagens_jogaveis;
 -- PASSO 4: remover as funções
 
 DROP FUNCTION IF EXISTS public.atualizar_atributos_do_personagem();
-DROP FUNCTION IF EXISTS public.calcular_sanidade(integer);
-DROP FUNCTION IF EXISTS public.calcular_ideia(integer);
-DROP FUNCTION IF EXISTS public.calcular_conhecimento(integer);
-DROP FUNCTION IF EXISTS public.calcular_sorte(integer);
-DROP FUNCTION IF EXISTS public.calcular_pts_de_vida(integer, integer);
+DROP FUNCTION IF EXISTS public.calcular_sanidade(INTEGER);
+DROP FUNCTION IF EXISTS public.calcular_ideia(INTEGER);
+DROP FUNCTION IF EXISTS public.calcular_conhecimento(INTEGER);
+DROP FUNCTION IF EXISTS public.calcular_sorte(INTEGER);
+DROP FUNCTION IF EXISTS public.calcular_pts_de_vida(INTEGER, INTEGER);
 
 -- PASSO 5: remover os domínios
 DROP DOMAIN IF EXISTS public.sexo;
 DROP DOMAIN IF EXISTS public.atributo_personagem;
-DROP DOMAIN IF EXISTS public.idade_valida;
+DROP DOMAIN IF EXISTS public.idade;
 DROP DOMAIN IF EXISTS public.tipo_monstro_pacifico;
 DROP DOMAIN IF EXISTS public.tipo_monstro;
 DROP DOMAIN IF EXISTS public.tipo_de_feitico;
@@ -212,7 +212,10 @@ DROP DOMAIN IF EXISTS public.tipo_monstro_agressivo;
 DROP DOMAIN IF EXISTS public.tipo_personagem;
 DROP DOMAIN IF EXISTS public.nome;
 DROP DOMAIN IF EXISTS public.descricao;
-DROP DOMAIN IF EXISTS public.formato_id;
+DROP DOMAIN IF EXISTS public.id;
+DROP DOMAIN IF EXISTS public.residencia;
+DROP DOMAIN IF EXISTS public.local_nascimento;
+DROP DOMAIN IF EXISTS public.script_dialogo;
 
 -- ===============================================
 
@@ -220,17 +223,17 @@ DROP DOMAIN IF EXISTS public.formato_id;
 
 -- ===============================================
 
-CREATE DOMAIN public.formato_id AS integer
-    CONSTRAINT formato_id_check CHECK (
+CREATE DOMAIN public.id AS INTEGER
+    CONSTRAINT id_check CHECK (
         VALUE >= 1 AND VALUE <= 999999999
     );
 
-CREATE DOMAIN public.dano AS integer
+CREATE DOMAIN public.dano AS SMALLINT
     CONSTRAINT dano_check CHECK (
         VALUE >= 1 AND VALUE <= 500
     );  
 
-CREATE DOMAIN public.sexo AS character(10)
+CREATE DOMAIN public.sexo AS CHARACTER(9)
     CONSTRAINT sexo_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('masculino'::character)::text, 
@@ -238,26 +241,26 @@ CREATE DOMAIN public.sexo AS character(10)
         ])
     );
 
-CREATE DOMAIN public.atributo_personagem AS integer
-    CONSTRAINT atributo_personagem_check CHECK (
+CREATE DOMAIN public.atributo AS SMALLINT
+    CONSTRAINT atributo_check CHECK (
         VALUE >= 3 AND VALUE <= 18
     );
 
-CREATE DOMAIN public.idade_valida AS integer
+CREATE DOMAIN public.idade AS SMALLINT
     CONSTRAINT idade_check CHECK (
         VALUE >= 1 AND VALUE <= 120
     );
 
-CREATE DOMAIN public.tipo_monstro_agressivo AS character(12)
+CREATE DOMAIN public.tipo_monstro_agressivo AS CHARACTER(8)
     CONSTRAINT tipo_monstro_agressivo_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('psíquico'::character)::text, 
-            ('mágico'::character)::text,
-            ('físico'::character)::text
+            ('psiquico'::character)::text, 
+            ('magico'::character)::text,
+            ('fisico'::character)::text
         ])
     );
 
-CREATE DOMAIN public.tipo_monstro_pacifico AS character(16)
+CREATE DOMAIN public.tipo_monstro_pacifico AS CHARACTER(12)
     CONSTRAINT tipo_monstro_pacifico_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('humóide'::character)::text, 
@@ -265,7 +268,7 @@ CREATE DOMAIN public.tipo_monstro_pacifico AS character(16)
         ])
     );
 
-CREATE DOMAIN public.tipo_monstro AS character(16)
+CREATE DOMAIN public.tipo_monstro AS CHARACTER(9)
     CONSTRAINT tipo_monstro_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('agressivo'::character)::text, 
@@ -273,23 +276,15 @@ CREATE DOMAIN public.tipo_monstro AS character(16)
         ])
     );
 
-CREATE DOMAIN public.tipo_personagem AS character(20)
+CREATE DOMAIN public.tipo_personagem AS CHARACTER(18)
     CONSTRAINT tipo_personagem_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('personagem jogável'::character)::text, 
+            ('personagem jogavel'::character)::text, 
             ('NPC'::character)::text
         ])
     );
 
-CREATE DOMAIN public.tipos_de_feitico AS character(16)
-    CONSTRAINT tipo_feitico_check CHECK (
-        (VALUE)::text = ANY (ARRAY[
-            ('status'::character)::text, 
-            ('dano'::character)::text
-        ])
-    );
-
- CREATE DOMAIN public.tipo_item AS character(16)
+ CREATE DOMAIN public.tipo_item AS CHARACTER(8)
     CONSTRAINT tipo_item_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('armadura'::character)::text, 
@@ -298,26 +293,42 @@ CREATE DOMAIN public.tipos_de_feitico AS character(16)
         ])
     );   
 
- CREATE DOMAIN public.tipo_muniçao AS character(20)
+ CREATE DOMAIN public.tipo_muniçao AS character(13)
     CONSTRAINT tipo_municao_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('baixo-calibre'::character)::text, 
             ('medio-calibre'::character)::text,
             ('alto-calibre'::character)::text
         ])
-    );         
+    );   
 
-CREATE DOMAIN public.nome AS character(128);
+CREATE DOMAIN public.funcao_feitico AS CHARACTER(6)
+    CONSTRAINT funcao_feitico_check CHECK (
+        (VALUE)::text = ANY (ARRAY[
+            ('status'::character)::text, 
+            ('dano'::character)::text
+        ])
+    );  
 
-CREATE DOMAIN public.descricao AS character(256);
+ CREATE DOMAIN public.tipo_de_status AS CHARACTER(8)
+    CONSTRAINT tipo_de_status CHECK (
+        (VALUE)::text = ANY (ARRAY[
+            ('vida'::character)::text, 
+            ('sanidade'::character)::text
+        ])
+    );          
 
-CREATE DOMAIN public.ocupacao AS character(64);
+CREATE DOMAIN public.nome AS CHARACTER(128);
 
-CREATE DOMAIN public.residencia AS character(96);
+CREATE DOMAIN public.descricao AS CHARACTER(256);
 
-CREATE DOMAIN public.local_nascimento AS character(96);
+CREATE DOMAIN public.ocupacao AS CHARACTER(64);
 
-CREATE DOMAIN public.script_dialogo AS character(512);
+CREATE DOMAIN public.residencia AS CHARACTER(96);
+
+CREATE DOMAIN public.local_nascimento AS CHARACTER(96);
+
+CREATE DOMAIN public.script_dialogo AS CHARACTER(512);
 
 -- ===============================================
 
@@ -325,35 +336,35 @@ CREATE DOMAIN public.script_dialogo AS character(512);
 
 -- ===============================================
 
-CREATE OR REPLACE FUNCTION calcular_sanidade(valor_poder integer)
+CREATE OR REPLACE FUNCTION calcular_sanidade(valor_poder INTEGER)
 RETURNS smallint AS $$
 BEGIN
     RETURN valor_poder * 5;
 END
 $$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION calcular_ideia(valor_inteligencia integer)
+CREATE OR REPLACE FUNCTION calcular_ideia(valor_inteligencia INTEGER)
 RETURNS smallint AS $$
 BEGIN
     RETURN valor_inteligencia * 5;
 END
 $$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION calcular_conhecimento(valor_educacao integer)
+CREATE OR REPLACE FUNCTION calcular_conhecimento(valor_educacao INTEGER)
 RETURNS smallint AS $$
 BEGIN
     RETURN valor_educacao * 5;
 END
 $$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION calcular_sorte(valor_poder integer)
+CREATE OR REPLACE FUNCTION calcular_sorte(valor_poder INTEGER)
 RETURNS smallint AS $$
 BEGIN
     RETURN valor_poder * 5;
 END
 $$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION calcular_pts_de_vida(valor_constituicao integer, valor_tamanho integer)
+CREATE OR REPLACE FUNCTION calcular_pts_de_vida(valor_constituicao INTEGER, valor_tamanho INTEGER)
 RETURNS integer AS $$
 BEGIN
     RETURN (valor_constituicao + valor_tamanho) / 2;
@@ -385,23 +396,23 @@ EXECUTE FUNCTION atualizar_atributos_do_personagem();
 -- ===============================================
 
 CREATE TABLE public.personagens_jogaveis(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL,
     ocupacao public.ocupacao NOT NULL,
     residencia public.residencia NOT NULL,
     local_nascimento public.local_nascimento NOT NULL,
 
-    idade public.idade_valida DEFAULT 18 NOT NULL,
+    idade public.idade DEFAULT 18 NOT NULL,
     sexo public.sexo NOT NULL,
 
-    forca public.atributo_personagem NOT NULL, -- 3d6
-    constituicao public.atributo_personagem NOT NULL, -- 3d6
-    poder public.atributo_personagem NOT NULL, -- 3d6
-    destreza public.atributo_personagem NOT NULL, -- 3d6
-    aparencia public.atributo_personagem NOT NULL, -- 3d6
-    tamanho public.atributo_personagem NOT NULL, -- 3d6 + 3
-    inteligencia public.atributo_personagem NOT NULL, -- 3d6
-    educacao public.atributo_personagem NOT NULL, -- 3d6 + 3
+    forca public.atributo NOT NULL, -- 3d6
+    constituicao public.atributo NOT NULL, -- 3d6
+    poder public.atributo NOT NULL, -- 3d6
+    destreza public.atributo NOT NULL, -- 3d6
+    aparencia public.atributo NOT NULL, -- 3d6
+    tamanho public.atributo NOT NULL, -- 3d6 + 3
+    inteligencia public.atributo NOT NULL, -- 3d6
+    educacao public.atributo NOT NULL, -- 3d6 + 3
 
     ideia SMALLINT, -- inteligencia x 5
     conhecimento SMALLINT, -- educacao x 5
@@ -416,21 +427,21 @@ CREATE TABLE public.personagens_jogaveis(
     insanidade_indefinida boolean, -- quando sanidade é 0
 
     -- FOREIGN KEYS
-    id_local public.formato_id NOT NULL, 
-    id_pt_de_magia public.formato_id NOT NULL, 
-    id_pericia public.formato_id NOT NULL, 
-    id_sanidade public.formato_id NOT NULL, 
-    id_inventario public.formato_id NOT NULL, 
-    id_armadura public.formato_id NOT NULL, 
-    id_arma public.formato_id NOT NULL
+    id_local public.id NOT NULL, 
+    id_pt_de_magia public.id NOT NULL, 
+    id_pericia public.id NOT NULL, 
+    id_sanidade public.id NOT NULL, 
+    id_inventario public.id NOT NULL, 
+    id_armadura public.id NOT NULL, 
+    id_arma public.id NOT NULL
 );
 
 CREATE TABLE public.npcs(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL,
     ocupacao public.ocupacao NOT NULL,
 
-    idade public.idade_valida DEFAULT 18 NOT NULL,
+    idade public.idade DEFAULT 18 NOT NULL,
     sexo public.sexo NOT NULL,
 
     residencia public.residencia NOT NULL,
@@ -438,69 +449,69 @@ CREATE TABLE public.npcs(
     localBoolean boolean NOT NULL,
 
     -- FOREIGN KEYS
-    id_local public.formato_id NOT NULL 
+    id_local public.id NOT NULL 
 );
 
 CREATE TABLE public.dialogos(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     script_dialogo public.script_dialogo NOT NULL,
 
     -- FOREIGN KEYS
-    npc_id public.formato_id NOT NULL 
+    npc_id public.id NOT NULL 
 
 );
 
 CREATE TABLE public.inventarios(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     tamanho SMALLINT NOT NULL
 );
 
 CREATE TABLE public.templos(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL
 );
 
 CREATE TABLE public.andares(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     descricao public.descricao NOT NULL,
-    sala_inicial integer NOT NULL,
+    sala_inicial SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_templo public.formato_id NOT NULL
+    id_templo public.id NOT NULL
 );
 
 CREATE TABLE public.salas(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     descricao public.descricao NOT NULL
 );
 
 CREATE TABLE public.corredores(
-    id public.formato_id NOT NULL PRIMARY KEY,
-    status boolean NOT NULL,
+    id public.id NOT NULL PRIMARY KEY,
+    status BOOLEAN NOT NULL,
     descricao public.descricao NOT NULL
 );
 
 CREATE TABLE public.pts_de_magia(
-    id public.formato_id NOT NULL PRIMARY KEY,
-    valor_base integer, 
-    PM_max integer
+    id public.id NOT NULL PRIMARY KEY,
+    valor_base SMALLINT, 
+    PM_max SMALLINT
 );
 
 CREATE TABLE public.pericias(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
-    valor integer,
-    eh_de_ocupacao boolean
+    valor SMALLINT,
+    eh_de_ocupacao BOOLEAN
 );
 
 CREATE TABLE public.agressivos(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     defesa SMALLINT,
-    vida SMALLINT,
-    catalisador_agressividade character(32),
+    vida SMALLINT NOT NULL,
+    catalisador_agressividade CHARACTER(32),
     poder SMALLINT,
     tipo_agressivo public.tipo_monstro_agressivo NOT NULL,
     velocidade_ataque SMALLINT,
@@ -509,56 +520,56 @@ CREATE TABLE public.agressivos(
     dano public.dano NOT NULL,
 
     -- FOREING KEYS
-    id_feitico public.formato_id NOT NULL 
+    id_feitico public.id NOT NULL 
 );
 
 CREATE TABLE public.pacificos(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     defesa SMALLINT NOT NULL,
     vida SMALLINT NOT NULL,
-    motivo_passividade character(64),
+    motivo_passividade CHARACTER(64),
     tipo_pacifico public.tipo_monstro_pacifico NOT NULL,
-    conhecimento_geografico character(128),
-    conhecimento_proibido character(128)
+    conhecimento_geografico CHARACTER(128),
+    conhecimento_proibido CHARACTER(128)
 );
 
 CREATE TABLE public.instancias_monstro(
-    id public.formato_id NOT NULL PRIMARY KEY,
-    localBoolean boolean,
+    id public.id NOT NULL PRIMARY KEY,
+    localBoolean BOOLEAN,
 
     -- FOREING KEYS
-    id_instancia_de_item public.formato_id NOT NULL,
-    id_local public.formato_id NOT NULL,  
-    id_monstro public.formato_id NOT NULL
+    id_instancia_de_item public.id NOT NULL,
+    id_local public.id NOT NULL,  
+    id_monstro public.id NOT NULL
 );
 
 CREATE TABLE public.missoes(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
-    descricao character(512) NOT NULL,
-    tipo integer NOT NULL,
-    ordem character(128) NOT NULL,
+    descricao CHARACTER(512) NOT NULL,
+    tipo SMALLINT NOT NULL,
+    ordem CHARACTER(128) NOT NULL,
 
     -- FOREIGN KEYS
-    id_npc public.formato_id NOT NULL 
+    id_npc public.id NOT NULL 
 );
 
 CREATE TABLE public.magicos(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
-    funcao character(128) NOT NULL,
+    funcao CHARACTER(128) NOT NULL,
     qts_usos SMALLINT NOT NULL,
     custo_sanidade SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_feitico public.formato_id NOT NULL
+    id_feitico public.id NOT NULL
 );
 
 CREATE TABLE public.curas(
-    id public.formato_id NOT NULL PRIMARY KEY,
-    funcao character(128) NOT NULL,
+    id public.id NOT NULL PRIMARY KEY,
+    funcao CHARACTER(128) NOT NULL,
     nome public.nome NOT NULL UNIQUE,
     qts_usos SMALLINT NOT NULL,
     qtd_pontos_sanidade_recupera SMALLINT NOT NULL,
@@ -566,59 +577,53 @@ CREATE TABLE public.curas(
 );
 
 CREATE TABLE public.armaduras(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
-    atributo_necessario character(128),
+    atributo_necessario CHARACTER(128),
     durabilidade SMALLINT NOT NULL,
-    id_pericia_necessaria public.formato_id,
-    funcao character(128),
+    funcao CHARACTER(128),
     qtd_atributo_recebe SMALLINT NOT NULL,
     tipo_atributo_recebe character(128) NOT NULL,
-    qtd_dano_mitigado SMALLINT NOT NULL
+    qtd_dano_mitigado SMALLINT NOT NULL,
+
+    -- FOREIGN KEYS
+    id_pericia_necessaria public.id
 );
 
 CREATE TABLE public.armas(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
     atributo_necessario character(128),
     durabilidade SMALLINT,
-    id_pericia_necessaria public.formato_id,
-    funcao character(128),
+    funcao CHARACTER(128),
     alcance SMALLINT,
     tipo_municao public.tipo_municao DEFAULT NULL,
     tipo_dano character(64),
-    dano public.dano NOT NULL
+    dano public.dano NOT NULL,
+
+    -- FOREIGN KEYS
+    id_pericia_necessaria public.id,
 );
 
 CREATE TABLE public.feiticos_status(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     qtd_pontos_de_magia SMALLINT NOT NULL,
-    buff_debuff boolean NOT NULL,
+    buff_debuff BOOLEAN NOT NULL,
     qtd_buff_debuff SMALLINT,
-    status_afetado character(64) NOT NULL
+    status_afetado public.tipo_de_status NOT NULL
 );
 
 CREATE TABLE public.feiticos_dano(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     qtd_pontos_de_magia SMALLINT NOT NULL,
-    tipo_dano character(64),
+    tipo_dano CHARACTER(64),
     qtd_dano public.dano NOT NULL
 );
 
-
-CREATE TABLE public.tipos_monstro(
-    id public.formato_id NOT NULL PRIMARY KEY,
-    tipo public.tipo_monstro NOT NULL
-);
-
-CREATE TABLE public.tipos_feitico(
-    id public.formato_id NOT NULL PRIMARY KEY,
-    tipo public.tipos_de_feitico NOT NULL
-);
 
 CREATE TABLE public.itens(
     id public.formato_id NOT NULL PRIMARY KEY,
@@ -628,9 +633,25 @@ CREATE TABLE public.itens(
     valor SMALLINT
 );
 
+-- ===============================================
+
+--             TABELAS DE TIPOS
+
+-- =============================================== 
+
 CREATE TABLE public.tipos_personagem(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     tipo public.tipo_personagem NOT NULL
+);
+
+CREATE TABLE public.tipos_feitico(
+    id public.id NOT NULL PRIMARY KEY,
+    tipo public.tipos_de_feitico NOT NULL
+);
+
+CREATE TABLE public.tipos_monstro(
+    id public.id NOT NULL PRIMARY KEY,
+    tipo public.tipo_monstro NOT NULL
 );
 
 -- ===============================================
@@ -640,37 +661,37 @@ CREATE TABLE public.tipos_personagem(
 -- =============================================== 
 
 CREATE TABLE public.batalhas(
-  id_jogador public.formato_id NOT NULL,
-  id_monstro public.formato_id NOT NULL,
+  id_jogador public.id NOT NULL,
+  id_monstro public.id NOT NULL,
   PRIMARY KEY (id_jogador, id_monstro)
 );
 
 CREATE TABLE public.entregas_missoes(
-  id_jogador public.formato_id NOT NULL,
-  id_npc public.formato_id NOT NULL,
+  id_jogador public.id NOT NULL,
+  id_npc public.id NOT NULL,
   PRIMARY KEY (id_jogador, id_npc)
 );
 
 CREATE TABLE public.corredores_salas_destino(
-  id_sala public.formato_id NOT NULL,
-  id_corredor public.formato_id NOT NULL, 
+  id_sala public.id NOT NULL,
+  id_corredor public.id NOT NULL, 
   PRIMARY KEY (id_sala, id_corredor)
 );
 
 CREATE TABLE public.inventarios_possuem_instancias_item(
-  id_instancias_de_item public.formato_id NOT NULL,
-  id_inventario public.formato_id NOT NULL,
+  id_instancias_de_item public.id NOT NULL,
+  id_inventario public.id NOT NULL,
   PRIMARY KEY (id_instancias_de_item, id_inventario)
 );
 
 CREATE TABLE public.instancias_de_item(
-  id public.formato_id NOT NULL,
-  id_item public.formato_id NOT NULL,
-  nome character(64) NOT NULL UNIQUE,
+  id public.id NOT NULL,
+  id_item public.id NOT NULL,
+  nome CHARACTER(64) NOT NULL,
   durabilidade SMALLINT NOT NULL,
-  id_sala public.formato_id NOT NULL,  -- FOREIGN KEY
-  id_missao_requer public.formato_id NOT NULL,  -- FOREIGN KEY
-  id_missao_recompensa public.formato_id NOT NULL,  -- FOREIGN KEY
+  id_sala public.id NOT NULL,  -- FOREIGN KEY
+  id_missao_requer public.id NOT NULL,  -- FOREIGN KEY
+  id_missao_recompensa public.id NOT NULL,  -- FOREIGN KEY
   PRIMARY KEY (id, id_item)
 );
 
