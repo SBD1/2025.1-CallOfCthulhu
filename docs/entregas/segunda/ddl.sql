@@ -1,3 +1,20 @@
+-- versão 0.1 Criando a versão inicial do ddl com base no codigo do db.diagram.io 
+-- 28/05
+
+-- versão 0.2 Adcionando os dominios para tipos personalizados para as tabelas
+-- 29/05
+
+-- versão 0.3 Adicionando a secao de drop tables
+-- 30/05
+
+-- versão 0.4 Resolvendo bugs na criacao das tabelas
+-- 02/06
+
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+/*
+
 -- ===============================================
 
 --            DROP TABLES
@@ -10,9 +27,6 @@ DROP TRIGGER IF EXISTS trg_atualizar_atributos_do_personagem ON public.personage
 -- PASSO 2: remover as restrições de chave estrangeira
 
 -- da tabela de personagens jogaveis
-ALTER TABLE public.personagens_jogaveis
-DROP CONSTRAINT IF EXISTS fk_pj_pt_de_magia;
-
 ALTER TABLE public.personagens_jogaveis
 DROP CONSTRAINT IF EXISTS fk_pj_pericia;
 
@@ -82,7 +96,7 @@ DROP CONSTRAINT IF EXISTS fk_inventarios_instancia_de_item;
 
 -- da tabela magicos
 ALTER TABLE public.magicos
-DROP CONSTRAINT IF EXISTS fk_magicos_tipos_de_feitico;
+DROP CONSTRAINT IF EXISTS fk_magicos_tipos_feitico;
 
 -- da tabela agressivos
 ALTER TABLE public.agressivos
@@ -181,14 +195,13 @@ DROP TABLE IF EXISTS public.magicos;
 DROP TABLE IF EXISTS public.missoes;
 DROP TABLE IF EXISTS public.instancias_monstro;
 DROP TABLE IF EXISTS public.pericias;
-DROP TABLE IF EXISTS public.pts_de_magia;
-DROP TABLE IF EXISTS public.corredores;
 DROP TABLE IF EXISTS public.salas;
 DROP TABLE IF EXISTS public.andares;
 DROP TABLE IF EXISTS public.templos;
 DROP TABLE IF EXISTS public.inventarios;
 DROP TABLE IF EXISTS public.dialogos;
 DROP TABLE IF EXISTS public.npcs;
+DROP TABLE IF EXISTS public.corredores;
 DROP TABLE IF EXISTS public.tipos_feitico;
 DROP TABLE IF EXISTS public.personagens_jogaveis;
 
@@ -202,20 +215,27 @@ DROP FUNCTION IF EXISTS public.calcular_sorte(INTEGER);
 DROP FUNCTION IF EXISTS public.calcular_pts_de_vida(INTEGER, INTEGER);
 
 -- PASSO 5: remover os domínios
+drop domain if exists public.dano;
 DROP DOMAIN IF EXISTS public.sexo;
-DROP DOMAIN IF EXISTS public.atributo_personagem;
+DROP DOMAIN IF EXISTS public.atributo;
 DROP DOMAIN IF EXISTS public.idade;
+DROP DOMAIN IF EXISTS public.tipo_monstro_agressivo;
 DROP DOMAIN IF EXISTS public.tipo_monstro_pacifico;
 DROP DOMAIN IF EXISTS public.tipo_monstro;
-DROP DOMAIN IF EXISTS public.tipo_de_feitico;
-DROP DOMAIN IF EXISTS public.tipo_monstro_agressivo;
 DROP DOMAIN IF EXISTS public.tipo_personagem;
+DROP DOMAIN IF EXISTS public.tipo_item;
+DROP DOMAIN IF EXISTS public.tipo_municao;
+DROP DOMAIN IF EXISTS public.funcao_feitico;
+DROP DOMAIN IF EXISTS public.tipo_de_status;
 DROP DOMAIN IF EXISTS public.nome;
 DROP DOMAIN IF EXISTS public.descricao;
-DROP DOMAIN IF EXISTS public.id;
+DROP DOMAIN IF EXISTS public.ocupacao;
 DROP DOMAIN IF EXISTS public.residencia;
 DROP DOMAIN IF EXISTS public.local_nascimento;
 DROP DOMAIN IF EXISTS public.script_dialogo;
+DROP DOMAIN IF EXISTS public.id;
+
+*/
 
 -- ===============================================
 
@@ -293,7 +313,7 @@ CREATE DOMAIN public.tipo_personagem AS CHARACTER(18)
         ])
     );   
 
- CREATE DOMAIN public.tipo_muniçao AS character(13)
+ CREATE DOMAIN public.tipo_municao AS character(13)
     CONSTRAINT tipo_municao_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('baixo-calibre'::character)::text, 
@@ -311,7 +331,7 @@ CREATE DOMAIN public.funcao_feitico AS CHARACTER(6)
     );  
 
  CREATE DOMAIN public.tipo_de_status AS CHARACTER(8)
-    CONSTRAINT tipo_de_status CHECK (
+    CONSTRAINT tipo_de_status_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('vida'::character)::text, 
             ('sanidade'::character)::text
@@ -384,10 +404,14 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+/*
+
 CREATE TRIGGER trg_atualizar_atributos_do_personagem
 BEFORE INSERT OR UPDATE ON public.personagens_jogaveis
 FOR EACH ROW
 EXECUTE FUNCTION atualizar_atributos_do_personagem();
+
+*/
 
 -- ===============================================
 
@@ -417,20 +441,21 @@ CREATE TABLE public.personagens_jogaveis(
     ideia SMALLINT, -- inteligencia x 5
     conhecimento SMALLINT, -- educacao x 5
     sorte SMALLINT,  -- poder x 5
-    pts_de_vida integer, -- (constituicao + tamanho) / 2
+    pts_de_vida INTEGER, -- (constituicao + tamanho) / 2
     sanidade_maxima SMALLINT, -- poder x 5
     movimento SMALLINT NOT NULL,
-    localBoolean boolean NOT NULL,
+    localBoolean BOOLEAN NOT NULL,
 
     sanidade_atual SMALLINT,
     insanidade_temporaria boolean, 
     insanidade_indefinida boolean, -- quando sanidade é 0
+    
+   	PM_base SMALLINT, 
+    PM_max SMALLINT,
 
     -- FOREIGN KEYS
-    id_local public.id NOT NULL, 
-    id_pt_de_magia public.id NOT NULL, 
+    id_local public.id NOT NULL,  
     id_pericia public.id NOT NULL, 
-    id_sanidade public.id NOT NULL, 
     id_inventario public.id NOT NULL, 
     id_armadura public.id NOT NULL, 
     id_arma public.id NOT NULL
@@ -490,12 +515,6 @@ CREATE TABLE public.corredores(
     id public.id NOT NULL PRIMARY KEY,
     status BOOLEAN NOT NULL,
     descricao public.descricao NOT NULL
-);
-
-CREATE TABLE public.pts_de_magia(
-    id public.id NOT NULL PRIMARY KEY,
-    valor_base SMALLINT, 
-    PM_max SMALLINT
 );
 
 CREATE TABLE public.pericias(
@@ -587,7 +606,7 @@ CREATE TABLE public.armaduras(
     qtd_dano_mitigado SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_pericia_necessaria public.id
+    id_pericia_necessaria public.id not NUll
 );
 
 CREATE TABLE public.armas(
@@ -600,9 +619,9 @@ CREATE TABLE public.armas(
     tipo_municao public.tipo_municao DEFAULT NULL,
     tipo_dano character(64),
     dano public.dano NOT NULL,
-
+    
     -- FOREIGN KEYS
-    id_pericia_necessaria public.id,
+    id_pericia_necessaria public.id NOT NULL
 );
 
 CREATE TABLE public.feiticos_status(
@@ -626,7 +645,7 @@ CREATE TABLE public.feiticos_dano(
 
 
 CREATE TABLE public.itens(
-    id public.formato_id NOT NULL PRIMARY KEY,
+    id public.id NOT NULL PRIMARY KEY,
     tipo public.tipo_item NOT NULL,
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
@@ -645,13 +664,13 @@ CREATE TABLE public.tipos_personagem(
 );
 
 CREATE TABLE public.tipos_feitico(
-    id public.id NOT NULL PRIMARY KEY,
-    tipo public.tipos_de_feitico NOT NULL
+	id public.id NOT NULL PRIMARY KEY,
+    tipo public.funcao_feitico NOT NULL
 );
 
 CREATE TABLE public.tipos_monstro(
     id public.id NOT NULL PRIMARY KEY,
-    tipo public.tipo_monstro NOT NULL
+    tipo public.tipo_monstro NOT null
 );
 
 -- ===============================================
@@ -703,11 +722,6 @@ CREATE TABLE public.instancias_de_item(
 
 
 --  PERSONAGENS JOGÁVEIS
-
-ALTER TABLE public.personagens_jogaveis 
-ADD CONSTRAINT fk_pj_pt_de_magia 
-    FOREIGN KEY (id_pt_de_magia) 
-    REFERENCES public.pts_de_magia (id);
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_pericia 
@@ -816,15 +830,15 @@ ADD CONSTRAINT fk_instancias_de_item_salas
 
 -- INVENTÁRIO
 
-ALTER TABLE public.inventarios 
-ADD CONSTRAINT fk_inventarios_instancia_de_item 
+ALTER TABLE public.instancias_de_item 
+ADD CONSTRAINT fk_inventarios_possuem_instancias_de_item 
     FOREIGN KEY (id) 
-    REFERENCES public.instancias_de_item (id);
+    REFERENCES public.inventarios_possuem_instancias_item (id);
 
 -- MÁGICOS E FEITIÇOS
 
 ALTER TABLE public.magicos 
-ADD CONSTRAINT fk_magicos_tipos_de_feitico 
+ADD CONSTRAINT fk_magicos_tipos_feitico 
     FOREIGN KEY (id_feitico) 
     REFERENCES public.tipos_feitico (id);
 
@@ -900,7 +914,7 @@ ADD CONSTRAINT fk_entregas_missoes_personagens_jogaveis
 
 ALTER TABLE public.entregas_missoes 
 ADD CONSTRAINT fk_entregas_missoes_npcs 
-    FOREIGN KEY (id_npcs) 
+    FOREIGN KEY (id_npc) 
     REFERENCES public.npcs (id);
 
 -- INSTÂNCIAS DE ITENS
@@ -947,3 +961,4 @@ ALTER TABLE public.armas
 ADD CONSTRAINT fk_armas_pericia_necessaria
     FOREIGN KEY (id_pericia_necessaria) 
     REFERENCES public.pericias (id);   
+
