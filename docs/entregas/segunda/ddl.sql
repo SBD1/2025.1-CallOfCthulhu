@@ -1,14 +1,33 @@
--- versão 0.1 Criando a versão inicial do ddl com base no codigo do db.diagram.io 
--- 28/05
+/*
 
--- versão 0.2 Adcionando os dominios para tipos personalizados para as tabelas
--- 29/05
+HISTÓRICO DE VERSÕES
 
--- versão 0.3 Adicionando a secao de drop tables
--- 30/05
+Versão: 0.1
+Data: 28/05/2025
+Descrição: Criando a versão inicial do ddl com base no código do dbdiagram.io
+Autor: Luiz Guilherme
 
--- versão 0.4 Resolvendo bugs na criacao das tabelas
--- 02/06
+Versão: 0.2
+Data 29/05/2025
+Descrição: Adicionando os domínios para tipos personalizados para as tabelas do banco
+Autor: Luiz Guilherme
+
+Versão: 0.3
+Data: 30/05/2025
+Descrição Criação da seção de drop tables do ddl
+Autor: Luiz Guilherme
+
+Versão: 0.4 
+Data: 02/06/2025
+Descrição: Resolvendo bugs na criação das tabelas
+Autor: Luiz Guilherme
+
+Versão: 0.5 
+Data: 03/06/2025
+Descrição: Normalização do banco, resolução de erros de projeto e solucionamento de bugs
+Autor: Luiz Guilherme
+
+*/
 
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
@@ -243,6 +262,12 @@ DROP DOMAIN IF EXISTS public.id;
 
 -- ===============================================
 
+/*
+
+Essa seção do código é destinada a conter todos os domínios que foram criados ao longo do projeto para garantir uma maior personalização nos tipos de dados que podem ser utilizados no banco. Os domínios facilitam a manuteção do código além de garantir uma maior segurança evitando com que dados incorretos sejam inseridos nas tabelas do banco.
+
+*/
+
 CREATE DOMAIN public.id AS INTEGER
     CONSTRAINT id_check CHECK (
         VALUE >= 1 AND VALUE <= 999999999
@@ -313,14 +338,34 @@ CREATE DOMAIN public.tipo_personagem AS CHARACTER(18)
         ])
     );   
 
- CREATE DOMAIN public.tipo_municao AS character(13)
+ CREATE DOMAIN public.tipo_municao AS CHARACTER(13)
     CONSTRAINT tipo_municao_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('baixo-calibre'::character)::text, 
             ('medio-calibre'::character)::text,
             ('alto-calibre'::character)::text
         ])
-    );   
+    );  
+    
+ CREATE DOMAIN public.funcao_armadura AS CHARACTER(8)
+    CONSTRAINT tipo_municao_check CHECK (
+        (VALUE)::text = ANY (ARRAY[
+            ('cabeca'::character)::text, 
+            ('peitoral'::character)::text,
+            ('bracos'::character)::text,
+            ('pernas'::character)::text,
+            ('pes'::character)::text,
+            ('mao'::character)::text
+        ])
+    );    
+
+ CREATE DOMAIN public.tipo_dano AS CHARACTER(5)
+    CONSTRAINT tipo_municao_check CHECK (
+        (VALUE)::text = ANY (ARRAY[
+            ('area'::character)::text, 
+            ('unico'::character)::text
+        ])
+    );     
 
 CREATE DOMAIN public.funcao_feitico AS CHARACTER(6)
     CONSTRAINT funcao_feitico_check CHECK (
@@ -348,7 +393,7 @@ CREATE DOMAIN public.residencia AS CHARACTER(96);
 
 CREATE DOMAIN public.local_nascimento AS CHARACTER(96);
 
-CREATE DOMAIN public.script_dialogo AS CHARACTER(512);
+CREATE DOMAIN public.script_dialogo AS CHARACTER(512);         
 
 -- ===============================================
 
@@ -391,28 +436,6 @@ BEGIN
 END
 $$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION atualizar_atributos_do_personagem()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.ideia = calcular_ideia(NEW.inteligencia);
-    NEW.conhecimento = calcular_conhecimento(NEW.educacao);
-    NEW.sorte = calcular_sorte(NEW.poder);
-    NEW.pts_de_vida = calcular_pts_de_vida(NEW.constituicao, NEW.tamanho);
-    NEW.sanidade_maxima = calcular_sanidade(NEW.poder);
-
-    RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-/*
-
-CREATE TRIGGER trg_atualizar_atributos_do_personagem
-BEFORE INSERT OR UPDATE ON public.personagens_jogaveis
-FOR EACH ROW
-EXECUTE FUNCTION atualizar_atributos_do_personagem();
-
-*/
-
 -- ===============================================
 
 --             TABELAS DO RPG
@@ -438,11 +461,7 @@ CREATE TABLE public.personagens_jogaveis(
     inteligencia public.atributo NOT NULL, -- 3d6
     educacao public.atributo NOT NULL, -- 3d6 + 3
 
-    ideia SMALLINT, -- inteligencia x 5
-    conhecimento SMALLINT, -- educacao x 5
-    sorte SMALLINT,  -- poder x 5
-    pts_de_vida INTEGER, -- (constituicao + tamanho) / 2
-    sanidade_maxima SMALLINT, -- poder x 5
+
     movimento SMALLINT NOT NULL,
     localBoolean BOOLEAN NOT NULL,
 
@@ -454,11 +473,24 @@ CREATE TABLE public.personagens_jogaveis(
     PM_max SMALLINT,
 
     -- FOREIGN KEYS
-    id_local public.id NOT NULL,  
+    id_sala public.id,  
+    id_corredor public.id,
     id_pericia public.id NOT NULL, 
     id_inventario public.id NOT NULL, 
     id_armadura public.id NOT NULL, 
-    id_arma public.id NOT NULL
+    id_arma public.id NOT NULL,
+    id_tipo_personagem public.id NOT NULL
+
+    /*
+
+    São atributos originalmente da tabela personagens_jogaveis, contudo, ferem a terceira forma normal devido a transitividade de atributos. Assim, foi criado uma view que extende esses atributos e deixa o banco normalizado.
+
+    ideia SMALLINT, -- inteligencia x 5
+    conhecimento SMALLINT, -- educacao x 5
+    sorte SMALLINT,  -- poder x 5
+    pts_de_vida INTEGER, -- (constituicao + tamanho) / 2
+    sanidade_maxima SMALLINT, -- poder x 5
+    */
 );
 
 CREATE TABLE public.npcs(
@@ -474,7 +506,9 @@ CREATE TABLE public.npcs(
     localBoolean boolean NOT NULL,
 
     -- FOREIGN KEYS
-    id_local public.id NOT NULL 
+    id_sala public.id, 
+    id_corredor public.id,
+    id_tipo_personagem public.id NOT NULL
 );
 
 CREATE TABLE public.dialogos(
@@ -500,10 +534,10 @@ CREATE TABLE public.templos(
 CREATE TABLE public.andares(
     id public.id NOT NULL PRIMARY KEY,
     descricao public.descricao NOT NULL,
-    sala_inicial SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_templo public.id NOT NULL
+    id_templo public.id NOT NULL,
+    sala_inicial public.id NOT NULL
 );
 
 CREATE TABLE public.salas(
@@ -560,7 +594,8 @@ CREATE TABLE public.instancias_monstro(
 
     -- FOREING KEYS
     id_instancia_de_item public.id NOT NULL,
-    id_local public.id NOT NULL,  
+    id_sala public.id,  
+    id_corredor public.id,
     id_monstro public.id NOT NULL
 );
 
@@ -600,7 +635,7 @@ CREATE TABLE public.armaduras(
     nome public.nome NOT NULL UNIQUE,
     atributo_necessario CHARACTER(128),
     durabilidade SMALLINT NOT NULL,
-    funcao CHARACTER(128),
+    funcao funcao_armadura NOT NULL,
     qtd_atributo_recebe SMALLINT NOT NULL,
     tipo_atributo_recebe character(128) NOT NULL,
     qtd_dano_mitigado SMALLINT NOT NULL,
@@ -617,7 +652,7 @@ CREATE TABLE public.armas(
     funcao CHARACTER(128),
     alcance SMALLINT,
     tipo_municao public.tipo_municao DEFAULT NULL,
-    tipo_dano character(64),
+    tipo_dano public.tipo_dano NOT NULL,
     dano public.dano NOT NULL,
     
     -- FOREIGN KEYS
@@ -639,7 +674,7 @@ CREATE TABLE public.feiticos_dano(
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     qtd_pontos_de_magia SMALLINT NOT NULL,
-    tipo_dano CHARACTER(64),
+    tipo_dano public.tipo_dano NOT NULL,
     qtd_dano public.dano NOT NULL
 );
 
@@ -704,9 +739,8 @@ CREATE TABLE public.inventarios_possuem_instancias_item(
 );
 
 CREATE TABLE public.instancias_de_item(
-  id public.id NOT NULL,
+  id public.id NOT NULL UNIQUE,
   id_item public.id NOT NULL,
-  nome CHARACTER(64) NOT NULL,
   durabilidade SMALLINT NOT NULL,
   id_sala public.id NOT NULL,  -- FOREIGN KEY
   id_missao_requer public.id NOT NULL,  -- FOREIGN KEY
@@ -716,10 +750,51 @@ CREATE TABLE public.instancias_de_item(
 
 -- ===============================================
 
---              CHAVES ESTRAGEIRAS 
+--                  VIEWS
+
+-- =============================================== 
+
+/* 
+A view view_personagens_jogaveis_completos extende da tabela de personagens jogaveis criando os atributos: ideia, conhecimento, sorte, pts_de_vida e sanidade máxima. Esses atributos originalmente estavam na tabela personagens_jogaveis, contudo eles são derivações de outros atributos da mesma tabela. Isso fere a terceira forma normal. Assim, a view criada busca garantir que esses atributos continuem a ser utilizados mas, que ao mesmo tempo deixa o banco normalizado.
+*/
+
+CREATE OR REPLACE VIEW public.view_personagens_jogaveis_completos AS
+SELECT
+    pj.*, -- seleciona todas as colunas originais de personagens_jogaveis
+    public.calcular_ideia(pj.inteligencia) AS ideia,
+    public.calcular_conhecimento(pj.educacao) AS conhecimento,
+    public.calcular_sorte(pj.poder) AS sorte,
+    public.calcular_pts_de_vida(pj.constituicao, pj.tamanho) AS pts_de_vida,
+    public.calcular_sanidade(pj.poder) AS sanidade_maxima
+FROM
+    public.personagens_jogaveis pj;
 
 -- ===============================================
 
+--               RESTRIÇÕES
+
+-- ===============================================
+
+ALTER TABLE public.personagens_jogaveis
+ADD CONSTRAINT chk_pj_local_exclusivo
+    CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
+            (id_sala IS NULL AND id_corredor IS NOT NULL));
+
+ALTER TABLE public.npcs
+ADD CONSTRAINT chk_pj_local_exclusivo
+    CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
+            (id_sala IS NULL AND id_corredor IS NOT NULL));  
+
+ALTER TABLE public.instancias_monstro
+ADD CONSTRAINT chk_pj_local_exclusivo
+    CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
+            (id_sala IS NULL AND id_corredor IS NOT NULL)); 
+
+-- ===============================================
+
+--              CHAVES ESTRAGEIRAS 
+
+-- ===============================================
 
 --  PERSONAGENS JOGÁVEIS
 
@@ -735,35 +810,45 @@ ADD CONSTRAINT fk_pj_inventario
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_salas 
-    FOREIGN KEY (id_local) 
+    FOREIGN KEY (id_sala) 
     REFERENCES public.salas (id);
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_corredores 
-    FOREIGN KEY (id_local) 
+    FOREIGN KEY (id_corredor) 
     REFERENCES public.corredores (id);
 
 ALTER TABLE public.personagens_jogaveis 
-ADD CONSTRAINT fk_pj_inventario_arma
+ADD CONSTRAINT fk_pj_inventario_instancia_arma
     FOREIGN KEY (id_arma) 
-    REFERENCES public.inventarios (id);
+    REFERENCES public.instancias_de_item (id);
 
 ALTER TABLE public.personagens_jogaveis 
-ADD CONSTRAINT fk_pj_inventarios 
+ADD CONSTRAINT fk_pj_inventario_instancia_armadura 
     FOREIGN KEY (id_armadura) 
-    REFERENCES public.inventarios (id);
+    REFERENCES public.instancias_de_item (id);
+
+ALTER TABLE public.personagens_jogaveis 
+ADD CONSTRAINT fk_pj_tipos_personagem 
+    FOREIGN KEY (id_tipo_personagem) 
+    REFERENCES public.tipos_personagem (id);  
 
 -- NPCS
 
 ALTER TABLE public.npcs 
 ADD CONSTRAINT fk_npcs_salas 
-    FOREIGN KEY (id_local) 
+    FOREIGN KEY (id_sala) 
     REFERENCES public.salas (id);
 
 ALTER TABLE public.npcs 
 ADD CONSTRAINT fk_npcs_corredores 
-    FOREIGN KEY (id_local) 
+    FOREIGN KEY (id_corredor) 
     REFERENCES public.corredores (id);
+
+ALTER TABLE public.npcs 
+ADD CONSTRAINT fk_npcs_tipos_personagem 
+    FOREIGN KEY (id_tipo_personagem) 
+    REFERENCES public.tipos_personagem (id);    
 
 -- DIÁLOGOS
 
@@ -795,27 +880,6 @@ ADD CONSTRAINT fk_corredores_salas_destino_salas
     FOREIGN KEY (id_sala) 
     REFERENCES public.salas (id);
 
--- ITENS
-ALTER TABLE public.itens 
-ADD CONSTRAINT fk_itens_curas 
-    FOREIGN KEY (id) 
-    REFERENCES public.curas (id);
-
-ALTER TABLE public.itens 
-ADD CONSTRAINT fk_itens_magicos 
-    FOREIGN KEY (id) 
-    REFERENCES public.magicos (id);
-
-ALTER TABLE public.itens 
-ADD CONSTRAINT fk_itens_armaduras 
-    FOREIGN KEY (id) 
-    REFERENCES public.armaduras (id);
-
-ALTER TABLE public.itens 
-ADD CONSTRAINT fk_itens_armas 
-    FOREIGN KEY (id) 
-    REFERENCES public.armas (id);
-
 -- INSTANCIAS DE ITEM
 
 ALTER TABLE public.instancias_de_item 
@@ -828,12 +892,24 @@ ADD CONSTRAINT fk_instancias_de_item_salas
     FOREIGN KEY (id_sala) 
     REFERENCES public.salas (id);
 
+-- CURAS
+
+ALTER TABLE public.curas
+ADD CONSTRAINT fk_curas_itens
+    FOREIGN KEY (id)
+    REFERENCES public.itens (id);
+
 -- INVENTÁRIO
 
-ALTER TABLE public.instancias_de_item 
+ALTER TABLE public.inventarios_possuem_instancias_item 
 ADD CONSTRAINT fk_inventarios_possuem_instancias_de_item 
-    FOREIGN KEY (id) 
-    REFERENCES public.inventarios_possuem_instancias_item (id);
+    FOREIGN KEY (id_instancias_de_item) 
+    REFERENCES public.instancias_de_item (id);
+
+ALTER TABLE public.inventarios_possuem_instancias_item 
+ADD CONSTRAINT fk_inventarios_possuem_instancias_de_item_inventario 
+    FOREIGN KEY (id_inventario) 
+    REFERENCES public.inventarios (id);    
 
 -- MÁGICOS E FEITIÇOS
 
@@ -842,15 +918,24 @@ ADD CONSTRAINT fk_magicos_tipos_feitico
     FOREIGN KEY (id_feitico) 
     REFERENCES public.tipos_feitico (id);
 
-ALTER TABLE public.tipos_feitico 
-ADD CONSTRAINT fk_tipos_feitico_feitico_status 
+ALTER TABLE public.magicos 
+ADD CONSTRAINT fk_magicos_itens 
     FOREIGN KEY (id) 
-    REFERENCES public.feiticos_status (id);
+    REFERENCES public.itens (id);    
 
-ALTER TABLE public.tipos_feitico 
-ADD CONSTRAINT fk_tipos_feitico_feitico_dano 
+-- FEITIÇOS STATUS
+
+ALTER TABLE public.feiticos_status 
+ADD CONSTRAINT fk_feiticos_status_tipo_feitico 
     FOREIGN KEY (id) 
-    REFERENCES public.feiticos_dano (id);
+    REFERENCES public.tipos_feitico (id);
+
+-- FEITIÇOS DANO
+
+ALTER TABLE public.feiticos_status 
+ADD CONSTRAINT fk_feiticos_dano_tipo_feitico 
+    FOREIGN KEY (id) 
+    REFERENCES public.tipos_feitico (id);
 
 -- INSTÂNCIAS DE MONSTRO
 
@@ -861,12 +946,12 @@ ADD CONSTRAINT fk_instancias_de_monstro_tipo_monstro
 
 ALTER TABLE public.instancias_monstro 
 ADD CONSTRAINT fk_instancias_monstro_salas 
-    FOREIGN KEY (id_local) 
+    FOREIGN KEY (id_sala) 
     REFERENCES public.salas (id);
 
 ALTER TABLE public.instancias_monstro 
 ADD CONSTRAINT fk_instancias_monstro_corredores 
-    FOREIGN KEY (id_local) 
+    FOREIGN KEY (id_corredor) 
     REFERENCES public.corredores (id);
 
 ALTER TABLE public.instancias_monstro 
@@ -874,17 +959,24 @@ ADD CONSTRAINT fk_instancias_de_monstro_instancia_de_item
     FOREIGN KEY (id_instancia_de_item) 
     REFERENCES public.instancias_de_item (id);
 
--- ESPECILIZAÇÃO DE MONSTROS
+-- MONSTROS PACÍFICOS
 
-ALTER TABLE public.tipos_monstro 
-ADD CONSTRAINT fk_tipos_monstro_pacificos 
+ALTER TABLE public.pacificos 
+ADD CONSTRAINT fk_pacificos_tipo_monstro 
     FOREIGN KEY (id) 
-    REFERENCES public.pacificos (id);
+    REFERENCES public.tipos_monstro (id);
 
-ALTER TABLE public.tipos_monstro 
-ADD CONSTRAINT fk_tipos_monstro_agressivos 
+-- MONSTROS AGRESSIVOS
+
+ALTER TABLE public.agressivos 
+ADD CONSTRAINT fk_agressivos_tipo_monstro 
     FOREIGN KEY (id) 
-    REFERENCES public.agressivos (id);
+    REFERENCES public.tipos_monstro (id);
+
+ALTER TABLE public.agressivos 
+ADD CONSTRAINT fk_agressivos_tipos_de_feitico 
+    FOREIGN KEY (id_feitico) 
+    REFERENCES public.tipos_feitico (id);
 
 -- BATALHAS
 
@@ -929,31 +1021,17 @@ ADD CONSTRAINT fk_instancias_de_itens_missoes_requer
     FOREIGN KEY (id_missao_requer) 
     REFERENCES public.missoes (id);
 
---  ESPECIALIZAÇÃO DE PERSONAGEM
-
-ALTER TABLE public.tipos_personagem 
-ADD CONSTRAINT fk_tipos_personagem_personagens_jogaveis 
-    FOREIGN KEY (id) 
-    REFERENCES public.personagens_jogaveis (id);
-
-ALTER TABLE public.tipos_personagem 
-ADD CONSTRAINT fk_tipos_personagem_npc 
-    FOREIGN KEY (id) 
-    REFERENCES public.npcs (id);
-
---
-
-ALTER TABLE public.agressivos 
-ADD CONSTRAINT fk_agressivos_tipos_de_feitico 
-    FOREIGN KEY (id_feitico) 
-    REFERENCES public.tipos_feitico (id);
-
 -- ARMADURAS
 
 ALTER TABLE public.armaduras 
 ADD CONSTRAINT fk_armaduras_pericia_necessaria
     FOREIGN KEY (id_pericia_necessaria) 
     REFERENCES public.pericias (id);
+
+ALTER TABLE public.armaduras 
+ADD CONSTRAINT fk_armaduras_itens
+    FOREIGN KEY (id) 
+    REFERENCES public.itens (id);    
 
  -- ARMAS
 
@@ -962,3 +1040,7 @@ ADD CONSTRAINT fk_armas_pericia_necessaria
     FOREIGN KEY (id_pericia_necessaria) 
     REFERENCES public.pericias (id);   
 
+ALTER TABLE public.armas 
+ADD CONSTRAINT fk_armas_itens
+    FOREIGN KEY (id) 
+    REFERENCES public.itens (id); 
