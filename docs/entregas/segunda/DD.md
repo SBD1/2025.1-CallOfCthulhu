@@ -6,7 +6,8 @@
 | `1.1`  | 02/05/25 | Populando o DD | [Christopher Paraizo](https://github.com/wChrstphr)   |
 | `1.2`  | 02/05/25 | Populando o DD com as tabelas de entidades | [Christopher Paraizo](https://github.com/wChrstphr) e [João Marcos](https://github.com/JJOAOMARCOSS)   |
 | `1.3`  | 02/05/25 | Populando o DD com as tabelas provindas de relacionamentos, generalizações e especializações | [Christopher Paraizo](https://github.com/wChrstphr)      |   
-| `1.4`  | 15/05/25 | Adicionando a tabela Diálogos | [Luiz](https://github.com/luizfaria1989)      |                                                          |
+| `1.4`  | 15/05/25 | Adicionando a tabela Diálogos | [Luiz](https://github.com/luizfaria1989)      |  
+| `2.0`  | 08/06/25 | Adicionando a seção que explica os domínios criados no DDL | [Luiz](https://github.com/luizfaria1989)      |                                                          |                                                        |
 
 # DD - Dicionário de Dados
 
@@ -425,6 +426,49 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | int | Identificador único do feitiço | 1 - 5000 | Não | PK e FK | |
 | tipo | varchar[100] | Tipo do feitiço | a-z, A-Z | Não | | |
+
+## Domínios criados
+
+Os domínios são uma funcionalidade do SQL que permitem a criação de tipos personalizados de dados. Assim, eles garantem uma melhor manutenabilidade do código, pois a edição de um domínio pode alterar atributos em diferentes tabelas, evitando que essa alteração seja feita tabela por tabela. Além disso, eles auxiliam a manter a integridade dos dados do banco, uma vez que restringem o tipo de dado que pode ser inserido em uma célula.
+
+Essa seção contém uma tabela de todos os domínios que foram criados no arquivo DDL do projeto, explicando aquele domínio, o tipo primário e os seus valores permitidos. Cabe ressaltar também que os domínios podem estar sujeitos a mudaças para comportar novos tipos de dado no banco.
+
+| Nome do domínio | Tipo Primário | Descrição | Valores permitidos | Observações |
+| :-------------: | :-----------: | :-------: | :----------------: | :---------: |
+| id              | Integer       | É o domínio utilizado quando é preciso declarar o tipo de um id no banco de dados | 1 - 999999999 | |
+| dano            | Smallint      | É domnínio utilizado quando é preciso declarar o tipo de dano de um monstro ou arma | 1 - 500 | |
+| sexo            | Character(9)  | É domínio utilizado quando é preciso declarar o sexo de um personagem ou NPC | "masculino", <br> "feminino" | |
+| atributo        | Smallint      | É domínio utilizado quando é preciso declarar o valor de um atributo do personagem jogável | 3 - 18 | Os valores do atributo se referem aos valores que podem ser obtidos ao jogar três dados de seis faces e somar seus resultados |
+| idade           | Smallint      | É domínio utilizado quando é preciso declarar o valor da idade de um personagem jogável ou NPC | 1 - 120 | |
+| tipo_monstro_agressivo | Character(8) | É domínio utilizado quando é preciso declarar o tipo de um monstro agressivo | 'psiquico', <br> 'magico', <br> 'fisico' | |
+| tipo_monstro_pacifico | Character(9) | É o domínio utilizado quando é preciso declarar o tipo de um monstro pacífico | 'humanoide', <br> 'sobrenatural' | |
+| tipo_monstro | Character(9) | É o domínio utilizado quando é preciso declarar o tipo de um monstro | 'agressivo', <br> 'pacifico'| |
+| tipo_personagem | Character(18) | É o domínio utilizado quando é preciso declarar o tipo de um personagem | 'personagem jogavel', <br> 'NPC, | |
+| tipo_item | Character(9) | É o domínio utilizado quando é preciso declarar o tipo de um item | 'armadura', <br> 'arma', <br> 'cura' | |
+| tipo_municao | Character(13) | É domínio utilizado quando é preciso declarar o tipo da munição de uma arma | 'baixo-calibre', <br> 'medio-calibre', <br> 'alto-calibre | |
+| funcao_armadura | Character(8) | É domínio utilizado quando é preciso declarar qual parte do corpo aquela armadura protege | 'cabeca', <br> 'peitoral', <br> 'bracos', <br> 'pernas', <br> 'pes', <br> 'mao' | |
+| tipo_dano | Charater(5) | É o domínio utilizado quando é preciso declarar o tipo de dado de uma arma | 'area', <br> 'unico' | |
+| funcao_feitico | Character(6) | É o domínio utilizado quando é preciso declarar qual á função de um feitiço | 'status', 'dano' | |
+| tipo_status | Character(8) | É o domínio utilizado quando é preciso declarar qual o tipo de status que um feitiço de status atua | 'vida', <br> 'sanidade' | |
+| tipo_atributo_personagem | Character(12) | É o domínio utilizado quando é preciso declrar o tipo do atributo de um personagem | 'forca', <br> 'constituicao', <br> 'poder',  <br> 'destreza', <br> 'aparencia', <br> 'tamanho', <br> 'inteligencia', <br> 'educacao' | |
+| tipo_missao | Character(12) | É o domínio utilizado quando é preciso declarar o tipo de uma missão | 'principal', <br> 'secundaria', <br> 'coleta', <br> 'eliminacao', <br> 'escolta' | |
+| funcao_arma | Character(32) | É o domínio utilizado quando é preciso declarar a função de uma arma | 'corpo_a_corpo_leve', <br> 'corpo_a_corpo_pesada', <br> 'arremesso', <br> 'disparo_unico', <br> 'disparo_rajada' |
+| funcao_cura | Character(32) | É o domínio utilizado quando é preciso declarar a função de um feitiço de cura | 'restaurar_vida', <br> 'restaurar_sanidade', <br> 'remover_veneno', <br> 'remover_maldicao', <br> 'antidoto_insanidade' |
+| funcao_magica | Character(32) | É o domínio utilizado quando é preciso declarar a função de um item mágico | 'revelar_invisivel', <br> 'abrir_fechadura', <br> 'encantar_arma', <br> 'invocar_criatura', <br> 'teleporte', <br> 'protecao_elemental'| |
+| gatilho_agressividade | Character(32) | É o domínio utilizado quando é preciso declarar o gatilho de agressividade de um monstro agressivo | 'proximidade', <br> 'ataque_direto', <br> 'barulho_alto', <br> 'alvo_especifico', <br> 'horario_noturno', <br> 'ver_item_sagrado' | |
+| comportamento_pacifico | Character(32) | É o domínio utilizado quando é preciso declarar o tipo de comportamento de um monstro pacífico | 'indiferente', <br> 'medroso', <br> 'amigavel', <br> 'sob_controle_mental', <br> 'adormecido', <br> 'curioso' | |
+| nome | Character(128) | É o domínio utilizado quando é preciso declarar o tipo do atributo nome em uma tabela | a-z, A,Z | Aceita até 128 caracteres | 
+| descricao | Character(256) | É o domínio utilizado quando é preciso declarar o tipo do atributo descrição em uma tabela | a-z, A,Z | Aceita até 256 caracteres |
+| ocupacao | Character(64) | É o domínio utilizado quando é preciso declarar o tipo do atributo ocupação em uma tabela | a-z, A,Z | Aceita até 64 caracteres |
+| residencia | Character(96) | É o domínio utilizado quando é preciso declarar o tipo do atributo residência em uma tabela | a-z, A,Z | Aceita até 96 caracteres |
+| local_nascimento | Character(96) | É o domínio utilizado quando é preciso declarar o tipo do atributo local de nascimento em uma tabela | a-z, A,Z | Aceita até 64 caracteres |
+| script_dialogo | Character(512) | É o domínio utiizado quando é preciso declarar o tipo do atributo script diálogo em uma tabela | a-z, A,Z | Aceita até 512 caracteres |
+
+É importante ressaltar a escolha dos tipo Character ao invés de Varchar, ao utilizar uma quantidade fixa de caracteres para os dados de uma tabela, as suas linhas passam a ter um tamanho fixo. Essa característica para uma tabela de um banco de dados pode ser útil, uma vez que facilita as pesquisas feitas pelo banco, dado que para avançar uma linha basta multiplicar o valor pelo tamanho da tupla daquela tabela pelo número da linha que se quer.
+
+
+
+
 
 
 
