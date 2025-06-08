@@ -27,7 +27,7 @@ Data: 03/06/2025
 Descrição: Normalização do banco, resolução de erros de projeto e solucionamento de bugs
 Autor: Luiz Guilherme
 
-Versão: 0.7
+Versão: 0.6
 Data: 08/06/2025
 Descrição: Solucionando o bug referente a tabela de instâncias de itens, adição de novos domínios para as tabelas do banco, correção dos drop tables
 Autor: Luiz Guilherme
