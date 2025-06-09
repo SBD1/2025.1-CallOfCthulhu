@@ -504,40 +504,40 @@ CREATE DOMAIN public.script_dialogo AS CHARACTER(512);
 
 -- ===============================================
 
-CREATE OR REPLACE FUNCTION calcular_sanidade(valor_poder INTEGER)
-RETURNS SMALLINT AS $$
+CREATE FUNCTION calcular_sanidade(valor_poder INTEGER)
+RETURNS SMALLINT AS $calcular_sanidade$
 BEGIN
     RETURN valor_poder * 5;
 END
-$$ LANGUAGE plpgsql IMMUTABLE;
+$calcular_sanidade$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION calcular_ideia(valor_inteligencia INTEGER)
-RETURNS SMALLINT AS $$
+CREATE FUNCTION calcular_ideia(valor_inteligencia INTEGER)
+RETURNS SMALLINT AS $calcular_ideia$
 BEGIN
     RETURN valor_inteligencia * 5;
 END
-$$ LANGUAGE plpgsql IMMUTABLE;
+$calcular_ideia$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION calcular_conhecimento(valor_educacao INTEGER)
-RETURNS SMALLINT AS $$
+CREATE FUNCTION calcular_conhecimento(valor_educacao INTEGER)
+RETURNS SMALLINT AS $calcular_conhecimento$
 BEGIN
     RETURN valor_educacao * 5;
 END
-$$ LANGUAGE plpgsql IMMUTABLE;
+$calcular_conhecimento$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION calcular_sorte(valor_poder INTEGER)
-RETURNS SMALLINT AS $$
+CREATE FUNCTION calcular_sorte(valor_poder INTEGER)
+RETURNS SMALLINT AS $calcular_sorte$
 BEGIN
     RETURN valor_poder * 5;
 END
-$$ LANGUAGE plpgsql IMMUTABLE;
+$calcular_sorte$ LANGUAGE plpgsql IMMUTABLE;
 
-CREATE OR REPLACE FUNCTION calcular_pts_de_vida(valor_constituicao INTEGER, valor_tamanho INTEGER)
-RETURNS INTEGER AS $$
+CREATE FUNCTION calcular_pts_de_vida(valor_constituicao INTEGER, valor_tamanho INTEGER)
+RETURNS INTEGER AS $calcular_pts_de_vida$
 BEGIN
     RETURN (valor_constituicao + valor_tamanho) / 2;
 END
-$$ LANGUAGE plpgsql IMMUTABLE;
+$calcular_pts_de_vida$ LANGUAGE plpgsql IMMUTABLE;
 
 -- ===============================================
 
@@ -574,13 +574,15 @@ CREATE TABLE public.personagens_jogaveis(
    	PM_base SMALLINT, 
     PM_max SMALLINT,
 
+    pontos_de_vida_atual SMALLINT,
+
     -- FOREIGN KEYS
     id_sala public.id,  
     id_corredor public.id, 
     id_inventario public.id NOT NULL, 
     id_armadura public.id, 
     id_arma public.id,
-    id_tipo_personagem public.id NOT NULL
+    id_tipo_personagem public.id NOT NULL,
 
     /*
 
@@ -589,7 +591,7 @@ CREATE TABLE public.personagens_jogaveis(
     ideia SMALLINT, -- inteligencia x 5
     conhecimento SMALLINT, -- educacao x 5
     sorte SMALLINT,  -- poder x 5
-    pts_de_vida INTEGER, -- (constituicao + tamanho) / 2
+    pts_de_vida_maximo INTEGER, -- (constituicao + tamanho) / 2
     sanidade_maxima SMALLINT, -- poder x 5
     */
 );
@@ -740,7 +742,7 @@ CREATE TABLE public.armaduras(
     qtd_dano_mitigado SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_pericia_necessaria public.id not NUll
+    id_pericia_necessaria public.id NOT NULL
 );
 
 CREATE TABLE public.armas(
@@ -857,7 +859,7 @@ CREATE TABLE public.personagens_possuem_pericias (
     PRIMARY KEY (id_personagem, id_pericia),
 
     -- FOREIGN KEYS
-     id_personagem public.id NOT NULL,
+    id_personagem public.id NOT NULL,
     id_pericia public.id NOT NULL
 );
 
