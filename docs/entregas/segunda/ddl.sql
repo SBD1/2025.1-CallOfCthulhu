@@ -32,6 +32,11 @@ Data: 08/06/2025
 Descrição: Solucionando o bug referente a tabela de instâncias de itens, adição de novos domínios para as tabelas do banco, correção dos drop tables
 Autor: Luiz Guilherme
 
+Versão: 0.7
+Data: 10/06/2025
+Descrição: Ajustando o DDL para condizer com as informações presentes no dicionário de dados
+Autor: Luiz Guilherme
+
 */
 
 -- DROP SCHEMA public CASCADE;
@@ -103,7 +108,7 @@ DROP CONSTRAINT IF EXISTS fk_corredores_salas_destino_corredores;
 ALTER TABLE public.corredores_salas_destino
 DROP CONSTRAINT IF EXISTS fk_corredores_salas_destino_salas;
 
-ALTER TABLE public.instancias_de_item
+ALTER TABLE public.instancias_de_itens
 DROP CONSTRAINT IF EXISTS fk_instancias_de_item_salas;
 
 -- da tabela curas
@@ -111,10 +116,10 @@ ALTER TABLE public.curas
 DROP CONSTRAINT IF EXISTS fk_curas_itens;
 
 -- da tabela inventarios_possuem_instancias_de_itens
-ALTER TABLE public.inventarios_possuem_instancias_item 
+ALTER TABLE public.inventarios_possuem_instancias_itens 
 DROP CONSTRAINT IF EXISTS fk_inventarios_possuem_instancias_de_item;
 
-ALTER TABLE public.inventarios_possuem_instancias_item 
+ALTER TABLE public.inventarios_possuem_instancias_itens 
 DROP CONSTRAINT IF EXISTS fk_inventarios_possuem_instancias_de_item_inventario;
 
 -- da tabela magicos
@@ -133,16 +138,16 @@ ALTER TABLE public.feiticos_dano
 DROP CONSTRAINT IF EXISTS fk_feiticos_dano_tipo_feitico;
 
 -- da tabela instancias_monstro
-ALTER TABLE public.instancias_monstro
+ALTER TABLE public.instancias_monstros
 DROP CONSTRAINT IF EXISTS fk_instancias_de_monstro_tipo_monstro;
 
-ALTER TABLE public.instancias_monstro
+ALTER TABLE public.instancias_monstros
 DROP CONSTRAINT IF EXISTS fk_instancias_monstro_salas;
 
-ALTER TABLE public.instancias_monstro
+ALTER TABLE public.instancias_monstros
 DROP CONSTRAINT IF EXISTS fk_instancias_monstro_corredores;
 
-ALTER TABLE public.instancias_monstro
+ALTER TABLE public.instancias_monstros
 DROP CONSTRAINT IF EXISTS fk_instancias_monstro_instancia_de_item;
 
 -- da tabela pacificos
@@ -152,9 +157,6 @@ DROP CONSTRAINT IF EXISTS fk_pacificos_tipo_monstro;
 -- da tabela agressivos
 ALTER TABLE public.agressivos
 DROP CONSTRAINT IF EXISTS fk_agressivos_tipo_monstro;
-
-ALTER TABLE public.agressivos
-DROP CONSTRAINT IF EXISTS fk_agressivos_tipos_de_feitico;
 
 -- da tabela batalhas
 ALTER TABLE public.batalhas
@@ -209,14 +211,14 @@ DROP CONSTRAINT IF EXISTS fk_tipos_monstro_pacificos;
 ALTER TABLE public.tipos_monstro
 DROP CONSTRAINT IF EXISTS fk_tipos_monstro_agressivo;
 
--- da tabela instancias_de_item
-ALTER TABLE public.instancias_de_item
+-- da tabela instancias_de_itens
+ALTER TABLE public.instancias_de_itens
 DROP CONSTRAINT IF EXISTS fk_instancias_de_itens_missoes_recompensa;
 
-ALTER TABLE public.instancias_de_item
+ALTER TABLE public.instancias_de_itens
 DROP CONSTRAINT IF EXISTS fk_instancias_de_itens_missoes_requer;
 
-ALTER TABLE public.instancias_de_item
+ALTER TABLE public.instancias_de_itens
 DROP CONSTRAINT IF EXISTS fk_instancias_de_item_itens;
 
 -- da tabela armaduras
@@ -255,7 +257,7 @@ DROP TABLE IF EXISTS public.batalhas; --
 DROP TABLE IF EXISTS public.tipos_personagem; --
 DROP TABLE IF EXISTS public.tipos_feitico; --
 DROP TABLE IF EXISTS public.tipos_monstro; --
-DROP TABLE IF EXISTS public.instancias_de_item; --
+DROP TABLE IF EXISTS public.instancias_de_itens; --
 DROP TABLE IF EXISTS public.itens; --
 DROP TABLE IF EXISTS public.pacificos; --
 DROP TABLE IF EXISTS public.agressivos; --
@@ -266,7 +268,7 @@ DROP TABLE IF EXISTS public.armaduras; --
 DROP TABLE IF EXISTS public.curas; --
 DROP TABLE IF EXISTS public.magicos; --
 DROP TABLE IF EXISTS public.missoes; --
-DROP TABLE IF EXISTS public.instancias_monstro; --
+DROP TABLE IF EXISTS public.instancias_monstros; --
 DROP TABLE IF EXISTS public.pericias; --
 DROP TABLE IF EXISTS public.salas; --
 DROP TABLE IF EXISTS public.andares; --
@@ -368,7 +370,7 @@ CREATE DOMAIN public.tipo_monstro_agressivo AS CHARACTER(8)
 CREATE DOMAIN public.tipo_monstro_pacifico AS CHARACTER(12)
     CONSTRAINT tipo_monstro_pacifico_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('humóide'::character)::text, 
+            ('humanoide'::character)::text, 
             ('sobrenatural'::character)::text
         ])
     );
@@ -560,21 +562,21 @@ CREATE TABLE public.personagens_jogaveis(
     poder public.atributo NOT NULL, -- 3d6
     destreza public.atributo NOT NULL, -- 3d6
     aparencia public.atributo NOT NULL, -- 3d6
-    tamanho public.atributo NOT NULL, -- 3d6 + 3
+    tamanho public.atributo NOT NULL, -- 3d6
     inteligencia public.atributo NOT NULL, -- 3d6
-    educacao public.atributo NOT NULL, -- 3d6 + 3
+    educacao public.atributo NOT NULL, -- 3d6
 
 
     movimento SMALLINT NOT NULL,
 
-    sanidade_atual SMALLINT,
+    sanidade_atual SMALLINT NOT NULL,
     insanidade_temporaria BOOLEAN, 
     insanidade_indefinida BOOLEAN, -- quando sanidade é 0
     
-   	PM_base SMALLINT, 
-    PM_max SMALLINT,
+   	PM_base SMALLINT NOT NULL, 
+    PM_max SMALLINT NOT NULL,
 
-    pontos_de_vida_atual SMALLINT,
+    pontos_de_vida_atual SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
     id_sala public.id,  
@@ -582,7 +584,7 @@ CREATE TABLE public.personagens_jogaveis(
     id_inventario public.id NOT NULL, 
     id_armadura public.id, 
     id_arma public.id,
-    id_tipo_personagem public.id NOT NULL,
+    id_tipo_personagem public.id NOT NULL
 
     /*
 
@@ -673,9 +675,6 @@ CREATE TABLE public.agressivos(
     loucura_induzida SMALLINT,
     ponto_magia SMALLINT,
     dano public.dano NOT NULL,
-
-    -- FOREING KEYS
-    id_feitico public.id NOT NULL 
 );
 
 CREATE TABLE public.pacificos(
@@ -690,7 +689,7 @@ CREATE TABLE public.pacificos(
     conhecimento_proibido CHARACTER(128)
 );
 
-CREATE TABLE public.instancias_monstro(
+CREATE TABLE public.instancias_monstros(
     id public.id NOT NULL PRIMARY KEY,
 
     -- FOREING KEYS
@@ -713,7 +712,6 @@ CREATE TABLE public.missoes(
 
 CREATE TABLE public.magicos(
     id public.id NOT NULL PRIMARY KEY,
-    nome public.nome NOT NULL UNIQUE,
     funcao public.funcao_magica NOT NULL,
     qts_usos SMALLINT NOT NULL,
     custo_sanidade SMALLINT NOT NULL,
@@ -725,7 +723,6 @@ CREATE TABLE public.magicos(
 CREATE TABLE public.curas(
     id public.id NOT NULL PRIMARY KEY,
     funcao public.funcao_cura NOT NULL,
-    nome public.nome NOT NULL UNIQUE,
     qts_usos SMALLINT NOT NULL,
     qtd_pontos_sanidade_recupera SMALLINT NOT NULL,
     qtd_pontos_vida_recupera SMALLINT NOT NULL
@@ -733,11 +730,11 @@ CREATE TABLE public.curas(
 
 CREATE TABLE public.armaduras(
     id public.id NOT NULL PRIMARY KEY,
-    nome public.nome NOT NULL UNIQUE,
     atributo_necessario public.tipo_atributo_personagem,
     durabilidade SMALLINT NOT NULL,
     funcao funcao_armadura NOT NULL,
     qtd_atributo_recebe SMALLINT NOT NULL,
+    qtd_atributo_necessario SMALLINT NOT NULL,
     tipo_atributo_recebe public.tipo_atributo_personagem,
     qtd_dano_mitigado SMALLINT NOT NULL,
 
@@ -747,9 +744,9 @@ CREATE TABLE public.armaduras(
 
 CREATE TABLE public.armas(
     id public.id NOT NULL PRIMARY KEY,
-    nome public.nome NOT NULL UNIQUE,
     atributo_necessario public.tipo_atributo_personagem,
-    durabilidade SMALLINT,
+    qtd_atributo_necessario SMALLINT NOT NULL,
+    durabilidade SMALLINT NOT NULL,
     funcao public.funcao_arma,
     alcance SMALLINT,
     tipo_municao public.tipo_municao DEFAULT NULL,
@@ -788,7 +785,7 @@ CREATE TABLE public.itens(
     valor SMALLINT
 );
 
-CREATE TABLE public.instancias_de_item(
+CREATE TABLE public.instancias_de_itens(
     id public.id NOT NULL PRIMARY KEY,
     durabilidade SMALLINT NOT NULL,
 
@@ -904,7 +901,7 @@ ADD CONSTRAINT chk_pj_local_exclusivo
     CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
             (id_sala IS NULL AND id_corredor IS NOT NULL));  
 
-ALTER TABLE public.instancias_monstro
+ALTER TABLE public.instancias_monstros
 ADD CONSTRAINT chk_pj_local_exclusivo
     CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
             (id_sala IS NULL AND id_corredor IS NOT NULL)); 
@@ -938,12 +935,12 @@ ADD CONSTRAINT fk_pj_corredores
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_inventario_instancia_arma
     FOREIGN KEY (id_arma) 
-    REFERENCES public.instancias_de_item (id);
+    REFERENCES public.instancias_de_itens (id);
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_inventario_instancia_armadura 
     FOREIGN KEY (id_armadura) 
-    REFERENCES public.instancias_de_item (id);
+    REFERENCES public.instancias_de_itens (id);
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_tipos_personagem 
@@ -1021,7 +1018,7 @@ ADD CONSTRAINT fk_curas_itens
 ALTER TABLE public.inventarios_possuem_instancias_item 
 ADD CONSTRAINT fk_inventarios_possuem_instancias_de_item 
     FOREIGN KEY (id_instancias_de_item) 
-    REFERENCES public.instancias_de_item (id);
+    REFERENCES public.instancias_de_itens (id);
 
 ALTER TABLE public.inventarios_possuem_instancias_item 
 ADD CONSTRAINT fk_inventarios_possuem_instancias_de_item_inventario 
@@ -1056,25 +1053,25 @@ ADD CONSTRAINT fk_feiticos_dano_tipo_feitico
 
 -- INSTÂNCIAS DE MONSTRO
 
-ALTER TABLE public.instancias_monstro 
+ALTER TABLE public.instancias_monstros
 ADD CONSTRAINT fk_instancias_de_monstro_tipo_monstro 
     FOREIGN KEY (id_monstro) 
     REFERENCES public.tipos_monstro (id);
 
-ALTER TABLE public.instancias_monstro 
+ALTER TABLE public.instancias_monstros 
 ADD CONSTRAINT fk_instancias_monstro_salas 
     FOREIGN KEY (id_sala) 
     REFERENCES public.salas (id);
 
-ALTER TABLE public.instancias_monstro 
+ALTER TABLE public.instancias_monstros 
 ADD CONSTRAINT fk_instancias_monstro_corredores 
     FOREIGN KEY (id_corredor) 
     REFERENCES public.corredores (id);
 
-ALTER TABLE public.instancias_monstro 
+ALTER TABLE public.instancias_monstros
 ADD CONSTRAINT fk_instancias_monstro_instancia_de_item 
     FOREIGN KEY (id_instancia_de_item) 
-    REFERENCES public.instancias_de_item (id);
+    REFERENCES public.instancias_de_itens (id);
 
 -- MONSTROS PACÍFICOS
 
@@ -1090,11 +1087,6 @@ ADD CONSTRAINT fk_agressivos_tipo_monstro
     FOREIGN KEY (id) 
     REFERENCES public.tipos_monstro (id);
 
-ALTER TABLE public.agressivos 
-ADD CONSTRAINT fk_agressivos_tipos_de_feitico 
-    FOREIGN KEY (id_feitico) 
-    REFERENCES public.tipos_feitico (id);
-
 -- BATALHAS
 
 ALTER TABLE public.batalhas 
@@ -1105,7 +1097,7 @@ ADD CONSTRAINT fk_batalhas_personagens_jogaveis
 ALTER TABLE public.batalhas 
 ADD CONSTRAINT fk_batalhas_monstro 
     FOREIGN KEY (id_monstro) 
-    REFERENCES public.instancias_monstro (id);
+    REFERENCES public.instancias_monstros (id);
 
 -- MISSÕES
 
