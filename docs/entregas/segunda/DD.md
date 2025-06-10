@@ -9,6 +9,7 @@
 | `1.4`  | 15/05/25 | Adicionando a tabela Diálogos | [Luiz](https://github.com/luizfaria1989)      |  
 | `2.0`  | 08/06/25 | Adicionando a seção que explica os domínios criados no DDL | [Luiz](https://github.com/luizfaria1989)      |                                                          
 | `2.1`  | 09/06/25 | Atualizando os tipos dos atributos para condizer com os domínios criados no DDL | [Luiz](https://github.com/luizfaria1989)      | 
+| `2.2`  | 10/06/25 | Ajustando os dados do dicionário para as mudanças feitas no DDL. | [Luiz](https://github.com/luizfaria1989)      | 
 
 # DD - Dicionário de Dados
 
@@ -28,18 +29,18 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 ### Tabela: npcs
 #### Descrição: A entidade NPC (Non-Player-Character) guarda as informações sobre seu identificador único, informações pessoais como nome, ocupação, idade, sexo, residência, local de nascimento e script de diálogo além do local em que está.
 
-#### Observação: essa tabela possui chave estrangeira para as entidades ``Sala`` e ``Corredor``
+#### Observação: essa tabela possui chave estrangeira para as entidades ``Sala``, ``Corredor`` e ``tipos_personagem``
 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do NPC | 1 - 999999999 | Não | PK | |
-| nome | nome | Nome completo do NPC | a-z, A,z | Não | |
-| ocupacao | ocupacao | Ocupação do NPC na história | a-z, A,z | Não | |
-| idade | idade | Idade do NPC | 1 - 120 | Não | O valor default é 18 |
+| nome | nome | Nome completo do NPC | a-z, A,z | Não | | Aceita até 128 caracteres |
+| ocupacao | ocupacao | Ocupação do NPC na história | a-z, A,z | Não | | Aceita até 64 caracteres |
+| idade | idade | Idade do NPC | 1 - 120 | Não | | O valor default é 18 |
 | sexo | sexo | Sexo do NPC | 'masculino', <br> 'feminino' | Não | |
-| residencia | residencia | Descrição de onde o NPC reside | a-z, A-z | Não | |
-| local_nascimento | local_nascimento | Local onde o NCP nasceu | a-z, A-z | Não | O valor default é 'arkham' | 
-| id_tipo_personagem | id | Indica o id do NPC na tabela de tipos de personagem | 1 - 999999999 | Sim | FK |
+| residencia | residencia | Descrição de onde o NPC reside | a-z, A-z | Não | | Aceita até 96 caracteres |
+| local_nascimento | local_nascimento | Local onde o NCP nasceu | a-z, A-z | Não | | O valor default é 'arkham'. Aceita até 96 caracteres | 
+| id_tipo_personagem | id | Indica o id do NPC na tabela de tipos de personagem | 1 - 999999999 | Não | FK |
 | id_sala | id | Indica o id da sala que o personagem está | 1 - 999999999 | Sim | FK | Quando id_sala for nulo, id_corredor deve ser diferente de nulo, e vice-versa. | | 
 | id_corredor | id | Indica o id do corredor que o personagem está | 1 - 999999999 | Sim | FK  | Quando id_corredor for nulo, id_sala deve ser diferente de nulo, e vice-versa. | |
 
@@ -53,7 +54,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do Dialogo | 1 - 999999999 | Não | PK | |
 | npc_id | id | Indica o id do NPC que possui aquele diálogo | 1 - 999999999 | Não | FK |
-| script_dialogo | script_dialogo | Texto do diálogo do NPC que será lido pelo jogador| a-z, A,z | Não | |
+| script_dialogo | script_dialogo | Texto do diálogo do NPC que será lido pelo jogador| a-z, A,z | Não | | Aceita até 512 caracteres |
 
 
 ## Entidade: Personagem Jogável
@@ -61,16 +62,16 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 
 #### Descrição: A entidade Personagem Jogável armazena informações sobre o identificador único, dados pessoais (nome, ocupação, idade, sexo, residência, local de nascimento), atributos de status (força, destreza, magia, inteligência, sorte, entre outros), equipamentos (arma, armadura), inventário e localização atual do personagem controlado pelo jogador. Inclui também características físicas e habilidades específicas, como tamanho, aparência, educação e conhecimento, essenciais para interações e mecânicas de jogo.
 
-#### Observação: essa tabela possui chave estrangeira para as entidades `Pericia`, `Instancia_de_item`, `Inventario`, `Sala` e `Corredor`
+#### Observação: essa tabela possui chave estrangeira para as entidades `Pericia`, `Instancia_de_item`, `Inventario`, `Sala`, `Corredor` e ``tipos_personagem``
 
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do personagem | 1 - 999999999 | Não | PK | |
-| nome | nome | Nome completo do personagem  | a-z, A,z | Não | |
-| ocupacao | ocupacao | Ocupação do personagem na história do jogo | a-z, A,z | Não | |
-| residencia | residencia | Descrição de onde o personagem reside | a-z, A-z | Não | |
-| local_nascimento | local_nascimento | Local onde o personagem nasceu | a-z, A-z | Não | | 
-| idade | idade | Idade do personagem | 1 - 120 | Não | O valor default é 18 |
+| nome | nome | Nome completo do personagem  | a-z, A,z | Não | | Aceita até 128 caracteres |
+| ocupacao | ocupacao | Ocupação do personagem na história do jogo | a-z, A,z | Não | | Aceita até 64 caracteres |
+| residencia | residencia | Descrição de onde o personagem reside | a-z, A-z | Não | | Aceita até 96 caracteres |
+| local_nascimento | local_nascimento | Local onde o personagem nasceu | a-z, A-z | Não | | Aceita até 96 caracteres |
+| idade | idade | Idade do personagem | 1 - 120 | Não | | O valor default é 18 |
 | sexo | sexo | Sexo do personagem | 'masculino', <br> 'feminino' | Não | |
 | movimento | smallint | Pontos de movimento que o personagem possui | 1 - 100 | Não |  |
 | sanidade_atual | smallint | Sanidade atual do personagem | 0 - 100 | Não | | Valor padrão = 10 | 
@@ -91,12 +92,13 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | conhecimento | smallint | Pontos de conhecimento que o personagem possui | 1 - 100 | Não | |  educação x 5. Para corrigir a terceira forma normal, esse atributo está representado com uma VIEW no DLL |
 | sorte | smallint | Pontos de sorte que o personagem possui | 1 - 100 | Não | | poder x 5. Para corrigir a terceira forma normal, esse atributo está representado com uma VIEW no DLL |
 | sanidade_maxima | smallint | Equivale aos pontos máximos de sanidade do personagem | 1 - 100 | Não | | poder x 5. Para corrigir a terceira forma normal, esse atributo está representado com uma VIEW no DLL |
-| pts_de_vida_maximo | Integer | Equivale ao valor máximo para os pontos de vida do personagem | 1 - 100 | Não | (constituição + tamanho ) / 2. Para corrigir a terceira forma normal, esse atributo está representado com uma VIEW no DLL |
+| pts_de_vida_maximo | Integer | Equivale ao valor máximo para os pontos de vida do personagem | 1 - 100 | Não | | (constituição + tamanho ) / 2. Para corrigir a terceira forma normal, esse atributo está representado com uma VIEW no DLL |
 | id_sala | id | Indica o id da sala que o personagem está | 1 - 999999999 | Sim | FK | Quando id_sala for nulo, id_corredor deve ser diferente de nulo, e vice-versa. | | 
 | id_corredor | id | Indica o id do corredor que o personagem está | 1 - 999999999 | Sim | FK  | Quando id_corredor for nulo, id_sala deve ser diferente de nulo, e vice-versa. | |
 | id_inventario | id | Identificador de inventário do personagem | 1 - 999999999 | Não | FK |
 | id_armadura | id | Identificador de qual armadura o personagem equipa | 1 - 999999999 | Sim | FK |
 | id_arma | id | Identificador de qual arma o personagem equipa | 1 - 999999999 | Sim | FK |
+| id_tipo_personagem | id | Identificador do personagem na tabela tipos_personagem | 1 - 999999999 | Não | FK | 
 
 ## Entidade: Perícia
 ### Tabela: pericias
@@ -107,9 +109,9 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único dos pontos de perícia do personagem | 1 - 999999999 | Não | PK | |
-| nome | nome | Nome da perícia do personagem | a-z, A-Z | Não | | | 
+| nome | nome | Nome da perícia do personagem | a-z, A-Z | Não | | Aceita até 128 caracteres | 
 | valor | int | Valor da perícia do personagem | 10 - 100 | Não | | Valor padrão = 10 | 
-| de_ocupacao | boolean | A perícia é de ocupação do personagem ou não?  | 1-0 | Não | 0 para sim e 1 para não | 
+| eh_de_ocupacao | boolean | A perícia é de ocupação do personagem ou não?  | 1-0 | Não | | 0 para sim e 1 para não | 
 
 ## Entidade: Inventario
 ### Tabela: inventarios
@@ -133,8 +135,8 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do templo | 1 - 999999999 | Não | PK | |
-| nome | nome | Nome do templo | a-z, A-z | Não | | | 
-| descricao | descricao | Descrição do templo |  a-z, A-z | Não | | | 
+| nome | nome | Nome do templo | a-z, A-z | Não | | Aceita até 128 caracteres | 
+| descricao | descricao | Descrição do templo |  a-z, A-z | Não | | Aceita até 256 caracteres | 
 
 ## Entidade: Andar
 ### Tabela: andares
@@ -145,9 +147,9 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Número do andar | 1 - 999999999 | Não | PK | |
-| descricao | descricao | Descrição do andar |  a-z, A-z | Não | | | 
-| salaInicial | int | Sala inicial daquele andar | 1 - 999999999 | Não | FK | |
-| id_templo | int | Templo no qual aquele andar está contido | 1 - 999999999 | Não | FK | |
+| descricao | descricao | Descrição do andar |  a-z, A-z | Não | | Aceita até 256 caracteres | 
+| sala_inicial | int | Sala inicial daquele andar | 1 - 999999999 | Não | FK | |
+| id_templo | id | Templo no qual aquele andar está contido | 1 - 999999999 | Não | FK | |
 
 ## Entidade: Sala
 ### Tabela: salas
@@ -158,7 +160,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único da sala | 1 - 999999999 | Não | PK | |
-| descricao | descricao | Descrição da sala |  a-z, A-z | Não | | | 
+| descricao | descricao | Descrição da sala |  a-z, A-z | Não | | Aceita até 256 caracteres | 
 
 ## Entidade: Corredor
 ### Tabela: corredores
@@ -170,7 +172,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único da sala | 1 - 999999999 | Não | PK | |
 | status | boolean | Verifica se o corredor pode ser acessado ou não: 0 para inativo e 1 para ativo | Não | | 
-| descricao | descricao | Descrição do corredor |  a-z, A-z | Não | | | 
+| descricao | descricao | Descrição do corredor |  a-z, A-z | Não | | Aceita até 256 caracteres | 
 
 
 ## Entidade: Instancia de Monstro
@@ -194,10 +196,10 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do monstro pacífico | 1 - 999999999 | Não | PK e FK | |
-| nome | nome | Nome do monstro pacífico | a-z, A,z | Não | |
-| descricao | varchar[100] | Descrição do monstro pacífico | a-z, A,z | Não | |
+| nome | nome | Nome do monstro pacífico | a-z, A,z | Não | | É unico na tabela. Aceita até 128 caracteres | 
+| descricao | descricao | Descrição do monstro pacífico | a-z, A,z | Não | | Aceita até 256 caracteres |
 | defesa | smallint | Defesa do monstro pacífico | 1 - 50 | Não | |
-| vida | int | Vida do monstro pacífico | 1 - 100 | Não | Valor Base = 100|
+| vida | smallint | Vida do monstro pacífico | 1 - 100 | Não | | Valor Base = 100|
 | motivo_passividade | comportamento_pacifico | Descrição da motivo para o monstro ser passivo | 'indiferente', <br> 'medroso', <br> 'amigavel', <br> 'sob_controle_mental', <br> 'adormecido', <br> 'curioso' | Não | |
 | tipo_pacifico | tipo_monstro_pacifico | Tipo de monstro pacífico | 'humanoide', <br> 'sobrenatural' | Não | | |
 
@@ -209,11 +211,11 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do monstro agressivo | 1 - 999999999 | Não | PK e FK | |
-| nome | nome | Nome do monstro agressivo | a-z, A,z | Não | | É unico na tabela |
-| descricao | descricao | Descrição do monstro agressivo | a-z, A,z | Não | |
+| nome | nome | Nome do monstro agressivo | a-z, A,z | Não | | É unico na tabela. Aceita até 128 caracteres | 
+| descricao | descricao | Descrição do monstro agressivo | a-z, A,z | Não | | Aceita até 256 caracteres |
 | defesa | smallint | Defesa do monstro agressivo | 1 - 50 | Não | |
-| vida | smallint | Vida do monstro agressivo | 1 - 100 | Não | Valor Base = 100|
-| poder | smallint | Poder do monstro agressivo | 1 - 100 | Não | Valor Base = 100|
+| vida | smallint | Vida do monstro agressivo | 1 - 100 | Não | | Valor Base = 100|
+| poder | smallint | Poder do monstro agressivo | 1 - 100 | Não | | Valor Base = 100|
 | tipo_agressivo | Indica qual o tipo de monstro agressivo aquele monstro é | 'psiquico', <br> 'magico', <br> 'fisico' | Não | | | 
 | velocidade_ataque | smallint | Indica a velocidade de ataque do monstro agressivo | 1 - 100 |  | | |
 | loucura_induzida | smallint | Indica a quantidade de sanidade que o personagem perde ao ver aquele monstro | 1 - 100 | |
@@ -229,7 +231,6 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do item | 1 - 999999999 | Não | PK | |
-| nome | nome | Nome da arma | a-z, A-Z | Não | | É unico |
 | atributo_necessario | tipo_atributo_personagem | Atributo necessário para que a arma seja utilizada | 'forca', <br> 'constituicao', <br> 'poder',  <br> 'destreza', <br> 'aparencia', <br> 'tamanho', <br> 'inteligencia', <br> 'educacao'| Não | |
 | qtd_atributo_necessario | int | Quantidade de atributos necessário para que a arma seja utilizada pelo personagem | 1 - 50 | Não | |
 | durabilidade | smallint | Durabilidade da arma | 1 - 100 | Não | |
@@ -247,12 +248,11 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único da amardura | 1 - 999999999 | Não | PK | |
-| nome | nome | Nome da peça de armadura | a-z, A-Z | Não | | É unico |
 | atributo_necessario | tipo_atributo_personagem | Atributo necessário para que a armadura seja utilizada | 'forca', <br> 'constituicao', <br> 'poder',  <br> 'destreza', <br> 'aparencia', <br> 'tamanho', <br> 'inteligencia', <br> 'educacao' | Não | |
 | qtd_atributo_necessario | int | Quantidade de atributos necessário para que a armadura seja utilizada pelo personagem | 1 - 50 | Não | |
 | durabilidade | smallint | Durabilidade da armadura | 1 - 100 | Não | |
 | id_pericia_necessaria | id_pericia_necessaria | Perícia necessária para que o personagem possa utilizar essa armadura | 1 - 999999999 | Não | FK | |
-| funcao | varchar[100] | Função da armadura | 'cabeca', <br> 'peitoral', <br> 'bracos', <br> 'pernas', <br> 'pes', <br> 'mao'  | Não | |
+| funcao | funcao_armadura | Função da armadura | 'cabeca', <br> 'peitoral', <br> 'bracos', <br> 'pernas', <br> 'pes', <br> 'mao'  | Não | |
 | qtd_atributo_recebe | smallint | Quantidade de atributo que a armadura concede ao personagem | 1 - 100 | Não | |
 | tipo_atributo_recebe | tipo_atributo_personagem | Tipo da atributo recebido por essa armadura | 'forca', <br> 'constituicao', <br> 'poder',  <br> 'destreza', <br> 'aparencia', <br> 'tamanho', <br> 'inteligencia', <br> 'educacao' | Não | |
 | qtd_dano_mitigado | smallint | Quantidade de dano mitigado pela armadura quando utilizada pelo personagem | 1 - 100 | Não | |
@@ -266,8 +266,8 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do item | 1 - 999999999 | Não | PK e FK | |
 | tipo | tipo_item | Tipo do item | 'armadura', <br> 'arma', <br> 'cura' | Não | |
-| nome | nome | Nome do item | a-z, A,z | Não | |
-| descricao | descricao | Descrição do item | a-z, A,z | Não | |
+| nome | nome | Nome do item | a-z, A,z | Não | | Aceita até 128 caracteres |
+| descricao | descricao | Descrição do item | a-z, A,z | Não | | Aceita até 256 caracteres |
 | valor | smallint | Valor de venda do item | 1 - 20000 | Não | |
 
 ## Entidade: Cura
@@ -305,7 +305,6 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do item de mágico | 1 - 999999999 | Não | PK | |
-| nome | nome | Nome daquele item mágico | a-z, A-Z, | Não | | É um valor unico |
 | id_feitico | id | Identificador único do feitiço mágico | 1 - 999999999 | Não | PK e FK | |
 | funcao | funcao_magica | Função do item mágico | 'revelar_invisivel', <br> 'abrir_fechadura', <br> 'encantar_arma', <br> 'invocar_criatura', <br> 'teleporte', <br> 'protecao_elemental' | Não | |
 | qtd_usos | smallint | Quantidade de usos desse item mágico | 1 - 10 | Não | |
@@ -320,11 +319,11 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do feitiço que afeta status | 1 - 999999999 | Não | PK | |
-| nome | nome | Nome do feitiço status | a-z, A,z | Não | | É unico |
-| descricao | descricao | Descrição do feitiço status | a-z, A,z | Não | |
+| nome | nome | Nome do feitiço status | a-z, A,z | Não | | É unico na tabela. Aceita até 128 caracteres  |
+| descricao | descricao | Descrição do feitiço status | a-z, A,z | Não | | Aceita até 256 caracteres |
 | qtd_pontos_de_magia | smallint | Quantidade de pontos de magia | 1 - 5000 | Não | |
 | qtd_buff_debuff | smallint | Quantidade de Buff ou Debuff | 1 - 5000 | Não | |
-| buff_ou_debuff | Boolean | Buff ou Debuff | 0 - 1 | Não | |
+| buff_debuff | Boolean | Buff ou Debuff | 0 - 1 | Não | |
 | status_afetado | tipo_status | Status que sera afetado | 'vida', <br> 'sanidade' | Não | |
 
 
@@ -336,8 +335,8 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único do feitiço que afeta status | 1 - 999999999 | Não | PK | |
-| nome | nome | Nome do feitiço dano | a-z, A,z | Não | |
-| descricao | descricao | Descrição do feitiço dano | a-z, A,z | Não | |
+| nome | nome | Nome do feitiço dano | a-z, A,z | Não | | É unico na tabela. Aceita até 128 caracteres | 
+| descricao | descricao | Descrição do feitiço dano | a-z, A,z | Não | | Aceita até 256 caracteres |
 | qtd_pontos_de_magia | smallint | Quantidade de pontos de magia do feitiço | 1 - 100 | Não | |
 | tipo_dano | tipo_dano | Tipo de dano do feitiço | 'area', <br> 'unico' | Não | |
 | qtd_dano | dano | Quantidade de Dano do feitiço | 1 - 25 | Não | |
@@ -351,7 +350,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id | id | Identificador único da missao| 1 - 999999999 | Não | PK | |
-| nome | nome | Nome da missao | a-z, A,z | Não | |
+| nome | nome | Nome da missao | a-z, A,z | Não | | Aceita até 128 caracteres |
 | descricao | character(512) | Descrição da missao | a-z, A,z | Não | |
 | tipo | tipo_missao | Tipo da missao | principal', <br> 'secundaria', <br> 'coleta', <br> 'eliminacao', <br> 'escolta'  | Não | |
 | ordem | character[128] | Ordem da missao | a-z, A,z | Não | |
@@ -366,7 +365,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 #### Observação: essa tabela possui chave estrangeira para as tabelas ``agressivos`` e ``pacificos``
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_monstro | id | Identificador único do feitiço que afeta status | 1 - 999999999 | Não | PK e FK | |
+| id | id | Identificador único do feitiço que afeta status | 1 - 999999999 | Não | PK e FK | |
 | tipo | tipo_monstro | Tipo do monstro | 'agressivo', <br> 'pacifico'| Não | |
 
 ### Tabela: batalhas
@@ -377,8 +376,8 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | id_jogador | id | Identificador único do jogador envolvido na batalha | 1 - 999999999 | Não | PK e FK | |
 | id_monstro | id | Identificador único do monstro envolvido na batalha | 1 - 999999999 | Não | PK e FK | |
 
-### Tabela: corredores_sala_destino
-#### Descrição:  a tabela corredores_sala_destino possui identificadores únicos de sala e corredor na transição entre salas.
+### Tabela: corredores_salas_destino
+#### Descrição:  a tabela corredores_salas_destino possui identificadores únicos de sala e corredor na transição entre salas.
 #### Observação: essa tabela possui chave estrangeira para as tabelas ``salas`` e ``corredores``
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
@@ -390,7 +389,7 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 #### Observação: essa tabela possui chave estrangeira para as tabelas ``personagens_jogaveis`` e ``npcs``.
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
-| id_personagem | id | Identificador único do personagem | 1 - 999999999 | Não | PK e FK | |
+| id | id | Identificador único do personagem | 1 - 999999999 | Não | PK e FK | |
 | tipo | tipo_personagem | Tipo do personagem | 'personagem jogavel', <br> 'NPC,  | Não | | |
 
 ### Tabela: inventarios_possuem_instancias_item
@@ -399,10 +398,10 @@ as decisões de projeto, os padrões de utilização, as descrições dos progra
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
 | id_instancias_de_item | id | Identificador único da instancia de item | 1 - 999999999 | Não | PK e FK | |
-| id_invetario | id | Identificador único do inventário | 1 - 999999999  | Não | PK e FK | |
+| id_inventario | id | Identificador único do inventário | 1 - 999999999  | Não | PK e FK | |
 
-### Tabela: entrega_missoes
-#### Descrição:  a tabela entrega_missoes armazena os identificadores únicos de jogador e de npc, na interação de entre de missões.
+### Tabela: entregas_missoes
+#### Descrição:  a tabela entregas_missoes armazena os identificadores únicos de jogador e de npc, na interação de entre de missões.
 #### Observação: essa tabela possui chave estrangeira para as tabelas ``personagens_jogaveis`` e ``npcs``.
 | Nome Variável |     Tipo     |         Descrição          | Valores permitidos | Permite valores nulos? | É chave? | Observações
 | :-----------: | :----------: | :------------------------: | :----------------: | :--------------------: | :------: | :-------: |
@@ -440,15 +439,15 @@ Essa seção contém uma tabela de todos os domínios que foram criados no arqui
 | atributo        | Smallint      | É domínio utilizado quando é preciso declarar o valor de um atributo do personagem jogável | 3 - 18 | Os valores do atributo se referem aos valores que podem ser obtidos ao jogar três dados de seis faces e somar seus resultados |
 | idade           | Smallint      | É domínio utilizado quando é preciso declarar o valor da idade de um personagem jogável ou NPC | 1 - 120 | |
 | tipo_monstro_agressivo | Character(8) | É domínio utilizado quando é preciso declarar o tipo de um monstro agressivo | 'psiquico', <br> 'magico', <br> 'fisico' | |
-| tipo_monstro_pacifico | Character(9) | É o domínio utilizado quando é preciso declarar o tipo de um monstro pacífico | 'humanoide', <br> 'sobrenatural' | |
+| tipo_monstro_pacifico | Character(12) | É o domínio utilizado quando é preciso declarar o tipo de um monstro pacífico | 'humanoide', <br> 'sobrenatural' | |
 | tipo_monstro | Character(9) | É o domínio utilizado quando é preciso declarar o tipo de um monstro | 'agressivo', <br> 'pacifico'| |
 | tipo_personagem | Character(18) | É o domínio utilizado quando é preciso declarar o tipo de um personagem | 'personagem jogavel', <br> 'NPC, | |
-| tipo_item | Character(9) | É o domínio utilizado quando é preciso declarar o tipo de um item | 'armadura', <br> 'arma', <br> 'cura' | |
+| tipo_item | Character(8) | É o domínio utilizado quando é preciso declarar o tipo de um item | 'armadura', <br> 'arma', <br> 'cura' | |
 | tipo_municao | Character(13) | É domínio utilizado quando é preciso declarar o tipo da munição de uma arma | 'baixo-calibre', <br> 'medio-calibre', <br> 'alto-calibre' | |
 | funcao_armadura | Character(8) | É domínio utilizado quando é preciso declarar qual parte do corpo aquela armadura protege | 'cabeca', <br> 'peitoral', <br> 'bracos', <br> 'pernas', <br> 'pes', <br> 'mao' | |
-| tipo_dano | Charater(5) | É o domínio utilizado quando é preciso declarar o tipo de dado de uma arma | 'area', <br> 'unico' | |
+| tipo_dano | Character(5) | É o domínio utilizado quando é preciso declarar o tipo de dado de uma arma | 'area', <br> 'unico' | |
 | funcao_feitico | Character(6) | É o domínio utilizado quando é preciso declarar qual á função de um feitiço | 'status', <br> 'dano' | |
-| tipo_status | Character(8) | É o domínio utilizado quando é preciso declarar qual o tipo de status que um feitiço de status atua | 'vida', <br> 'sanidade' | |
+| tipo_de_status | Character(8) | É o domínio utilizado quando é preciso declarar qual o tipo de status que um feitiço de status atua | 'vida', <br> 'sanidade' | |
 | tipo_atributo_personagem | Character(12) | É o domínio utilizado quando é preciso declrar o tipo do atributo de um personagem | 'forca', <br> 'constituicao', <br> 'poder',  <br> 'destreza', <br> 'aparencia', <br> 'tamanho', <br> 'inteligencia', <br> 'educacao' | |
 | tipo_missao | Character(12) | É o domínio utilizado quando é preciso declarar o tipo de uma missão | 'principal', <br> 'secundaria', <br> 'coleta', <br> 'eliminacao', <br> 'escolta' | |
 | funcao_arma | Character(32) | É o domínio utilizado quando é preciso declarar a função de uma arma | 'corpo_a_corpo_leve', <br> 'corpo_a_corpo_pesada', <br> 'arremesso', <br> 'disparo_unico', <br> 'disparo_rajada' |
@@ -460,7 +459,7 @@ Essa seção contém uma tabela de todos os domínios que foram criados no arqui
 | descricao | Character(256) | É o domínio utilizado quando é preciso declarar o tipo do atributo descrição em uma tabela | a-z, A,Z | Aceita até 256 caracteres |
 | ocupacao | Character(64) | É o domínio utilizado quando é preciso declarar o tipo do atributo ocupação em uma tabela | a-z, A,Z | Aceita até 64 caracteres |
 | residencia | Character(96) | É o domínio utilizado quando é preciso declarar o tipo do atributo residência em uma tabela | a-z, A,Z | Aceita até 96 caracteres |
-| local_nascimento | Character(96) | É o domínio utilizado quando é preciso declarar o tipo do atributo local de nascimento em uma tabela | a-z, A,Z | Aceita até 64 caracteres |
+| local_nascimento | Character(96) | É o domínio utilizado quando é preciso declarar o tipo do atributo local de nascimento em uma tabela | a-z, A,Z | Aceita até 96 caracteres |
 | script_dialogo | Character(512) | É o domínio utiizado quando é preciso declarar o tipo do atributo script diálogo em uma tabela | a-z, A,Z | Aceita até 512 caracteres |
 
 É importante ressaltar a escolha dos tipo Character ao invés de Varchar, ao utilizar uma quantidade fixa de caracteres para os dados de uma tabela, as suas linhas passam a ter um tamanho fixo. Essa característica para uma tabela de um banco de dados pode ser útil, uma vez que facilita as pesquisas feitas pelo banco, dado que para avançar uma linha basta multiplicar o valor pelo tamanho da tupla daquela tabela pelo número da linha que se quer.
