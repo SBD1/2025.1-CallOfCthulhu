@@ -116,10 +116,10 @@ ALTER TABLE public.curas
 DROP CONSTRAINT IF EXISTS fk_curas_itens;
 
 -- da tabela inventarios_possuem_instancias_de_itens
-ALTER TABLE public.inventarios_possuem_instancias_itens 
+ALTER TABLE public.inventarios_possuem_instancias_item 
 DROP CONSTRAINT IF EXISTS fk_inventarios_possuem_instancias_de_item;
 
-ALTER TABLE public.inventarios_possuem_instancias_itens 
+ALTER TABLE public.inventarios_possuem_instancias_item 
 DROP CONSTRAINT IF EXISTS fk_inventarios_possuem_instancias_de_item_inventario;
 
 -- da tabela magicos
@@ -674,7 +674,7 @@ CREATE TABLE public.agressivos(
     velocidade_ataque SMALLINT,
     loucura_induzida SMALLINT,
     ponto_magia SMALLINT,
-    dano public.dano NOT NULL,
+    dano public.dano NOT NULL
 );
 
 CREATE TABLE public.pacificos(
@@ -1120,22 +1120,22 @@ ADD CONSTRAINT fk_entregas_missoes_npcs
 
 -- INSTÂNCIAS DE ITENS
 
-ALTER TABLE public.instancias_de_item 
+ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_itens_missoes_recompensa
     FOREIGN KEY (id_missao_recompensa) 
     REFERENCES public.missoes (id);
 
-ALTER TABLE public.instancias_de_item 
+ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_itens_missoes_requer
     FOREIGN KEY (id_missao_requer) 
     REFERENCES public.missoes (id);
 
-ALTER TABLE public.instancias_de_item 
+ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_item_itens
     FOREIGN KEY (id_item) 
     REFERENCES public.itens (id);  
 
-ALTER TABLE public.instancias_de_item 
+ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_item_salas 
     FOREIGN KEY (id_sala) 
     REFERENCES public.salas (id);  
