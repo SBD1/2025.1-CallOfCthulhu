@@ -37,6 +37,11 @@ Data: 10/06/2025
 Descrição: Ajustando o DDL para condizer com as informações presentes no dicionário de dados
 Autor: Luiz Guilherme
 
+Versão: 0.8
+Data: 11/06/2025
+Descrição: Ajustando as tabelas CREATE DOMAIN public.tipo_personagem AS CHARACTER e CREATE DOMAIN public.sexo AS CHARACTER para varying e comentando a ultima chave estrangeira que e tipo personagem pois estava dando erro verificar depois.
+Autor: Christopher e João Marcos
+
 */
 
 -- DROP SCHEMA public CASCADE;

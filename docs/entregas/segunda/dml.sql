@@ -37,7 +37,9 @@ VALUES (1, 'Salão Principal do Templo'),
 -- TABELA TIPOS_PERSONAGEM
 
 INSERT INTO public.tipos_personagem (id, tipo)
-VALUES (2001, 'personagem jogavel');
+VALUES (1, 'personagem jogavel'),
+       (2, 'NPC');
+
 
 -- TABELA PERSONAGENS_JOGAVEIS
 
@@ -56,7 +58,18 @@ INSERT INTO public.personagens_jogaveis(id, nome, ocupacao, residencia, local_na
                                         10, 10, 
                                         100, 
                                         1, NULL, 
-                                        1, NULL, NULL, 2001);
+                                        1, NULL, NULL, 1);
+
+-- TABELA NPCs
+
+INSERT INTO public.npcs (id, nome, ocupacao, idade, sexo, residencia, local_nascimento, id_tipo_personagem, id_sala)
+                VALUES (101, 'Velho Sábio', 'Guardião do Templo', 70, 'masculino', 'Templo das Sombras', 'Arkham', 2, 1 );
+
+-- TABELA DIALOGOS
+
+INSERT INTO public.dialogos (id, script_dialogo, npc_id)
+                    VALUES (1, 'Viajante, cuidado com as sombras do templo! Elas consomem até a alma mais forte.', 101),
+                           (2, 'Eu já vi coisas que fariam um homem enlouquecer... *suspira* ' || 'As paredes deste lugar sussurram segredos antigos. Não confie nelas.', 101);
 
 -- TABELA CORREDORES (EXEMPLOS)
 
@@ -82,3 +95,4 @@ VALUES (1, 1),
        (5, 5),
        (6, 5),
        (6, 6);
+
