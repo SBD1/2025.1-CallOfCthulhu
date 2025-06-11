@@ -567,9 +567,9 @@ CREATE TABLE public.personagens_jogaveis(
     educacao public.atributo NOT NULL, -- 3d6
 
 
-    movimento SMALLINT NOT NULL,
+    movimento SMALLINT NOT NULL, -- (destreza < tamanho) && (forca < tamanho) ? movimento = 7; (destreza = tamanho) || (forca = tamanho) ? movimento = 8; (destreza > tamanho) && (forca > tamanho) ? movimento = 9;
 
-    sanidade_atual SMALLINT NOT NULL,
+    sanidade_atual SMALLINT NOT NULL, -- = forca 
     insanidade_temporaria BOOLEAN, 
     insanidade_indefinida BOOLEAN, -- quando sanidade é 0
     
