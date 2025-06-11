@@ -323,7 +323,6 @@ DROP DOMAIN IF EXISTS public.id;
 --            DOMÍNIOS CRIADOS
 
 -- ===============================================
-
 /*
 
 Essa seção do código é destinada a conter todos os domínios que foram criados ao longo do projeto para garantir uma maior personalização nos tipos de dados que podem ser utilizados no banco. Os domínios facilitam a manuteção do código além de garantir uma maior segurança evitando com que dados incorretos sejam inseridos nas tabelas do banco.
@@ -342,9 +341,9 @@ CREATE DOMAIN public.dano AS SMALLINT
 
 CREATE DOMAIN public.sexo AS CHARACTER(9)
     CONSTRAINT sexo_check CHECK (
-        (VALUE)::text = ANY (ARRAY[
-            ('masculino'::character)::text, 
-            ('feminino'::character)::text
+        VALUE = ANY (ARRAY[
+            ('masculino'::character(9)), 
+            ('feminino'::character(9))
         ])
     );
 
@@ -383,11 +382,11 @@ CREATE DOMAIN public.tipo_monstro AS CHARACTER(9)
         ])
     );
 
-CREATE DOMAIN public.tipo_personagem AS CHARACTER(18)
+CREATE DOMAIN public.tipo_personagem AS CHARACTER VARYING(18)
     CONSTRAINT tipo_personagem_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('personagem jogavel'::character)::text, 
-            ('NPC'::character)::text
+            ('personagem jogavel'::CHARACTER VARYING)::text, 
+            ('NPC'::CHARACTER VARYING)::text
         ])
     );
 
@@ -1165,7 +1164,7 @@ ADD CONSTRAINT fk_armas_itens
     REFERENCES public.itens (id); 
 
 -- TIPOS PERSONAGEM
-
+/*
 ALTER TABLE public.tipos_personagem
 ADD CONSTRAINT fk_tipos_personagem_personagens_jogaveis
     FOREIGN KEY (id)
@@ -1175,3 +1174,4 @@ ALTER TABLE public.tipos_personagem
 ADD CONSTRAINT fk_tipos_personagem_npc
     FOREIGN KEY (id)
     REFERENCES public.npcs (id);
+*/
