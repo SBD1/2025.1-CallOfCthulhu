@@ -23,7 +23,11 @@ INSERT INTO public.corredores_salas_destino (id_sala, id_corredor) VALUES
 (1, 1),
 (2, 1),
 (2, 2),
+(3, 2),
 (3, 3),
+(4, 3),
 (4, 4),
+(5, 4),
 (5, 5),
+(6, 5),
 (6, 6);

@@ -490,7 +490,7 @@ CREATE DOMAIN public.comportamento_pacifico AS CHARACTER(32)
 
 CREATE DOMAIN public.nome AS CHARACTER(128);
 
-CREATE DOMAIN public.descricao AS CHARACTER(256);
+CREATE DOMAIN public.descricao AS CHARACTER(380);
 
 CREATE DOMAIN public.ocupacao AS CHARACTER(64);
 
