@@ -673,7 +673,6 @@ CREATE TABLE public.agressivos(
     tipo_agressivo public.tipo_monstro_agressivo NOT NULL,
     velocidade_ataque SMALLINT,
     loucura_induzida SMALLINT,
-    ponto_magia SMALLINT,
     dano public.dano NOT NULL,
 );
 
