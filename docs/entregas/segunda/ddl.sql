@@ -37,6 +37,11 @@ Data: 10/06/2025
 Descrição: Ajustando o DDL para condizer com as informações presentes no dicionário de dados
 Autor: Luiz Guilherme
 
+Versão: 0.8
+Data: 11/06/2025
+Descrição: Ajustando as tabelas CREATE DOMAIN public.tipo_personagem AS CHARACTER e CREATE DOMAIN public.sexo AS CHARACTER para varying e comentando a ultima chave estrangeira que e tipo personagem pois estava dando erro verificar depois.
+Autor: Christopher e João Marcos
+
 */
 
 -- DROP SCHEMA public CASCADE;
@@ -116,10 +121,10 @@ ALTER TABLE public.curas
 DROP CONSTRAINT IF EXISTS fk_curas_itens;
 
 -- da tabela inventarios_possuem_instancias_de_itens
-ALTER TABLE public.inventarios_possuem_instancias_itens 
+ALTER TABLE public.inventarios_possuem_instancias_item 
 DROP CONSTRAINT IF EXISTS fk_inventarios_possuem_instancias_de_item;
 
-ALTER TABLE public.inventarios_possuem_instancias_itens 
+ALTER TABLE public.inventarios_possuem_instancias_item 
 DROP CONSTRAINT IF EXISTS fk_inventarios_possuem_instancias_de_item_inventario;
 
 -- da tabela magicos
@@ -323,7 +328,6 @@ DROP DOMAIN IF EXISTS public.id;
 --            DOMÍNIOS CRIADOS
 
 -- ===============================================
-
 /*
 
 Essa seção do código é destinada a conter todos os domínios que foram criados ao longo do projeto para garantir uma maior personalização nos tipos de dados que podem ser utilizados no banco. Os domínios facilitam a manuteção do código além de garantir uma maior segurança evitando com que dados incorretos sejam inseridos nas tabelas do banco.
@@ -342,9 +346,9 @@ CREATE DOMAIN public.dano AS SMALLINT
 
 CREATE DOMAIN public.sexo AS CHARACTER(9)
     CONSTRAINT sexo_check CHECK (
-        (VALUE)::text = ANY (ARRAY[
-            ('masculino'::character)::text, 
-            ('feminino'::character)::text
+        VALUE = ANY (ARRAY[
+            ('masculino'::character(9)), 
+            ('feminino'::character(9))
         ])
     );
 
@@ -358,45 +362,45 @@ CREATE DOMAIN public.idade AS SMALLINT
         VALUE >= 1 AND VALUE <= 120
     );
 
-CREATE DOMAIN public.tipo_monstro_agressivo AS CHARACTER(8)
+CREATE DOMAIN public.tipo_monstro_agressivo AS CHARACTER VARYING(8)
     CONSTRAINT tipo_monstro_agressivo_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('psiquico'::character)::text, 
-            ('magico'::character)::text,
-            ('fisico'::character)::text
+            ('psiquico'::character VARYING)::text, 
+            ('magico'::character VARYING)::text,
+            ('fisico'::character VARYING)::text
         ])
     );
 
-CREATE DOMAIN public.tipo_monstro_pacifico AS CHARACTER(12)
+CREATE DOMAIN public.tipo_monstro_pacifico AS CHARACTER VARYING(12)
     CONSTRAINT tipo_monstro_pacifico_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('humanoide'::character)::text, 
-            ('sobrenatural'::character)::text
+            ('humanoide'::character VARYING)::text, 
+            ('sobrenatural'::character VARYING)::text
         ])
     );
 
-CREATE DOMAIN public.tipo_monstro AS CHARACTER(9)
+CREATE DOMAIN public.tipo_monstro AS CHARACTER VARYING(9)
     CONSTRAINT tipo_monstro_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('agressivo'::character)::text, 
-            ('pacífico'::character)::text
+            ('agressivo'::character VARYING)::text, 
+            ('pacífico'::character VARYING)::text
         ])
     );
 
-CREATE DOMAIN public.tipo_personagem AS CHARACTER(18)
+CREATE DOMAIN public.tipo_personagem AS CHARACTER VARYING(18)
     CONSTRAINT tipo_personagem_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('personagem jogavel'::character)::text, 
-            ('NPC'::character)::text
+            ('personagem jogavel'::CHARACTER VARYING)::text, 
+            ('NPC'::CHARACTER VARYING)::text
         ])
     );
 
- CREATE DOMAIN public.tipo_item AS CHARACTER(8)
+ CREATE DOMAIN public.tipo_item AS CHARACTER VARYING(8)
     CONSTRAINT tipo_item_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('armadura'::character)::text, 
-            ('arma'::character)::text,
-            ('cura'::character)::text
+            ('armadura'::character VARYING)::text, 
+            ('arma'::character VARYING)::text,
+            ('cura'::character VARYING)::text
         ])
     );   
 
@@ -490,7 +494,7 @@ CREATE DOMAIN public.comportamento_pacifico AS CHARACTER(32)
 
 CREATE DOMAIN public.nome AS CHARACTER(128);
 
-CREATE DOMAIN public.descricao AS CHARACTER(256);
+CREATE DOMAIN public.descricao AS CHARACTER(380);
 
 CREATE DOMAIN public.ocupacao AS CHARACTER(64);
 
@@ -567,9 +571,9 @@ CREATE TABLE public.personagens_jogaveis(
     educacao public.atributo NOT NULL, -- 3d6
 
 
-    movimento SMALLINT NOT NULL,
+    movimento SMALLINT NOT NULL, -- (destreza < tamanho) && (forca < tamanho) ? movimento = 7; (destreza = tamanho) || (forca = tamanho) ? movimento = 8; (destreza > tamanho) && (forca > tamanho) ? movimento = 9;
 
-    sanidade_atual SMALLINT NOT NULL,
+    sanidade_atual SMALLINT NOT NULL, -- = forca 
     insanidade_temporaria BOOLEAN, 
     insanidade_indefinida BOOLEAN, -- quando sanidade é 0
     
@@ -673,7 +677,8 @@ CREATE TABLE public.agressivos(
     tipo_agressivo public.tipo_monstro_agressivo NOT NULL,
     velocidade_ataque SMALLINT,
     loucura_induzida SMALLINT,
-    dano public.dano NOT NULL,
+    ponto_magia SMALLINT,
+    dano public.dano NOT NULL
 );
 
 CREATE TABLE public.pacificos(
@@ -1119,22 +1124,22 @@ ADD CONSTRAINT fk_entregas_missoes_npcs
 
 -- INSTÂNCIAS DE ITENS
 
-ALTER TABLE public.instancias_de_item 
+ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_itens_missoes_recompensa
     FOREIGN KEY (id_missao_recompensa) 
     REFERENCES public.missoes (id);
 
-ALTER TABLE public.instancias_de_item 
+ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_itens_missoes_requer
     FOREIGN KEY (id_missao_requer) 
     REFERENCES public.missoes (id);
 
-ALTER TABLE public.instancias_de_item 
+ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_item_itens
     FOREIGN KEY (id_item) 
     REFERENCES public.itens (id);  
 
-ALTER TABLE public.instancias_de_item 
+ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_item_salas 
     FOREIGN KEY (id_sala) 
     REFERENCES public.salas (id);  
@@ -1164,7 +1169,7 @@ ADD CONSTRAINT fk_armas_itens
     REFERENCES public.itens (id); 
 
 -- TIPOS PERSONAGEM
-
+/*
 ALTER TABLE public.tipos_personagem
 ADD CONSTRAINT fk_tipos_personagem_personagens_jogaveis
     FOREIGN KEY (id)
@@ -1174,3 +1179,4 @@ ALTER TABLE public.tipos_personagem
 ADD CONSTRAINT fk_tipos_personagem_npc
     FOREIGN KEY (id)
     REFERENCES public.npcs (id);
+*/
