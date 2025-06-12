@@ -26,6 +26,11 @@ Versão: 0.5
 Data: 11/06/2025
 Descrição: Adicionando exemplos de itens, e suas respectivas tabelas.
 Autor: Christopher, João Marcos
+
+Versão: 0.6
+Data: 11/06/2025
+Descrição: Adicionando exemplos de instancias de monstros e itens, e suas respectivas tabelas.
+Autor: Christopher, João Marcos
 */
 -- ===============================================
 
@@ -267,5 +272,21 @@ VALUES  (4, 'Espírito Guardião', 'Um espírito antigo que protege certas área
 
 -- TABELA ITENS
 
-INSERT INTO public.itens (id, tipo, nome, descricao, valor)
-VALUES (1, 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);   
+INSERT INTO public.itens 
+        (id, tipo, nome, descricao, valor)
+VALUES  (1, 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);   
+
+-- TABELA INSTÂNCIA DE ITENS
+
+INSERT INTO public.instancias_de_itens 
+        (id, durabilidade, id_sala, id_missao_requer, id_missao_recompensa, id_item)
+VALUES  (1, 100, 1, NULL, NULL, 1); -- Uma adaga simples no Salão Principal
+
+-- TABELA INSTÂNCIA DE MONSTROS
+
+INSERT INTO public.instancias_monstros 
+        (id, id_monstro, id_sala, id_corredor, id_instancia_de_item)
+VALUES  (1, 1, 3, NULL, 1),-- Uma instância do Abominável Horrores na Câmara Secreta, com a Adaga Simples
+        (2, 2, NULL, 1, 1), -- Uma instância do Carnífice Sombrio no Corredor Principal, com a Adaga Simples
+        (3, 4, 4, NULL, 1), -- Uma instância do Espírito Guardião na Tumba Esquecida, com a Adaga Simples
+        (4, 5, 6, NULL, 1); -- Uma instância do Eremita do Templo na Biblioteca Proibida, com a Adaga Simples
