@@ -16,6 +16,11 @@ Versão: 0.3
 Data: 11/06/2025
 Descrição: Adicionando exemplos de NPCs e diálogos. Completando tabela de perícias.
 Autor: Christopher, João Marcos
+
+Versão: 0.4
+Data: 11/06/2025
+Descrição: Adicionando exemplos de monstros, tanto agressivos quanto pacíficos, e suas respectivas tabelas.
+Autor: Christopher, João Marcos
 */
 -- ===============================================
 
@@ -44,8 +49,8 @@ INSERT INTO public.salas
 
 INSERT INTO public.tipos_personagem 
             (id, tipo)
-    VALUES  (1001, 'personagem jogavel'),
-            (2001, 'NPC');
+    VALUES  (1, 'personagem jogavel'),
+            (2, 'NPC');
 
 -- TABELA PERSONAGENS_JOGAVEIS
 
@@ -65,20 +70,30 @@ INSERT INTO public.personagens_jogaveis
             10, 10, 
             100, 
             1, NULL, 
-            1, NULL, NULL, 1001);
+            1, NULL, NULL, 1),
+            (2, 'Sarah Thompson', 'Arqueóloga', 'Boston, MA', 'Boston, MA',
+            35, 'feminino',
+            8, 10, 11, 14, 16, 15, 14, 13, 8,
+            11, FALSE, FALSE,
+            8, 8,
+            80,
+            2, NULL,
+            1, NULL, NULL, 1);
 
 -- TABELA NPCs
 
 INSERT INTO public.npcs 
                 (id, nome, ocupacao, idade, sexo, residencia, local_nascimento, id_tipo_personagem, id_sala)
-        VALUES  (1, 'Velho Sábio', 'Guardião do Templo', 70, 'masculino', 'Templo das Sombras', 'Arkham', 2001, 1 );
+        VALUES  (101, 'Velho Sábio', 'Guardião do Templo', 70, 'masculino', 'Templo das Sombras', 'Arkham', 2, 1 ),
+                (102, 'Guarda do Templo', 'Protetor das Relíquias', 45, 'masculino', 'Templo das Sombras', 'Arkham', 2, 2),
+                (103, 'Sacerdotisa Sombria', 'Mestre dos Rituais', 50, 'feminino', 'Templo das Sombras', 'Arkham', 2, 3);
 
 -- TABELA DIALOGOS
 
 INSERT INTO public.dialogos 
                 (id, script_dialogo, npc_id)
-        VALUES  (1, 'Viajante, cuidado com as sombras do templo! Elas consomem até a alma mais forte.', 1),
-                (2, 'Eu já vi coisas que fariam um homem enlouquecer... *suspira* ' || 'As paredes deste lugar sussurram segredos antigos. Não confie nelas.', 1);
+        VALUES  (1, 'Viajante, cuidado com as sombras do templo! Elas consomem até a alma mais forte.', 101),
+                (2, 'Eu já vi coisas que fariam um homem enlouquecer... *suspira* ' || 'As paredes deste lugar sussurram segredos antigos. Não confie nelas.', 101);
 
 -- TABELA CORREDORES (EXEMPLOS)
 
@@ -219,3 +234,28 @@ INSERT INTO public.personagens_possuem_pericias
             (1, 77, 1), -- Química
             (1, 83, 20), -- Usar Bibliotecas
             (1, 84, 5); -- Usar Computadores
+
+-- MONSTROS 
+
+INSERT INTO public.tipos_monstro 
+            (id, tipo)
+    VALUES  (1,'agressivo'), -- Para Abominável Horrores
+            (2,'agressivo'), -- Para Carnífice Sombrio
+            (3,'agressivo'), -- Para Mago da Corrupção
+            (4,'pacífico'), -- Para Espírito Guardião
+            (5,'pacífico'); -- Para Eremita do Templo
+
+-- TABELA MONSTROS AGRESSIVOS
+
+INSERT INTO public.agressivos 
+        (id, nome, descricao, defesa, vida, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
+VALUES  (1, 'Abominável Horrores', 'Criatura grotesca que se esconde nas sombras, devorando a sanidade.', 10, 50, 'proximidade', 15, 'psiquico', 5, 20, 10, 30),
+        (2, 'Carnífice Sombrio', 'Um monstro com garras afiadas, rápido e implacável.', 12, 60, 'ataque_direto', 10, 'fisico', 8, 0, 0, 40),
+        (3, 'Mago da Corrupção', 'Uma entidade mágica que distorce a realidade com seus feitiços.', 8, 40, 'barulho_alto', 20, 'magico', 4, 15, 25, 25);
+
+-- TABELA MONSTROS PACÍFICOS
+
+INSERT INTO public.pacificos 
+        (id, nome, descricao, defesa, vida, motivo_passividade, tipo_pacifico, conhecimento_geografico, conhecimento_proibido)
+VALUES  (4, 'Espírito Guardião', 'Um espírito antigo que protege certas áreas, mas não ataca a menos que provocado.', 5, 30, 'indiferente', 'sobrenatural', 'Conhece todos os caminhos do templo.', 'Nenhum.'),
+        (5, 'Eremita do Templo', 'Um humanoide recluso que vive no templo, buscando conhecimento.', 7, 25, 'amigavel', 'humanoide', 'Mapas mentais detalhados do andar superior.', 'Histórias de rituais proibidos.');      

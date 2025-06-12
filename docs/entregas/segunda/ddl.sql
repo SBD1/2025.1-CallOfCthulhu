@@ -362,28 +362,28 @@ CREATE DOMAIN public.idade AS SMALLINT
         VALUE >= 1 AND VALUE <= 120
     );
 
-CREATE DOMAIN public.tipo_monstro_agressivo AS CHARACTER(8)
+CREATE DOMAIN public.tipo_monstro_agressivo AS CHARACTER VARYING(8)
     CONSTRAINT tipo_monstro_agressivo_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('psiquico'::character)::text, 
-            ('magico'::character)::text,
-            ('fisico'::character)::text
+            ('psiquico'::character VARYING)::text, 
+            ('magico'::character VARYING)::text,
+            ('fisico'::character VARYING)::text
         ])
     );
 
-CREATE DOMAIN public.tipo_monstro_pacifico AS CHARACTER(12)
+CREATE DOMAIN public.tipo_monstro_pacifico AS CHARACTER VARYING(12)
     CONSTRAINT tipo_monstro_pacifico_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('humanoide'::character)::text, 
-            ('sobrenatural'::character)::text
+            ('humanoide'::character VARYING)::text, 
+            ('sobrenatural'::character VARYING)::text
         ])
     );
 
-CREATE DOMAIN public.tipo_monstro AS CHARACTER(9)
+CREATE DOMAIN public.tipo_monstro AS CHARACTER VARYING(9)
     CONSTRAINT tipo_monstro_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('agressivo'::character)::text, 
-            ('pacífico'::character)::text
+            ('agressivo'::character VARYING)::text, 
+            ('pacífico'::character VARYING)::text
         ])
     );
 
