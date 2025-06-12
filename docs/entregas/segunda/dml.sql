@@ -83,7 +83,7 @@ INSERT INTO public.personagens_jogaveis
             12, FALSE, FALSE, 
             10, 10, 
             100, 
-            3, NULL, 
+            1, NULL, 
             1, NULL, NULL, 1),
             (2, 'Sarah Thompson', 'Arqueóloga', 'Boston, MA', 'Boston, MA',
             35, 'feminino',
@@ -318,6 +318,9 @@ INSERT INTO public.batalhas
     VALUES  (1, 1),-- Samuel Carter batalhou contra o Abominável Horrores (instância 1)
             (2, 2),-- Sarah Thompson batalhou contra o Carnífice Sombrio (instância 2)
             (1, 2); -- Samuel Carter também batalhou contra o Carnífice Sombrio (instância 2)
+
+-- TABELA SALAS
+            
 INSERT INTO public.salas 
             (id, descricao) 
     VALUES  (1, 'O ar pesa como um véu úmido, carregado do sal podre de eras esquecidas. As paredes de pedra verde-escura suam um líquido viscoso, suas superfícies entalhadas com runas que parecem se contorcer sob o olhar prolongado. Um arco negro, adornado com tentáculos de pedra, domina a parede ao fundo — seu vazio parece respirar, exalando um murmúrio que arranha a mente. No centro, um círculo de símbolos antigos está manchado de marrom-escuro, e os ossos quebrados ao redor sugerem que algo espera ali... seja para impedir intrusos... ou recebê-los como oferenda'),
@@ -327,9 +330,13 @@ INSERT INTO public.salas
             (5, 'Uma câmara triangular com um altar de obsidiana no centro, cercado por incenso queimado que emite uma fumaça densa e doce. As paredes são adornadas com tapeçarias desbotadas que retratam entidades cósmicas e estrelas distantes. Uma energia estranha e pulsante emana do altar.'),
             (6, 'Esta é uma sala de observação, com uma grande janela arqueada que se abre para um abismo escuro, de onde emana um brilho fraco e azulado. Instrumentos metálicos enferrujados estão espalhados pelo chão, e uma sensação de vertigem toma conta de quem se aproxima da janela. Sons distantes de guinchos e rosnados ecoam do vazio.');
 
+-- TABELA ANDARES
+
 INSERT INTO public.andares 
             (id, descricao, id_templo, sala_inicial) 
     VALUES  (1, 'Primeiro andar do templo de Chutullu', 1, 1);
+
+-- TABELA CORREDORES
 
 INSERT INTO public.corredores 
             (id, status, descricao) 
@@ -340,6 +347,8 @@ INSERT INTO public.corredores
             (5, FALSE, 'Um corredor que se estende em linha reta, suas paredes de pedra lisa e escura refletem a pouca luz como um espelho distorcido. O ar é denso e quente, e um cheiro adocicado e enjoativo paira no ambiente. No final, uma porta de pedra maciça, sem maçaneta, aguarda.'),
             (6, FALSE, 'Este corredor é irregular e parece descer em espiral para as profundezas. As paredes são cobertas por musgo luminescente e estranhas formações rochosas que se assemelham a criaturas adormecidas. O som de água corrente é constante, e a sensação de estar sendo observado é intensa.');
 
+-- TABELA CORREDORES SALAS DESTINO
+
 INSERT INTO public.corredores_salas_destino 
             (id_sala, id_corredor) 
     VALUES  (1, 1),
@@ -347,4 +356,4 @@ INSERT INTO public.corredores_salas_destino
             (3, 2),
             (4, 3),
             (5, 4),
-            (6, 5);
+            (6, 5); 
