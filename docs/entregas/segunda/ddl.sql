@@ -395,12 +395,12 @@ CREATE DOMAIN public.tipo_personagem AS CHARACTER VARYING(18)
         ])
     );
 
- CREATE DOMAIN public.tipo_item AS CHARACTER(8)
+ CREATE DOMAIN public.tipo_item AS CHARACTER VARYING(8)
     CONSTRAINT tipo_item_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('armadura'::character)::text, 
-            ('arma'::character)::text,
-            ('cura'::character)::text
+            ('armadura'::character VARYING)::text, 
+            ('arma'::character VARYING)::text,
+            ('cura'::character VARYING)::text
         ])
     );   
 

@@ -21,6 +21,11 @@ Versão: 0.4
 Data: 11/06/2025
 Descrição: Adicionando exemplos de monstros, tanto agressivos quanto pacíficos, e suas respectivas tabelas.
 Autor: Christopher, João Marcos
+
+Versão: 0.5
+Data: 11/06/2025
+Descrição: Adicionando exemplos de itens, e suas respectivas tabelas.
+Autor: Christopher, João Marcos
 */
 -- ===============================================
 
@@ -95,7 +100,7 @@ INSERT INTO public.dialogos
         VALUES  (1, 'Viajante, cuidado com as sombras do templo! Elas consomem até a alma mais forte.', 101),
                 (2, 'Eu já vi coisas que fariam um homem enlouquecer... *suspira* ' || 'As paredes deste lugar sussurram segredos antigos. Não confie nelas.', 101);
 
--- TABELA CORREDORES (EXEMPLOS)
+-- TABELA CORREDORES
 
 INSERT INTO public.corredores 
             (id, status, descricao)
@@ -106,7 +111,7 @@ INSERT INTO public.corredores
             (5, FALSE, 'Corredor de Manutenção do Templo'),
             (6, FALSE, 'Corredor de Descarte do Templo');
 
--- TABELA CORREDORES_SALA_DESTINO (EXEMPLOS)
+-- TABELA CORREDORES_SALA_DESTINO
 
 INSERT INTO public.corredores_salas_destino 
             (id_sala, id_corredor)
@@ -258,4 +263,9 @@ VALUES  (1, 'Abominável Horrores', 'Criatura grotesca que se esconde nas sombra
 INSERT INTO public.pacificos 
         (id, nome, descricao, defesa, vida, motivo_passividade, tipo_pacifico, conhecimento_geografico, conhecimento_proibido)
 VALUES  (4, 'Espírito Guardião', 'Um espírito antigo que protege certas áreas, mas não ataca a menos que provocado.', 5, 30, 'indiferente', 'sobrenatural', 'Conhece todos os caminhos do templo.', 'Nenhum.'),
-        (5, 'Eremita do Templo', 'Um humanoide recluso que vive no templo, buscando conhecimento.', 7, 25, 'amigavel', 'humanoide', 'Mapas mentais detalhados do andar superior.', 'Histórias de rituais proibidos.');      
+        (5, 'Eremita do Templo', 'Um humanoide recluso que vive no templo, buscando conhecimento.', 7, 25, 'amigavel', 'humanoide', 'Mapas mentais detalhados do andar superior.', 'Histórias de rituais proibidos.');   
+
+-- TABELA ITENS
+
+INSERT INTO public.itens (id, tipo, nome, descricao, valor)
+VALUES (1, 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);   
