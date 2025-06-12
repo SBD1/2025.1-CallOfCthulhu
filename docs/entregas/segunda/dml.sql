@@ -31,6 +31,11 @@ Versão: 0.6
 Data: 11/06/2025
 Descrição: Adicionando exemplos de instancias de monstros e itens, e suas respectivas tabelas.
 Autor: Christopher, João Marcos
+
+Versão: 0.7
+Data: 11/06/2025
+Descrição: Adicionando exemplos de missões e batalhas, e suas respectivas tabelas.
+Autor: Christopher, João Marcos
 */
 -- ===============================================
 
@@ -258,35 +263,59 @@ INSERT INTO public.tipos_monstro
 -- TABELA MONSTROS AGRESSIVOS
 
 INSERT INTO public.agressivos 
-        (id, nome, descricao, defesa, vida, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
-VALUES  (1, 'Abominável Horrores', 'Criatura grotesca que se esconde nas sombras, devorando a sanidade.', 10, 50, 'proximidade', 15, 'psiquico', 5, 20, 10, 30),
-        (2, 'Carnífice Sombrio', 'Um monstro com garras afiadas, rápido e implacável.', 12, 60, 'ataque_direto', 10, 'fisico', 8, 0, 0, 40),
-        (3, 'Mago da Corrupção', 'Uma entidade mágica que distorce a realidade com seus feitiços.', 8, 40, 'barulho_alto', 20, 'magico', 4, 15, 25, 25);
+            (id, nome, descricao, defesa, vida, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
+    VALUES  (1, 'Abominável Horrores', 'Criatura grotesca que se esconde nas sombras, devorando a sanidade.', 10, 50, 'proximidade', 15, 'psiquico', 5, 20, 10, 30),
+            (2, 'Carnífice Sombrio', 'Um monstro com garras afiadas, rápido e implacável.', 12, 60, 'ataque_direto', 10, 'fisico', 8, 0, 0, 40),
+            (3, 'Mago da Corrupção', 'Uma entidade mágica que distorce a realidade com seus feitiços.', 8, 40, 'barulho_alto', 20, 'magico', 4, 15, 25, 25);
 
 -- TABELA MONSTROS PACÍFICOS
 
 INSERT INTO public.pacificos 
-        (id, nome, descricao, defesa, vida, motivo_passividade, tipo_pacifico, conhecimento_geografico, conhecimento_proibido)
-VALUES  (4, 'Espírito Guardião', 'Um espírito antigo que protege certas áreas, mas não ataca a menos que provocado.', 5, 30, 'indiferente', 'sobrenatural', 'Conhece todos os caminhos do templo.', 'Nenhum.'),
-        (5, 'Eremita do Templo', 'Um humanoide recluso que vive no templo, buscando conhecimento.', 7, 25, 'amigavel', 'humanoide', 'Mapas mentais detalhados do andar superior.', 'Histórias de rituais proibidos.');   
+            (id, nome, descricao, defesa, vida, motivo_passividade, tipo_pacifico, conhecimento_geografico, conhecimento_proibido)
+    VALUES  (4, 'Espírito Guardião', 'Um espírito antigo que protege certas áreas, mas não ataca a menos que provocado.', 5, 30, 'indiferente', 'sobrenatural', 'Conhece todos os caminhos do templo.', 'Nenhum.'),
+            (5, 'Eremita do Templo', 'Um humanoide recluso que vive no templo, buscando conhecimento.', 7, 25, 'amigavel', 'humanoide', 'Mapas mentais detalhados do andar superior.', 'Histórias de rituais proibidos.');   
 
 -- TABELA ITENS
 
 INSERT INTO public.itens 
-        (id, tipo, nome, descricao, valor)
-VALUES  (1, 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);   
+            (id, tipo, nome, descricao, valor)
+    VALUES  (1, 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);   
 
 -- TABELA INSTÂNCIA DE ITENS
 
 INSERT INTO public.instancias_de_itens 
-        (id, durabilidade, id_sala, id_missao_requer, id_missao_recompensa, id_item)
-VALUES  (1, 100, 1, NULL, NULL, 1); -- Uma adaga simples no Salão Principal
+            (id, durabilidade, id_sala, id_missao_requer, id_missao_recompensa, id_item)
+    VALUES  (1, 100, 1, NULL, NULL, 1); -- Uma adaga simples no Salão Principal
 
 -- TABELA INSTÂNCIA DE MONSTROS
 
 INSERT INTO public.instancias_monstros 
-        (id, id_monstro, id_sala, id_corredor, id_instancia_de_item)
-VALUES  (1, 1, 3, NULL, 1),-- Uma instância do Abominável Horrores na Câmara Secreta, com a Adaga Simples
-        (2, 2, NULL, 1, 1), -- Uma instância do Carnífice Sombrio no Corredor Principal, com a Adaga Simples
-        (3, 4, 4, NULL, 1), -- Uma instância do Espírito Guardião na Tumba Esquecida, com a Adaga Simples
-        (4, 5, 6, NULL, 1); -- Uma instância do Eremita do Templo na Biblioteca Proibida, com a Adaga Simples
+            (id, id_monstro, id_sala, id_corredor, id_instancia_de_item)
+    VALUES  (1, 1, 3, NULL, 1),-- Uma instância do Abominável Horrores na Câmara Secreta, com a Adaga Simples
+            (2, 2, NULL, 1, 1), -- Uma instância do Carnífice Sombrio no Corredor Principal, com a Adaga Simples
+            (3, 4, 4, NULL, 1), -- Uma instância do Espírito Guardião na Tumba Esquecida, com a Adaga Simples
+            (4, 5, 6, NULL, 1); -- Uma instância do Eremita do Templo na Biblioteca Proibida, com a Adaga Simples
+
+-- TABELA MISSÕES
+
+INSERT INTO public.missoes 
+        (id, nome, descricao, tipo, ordem, id_npc)
+VALUES  (1, 'A Súplica do Ancião', 'O Velho Sábio precisa que você recupere um artefato roubado das profundezas do templo.', 'principal', 'Encontre o artefato na Tumba Esquecida (Sala 4).', 101),
+        (2, 'Relíquias Perdidas', 'O Guarda do Templo precisa de ajuda para localizar relíquias dispersas pelo Corredor Principal.', 'coleta', 'Procure por 3 fragmentos de relíquias no Corredor Principal (Corredor 1).', 102),
+        (3, 'Purificação do Santuário', 'A Sacerdotisa Sombria pede que você extermine uma criatura maligna na Câmara Secreta.', 'eliminacao', 'Derrote o Abominável Horrores na Câmara Secreta (Sala 3).', 103);
+
+
+ -- TABELA ENTREGA DE MISSÕES
+
+INSERT INTO public.entregas_missoes 
+            (id_jogador, id_npc)
+    VALUES  (1, 101),-- Samuel Carter entregou uma missão ao Velho Sábio
+            (2, 102); -- Sarah Thompson entregou uma missão ao Guarda do Templo 
+
+-- TABELA BATALHAS
+
+INSERT INTO public.batalhas 
+            (id_jogador, id_monstro)
+    VALUES  (1, 1),-- Samuel Carter batalhou contra o Abominável Horrores (instância 1)
+            (2, 2),-- Sarah Thompson batalhou contra o Carnífice Sombrio (instância 2)
+            (1, 2); -- Samuel Carter também batalhou contra o Carnífice Sombrio (instância 2)
