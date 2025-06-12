@@ -40,6 +40,8 @@ Com base no universo criado por HP Lovecraft, Call of Cthulhu busca contar a his
     ````
 **Obs**: caso o passo 3 não funcione, troque "20251-callofcthulhu-db-1", pelo nome criado pelo seu docker. Para isso, rode ``docker ps -a``, pegue o nome do container que está rodando e troque pelo comando do passo 3.
 
+---
+
 ### Como rodar o banco com o DBBeaver
 O DBBeaver é uma plataforma gratuíta para trabalhar com bancos de dados, com suporte para múltiplos SQL databases, assim como o PostgreSQL.
 1. Acesse o site e [baixe o DBBeaver](https://dbeaver.io/download/)
@@ -50,3 +52,52 @@ O DBBeaver é uma plataforma gratuíta para trabalhar com bancos de dados, com s
     ![passo2](image-2.png)
     1. Preencha as informações do banco, são as mesmas do arquivo ``docker-compose.yml``
     ![passo3](image-1.png)
+1. Clique em **Test Connection** para garantir que está funcionando e depois em **Finish**
+1. Agora você poderá:
+    - Visualizar os schemas (`game`, `player`, `public`)
+    - Navegar entre as tabelas, views, etc.
+    - Executar scripts SQL diretamente pelo editor do DBeaver
+
+---------------
+
+### Como rodar scripts SQL no banco
+
+Depois que o banco está rodando via Docker, você pode aplicar scripts SQL necessários com este comando:
+```bash
+docker exec -i <nome-do-container> psql -U postgres -d call_of_chtulhu -f <caminho-do-arquivo.sql>
+```
+
+Por exemplo, para rodar o script de criação do banco (createdb.sql):
+```bash
+docker exec -i 20251-callofcthulhu-db-1 psql -U postgres -d call_of_chtulhu -f ./db/createdb.sql
+```
+
+Se der erro de nome do container, use:
+```bash
+docker ps -a
+```
+
+# Comandos básicos no psql (dentro do container)
+Para entrar no terminal interativo do banco:
+
+```bash
+docker exec -it 20251-callofcthulhu-db-1 psql -U postgres -d call_of_chtulhu
+```
+Dentro do psql, alguns comandos úteis:
+
+| Comando                 | O que faz                     |
+| ----------------------- | ----------------------------- |
+| `\l`                    | Lista os bancos de dados      |
+| `\c nome_do_banco`      | Conecta em outro banco        |
+| `\dt`                   | Lista tabelas no schema atual |
+| `\d nome_tabela`        | Mostra detalhes da tabela     |
+| `\dn`                   | Lista schemas                 |
+| `\du`                   | Lista roles                   |
+| `\q`                    | Sai do psql                   |
+| `SELECT * FROM tabela;` | Consulta dados da tabela      |
+
+# Restaurar backups usando Docker
+Se quiser restaurar um backup .dump usando pg_restore:
+```bash
+docker exec -i 20251-callofcthulhu-db-1 pg_restore -U postgres -d call_of_chtulhu < backup.dump
+```
