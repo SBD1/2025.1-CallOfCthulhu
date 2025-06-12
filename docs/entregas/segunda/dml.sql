@@ -12,6 +12,10 @@ Data: 10/06/2025
 Descrição: Criando inserts iniciais nas tabelas inventários, salas, tipo_personagem, personagens_jogaveis, corredores, corredores_salas_destino, perícias e personagens_possuem_pericias.
 Autor: Christopher, João Marcos
 
+Versão: 0.3
+Data: 11/06/2025
+Descrição: Adicionando exemplos de NPCs e diálogos. Completando tabela de perícias.
+Autor: Christopher, João Marcos
 */
 -- ===============================================
 
@@ -40,7 +44,8 @@ INSERT INTO public.salas
 
 INSERT INTO public.tipos_personagem 
             (id, tipo)
-    VALUES  (2001, 'personagem jogavel');
+    VALUES  (1001, 'personagem jogavel'),
+            (2001, 'NPC');
 
 -- TABELA PERSONAGENS_JOGAVEIS
 
@@ -60,7 +65,20 @@ INSERT INTO public.personagens_jogaveis
             10, 10, 
             100, 
             1, NULL, 
-            1, NULL, NULL, 2001);
+            1, NULL, NULL, 1001);
+
+-- TABELA NPCs
+
+INSERT INTO public.npcs 
+                (id, nome, ocupacao, idade, sexo, residencia, local_nascimento, id_tipo_personagem, id_sala)
+        VALUES  (1, 'Velho Sábio', 'Guardião do Templo', 70, 'masculino', 'Templo das Sombras', 'Arkham', 2001, 1 );
+
+-- TABELA DIALOGOS
+
+INSERT INTO public.dialogos 
+                (id, script_dialogo, npc_id)
+        VALUES  (1, 'Viajante, cuidado com as sombras do templo! Elas consomem até a alma mais forte.', 1),
+                (2, 'Eu já vi coisas que fariam um homem enlouquecer... *suspira* ' || 'As paredes deste lugar sussurram segredos antigos. Não confie nelas.', 1);
 
 -- TABELA CORREDORES (EXEMPLOS)
 
@@ -192,7 +210,7 @@ INSERT INTO public.personagens_possuem_pericias
             (1, 32, 20), -- Escalar
             (1, 34, 20), -- Escutar
             (1, 41, 20), -- Furtividade
-            (1, 53, 0); -- Lutar
+            (1, 53, 0), -- Lutar
             (1, 63, 0), -- Mythos de Cthulhu
             (1, 66, 0), -- Nível de Crédito
             (1, 62, 10), -- Mundo Natural
