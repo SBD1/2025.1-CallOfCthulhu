@@ -137,112 +137,80 @@ class Game:
 
 
     def gameplay(self):
-        """O loop principal do jogo onde as ações do jogador ocorrem."""
         if not self.player:
-            print("Erro: Nenhum jogador carregado para iniciar o gameplay.")
-            self.start()
-            return
+            print("Erro: Nenhum jogador carregado.")
+            return self.start()
 
         print(f"\n--- Começa a aventura de {self.player.nome}! ---")
 
         while True:
-            if self.player.id_sala == None:
-                detalhes_sala = self.db.get_sala_com_saidas(self.player.id_corredor)
+            detalhes_local = None
+            local_atual = None
 
-            if self.player.id_corredor == None:
-                detalhes_sala = self.db.get_corredor_com_saidas(self.player.id_sala)
+            # 1. Determina onde o jogador está e busca os detalhes
+            if self.player.id_sala:
+                local_atual = 'sala'
+                detalhes_local = self.db.get_sala_com_saidas(self.player.id_sala)
+            elif self.player.id_corredor:
+                local_atual = 'corredor'
+                detalhes_local = self.db.get_corredor_com_saidas(self.player.id_corredor)
 
-            if not detalhes_sala:
-                print(f"Erro: Não foi possível carregar os detalhes da sala ID: {self.player.id_sala}")
-                input("Pressione Enter para voltar ao menu principal...")
-                self.start()
-                return
+            if not detalhes_local:
+                location_id = self.player.id_sala or self.player.id_corredor
+                print(f"Erro: Não foi possível carregar os detalhes do local ID: {location_id}")
+                return self.start()
 
+            # 2. Mostra o status atual
             clear()
             print("==================================================")
-            print(f"Você está em: {detalhes_sala['descricao']}")
+            print(f"Você está em: {detalhes_local['descricao']}")
             print("==================================================")
             print("\nSAÍDAS DISPONÍVEIS:")
-
-            saidas = detalhes_sala['saidas']
-            if not saidas:
-                print("Não há saídas visíveis desta sala.")
-                print("Você deve encontrar outro caminho ou interagir com o ambiente.")
-                input("Pressione Enter para continuar (por enquanto, você está preso aqui)...")
-                # Se não houver saídas, você pode implementar outras ações aqui
-                # Por agora, voltamos ao menu principal para não deixar o jogo "parado"
-                self.start()
-                return
-                
-            for i, saida in enumerate(saidas):
-                print(f"  [{i + 1}] {saida['desc_corredor']} (Leva para a sala {saida['id_sala_destino']})")
-
-            print("\nO que você deseja fazer?")
-            print("  Digite o número da saída para se mover.")
-            print("  'status' para ver seus atributos.")
-            print("  'inventario' para ver seus itens.")
-            print("  'sair' para encerrar o jogo.")
             
+            saidas = detalhes_local['saidas']
+            if not saidas:
+                print("Não há saídas visíveis daqui.")
+                input("Pressione Enter para continuar...")
+                continue
+
+            for i, saida in enumerate(saidas):
+                destino_tipo = "Corredor" if local_atual == 'sala' else "Sala"
+                print(f"  [{i + 1}] Ir para {destino_tipo}: {saida['desc_saida']}")
+
+            # 3. Pede a ação do jogador
+            print("\nO que você deseja fazer? ('status', 'inventario', 'sair')")
             escolha = input("> ").strip().lower()
 
             if escolha == 'sair':
-                print(f"Aventura de {self.player.nome} encerrada. Até a próxima!")
                 break
             elif escolha == 'status':
-                clear()
-                print("--- Seus Atributos ---")
-                player_details = self.db.get_personagem(self.player.nome) # Usando nome para buscar detalhes completos
-                # Alternativamente, você poderia ter um método get_character_by_id em DataBase
-                if player_details: # get_personagem já retorna um objeto Player
-                    print(f"Nome: {player_details.nome}")
-                    print(f"Ocupação: {player_details.ocupacao}")
-                    print(f"Idade: {player_details.idade}, Sexo: {player_details.sexo}")
-                    print(f"Força: {player_details.forca}, Constituição: {player_details.constituicao}")
-                    print(f"Poder: {player_details.poder}, Destreza: {player_details.destreza}")
-                    print(f"Aparência: {player_details.aparencia}, Tamanho: {player_details.tamanho}")
-                    print(f"Inteligência: {player_details.inteligencia}, Educação: {player_details.educacao}")
-                    print(f"Movimento: {player_details.movimento}")
-                    print(f"Sanidade Atual: {player_details.sanidade_atual}, Sanidade Máxima: {player_details.PM_max * 5}") # PM_max * 5 é um cálculo aproximado, use sanidade_maxima se a view retornar
-                    print(f"PM Base: {player_details.PM_base}, PM Máximo: {player_details.PM_max}")
-                    print(f"Pontos de Vida Atual: {player_details.pontos_de_vida_atual}")
-                    # Ideia, Conhecimento, Sorte não estão no objeto Player direto, mas na view.
-                    # Se quiser exibir, precisaria de outro método no database.py
-                    # ou ajustar o get_personagem para usar a view e incluir esses atributos no objeto Player
-                else:
-                    print("Não foi possível carregar os detalhes do personagem.")
-                input("\nPressione Enter para continuar...")
+                # ... (seu código de status) ...
+                continue
             elif escolha == 'inventario':
-                clear()
-                print("--- Seu Inventário ---")
-                self.db.get_view_inventory(self.player.inventario)
+                self.db.get_view_inventory(self.player.id_inventario)
                 input("\nPressione Enter para continuar...")
-            else:
-                try:
-                    escolha_num = int(escolha) - 1
-                    if 0 <= escolha_num < len(saidas):
-                        saida_escolhida = saidas[escolha_num]
-                        nova_sala_id = saida_escolhida['id_sala_destino']
-                        if self.player.id_corredor == None:
-                            self.db.update_localizacao_jogador_na_sala(self.player.idJogador, nova_sala_id)
-                            self.player.id_sala = None
-                            self.player.id_corredor = nova_sala_id
-                             # Atualiza o atributo do objeto Player
-                            print(f"\nVocê se move para o corredor {nova_sala_id}...")
+                continue
+            
+            # 4. Processa o movimento
+            try:
+                escolha_num = int(escolha) - 1
+                if 0 <= escolha_num < len(saidas):
+                    saida_escolhida = saidas[escolha_num]
+                    id_destino = saida_escolhida['id_saida']
 
+                    if local_atual == 'sala':
+                        self.db.update_localizacao_jogador(self.player.idJogador, novo_corredor_id=id_destino)
+                        self.player.id_sala = None
+                        self.player.id_corredor = id_destino
+                    elif local_atual == 'corredor':
+                        self.db.update_localizacao_jogador(self.player.idJogador, nova_sala_id=id_destino)
+                        self.player.id_corredor = None
+                        self.player.id_sala = id_destino
+                else:
+                    input("Escolha de saída inválida. Pressione Enter.")
+            except ValueError:
+                input("Comando inválido. Pressione Enter.")
 
-                        elif self.player.id_sala == None:
-                            self.db.update_localizacao_jogador_no_corredor(self.player.idJogador, nova_sala_id)
-                            self.player.id_corredor = None
-                            self.player.id_sala = nova_sala_id
-                             # Atualiza o atributo do objeto Player
-                            print(f"\nVocê se move para a sala {nova_sala_id}...")
-
-                    else:
-                        input("Escolha de saída inválida. Pressione Enter para tentar novamente.")
-                except ValueError:
-                    input("Comando inválido. Por favor, digite um número para mover ou um comando. Pressione Enter para tentar novamente.")
-
-        # Ao sair do loop gameplay, volta para o menu inicial
         self.start()
 
 

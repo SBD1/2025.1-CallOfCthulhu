@@ -134,7 +134,7 @@ class DataBase:
             forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao,
             movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida,
             pm_base, pm_max, pontos_de_vida_atual,
-            id_sala, id_corredor, id_inventario, id_armadura, id_arma, id_tipo_personagem
+            id_sala, id_corredor, id_inventario, id_armadura, id_arma
         FROM
             public.personagens_jogaveis
         WHERE
@@ -170,8 +170,7 @@ class DataBase:
                 id_corredor=personagem_data['id_corredor'],
                 id_inventario=personagem_data['id_inventario'],
                 id_armadura=personagem_data['id_armadura'],
-                id_arma=personagem_data['id_arma'],
-                id_tipo_personagem=personagem_data['id_tipo_personagem']
+                id_arma=personagem_data['id_arma']
             )
         else:
             print(f"Personagem '{nome_personagem}' não encontrado ou erro na consulta.")
@@ -209,11 +208,10 @@ class DataBase:
                 print('Falha ao criar o invetário')
                 return None
             
-            id_sala_inicial = 2 
+            id_sala_inicial = 40300002 
             id_corredor_inicial = None 
             id_armadura_inicial = None 
             id_arma_inicial = None     
-            id_tipo_personagem = 1 
     
             """
             Cria um novo personagem
@@ -224,13 +222,13 @@ class DataBase:
                 forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao,
                 movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida,
                 PM_base, PM_max, pontos_de_vida_atual,
-                id_sala, id_corredor, id_inventario, id_armadura, id_arma, id_tipo_personagem
+                id_sala, id_corredor, id_inventario, id_armadura, id_arma
             ) VALUES (
                 %s, %s, %s, %s, %s, %s,
                 %s, %s, %s, %s, %s, %s, %s, %s,
                 %s, %s, %s, %s,
                 %s, %s, %s,
-                %s, %s, %s, %s, %s, %s
+                %s, %s, %s, %s, %s
             ) RETURNING id; 
             """
             
@@ -239,7 +237,7 @@ class DataBase:
                 new_forca, new_constituicao, new_poder, new_destreza, new_aparencia, new_tamanho, new_inteligencia, new_educacao,
                 movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida,
                 pm_base, pm_max, pontos_de_vida_atual,
-                id_sala_inicial, id_corredor_inicial, id_inventario, id_armadura_inicial, id_arma_inicial, id_tipo_personagem
+                id_sala_inicial, id_corredor_inicial, id_inventario, id_armadura_inicial, id_arma_inicial
             )
     
             new_player_id_data = self._execute_query(query, params, fetch_one=True)
@@ -263,81 +261,37 @@ class DataBase:
     # Em database.py, adicione estes dois métodos DENTRO da classe DataBase
 
     def get_sala_com_saidas(self, id_sala: int):
-        """
-        Busca a descrição de uma sala e todas as suas saídas conectadas.
-        Uma saída é um corredor que leva a outra sala.
-        """
-        # Dicionário para guardar os resultados
         resultado = {'id': id_sala, 'descricao': None, 'saidas': []}
+        sala_data = self._execute_query("SELECT descricao FROM public.salas WHERE id = %s;", (id_sala,), fetch_one=True)
+        if not sala_data: return None
+        resultado['descricao'] = sala_data['descricao'].strip()
 
-        # Consulta 1: Pega a descrição da sala atual.
-        desc_query = "SELECT descricao FROM public.salas WHERE id = %s;"
-        sala_data = self._execute_query(desc_query, (id_sala,), fetch_one=True)
-        if not sala_data:
-            return None # Sala não existe
-        resultado['descricao'] = sala_data['descricao']
-
-        # Consulta 2: Pega todos os corredores conectados a esta sala e para onde eles levam.
-        # Esta consulta une a tabela de junção com ela mesma através do corredor
-        # para encontrar a sala de origem e a sala de destino.
         saidas_query = """
-            SELECT
-                corredor.id AS id_corredor,
-                corredor.descricao AS desc_corredor,
-                destino.id_sala AS id_sala_destino
-            FROM
-                public.corredores_salas_destino AS origem
-            JOIN
-                public.corredores AS corredor ON origem.id_corredor = corredor.id
-            JOIN
-                public.corredores_salas_destino AS destino ON origem.id_corredor = destino.id_corredor
-            WHERE
-                origem.id_sala = %s AND destino.id_sala != %s;
+            SELECT c.id AS id_saida, c.descricao AS desc_saida
+            FROM public.corredores c
+            JOIN public.corredores_salas_destino j ON c.id = j.id_corredor
+            WHERE j.id_sala = %s;
         """
-        saidas_data = self._execute_query(saidas_query, (id_sala, id_sala), fetch_all=True)
-
+        saidas_data = self._execute_query(saidas_query, (id_sala,), fetch_all=True)
         if saidas_data:
-            resultado['saidas'] = saidas_data
-
+            resultado['saidas'] = [{'id_saida': s['id_saida'], 'desc_saida': s['desc_saida'].strip()} for s in saidas_data]
         return resultado
 
-    def get_corredor_com_saidas(self, id_sala: int):
-        """
-        Busca a descrição de um corredor e todas as suas saídas conectadas.
-        Uma saída é uuma sala que leva a outro corredor.
-        """
-        # Dicionário para guardar os resultados
-        resultado = {'id': id_sala, 'descricao': None, 'saidas': []}
+    def get_corredor_com_saidas(self, id_corredor: int):
+        resultado = {'id': id_corredor, 'descricao': None, 'saidas': []}
+        corredor_data = self._execute_query("SELECT descricao FROM public.corredores WHERE id = %s;", (id_corredor,), fetch_one=True)
+        if not corredor_data: return None
+        resultado['descricao'] = corredor_data['descricao'].strip()
 
-        # Consulta 1: Pega a descrição da sala atual.
-        desc_query = "SELECT descricao FROM public.corredores WHERE id = %s;"
-        sala_data = self._execute_query(desc_query, (id_sala,), fetch_one=True)
-        if not sala_data:
-            return None # Corredor não existe
-        resultado['descricao'] = sala_data['descricao']
-
-        # Consulta 2: Pega todos os corredores conectados a esta sala e para onde eles levam.
-        # Esta consulta une a tabela de junção com ela mesma através do corredor
-        # para encontrar a sala de origem e a sala de destino.
         saidas_query = """
-            SELECT
-                sala.id AS id_corredor,
-                sala.descricao AS desc_corredor,
-                destino.id_corredor AS id_sala_destino
-            FROM
-                public.corredores_salas_destino AS origem
-            JOIN
-                public.salas AS sala ON origem.id_sala = sala.id
-            JOIN
-                public.corredores_salas_destino AS destino ON origem.id_sala = destino.id_sala
-            WHERE
-                origem.id_corredor = %s AND destino.id_corredor != %s;
+            SELECT s.id AS id_saida, s.descricao AS desc_saida
+            FROM public.salas s
+            JOIN public.corredores_salas_destino j ON s.id = j.id_sala
+            WHERE j.id_corredor = %s;
         """
-        saidas_data = self._execute_query(saidas_query, (id_sala, id_sala), fetch_all=True)
-
+        saidas_data = self._execute_query(saidas_query, (id_corredor,), fetch_all=True)
         if saidas_data:
-            resultado['saidas'] = saidas_data
-
+            resultado['saidas'] = [{'id_saida': s['id_saida'], 'desc_saida': s['desc_saida'].strip()} for s in saidas_data]
         return resultado
 
 
@@ -354,18 +308,9 @@ class DataBase:
         self._execute_query(query, (nova_sala_id, id_jogador))
         print(f"[DB] Localização do jogador {id_jogador} atualizada para corredor {nova_sala_id}.")
 
-    def update_localizacao_jogador_no_corredor(self, id_jogador: int, nova_sala_id: int):
-        """
-        Atualiza a localização do jogador para uma nova sala no banco de dados.
-        """
-        # Define a nova sala e zera o corredor para cumprir a regra do banco de dados
-        query = """
-            UPDATE public.personagens_jogaveis
-            SET id_sala = %s, id_corredor = NULL
-            WHERE id = %s;
-        """
-        self._execute_query(query, (nova_sala_id, id_jogador))
-        print(f"[DB] Localização do jogador {id_jogador} atualizada para corredor {nova_sala_id}.")
+    def update_localizacao_jogador(self, id_jogador: int, nova_sala_id: int = None, novo_corredor_id: int = None):
+        query = "UPDATE public.personagens_jogaveis SET id_sala = %s, id_corredor = %s WHERE id = %s;"
+        self._execute_query(query, (nova_sala_id, novo_corredor_id, id_jogador))
 
 
 # --- Bloco de Teste para o Modelo Básico ---

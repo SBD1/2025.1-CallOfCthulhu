@@ -1,5 +1,5 @@
 class Player:
-    def __init__(self, idJogador, nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida, PM_base, PM_max, pontos_de_vida_atual, id_sala, id_corredor, id_inventario, id_armadura, id_arma, id_tipo_personagem):
+    def __init__(self, idJogador, nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida, PM_base, PM_max, pontos_de_vida_atual, id_sala, id_corredor, id_inventario, id_armadura, id_arma):
         self.idJogador = idJogador
         self.nome = nome  
         self.ocupacao = ocupacao  
@@ -27,7 +27,6 @@ class Player:
         self.id_inventario = id_inventario  
         self.id_armadura = id_armadura  
         self.id_arma = id_arma 
-        self.id_tipo_personagem = id_tipo_personagem
 
 
 class Corredor:
