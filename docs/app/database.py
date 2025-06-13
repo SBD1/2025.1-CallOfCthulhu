@@ -17,8 +17,8 @@ class DataBase:
          try:
              self.connection = self._create_connection()
          except Exception as e:
-    #        # Captura a exceção de conexão e a exibe, mas não re-lança para o __main__
-    #         # Isso permite que o __main__ continue e teste se a conexão foi bem-sucedida ou não.
+    #         Captura a exceção de conexão e a exibe, mas não re-lança para o __main__
+    #         Isso permite que o __main__ continue e teste se a conexão foi bem-sucedida ou não.
              print(f"Falha na inicialização do banco de dados: {e}")
 
     def _create_connection(self):
@@ -30,7 +30,7 @@ class DataBase:
         try:
             conn = psycopg2.connect(
                 host="localhost",
-                database="call_of_chtulhu",  # Verifique o nome do seu banco de dados
+                database="call_of_cthulhu",  # Verifique o nome do seu banco de dados
                 user="postgres",
                 password="postgres",
                 port=5431  # Verifique a porta. O padrão é 5432.
@@ -123,12 +123,11 @@ class DataBase:
 
     #Aqui Luiz
 
-    def get_personagem(self, nome_personagem: str): # Mudado para buscar por nome
+    def get_personagem(self, nome_personagem: str): 
         """
         Retorna um objeto Player (Personagem Jogável) pelo nome.
         Retorna None se o personagem não for encontrado ou em caso de erro.
         """
-        # Você precisa buscar *todos* os campos necessários para instanciar a classe Player
         query = """
         SELECT
             id, nome, ocupacao, residencia, local_nascimento, idade, sexo,
@@ -164,7 +163,7 @@ class DataBase:
                 sanidade_atual=personagem_data['sanidade_atual'],
                 insanidade_temporaria=personagem_data['insanidade_temporaria'],
                 insanidade_indefinida=personagem_data['insanidade_indefinida'],
-                PM_base=personagem_data['pm_base'], # Ajustado para 'pm_base' (coluna no DB)
+                PM_base=personagem_data['pm_base'], 
                 PM_max=personagem_data['pm_max'],
                 pontos_de_vida_atual=personagem_data['pontos_de_vida_atual'],
                 id_sala=personagem_data['id_sala'],
@@ -177,44 +176,6 @@ class DataBase:
         else:
             print(f"Personagem '{nome_personagem}' não encontrado ou erro na consulta.")
             return None
-
-
-    # def get_personagem(self, id_personagem : int):
-    #         """
-    #         Retorna um objeto personagem pelo ID.
-    #         """
-    #         query = """SELECT id FROM personagens_jogaveis
-    #                    WHERE(personnages_jogaveis.nome = '%s'
-    #                    """ % (nome)
-            
-    #         cursor.execute(querry)
-    #         rtn = cursor.fetchone()
-    #         if(rtn == None):
-    #             cursor.close()
-    #             return Player
-    #         else:
-    #             querry = """SELECT
-    #                         forca,
-    #                         constituicao,
-    #                         poder,
-    #                         destreza,
-    #                         aparencia,
-    #                         tamanho,
-    #                         inteligencia,
-    #                         educacao,
-    #                         ideia,
-    #                         conhecimento,
-    #                         sorte
-    #                     FROM 
-    #                         public.view_personagens_jogaveis_completos
-    #                     WHERE 
-    #                         id = %s; 
-    #                     """ % (nome)
-    #             cursor.execute(querry)
-    #             forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, ideia, conhecimento, sorte = cursor.fetchone()
-
-    #             cursor.close()
-    #             return Player(forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, ideia, conhecimento, sorte)
 
     def create_new_character(self, nome: str, ocupacao: str, residencia: str, local_nascimento: str, idade: int, sexo: str):
     
@@ -230,35 +191,75 @@ class DataBase:
             pontos_de_vida_atual = (new_constituicao + new_tamanho) // 2
             sanidade_atual = new_poder * 5
             pm_max = new_poder * 5
+            pm_base = pm_max 
             
+            movimento = 8 
+            if new_destreza < new_tamanho and new_forca < new_tamanho:
+                movimento = 7
+            elif new_destreza > new_tamanho and new_forca > new_tamanho:
+                movimento = 9
+
+            insanidade_temporaria = False
+            insanidade_indefinida = False
     
-            novo_id_personagem = random.randint(100, 9999)
+            # novo_id_personagem = random.randint(100, 9999)
     
             id_inventario = self.create_new_inventory()
             if not id_inventario: 
                 print('Falha ao criar o invetário')
                 return None
+            
+            id_sala_inicial = 2 
+            id_corredor_inicial = None 
+            id_armadura_inicial = None 
+            id_arma_inicial = None     
+            id_tipo_personagem = 1 
     
             """
             Cria um novo personagem
             """
-            query = "INSERT INTO personagens_jogaveis (nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida, pm_vbasse, pm_max, pontos_de_vida_atual, id_sala, id_corredor_ id_inventario, id_tipo_personagem) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+            query = """
+            INSERT INTO public.personagens_jogaveis (
+                nome, ocupacao, residencia, local_nascimento, idade, sexo,
+                forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao,
+                movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida,
+                PM_base, PM_max, pontos_de_vida_atual,
+                id_sala, id_corredor, id_inventario, id_armadura, id_arma, id_tipo_personagem
+            ) VALUES (
+                %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s,
+                %s, %s, %s,
+                %s, %s, %s, %s, %s, %s
+            ) RETURNING id; 
+            """
+            
+            params = (
+                nome, ocupacao, residencia, local_nascimento, idade, sexo,
+                new_forca, new_constituicao, new_poder, new_destreza, new_aparencia, new_tamanho, new_inteligencia, new_educacao,
+                movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida,
+                pm_base, pm_max, pontos_de_vida_atual,
+                id_sala_inicial, id_corredor_inicial, id_inventario, id_armadura_inicial, id_arma_inicial, id_tipo_personagem
+            )
     
-            id_sala_inicial = 1
-            id_tipo_personagem = 1
+            new_player_id_data = self._execute_query(query, params, fetch_one=True)
+            
+            if new_player_id_data:
+                novo_id_personagem = new_player_id_data['id'] 
+                print(f"Personagem '{nome}' criado com sucesso com ID: {novo_id_personagem}")
+                return novo_id_personagem 
+            else:
+                print(f"Falha ao criar personagem '{nome}'.")
+                return None 
     
-            self._execute_query(query, (nome, ocupacao, residencia, local_nascimento, idade, sexo, new_forca, new_constituicao, new_poder, new_destreza, new_aparencia, new_tamanho, new_inteligencia, new_educacao, 8, sanidade_atual, False, False, movimento, sanidade, insanidades, pm_max, pm_max, pontos_de_vida_atual, 1, None, id_inventario, 1, id_sala, id_corredor, id_inventario, id_tipo_personagem))
-    
-            print(f"Personagem' {nome} 'criado com sucesso")
-            return novo_id_personagem
 
     def create_new_inventory(self):
         query = "INSERT INTO public.inventarios (tamanho) VALUES (%s) RETURNING id;"
-        result = self._execute_query(query, (32), fetch_one= True)
+        result = self._execute_query(query, (32,), fetch_one= True) # Corrigido para tupla (32,)
         if result: 
             return result['id']
         return None
-    
+
     # Em database.py, adicione estes dois métodos DENTRO da classe DataBase
 
     def get_sala_com_saidas(self, id_sala: int):

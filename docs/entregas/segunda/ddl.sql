@@ -42,10 +42,16 @@ Data: 11/06/2025
 Descrição: Ajustando as tabelas CREATE DOMAIN public.tipo_personagem AS CHARACTER e CREATE DOMAIN public.sexo AS CHARACTER para varying e comentando a ultima chave estrangeira que e tipo personagem pois estava dando erro verificar depois.
 Autor: Christopher e João Marcos
 
+Versão: 0.9
+Data: 12/06/2025
+Descrição: Ajustando as tabelas CREATE TABLE public.personagens_jogaveis e adicionando o id integer para criar IDs sem ser manualmente id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+e a tabela inventario.
+Autor: João Marcos
+
 */
 
--- DROP SCHEMA public CASCADE;
--- CREATE SCHEMA public;
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
 
 -- ===============================================
 
@@ -54,7 +60,7 @@ Autor: Christopher e João Marcos
 -- ===============================================
 
 -- PASSO 1: remover os triggers e VIEWS
-
+/*
 DROP VIEW IF EXISTS public.view_personagens_jogaveis_completos;
 
 -- PASSO 2: remover as restrições de chave estrangeira
@@ -322,7 +328,7 @@ DROP DOMAIN IF EXISTS public.ocupacao;
 DROP DOMAIN IF EXISTS public.descricao;
 DROP DOMAIN IF EXISTS public.nome;
 DROP DOMAIN IF EXISTS public.id;
-
+*/
 -- ===============================================
 
 --            DOMÍNIOS CRIADOS
@@ -552,7 +558,7 @@ $calcular_pts_de_vida$ LANGUAGE plpgsql IMMUTABLE;
 -- ===============================================
 
 CREATE TABLE public.personagens_jogaveis(
-    id public.id NOT NULL PRIMARY KEY,
+    id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     nome public.nome NOT NULL,
     ocupacao public.ocupacao NOT NULL,
     residencia public.residencia NOT NULL,
@@ -629,9 +635,8 @@ CREATE TABLE public.dialogos(
 );
 
 CREATE TABLE public.inventarios(
-    id public.id NOT NULL PRIMARY KEY,
-    tamanho SMALLINT NOT NULL
-);
+    id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY, -- Use INTEGER diretamente
+    tamanho SMALLINT NOT NULL);
 
 CREATE TABLE public.templos(
     id public.id NOT NULL PRIMARY KEY,

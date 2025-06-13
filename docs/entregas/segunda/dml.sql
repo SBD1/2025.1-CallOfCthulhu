@@ -36,6 +36,11 @@ Versão: 0.7
 Data: 11/06/2025
 Descrição: Adicionando exemplos de missões e batalhas, e suas respectivas tabelas.
 Autor: Christopher, João Marcos
+
+Versão: 0.8
+Data: 12/06/2025
+Descrição: Removendo o id da tabela inventários, pois não é necessário. Adicionando o id do inventário na tabela personagens_jogaveis. E retirando o id na inserção do personagens_jogaveis.
+Autor: João Marcos
 */
 -- ===============================================
 
@@ -45,8 +50,8 @@ Autor: Christopher, João Marcos
 
 -- TABELA INVENTÁRIOS
 INSERT INTO public.inventarios 
-            (id, tamanho)
-    VALUES  (1, 32);
+            (tamanho)
+    VALUES  (32);
 
 -- TABELA SALAS
 
@@ -112,31 +117,35 @@ INSERT INTO public.tipos_personagem
 
 -- TABELA PERSONAGENS_JOGAVEIS
 
+-- TABELA PERSONAGENS_JOGAVEIS
 INSERT INTO public.personagens_jogaveis
-            (id, nome, ocupacao, residencia, local_nascimento, 
-            idade, sexo, 
-            forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, movimento, 
-            sanidade_atual, insanidade_temporaria, insanidade_indefinida, 
-            PM_base, PM_max, 
-            pontos_de_vida_atual, 
-            id_sala, id_corredor, 
+            (nome, ocupacao, residencia, local_nascimento,
+            idade, sexo,
+            forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao,
+            movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida,
+            PM_base, PM_max,
+            pontos_de_vida_atual,
+            id_sala, id_corredor,
             id_inventario, id_armadura, id_arma, id_tipo_personagem)
-    VALUES (1, 'Samuel Carter', 'Doutor em Medicina', 'Arkham, MA', 'Boston, MA', 
-            42, 'masculino', 
-            10, 12, 12, 8, 15, 17, 13, 12, 7, 
-            12, FALSE, FALSE, 
-            10, 10, 
-            100, 
-            1, NULL, 
-            1, NULL, NULL, 1),
-            (2, 'Sarah Thompson', 'Arqueóloga', 'Boston, MA', 'Boston, MA',
+    VALUES ('Samuel Carter', 'Doutor em Medicina', 'Arkham, MA', 'Boston, MA',
+            42, 'masculino',
+            10, 12, 12, 8, 15, 17, 13, 12,
+            7, -- movimento
+            12, FALSE, FALSE, -- sanidade_atual, insanidade_temporaria, insanidade_indefinida
+            10, 10, -- PM_base, PM_max
+            100, -- pontos_de_vida_atual
+            1, NULL, -- id_sala, id_corredor
+            1, NULL, NULL, 1), -- id_inventario, id_armadura, id_arma, id_tipo_personagem
+
+           ('Sarah Thompson', 'Arqueóloga', 'Boston, MA', 'Boston, MA',
             35, 'feminino',
-            8, 10, 11, 14, 16, 15, 14, 13, 8,
-            11, FALSE, FALSE,
-            8, 8,
-            80,
-            2, NULL,
-            1, NULL, NULL, 1);
+            8, 10, 11, 14, 16, 15, 14, 13,
+            8, -- movimento
+            11, FALSE, FALSE, -- sanidade_atual, insanidade_temporaria, insanidade_indefinida
+            8, 8, -- PM_base, PM_max
+            80, -- pontos_de_vida_atual
+            2, NULL, -- id_sala, id_corredor
+            1, NULL, NULL, 1); -- id_inventario, id_armadura, id_arma, id_tipo_personagem
 
 -- TABELA NPCs
 
