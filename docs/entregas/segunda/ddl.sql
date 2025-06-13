@@ -58,6 +58,12 @@ Data: 13/06/2025
 Descrição: Melhorando os novos domínios de IDs especializados para cada tabela utilizando o id_geral como base
 Autor: Luiz Guilherme
 
+Versão: 0.12
+Data: 13/06/2025
+Descrição: Adicionando as funções que geram os IDs do personagem_jogavel e do inventário de forma automática garantindo a integridade do banco
+Autor: Luiz Guilherme
+
+
 */
 
 DROP SCHEMA public CASCADE;
@@ -529,7 +535,7 @@ CREATE DOMAIN public.comportamento_pacifico AS CHARACTER(32)
     );
 
 
-CREATE DOMAIN public.nome AS CHARACTER(128);
+CREATE DOMAIN public.nome AS CHARACTER VARYING(128);
 
 CREATE DOMAIN public.descricao AS CHARACTER VARYING(5000);
 
@@ -567,7 +573,7 @@ CREATE DOMAIN public.id_personagem AS public.id_geral
 -- TODO PERSONAGEM JOGÁVEL TEM ID QUE COMEÇA COM 0101
 CREATE DOMAIN public.id_personagem_jogavel AS public.id_personagem
     CONSTRAINT id_personagem_jogavel_check CHECK (
-        VALUE BETWEEN 10000000 AND 19999999
+        VALUE BETWEEN 10100000 AND 10199999
 );
 
 -- CRIAÇÃO DO DOMÍNIO DOS PERSONAGENS NPCS
@@ -803,13 +809,43 @@ $calcular_pts_de_vida$ LANGUAGE plpgsql IMMUTABLE;
 
 -- ===============================================
 
+--      FUNÇÕES GERADORAS DE ID
+
+-- ===============================================
+
+CREATE SEQUENCE public.personagem_jogavel_id_seq START WITH 1;
+
+CREATE SEQUENCE public.inventario_id_seq START WITH 1;
+
+/*
+Essas funções servem para garantir a integridade dos dados do banco, elas geram os ids das tabelas seguindo a regra de ids do banco de forma automática.
+*/
+
+-- GERA O ID DO PRÓXIMO PERSONAGEM JOGAVEL SEGUINDO O PADRÃO DE IDS
+CREATE FUNCTION public.gerar_id_personagem_jogavel()
+RETURNS BIGINT AS $gerar_id_personagem_jogavel$
+BEGIN
+    RETURN 10100000 + nextval('public.personagem_jogavel_id_seq');
+END;
+    $gerar_id_personagem_jogavel$ LANGUAGE plpgsql;
+
+-- GERA O ID DO INVENTÁRIO JOGAVEL SEGUINDO O PADRÃO DE IDS
+CREATE FUNCTION public.gerar_id_inventario()
+RETURNS BIGINT AS $gerar_id_inventario$
+BEGIN
+    RETURN 90000000 + nextval('public.inventario_id_seq');
+END;
+    $gerar_id_inventario$ LANGUAGE plpgsql;
+
+-- ===============================================
+
 --             TABELAS DO RPG
 
 -- ===============================================
 
 CREATE TABLE public.personagens_jogaveis(
     -- id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    id public.id_personagem_jogavel NOT NULL PRIMARY KEY
+    id public.id_personagem_jogavel NOT NULL PRIMARY KEY DEFAULT public.gerar_id_personagem_jogavel(),
     nome public.nome NOT NULL,
     ocupacao public.ocupacao NOT NULL,
     residencia public.residencia NOT NULL,
@@ -844,8 +880,8 @@ CREATE TABLE public.personagens_jogaveis(
     id_corredor public.id_corredor, 
     id_inventario public.id_inventario NOT NULL, 
     id_armadura public.id_item_de_armadura, 
-    id_arma public.id_item_arma,
-    id_tipo_personagem public.id NOT NULL
+    id_arma public.id_item_arma
+    -- id_tipo_personagem public.id NOT NULL
 
     /*
 
@@ -872,8 +908,8 @@ CREATE TABLE public.npcs(
 
     -- FOREIGN KEYS
     id_sala public.id_sala, 
-    id_corredor public.id_corredor,
-    id_tipo_personagem public.id NOT NULL
+    id_corredor public.id_corredor
+    -- id_tipo_personagem public.id NOT NULL
 );
 
 CREATE TABLE public.dialogos(
@@ -887,7 +923,7 @@ CREATE TABLE public.dialogos(
 
 CREATE TABLE public.inventarios(
     -- id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY, -- Use INTEGER diretamente
-    id public.id_inventario PRIMARY KEY
+    id public.id_inventario NOT NULL PRIMARY KEY DEFAULT public.gerar_id_inventario(),
     tamanho SMALLINT NOT NULL
 );
 
@@ -1005,7 +1041,7 @@ CREATE TABLE public.armaduras(
 );
 
 CREATE TABLE public.armas(
-    id public.id_arma NOT NULL PRIMARY KEY,
+    id public.id_item_arma NOT NULL PRIMARY KEY,
     atributo_necessario public.tipo_atributo_personagem,
     qtd_atributo_necessario SMALLINT NOT NULL,
     durabilidade SMALLINT NOT NULL,
@@ -1065,17 +1101,17 @@ CREATE TABLE public.instancias_de_itens(
 -- =============================================== 
 
 CREATE TABLE public.tipos_personagem(
-    id public.id NOT NULL PRIMARY KEY,
+    id SERIAL NOT NULL PRIMARY KEY,
     tipo public.tipo_personagem NOT NULL
 );
 
 CREATE TABLE public.tipos_feitico(
-	id public.id NOT NULL PRIMARY KEY,
+	id SERIAL NOT NULL PRIMARY KEY,
     tipo public.funcao_feitico NOT NULL
 );
 
 CREATE TABLE public.tipos_monstro(
-    id public.id NOT NULL PRIMARY KEY,
+    id SERIAL NOT NULL PRIMARY KEY,
     tipo public.tipo_monstro NOT null
 );
 
@@ -1091,7 +1127,7 @@ Essa seção contém as tabelas derivadas de relacionamentos N para N
 
 CREATE TABLE public.batalhas(
     id_jogador public.id_personagem_jogavel NOT NULL,
-    id_monstro public.id_monstro NOT NULL,
+    id_monstro public.id_instancia_de_monstro NOT NULL,
     PRIMARY KEY (id_jogador, id_monstro)
 );
 
@@ -1204,10 +1240,14 @@ ADD CONSTRAINT fk_pj_inventario_instancia_armadura
     FOREIGN KEY (id_armadura) 
     REFERENCES public.instancias_de_itens (id);
 
+/*
+
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_tipos_personagem 
     FOREIGN KEY (id_tipo_personagem) 
     REFERENCES public.tipos_personagem (id);  
+
+*/
 
 -- PERSONAGENS POSSUEM PERÍCIAS
 
@@ -1233,10 +1273,14 @@ ADD CONSTRAINT fk_npcs_corredores
     FOREIGN KEY (id_corredor) 
     REFERENCES public.corredores (id);
 
+/*
+
 ALTER TABLE public.npcs 
 ADD CONSTRAINT fk_npcs_tipos_personagem 
     FOREIGN KEY (id_tipo_personagem) 
     REFERENCES public.tipos_personagem (id);    
+
+*/
 
 -- DIÁLOGOS
 

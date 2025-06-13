@@ -41,6 +41,12 @@ Versão: 0.8
 Data: 12/06/2025
 Descrição: Removendo o id da tabela inventários, pois não é necessário. Adicionando o id do inventário na tabela personagens_jogaveis. E retirando o id na inserção do personagens_jogaveis.
 Autor: João Marcos
+
+Versão: 0.9
+Data: 13/06/2025
+Descrição: Atualizando os ids das tabelas para os novos domínios de id
+Autor: Luiz Guilherme
+
 */
 -- ===============================================
 
