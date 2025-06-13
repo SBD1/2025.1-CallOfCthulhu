@@ -30,7 +30,7 @@ class DataBase:
         try:
             conn = psycopg2.connect(
                 host="localhost",
-                database="call_of_cthulhu",  # Verifique o nome do seu banco de dados
+                database="call_of_chtulhu",  # Verifique o nome do seu banco de dados
                 user="postgres",
                 password="postgres",
                 port=5431  # Verifique a porta. O padrão é 5432.
@@ -301,8 +301,60 @@ class DataBase:
 
         return resultado
 
+    def get_corredor_com_saidas(self, id_sala: int):
+        """
+        Busca a descrição de um corredor e todas as suas saídas conectadas.
+        Uma saída é uuma sala que leva a outro corredor.
+        """
+        # Dicionário para guardar os resultados
+        resultado = {'id': id_sala, 'descricao': None, 'saidas': []}
 
-    def update_localizacao_jogador(self, id_jogador: int, nova_sala_id: int):
+        # Consulta 1: Pega a descrição da sala atual.
+        desc_query = "SELECT descricao FROM public.corredores WHERE id = %s;"
+        sala_data = self._execute_query(desc_query, (id_sala,), fetch_one=True)
+        if not sala_data:
+            return None # Corredor não existe
+        resultado['descricao'] = sala_data['descricao']
+
+        # Consulta 2: Pega todos os corredores conectados a esta sala e para onde eles levam.
+        # Esta consulta une a tabela de junção com ela mesma através do corredor
+        # para encontrar a sala de origem e a sala de destino.
+        saidas_query = """
+            SELECT
+                sala.id AS id_corredor,
+                sala.descricao AS desc_corredor,
+                destino.id_corredor AS id_sala_destino
+            FROM
+                public.corredores_salas_destino AS origem
+            JOIN
+                public.salas AS sala ON origem.id_sala = sala.id
+            JOIN
+                public.corredores_salas_destino AS destino ON origem.id_sala = destino.id_sala
+            WHERE
+                origem.id_corredor = %s AND destino.id_corredor != %s;
+        """
+        saidas_data = self._execute_query(saidas_query, (id_sala, id_sala), fetch_all=True)
+
+        if saidas_data:
+            resultado['saidas'] = saidas_data
+
+        return resultado
+
+
+    def update_localizacao_jogador_na_sala(self, id_jogador: int, nova_sala_id: int):
+        """
+        Atualiza a localização do jogador para um novo corredor no banco de dados.
+        """
+        # Define a nova sala e zera o corredor para cumprir a regra do banco de dados
+        query = """
+            UPDATE public.personagens_jogaveis
+            SET id_sala = NULL, id_corredor = %s
+            WHERE id = %s;
+        """
+        self._execute_query(query, (nova_sala_id, id_jogador))
+        print(f"[DB] Localização do jogador {id_jogador} atualizada para corredor {nova_sala_id}.")
+
+    def update_localizacao_jogador_no_corredor(self, id_jogador: int, nova_sala_id: int):
         """
         Atualiza a localização do jogador para uma nova sala no banco de dados.
         """
@@ -313,7 +365,7 @@ class DataBase:
             WHERE id = %s;
         """
         self._execute_query(query, (nova_sala_id, id_jogador))
-        print(f"[DB] Localização do jogador {id_jogador} atualizada para sala {nova_sala_id}.")
+        print(f"[DB] Localização do jogador {id_jogador} atualizada para corredor {nova_sala_id}.")
 
 
 # --- Bloco de Teste para o Modelo Básico ---

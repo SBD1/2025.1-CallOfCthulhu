@@ -146,7 +146,11 @@ class Game:
         print(f"\n--- Começa a aventura de {self.player.nome}! ---")
 
         while True:
-            detalhes_sala = self.db.get_sala_com_saidas(self.player.id_sala)
+            if self.player.id_sala == None:
+                detalhes_sala = self.db.get_sala_com_saidas(self.player.id_corredor)
+
+            if self.player.id_corredor == None:
+                detalhes_sala = self.db.get_corredor_com_saidas(self.player.id_sala)
 
             if not detalhes_sala:
                 print(f"Erro: Não foi possível carregar os detalhes da sala ID: {self.player.id_sala}")
@@ -218,12 +222,20 @@ class Game:
                     if 0 <= escolha_num < len(saidas):
                         saida_escolhida = saidas[escolha_num]
                         nova_sala_id = saida_escolhida['id_sala_destino']
+                        if self.player.id_corredor == None:
+                            self.db.update_localizacao_jogador_na_sala(self.player.idJogador, nova_sala_id)
+                            self.player.id_sala = None
+                            self.player.id_corredor = nova_sala_id
+                             # Atualiza o atributo do objeto Player
+                            print(f"\nVocê se move para o corredor {nova_sala_id}...")
 
-                        self.db.update_localizacao_jogador(self.player.idJogador, nova_sala_id)
-                        
-                        self.player.sala = nova_sala_id # Atualiza o atributo do objeto Player
-                        
-                        print(f"\nVocê se move para a sala {nova_sala_id}...")
+
+                        elif self.player.id_sala == None:
+                            self.db.update_localizacao_jogador_no_corredor(self.player.idJogador, nova_sala_id)
+                            self.player.id_corredor = None
+                            self.player.id_sala = nova_sala_id
+                             # Atualiza o atributo do objeto Player
+                            print(f"\nVocê se move para a sala {nova_sala_id}...")
 
                     else:
                         input("Escolha de saída inválida. Pressione Enter para tentar novamente.")
