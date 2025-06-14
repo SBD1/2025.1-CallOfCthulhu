@@ -64,6 +64,12 @@ Descrição: Adicionando as funções que geram os IDs do personagem_jogavel e d
 Autor: Luiz Guilherme
 
 
+Versão: 1.0
+Data: 14/06/2025
+Descrição: Adicionando geradores de IDs para as tabelas do banco de dados
+Autor: Luiz Guilherme
+
+
 */
 
 DROP SCHEMA public CASCADE;
@@ -813,15 +819,13 @@ $calcular_pts_de_vida$ LANGUAGE plpgsql IMMUTABLE;
 
 -- ===============================================
 
-CREATE SEQUENCE public.personagem_jogavel_id_seq START WITH 1;
-
-CREATE SEQUENCE public.inventario_id_seq START WITH 1;
-
 /*
 Essas funções servem para garantir a integridade dos dados do banco, elas geram os ids das tabelas seguindo a regra de ids do banco de forma automática.
 */
 
 -- GERA O ID DO PRÓXIMO PERSONAGEM JOGAVEL SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.personagem_jogavel_id_seq START WITH 1;
+
 CREATE FUNCTION public.gerar_id_personagem_jogavel()
 RETURNS BIGINT AS $gerar_id_personagem_jogavel$
 BEGIN
@@ -829,13 +833,215 @@ BEGIN
 END;
     $gerar_id_personagem_jogavel$ LANGUAGE plpgsql;
 
+-- GERA O ID DO PRÓXIMO NPC SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.personagem_npc_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_personagem_npc()
+RETURNS BIGINT AS $gerar_id_personagem_npc$
+BEGIN
+    RETURN 10200000 + nextval('public.personagem_npc_id_seq');
+END;
+    $gerar_id_personagem_npc$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO MONSTRO AGRESSIVO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.monstro_agressivo_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_monstro_agressivo()
+RETURNS BIGINT AS $gerar_id_monstro_agressivo$
+BEGIN
+    RETURN 20100000 + nextval('public.monstro_agressivo_id_seq');
+END;
+    $gerar_id_monstro_agressivo$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO MONSTRO PACÍFICO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.monstro_pacifico_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_monstro_pacifico()
+RETURNS BIGINT AS $gerar_id_monstro_pacifico$
+BEGIN
+    RETURN 20200000 + nextval('public.monstro_pacifico_id_seq');
+END;
+    $gerar_id_monstro_pacifico$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM MÁGICO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.item_magico_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_magico()
+RETURNS BIGINT AS $gerar_id_item_magico$
+BEGIN
+    RETURN 30100000 + nextval('public.item_magico_id_seq');
+END;
+    $gerar_id_item_magico$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM O PADRÃO DE IDS
+CREATE SEQUENCE public.item_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item()
+RETURNS BIGINT AS $gerar_id_item$
+BEGIN
+    RETURN 30000000 + nextval('public.item_id_seq');
+END;
+    $gerar_id_item$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE CURA SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.item_de_cura_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_de_cura()
+RETURNS BIGINT AS $gerar_id_item_de_cura$
+BEGIN
+    RETURN 30200000 + nextval('public.item_de_cura_id_seq');
+END;
+    $gerar_id_item_de_cura$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE ARMADURA SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.item_de_armadura_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_de_armadura()
+RETURNS BIGINT AS $gerar_id_item_de_armadura$
+BEGIN
+    RETURN 30300000 + nextval('public.item_de_armadura_id_seq');
+END;
+    $gerar_id_item_de_armadura$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DO TIPO ARMA SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.item_arma_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_arma()
+RETURNS BIGINT AS $gerar_id_item_arma$
+BEGIN
+    RETURN 30400000 + nextval('public.item_arma_id_seq');
+END;
+    $gerar_id_item_arma$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE TEMPLO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.templo_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_templo()
+RETURNS BIGINT AS $gerar_id_templo$
+BEGIN
+    RETURN 40100000 + nextval('public.templo_id_seq');
+END;
+    $gerar_id_templo$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE ANDAR SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.andar_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_andar()
+RETURNS BIGINT AS $gerar_id_andar$
+BEGIN
+    RETURN 40200000 + nextval('public.andar_id_seq');
+END;
+    $gerar_id_andar$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE SALA SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.sala_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_sala()
+RETURNS BIGINT AS $gerar_id_sala$
+BEGIN
+    RETURN 40300000 + nextval('public.sala_id_seq');
+END;
+    $gerar_id_sala$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE CORREDOR SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.corredor_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_corredor()
+RETURNS BIGINT AS $gerar_id_corredor$
+BEGIN
+    RETURN 40400000 + nextval('public.corredor_id_seq');
+END;
+    $gerar_id_corredor$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE MISSÃO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.missao_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_missao()
+RETURNS BIGINT AS $gerar_id_missao$
+BEGIN
+    RETURN 50000000 + nextval('public.missao_id_seq');
+END;
+    $gerar_id_missao$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE FEITIÇO DE STATUS SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.feitico_de_status_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_feitico_de_status()
+RETURNS BIGINT AS $gerar_id_feitico_de_status$
+BEGIN
+    RETURN 60100000 + nextval('public.feitico_de_status_id_seq');
+END;
+    $gerar_id_feitico_de_status$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE FEITIÇO DE DANO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.feitico_de_dano_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_feitico_de_dano()
+RETURNS BIGINT AS $gerar_id_feitico_de_dano$
+BEGIN
+    RETURN 60200000 + nextval('public.feitico_de_dano_id_seq');
+END;
+    $gerar_id_feitico_de_dano$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE DIÁLOGOS SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.dialogos_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_dialogos()
+RETURNS BIGINT AS $gerar_id_dialogos$
+BEGIN
+    RETURN 70000000 + nextval('public.dialogos_id_seq');
+END;
+    $gerar_id_dialogos$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE PERÍCIAS SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.pericias_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_pericia()
+RETURNS BIGINT AS $gerar_id_pericia$
+BEGIN
+    RETURN 80000000 + nextval('public.pericias_id_seq');
+END;
+    $gerar_id_pericia$ LANGUAGE plpgsql;
+
 -- GERA O ID DO INVENTÁRIO JOGAVEL SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.inventario_id_seq START WITH 1;
+
 CREATE FUNCTION public.gerar_id_inventario()
 RETURNS BIGINT AS $gerar_id_inventario$
 BEGIN
     RETURN 90000000 + nextval('public.inventario_id_seq');
 END;
     $gerar_id_inventario$ LANGUAGE plpgsql;
+
+-- GERA O ID DE PERSONAGENS POSSUEM PERÍCIAS SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.personagens_possuem_pericias_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_personagens_possuem_pericias()
+RETURNS BIGINT AS $gerar_id_personagens_possuem_pericias$
+BEGIN
+    RETURN 13000000 + nextval('public.personagens_possuem_pericias_id_seq');
+END;
+    $gerar_id_personagens_possuem_pericias$ LANGUAGE plpgsql;
+
+-- GERA O ID DE INSTÂNCIAS DE ITEM SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.instancia_de_item_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_instancia_de_item()
+RETURNS BIGINT AS $gerar_id_instancia_de_item$
+BEGIN
+    RETURN 88000000 + nextval('public.instancia_de_item_id_seq');
+END;
+    $gerar_id_instancia_de_item$ LANGUAGE plpgsql;
+
+-- GERA O ID DE INSTÂNCIAS DE MONSTRO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.instancia_de_monstro_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_instancia_de_monstro()
+RETURNS BIGINT AS $gerar_id_instancia_de_monstro$
+BEGIN
+    RETURN 99000000 + nextval('public.instancia_de_monstro_id_seq');
+END;
+    $gerar_id_instancia_de_monstro$ LANGUAGE plpgsql;
 
 -- ===============================================
 
@@ -896,7 +1102,7 @@ CREATE TABLE public.personagens_jogaveis(
 );
 
 CREATE TABLE public.npcs(
-    id public.id_personagem_npc NOT NULL PRIMARY KEY,
+    id public.id_personagem_npc NOT NULL PRIMARY KEY DEFAULT public.gerar_id_personagem_npc(),
     nome public.nome NOT NULL,
     ocupacao public.ocupacao NOT NULL,
 
@@ -913,7 +1119,7 @@ CREATE TABLE public.npcs(
 );
 
 CREATE TABLE public.dialogos(
-    id public.id_dialogo NOT NULL PRIMARY KEY,
+    id public.id_dialogo NOT NULL PRIMARY KEY DEFAULT public.gerar_id_dialogos(),
     script_dialogo public.script_dialogo NOT NULL,
 
     -- FOREIGN KEYS
@@ -928,40 +1134,40 @@ CREATE TABLE public.inventarios(
 );
 
 CREATE TABLE public.templos(
-    id public.id_templo NOT NULL PRIMARY KEY,
+    id public.id_templo NOT NULL PRIMARY KEY DEFAULT public.gerar_id_templo(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL
 );
 
 CREATE TABLE public.andares(
-    id public.id_andar NOT NULL PRIMARY KEY,
+    id public.id_andar NOT NULL PRIMARY KEY DEFAULT public.gerar_id_andar(),
     descricao public.descricao NOT NULL,
 
     -- FOREIGN KEYS
-    id_templo public.id_templo NOT NULL,
+    id_templo public.id_templo NOT NULL DEFAULT public.gerar_id_templo(),
     sala_inicial public.id_sala NOT NULL
 );
 
 CREATE TABLE public.salas(
-    id public.id_sala NOT NULL PRIMARY KEY,
+    id public.id_sala NOT NULL PRIMARY KEY DEFAULT public.gerar_id_sala(),
     descricao public.descricao NOT NULL
 );
 
 CREATE TABLE public.corredores(
-    id public.id_corredor NOT NULL PRIMARY KEY,
+    id public.id_corredor NOT NULL PRIMARY KEY DEFAULT public.gerar_id_corredor(),
     status BOOLEAN NOT NULL,
     descricao public.descricao NOT NULL
 );
 
 CREATE TABLE public.pericias(
-    id public.id_pericia NOT NULL PRIMARY KEY,
+    id public.id_pericia NOT NULL PRIMARY KEY DEFAULT public.gerar_id_pericia(),
     nome public.nome NOT NULL UNIQUE,
     valor SMALLINT,
     eh_de_ocupacao BOOLEAN
 );
 
 CREATE TABLE public.agressivos(
-    id public.id_monstro_agressivo NOT NULL PRIMARY KEY,
+    id public.id_monstro_agressivo NOT NULL PRIMARY KEY DEFAULT public.gerar_id_monstro_agressivo(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     defesa SMALLINT,
@@ -972,11 +1178,13 @@ CREATE TABLE public.agressivos(
     velocidade_ataque SMALLINT,
     loucura_induzida SMALLINT,
     ponto_magia SMALLINT,
-    dano public.dano NOT NULL
+    dano public.dano NOT NULL,
+
+    id_tipo_monstro INTEGER -- FK
 );
 
 CREATE TABLE public.pacificos(
-    id public.id_monstro_pacifico NOT NULL PRIMARY KEY,
+    id public.id_monstro_pacifico NOT NULL PRIMARY KEY DEFAULT public.gerar_id_monstro_pacifico(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     defesa SMALLINT NOT NULL,
@@ -984,11 +1192,13 @@ CREATE TABLE public.pacificos(
     motivo_passividade public.comportamento_pacifico,
     tipo_pacifico public.tipo_monstro_pacifico NOT NULL,
     conhecimento_geografico CHARACTER(128),
-    conhecimento_proibido CHARACTER(128)
+    conhecimento_proibido CHARACTER(128),
+
+    id_tipo_monstro INTEGER -- FK
 );
 
 CREATE TABLE public.instancias_monstros(
-    id public.id_instancia_de_monstro NOT NULL PRIMARY KEY,
+    id public.id_instancia_de_monstro NOT NULL PRIMARY KEY DEFAULT public.gerar_id_instancia_de_monstro(),
 
     -- FOREING KEYS
     id_instancia_de_item public.id_instancia_de_item NOT NULL,
@@ -998,7 +1208,7 @@ CREATE TABLE public.instancias_monstros(
 );
 
 CREATE TABLE public.missoes(
-    id public.id_missao NOT NULL PRIMARY KEY,
+    id public.id_missao NOT NULL PRIMARY KEY DEFAULT public.gerar_id_missao(),
     nome public.nome NOT NULL UNIQUE,
     descricao CHARACTER(512) NOT NULL,
     tipo public.tipo_missao NOT NULL,
@@ -1009,7 +1219,7 @@ CREATE TABLE public.missoes(
 );
 
 CREATE TABLE public.magicos(
-    id public.id_item_magico NOT NULL PRIMARY KEY,
+    id public.id_item_magico NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_magico(),
     funcao public.funcao_magica NOT NULL,
     qts_usos SMALLINT NOT NULL,
     custo_sanidade SMALLINT NOT NULL,
@@ -1019,7 +1229,7 @@ CREATE TABLE public.magicos(
 );
 
 CREATE TABLE public.curas(
-    id public.id_item_de_cura NOT NULL PRIMARY KEY,
+    id public.id_item_de_cura NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_de_cura(),
     funcao public.funcao_cura NOT NULL,
     qts_usos SMALLINT NOT NULL,
     qtd_pontos_sanidade_recupera SMALLINT NOT NULL,
@@ -1027,7 +1237,7 @@ CREATE TABLE public.curas(
 );
 
 CREATE TABLE public.armaduras(
-    id public.id_item_de_armadura NOT NULL PRIMARY KEY,
+    id public.id_item_de_armadura NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_de_armadura(),
     atributo_necessario public.tipo_atributo_personagem,
     durabilidade SMALLINT NOT NULL,
     funcao funcao_armadura NOT NULL,
@@ -1041,7 +1251,7 @@ CREATE TABLE public.armaduras(
 );
 
 CREATE TABLE public.armas(
-    id public.id_item_arma NOT NULL PRIMARY KEY,
+    id public.id_item_arma NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_arma(),
     atributo_necessario public.tipo_atributo_personagem,
     qtd_atributo_necessario SMALLINT NOT NULL,
     durabilidade SMALLINT NOT NULL,
@@ -1056,7 +1266,7 @@ CREATE TABLE public.armas(
 );
 
 CREATE TABLE public.feiticos_status(
-    id public.id_feitico_de_status NOT NULL PRIMARY KEY,
+    id public.id_feitico_de_status NOT NULL PRIMARY KEY DEFAULT public.gerar_id_feitico_de_status(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     qtd_pontos_de_magia SMALLINT NOT NULL,
@@ -1066,7 +1276,7 @@ CREATE TABLE public.feiticos_status(
 );
 
 CREATE TABLE public.feiticos_dano(
-    id public.id_feitico_de_dano NOT NULL PRIMARY KEY,
+    id public.id_feitico_de_dano NOT NULL PRIMARY KEY DEFAULT public.gerar_id_feitico_de_dano(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     qtd_pontos_de_magia SMALLINT NOT NULL,
@@ -1076,7 +1286,7 @@ CREATE TABLE public.feiticos_dano(
 
 
 CREATE TABLE public.itens(
-    id public.id_item NOT NULL PRIMARY KEY,
+    id public.id_item NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item(),
     tipo public.tipo_item NOT NULL,
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
@@ -1084,7 +1294,7 @@ CREATE TABLE public.itens(
 );
 
 CREATE TABLE public.instancias_de_itens(
-    id public.id_instancia_de_item NOT NULL PRIMARY KEY,
+    id public.id_instancia_de_item NOT NULL PRIMARY KEY DEFAULT public.gerar_id_instancia_de_item(),
     durabilidade SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
@@ -1359,11 +1569,6 @@ ADD CONSTRAINT fk_feiticos_dano_tipo_feitico
 
 -- INSTÂNCIAS DE MONSTRO
 
-ALTER TABLE public.instancias_monstros
-ADD CONSTRAINT fk_instancias_de_monstro_tipo_monstro 
-    FOREIGN KEY (id_monstro) 
-    REFERENCES public.tipos_monstro (id);
-
 ALTER TABLE public.instancias_monstros 
 ADD CONSTRAINT fk_instancias_monstro_salas 
     FOREIGN KEY (id_sala) 
@@ -1383,14 +1588,14 @@ ADD CONSTRAINT fk_instancias_monstro_instancia_de_item
 
 ALTER TABLE public.pacificos 
 ADD CONSTRAINT fk_pacificos_tipo_monstro 
-    FOREIGN KEY (id) 
+    FOREIGN KEY (id_tipo_monstro) 
     REFERENCES public.tipos_monstro (id);
 
 -- MONSTROS AGRESSIVOS
 
 ALTER TABLE public.agressivos 
 ADD CONSTRAINT fk_agressivos_tipo_monstro 
-    FOREIGN KEY (id) 
+    FOREIGN KEY (id_tipo_monstro) 
     REFERENCES public.tipos_monstro (id);
 
 -- BATALHAS
