@@ -312,6 +312,57 @@ class DataBase:
         query = "UPDATE public.personagens_jogaveis SET id_sala = %s, id_corredor = %s WHERE id = %s;"
         self._execute_query(query, (nova_sala_id, novo_corredor_id, id_jogador))
 
+    def get_ficha_personagem(self, id_jogador: int):
+        """
+        Obtém e exibe a ficha completa do personagem usando a view.
+        """
+
+        query = """
+            SELECT nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza,
+                   aparencia, tamanho, inteligencia, educacao, ideia, conhecimento, sorte, movimento, sanidade_maxima,
+                   sanidade_atual, insanidade_temporaria, insanidade_indefinida, PM_base, PM_max,
+                   pts_de_vida, pontos_de_vida_atual
+            FROM public.view_personagens_jogaveis_completos
+            WHERE id = %s;
+        """
+
+        ficha_data = self._execute_query(query, (id_jogador,), fetch_one=True)
+
+        if ficha_data:
+        
+            # Trata o nome para ficar sem valores nulos depois do texto
+            nome_limpo = ficha_data['nome'].strip()
+
+            print("\n===========================================\n")
+            print(f"              FICHA DE {nome_limpo.upper()}             \n")
+            print("===========================================\n")
+            print("* INFORMAÇÕES BÁSICAS")
+            print(f"  Nome: .......................... {nome_limpo}")
+            print(f"  Ocupação: ...................... {ficha_data['ocupacao'].strip()}")
+            print(f"  Residência: .................... {ficha_data['residencia'].strip()}")
+            print(f"  Local de Nascimento:............ {ficha_data['local_nascimento'].strip()}")
+            print(f"  Idade: ......................... {ficha_data['idade']} anos")
+            print(f"  Sexo: .......................... {ficha_data['sexo'].strip()}\n")
+
+            print("* ATRIBUTOS")
+            print(f"  Força: {ficha_data['forca']} | Constituição: {ficha_data['constituicao']} | Poder: {ficha_data['poder']}")
+            print(f"  Destreza: {ficha_data['destreza']} | Aparência: {ficha_data['aparencia']} | Tamanho: {ficha_data['tamanho']}")
+            print(f"  Inteligência: {ficha_data['inteligencia']} | Educação: {ficha_data['educacao']} | Movimento: {ficha_data['movimento']} \n")
+            
+            print("* ATRIBUTOS DERIVADOS")
+            print(f"  Ideia: {ficha_data['ideia']} | Conhecimento: {ficha_data['conhecimento']} | Sorte: {ficha_data['sorte']}%\n")
+
+            print("* STATUS DO PERSONAGEM")
+            print(f"  Pontos de Vida: ................. {ficha_data['pontos_de_vida_atual']} / {ficha_data['pts_de_vida']}")
+            print(f"  Sanidade: ....................... {ficha_data['sanidade_atual']} / {ficha_data['sanidade_maxima']}")
+            print(f"  Insanidade Temporária: .......... {'Sim' if ficha_data['insanidade_temporaria'] else 'Não'}")
+            print(f"  Insanidade Indefinida: .......... {'Sim' if ficha_data['insanidade_indefinida'] else 'Não'}")
+            print(f"  Pontos de Magia: ................ {ficha_data['pm_base']} / {ficha_data['pm_max']}")
+            print("\n===========================================")
+
+        else:
+            print(f"Não foi possível encontrar a ficha para o personagem com ID: {id_jogador}")
+
 
 # --- Bloco de Teste para o Modelo Básico ---
 # Este bloco será executado apenas quando você rodar 'python database.py'

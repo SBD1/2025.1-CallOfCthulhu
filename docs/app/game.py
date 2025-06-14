@@ -178,16 +178,17 @@ class Game:
                 print(f"  [{i + 1}] Ir para {destino_tipo}: {saida['desc_saida']}")
 
             # 3. Pede a ação do jogador
-            print("\nO que você deseja fazer? ('status', 'inventario', 'sair')")
+            print("\nO que você deseja fazer? ('ficha', 'inventario', 'sair')")
             escolha = input("> ").strip().lower()
 
             if escolha == 'sair':
                 break
-            elif escolha == 'status':
-                # ... (seu código de status) ...
+            elif escolha == 'ficha':
+                self.db.get_ficha_personagem(self.player.idJogador)
+                input("\n Precisione Enter para continuar...")
                 continue
             elif escolha == 'inventario':
-                self.db.get_view_inventory(self.player.id_inventario)
+                print("Não implementado ainda")
                 input("\nPressione Enter para continuar...")
                 continue
             
