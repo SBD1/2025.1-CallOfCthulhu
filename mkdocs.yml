@@ -70,6 +70,7 @@ nav:
   - Entregas 2:
       - DDL: entregas/segunda/DDL.md
       - DML: entregas/segunda/DML.md
+      - DQL: entregas/segunda/DQL.md
       - DER: entregas/segunda/DER.md
       - MER: entregas/segunda/MER.md
       - ML: entregas/segunda/ML.md
