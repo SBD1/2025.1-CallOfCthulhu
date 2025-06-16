@@ -69,6 +69,7 @@ nav:
       - DD: entregas/primeira/DD.md
   - Entregas 2:
       - DDL: entregas/segunda/DDL.md
+      - DML: entregas/segunda/DML.md
       - DER: entregas/segunda/DER.md
       - MER: entregas/segunda/MER.md
       - ML: entregas/segunda/ML.md
