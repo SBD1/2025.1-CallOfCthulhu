@@ -42,10 +42,38 @@ Data: 11/06/2025
 Descrição: Ajustando as tabelas CREATE DOMAIN public.tipo_personagem AS CHARACTER e CREATE DOMAIN public.sexo AS CHARACTER para varying e comentando a ultima chave estrangeira que e tipo personagem pois estava dando erro verificar depois.
 Autor: Christopher e João Marcos
 
+Versão: 0.9
+Data: 12/06/2025
+Descrição: Ajustando as tabelas CREATE TABLE public.personagens_jogaveis e adicionando o id integer para criar IDs sem ser manualmente id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+e a tabela inventario.
+Autor: João Marcos
+
+Versão: 0.10
+Data: 13/06/2025
+Descrição: Criação de ids especilizados para cada tabela do banco
+Autor: Luiz Guilherme
+
+Versão: 0.11
+Data: 13/06/2025
+Descrição: Melhorando os novos domínios de IDs especializados para cada tabela utilizando o id_geral como base
+Autor: Luiz Guilherme
+
+Versão: 0.12
+Data: 13/06/2025
+Descrição: Adicionando as funções que geram os IDs do personagem_jogavel e do inventário de forma automática garantindo a integridade do banco
+Autor: Luiz Guilherme
+
+
+Versão: 1.0
+Data: 14/06/2025
+Descrição: Adicionando geradores de IDs para as tabelas do banco de dados
+Autor: Luiz Guilherme
+
+
 */
 
--- DROP SCHEMA public CASCADE;
--- CREATE SCHEMA public;
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
 
 -- ===============================================
 
@@ -54,7 +82,7 @@ Autor: Christopher e João Marcos
 -- ===============================================
 
 -- PASSO 1: remover os triggers e VIEWS
-
+/*
 DROP VIEW IF EXISTS public.view_personagens_jogaveis_completos;
 
 -- PASSO 2: remover as restrições de chave estrangeira
@@ -321,8 +349,34 @@ DROP DOMAIN IF EXISTS public.residencia;
 DROP DOMAIN IF EXISTS public.ocupacao;
 DROP DOMAIN IF EXISTS public.descricao;
 DROP DOMAIN IF EXISTS public.nome;
-DROP DOMAIN IF EXISTS public.id;
 
+DROP DOMAIN IF EXISTS public.id_geral;
+DROP DOMAIN IF EXISTS public.id_personagem;
+DROP DOMAIN IF EXISTS public.id_personagem_jogavel;
+DROP DOMAIN IF EXISTS public.id_personagem_npc;
+DROP DOMAIN IF EXISTS public.id_monstro
+DROP DOMAIN IF EXISTS public.id_monstro_agressivo;
+DROP DOMAIN IF EXISTS public.id_monstro_pacifico;
+DROP DOMAIN IF EXISTS public.id_item;
+DROP DOMAIN IF EXISTS public.id_item_magico;
+DROP DOMAIN IF EXISTS public.id_item_de_cura;
+DROP DOMAIN IF EXISTS public.id_item_de_armadura;
+DROP DOMAIN IF EXISTS public.id_item_arma;
+DROP DOMAIN IF EXISTS public.id_localizacao;
+DROP DOMAIN IF EXISTS public.id_templo;
+DROP DOMAIN IF EXISTS public.id_andar;
+DROP DOMAIN IF EXISTS public.id_sala;
+DROP DOMAIN IF EXISTS public.id_corredor;
+DROP DOMAIN IF EXISTS public.id_missao;
+DROP DOMAIN IF EXISTS public.id_feitico;
+DROP DOMAIN IF EXISTS public.id_feitico_de_status;
+DROP DOMAIN IF EXISTS public.id_feitico_de_dano;
+DROP DOMAIN IF EXISTS public.id_dialogo;
+DROP DOMAIN IF EXISTS public.id_pericia;
+DROP DOMAIN IF EXISTS public.id_instancia_de_item;
+DROP DOMAIN IF EXISTS public.id_instancia_de_monstro;
+
+*/
 -- ===============================================
 
 --            DOMÍNIOS CRIADOS
@@ -333,11 +387,6 @@ DROP DOMAIN IF EXISTS public.id;
 Essa seção do código é destinada a conter todos os domínios que foram criados ao longo do projeto para garantir uma maior personalização nos tipos de dados que podem ser utilizados no banco. Os domínios facilitam a manuteção do código além de garantir uma maior segurança evitando com que dados incorretos sejam inseridos nas tabelas do banco.
 
 */
-
-CREATE DOMAIN public.id AS INTEGER
-    CONSTRAINT id_check CHECK (
-        VALUE >= 1 AND VALUE <= 999999999
-    );
 
 CREATE DOMAIN public.dano AS SMALLINT
     CONSTRAINT dano_check CHECK (
@@ -492,9 +541,9 @@ CREATE DOMAIN public.comportamento_pacifico AS CHARACTER(32)
     );
 
 
-CREATE DOMAIN public.nome AS CHARACTER(128);
+CREATE DOMAIN public.nome AS CHARACTER VARYING(128);
 
-CREATE DOMAIN public.descricao AS CHARACTER(5000);
+CREATE DOMAIN public.descricao AS CHARACTER VARYING(5000);
 
 CREATE DOMAIN public.ocupacao AS CHARACTER(64);
 
@@ -502,7 +551,226 @@ CREATE DOMAIN public.residencia AS CHARACTER(96);
 
 CREATE DOMAIN public.local_nascimento AS CHARACTER(96);
 
-CREATE DOMAIN public.script_dialogo AS CHARACTER(512);  
+CREATE DOMAIN public.script_dialogo AS CHARACTER(512); 
+
+
+-- ===============================================
+
+--            DOMÍNIOS PARA OS IDS
+
+-- ===============================================
+
+-- CRIAÇÃO DE UM DOMÍNIO BASE
+CREATE DOMAIN public.id_geral AS BIGINT
+    CONSTRAINT id_geral CHECK (
+        VALUE BETWEEN 10000000 AND 99999999
+    );
+
+-- ========== IDS PARA PERSONAGENS =========
+
+-- CRIAÇÃO DO DOMÍNIO DOS PERSONAGENS
+-- TODO PERSONAGEM TEM ID QUE COMEÇA COM 01
+CREATE DOMAIN public.id_personagem AS public.id_geral
+    CONSTRAINT id_personagem_check CHECK (
+        VALUE BETWEEN 10000000 AND 19999999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS PERSONAGENS JOGÁVEIS
+-- TODO PERSONAGEM JOGÁVEL TEM ID QUE COMEÇA COM 0101
+CREATE DOMAIN public.id_personagem_jogavel AS public.id_personagem
+    CONSTRAINT id_personagem_jogavel_check CHECK (
+        VALUE BETWEEN 10100000 AND 10199999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS PERSONAGENS NPCS
+-- TODO PERSONAGEM NPC COM 0102
+CREATE DOMAIN public.id_personagem_npc AS public.id_personagem
+    CONSTRAINT id_personagem_npc_check CHECK (
+        VALUE BETWEEN 10200000 AND 10209999
+);
+
+-- ========== IDS PARA MONSTROS =========
+
+-- CRIAÇÃO DO DOMÍNIO DOS PERSONAGENS
+-- TODO MONSTRO TEM ID QUE COMEÇA COM 02
+CREATE DOMAIN public.id_monstro AS public.id_geral
+    CONSTRAINT id_monstro_check CHECK (
+        VALUE BETWEEN 20000000 AND 29999999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS MONSTROS AGRESSIVOS
+-- TODO MONSTRO AGRESSIVOS TEM ID QUE COMEÇA COM 0201
+CREATE DOMAIN public.id_monstro_agressivo AS public.id_monstro
+    CONSTRAINT id_monstro_agressivo_check CHECK (
+        VALUE BETWEEN 20100000 AND 20199999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS MONSTROS PACÍFICOS
+-- TODO MONSTRO PACÍFICOS TEM ID QUE COMEÇA COM 0202
+CREATE DOMAIN public.id_monstro_pacifico AS public.id_monstro
+    CONSTRAINT id_monstro_pacifico_check CHECK (
+        VALUE BETWEEN 20200000 AND 20299999
+);
+
+-- ========== IDS PARA ITENS =========
+
+-- CRIAÇÃO DO DOMÍNIO DOS ITENS
+-- TODO ITEM TEM ID QUE COMEÇA COM 03
+CREATE DOMAIN public.id_item AS public.id_geral
+    CONSTRAINT id_item_check CHECK (
+        VALUE BETWEEN 30000000 AND 39999999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS ITENS MÁGICOS
+-- TODO ITEM MÁGICO TEM ID QUE COMEÇA COM 0301
+CREATE DOMAIN public.id_item_magico AS public.id_item
+    CONSTRAINT id_item_magico_check CHECK (
+        VALUE BETWEEN 30100000 AND 30199999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS ITENS DE CURA
+-- TODO ITEM DE CURA TEM ID QUE COMEÇA COM 0302
+CREATE DOMAIN public.id_item_de_cura AS public.id_item
+    CONSTRAINT id_item_de_cura_check CHECK (
+        VALUE BETWEEN 30200000 AND 30299999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS ITENS DE ARMADURA
+-- TODO ITEM DE ARMADURA TEM ID QUE COMEÇA COM 0303
+CREATE DOMAIN public.id_item_de_armadura AS public.id_item
+    CONSTRAINT id_item_de_armadura_check CHECK (
+        VALUE BETWEEN 30300000 AND 30399999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS ITENS DO TIPO ARMA
+-- TODO ITEM DO TIPO ARMA TEM ID QUE COMEÇA COM 0304
+CREATE DOMAIN public.id_item_arma AS public.id_item
+    CONSTRAINT id_item_arma_check CHECK (
+        VALUE BETWEEN 30400000 AND 30499999
+);
+
+-- ========== IDS PARA LOCALIZAÇÕES =========
+
+-- TODO ITEM DE LOCALIZAÇÃO COMEÇA COM 04
+
+CREATE DOMAIN public.id_localizacao AS public.id_geral
+    CONSTRAINT id_localizacao_check CHECK (
+        VALUE BETWEEN 40000000 AND 49999999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS TEMPLOS
+-- TODO TEMPLOS TEM ID QUE COMEÇA COM 0401
+CREATE DOMAIN public.id_templo AS public.id_localizacao
+    CONSTRAINT id_templo_check CHECK (
+        VALUE BETWEEN 40100000 AND 40199999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS ANDARES
+-- TODO ANDAR TEM ID QUE COMEÇA COM 0402
+CREATE DOMAIN public.id_andar AS public.id_localizacao
+    CONSTRAINT id_andar_check CHECK (
+        VALUE BETWEEN 40200000 AND 40299999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DAS SALAS
+-- TODA SALA TEM ID QUE COMEÇA COM 0403
+CREATE DOMAIN public.id_sala AS public.id_localizacao
+    CONSTRAINT id_sala_check CHECK (
+        VALUE BETWEEN 40300000 AND 40399999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS CORREDORES
+-- TODO CORREDOR TEM ID QUE COMEÇA COM 0404
+CREATE DOMAIN public.id_corredor AS public.id_localizacao
+    CONSTRAINT id_corredor_check CHECK (
+        VALUE BETWEEN 40400000 AND 40499999
+);
+
+-- ========== IDS PARA MISSÕES =========
+
+-- CRIAÇÃO DO DOMÍNIO DAS MISSÕES
+-- TODA MISSÃO TEM ID QUE COMEÇA COM 05
+CREATE DOMAIN public.id_missao AS public.id_geral
+    CONSTRAINT id_missao_check CHECK (
+    VALUE BETWEEN 50000000 AND 59999999
+);
+
+-- ========== IDS PARA FEITIÇOS =========
+
+-- CRIAÇÃO DO DOMÍNIO DOS FEITIÇOS
+-- TODO FEITIÇO TEM ID QUE COMEÇA COM 06
+CREATE DOMAIN public.id_feitico AS public.id_geral
+    CONSTRAINT id_feitico_check CHECK (
+    VALUE BETWEEN 60000000 AND 69999999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS FEITIÇOS DE STATUS
+-- TODO FEITIÇO DE STATUS TEM ID QUE COMEÇA COM 0601
+CREATE DOMAIN public.id_feitico_de_status AS public.id_feitico
+    CONSTRAINT id_feitico_de_status_check CHECK (
+    VALUE BETWEEN 60100000 AND 60199999
+);
+
+-- CRIAÇÃO DO DOMÍNIO DOS FEITIÇOS DE DANO
+-- TODO FEITIÇO DE DANO TEM ID QUE COMEÇA COM 0602
+CREATE DOMAIN public.id_feitico_de_dano AS public.id_feitico
+    CONSTRAINT id_feitico_de_dano_check CHECK (
+    VALUE BETWEEN 60200000 AND 60299999
+);
+
+-- ========== IDS PARA OS DIÁLOGOS =========
+
+-- CRIAÇÃO DO DOMÍNIO DOS DIÁLOGOS
+-- TODO DIÁLOGO TEM ID QUE COMEÇA COM 07
+CREATE DOMAIN public.id_dialogo AS public.id_geral
+    CONSTRAINT id_dialogo_check CHECK (
+    VALUE BETWEEN 70000000 AND 79999999
+);
+
+-- ========== IDS PARA AS PERÍCIAS =========
+
+-- CRIAÇÃO DO DOMÍNIO DAS PERÍCIAS
+-- TODA PERÍCIA TEM ID QUE COMEÇA COM 08
+CREATE DOMAIN public.id_pericia AS public.id_geral
+    CONSTRAINT id_pericia_check CHECK (
+    VALUE BETWEEN 80000000 AND 89999999
+);
+
+-- ========== IDS PARA OS INVETÁRIOS =========
+
+-- CRIAÇÃO DO DOMÍNIO DOS INVETÁRIOS
+-- TODO INVETÁRIO TEM ID QUE COMEÇA COM 09
+CREATE DOMAIN public.id_inventario AS public.id_geral
+    CONSTRAINT id_inventario_check CHECK (
+    VALUE BETWEEN 90000000 AND 99999999
+);
+
+-- ========== IDS PARA PERSONAGENS POSSUEM PERÍCIAS =========
+
+-- CRIAÇÃO DO DOMÍNIO DOS PERSONAGENS POSSUEM PERÍCIAS
+-- TODO PERSONAGENS POSSUEM PERÍCIAS TEM ID QUE COMEÇA COM 13
+CREATE DOMAIN public.id_personagens_possuem_pericias AS public.id_geral
+    CONSTRAINT id_personagens_possuem_pericias_check CHECK (
+    VALUE BETWEEN 13000000 AND 13999999
+);
+
+-- ========== IDS PARA INSTÂNCIAS DE ITEM =========
+
+-- CRIAÇÃO DO DOMÍNIO DAS INSTÂNCIAS DE ITEM
+-- TODA INSTÂNCIA DE ITEM TEM ID QUE COMEÇA COM 88
+CREATE DOMAIN public.id_instancia_de_item AS public.id_geral
+    CONSTRAINT id_instancia_de_item_check CHECK (
+    VALUE BETWEEN 88000000 AND 88999999
+);
+
+-- ========== IDS PARA INSTÂNCIAS DE MONSTRO =========
+
+-- CRIAÇÃO DO DOMÍNIO DAS INSTÂNCIAS DE MONSTRO
+-- TODA INSTÂNCIA DE MONSTRO TEM ID QUE COMEÇA COM 99
+CREATE DOMAIN public.id_instancia_de_monstro AS public.id_geral
+    CONSTRAINT id_instancia_de_monstro_check CHECK (
+    VALUE BETWEEN 99000000 AND 99999999
+);
 
 -- ===============================================
 
@@ -547,12 +815,243 @@ $calcular_pts_de_vida$ LANGUAGE plpgsql IMMUTABLE;
 
 -- ===============================================
 
+--      FUNÇÕES GERADORAS DE ID
+
+-- ===============================================
+
+/*
+Essas funções servem para garantir a integridade dos dados do banco, elas geram os ids das tabelas seguindo a regra de ids do banco de forma automática.
+*/
+
+-- GERA O ID DO PRÓXIMO PERSONAGEM JOGAVEL SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.personagem_jogavel_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_personagem_jogavel()
+RETURNS BIGINT AS $gerar_id_personagem_jogavel$
+BEGIN
+    RETURN 10100000 + nextval('public.personagem_jogavel_id_seq');
+END;
+    $gerar_id_personagem_jogavel$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO NPC SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.personagem_npc_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_personagem_npc()
+RETURNS BIGINT AS $gerar_id_personagem_npc$
+BEGIN
+    RETURN 10200000 + nextval('public.personagem_npc_id_seq');
+END;
+    $gerar_id_personagem_npc$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO MONSTRO AGRESSIVO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.monstro_agressivo_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_monstro_agressivo()
+RETURNS BIGINT AS $gerar_id_monstro_agressivo$
+BEGIN
+    RETURN 20100000 + nextval('public.monstro_agressivo_id_seq');
+END;
+    $gerar_id_monstro_agressivo$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO MONSTRO PACÍFICO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.monstro_pacifico_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_monstro_pacifico()
+RETURNS BIGINT AS $gerar_id_monstro_pacifico$
+BEGIN
+    RETURN 20200000 + nextval('public.monstro_pacifico_id_seq');
+END;
+    $gerar_id_monstro_pacifico$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM MÁGICO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.item_magico_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_magico()
+RETURNS BIGINT AS $gerar_id_item_magico$
+BEGIN
+    RETURN 30100000 + nextval('public.item_magico_id_seq');
+END;
+    $gerar_id_item_magico$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM O PADRÃO DE IDS
+CREATE SEQUENCE public.item_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item()
+RETURNS BIGINT AS $gerar_id_item$
+BEGIN
+    RETURN 30000000 + nextval('public.item_id_seq');
+END;
+    $gerar_id_item$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE CURA SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.item_de_cura_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_de_cura()
+RETURNS BIGINT AS $gerar_id_item_de_cura$
+BEGIN
+    RETURN 30200000 + nextval('public.item_de_cura_id_seq');
+END;
+    $gerar_id_item_de_cura$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE ARMADURA SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.item_de_armadura_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_de_armadura()
+RETURNS BIGINT AS $gerar_id_item_de_armadura$
+BEGIN
+    RETURN 30300000 + nextval('public.item_de_armadura_id_seq');
+END;
+    $gerar_id_item_de_armadura$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DO TIPO ARMA SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.item_arma_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_arma()
+RETURNS BIGINT AS $gerar_id_item_arma$
+BEGIN
+    RETURN 30400000 + nextval('public.item_arma_id_seq');
+END;
+    $gerar_id_item_arma$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE TEMPLO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.templo_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_templo()
+RETURNS BIGINT AS $gerar_id_templo$
+BEGIN
+    RETURN 40100000 + nextval('public.templo_id_seq');
+END;
+    $gerar_id_templo$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE ANDAR SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.andar_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_andar()
+RETURNS BIGINT AS $gerar_id_andar$
+BEGIN
+    RETURN 40200000 + nextval('public.andar_id_seq');
+END;
+    $gerar_id_andar$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE SALA SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.sala_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_sala()
+RETURNS BIGINT AS $gerar_id_sala$
+BEGIN
+    RETURN 40300000 + nextval('public.sala_id_seq');
+END;
+    $gerar_id_sala$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE CORREDOR SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.corredor_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_corredor()
+RETURNS BIGINT AS $gerar_id_corredor$
+BEGIN
+    RETURN 40400000 + nextval('public.corredor_id_seq');
+END;
+    $gerar_id_corredor$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE MISSÃO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.missao_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_missao()
+RETURNS BIGINT AS $gerar_id_missao$
+BEGIN
+    RETURN 50000000 + nextval('public.missao_id_seq');
+END;
+    $gerar_id_missao$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE FEITIÇO DE STATUS SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.feitico_de_status_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_feitico_de_status()
+RETURNS BIGINT AS $gerar_id_feitico_de_status$
+BEGIN
+    RETURN 60100000 + nextval('public.feitico_de_status_id_seq');
+END;
+    $gerar_id_feitico_de_status$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE FEITIÇO DE DANO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.feitico_de_dano_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_feitico_de_dano()
+RETURNS BIGINT AS $gerar_id_feitico_de_dano$
+BEGIN
+    RETURN 60200000 + nextval('public.feitico_de_dano_id_seq');
+END;
+    $gerar_id_feitico_de_dano$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE DIÁLOGOS SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.dialogos_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_dialogos()
+RETURNS BIGINT AS $gerar_id_dialogos$
+BEGIN
+    RETURN 70000000 + nextval('public.dialogos_id_seq');
+END;
+    $gerar_id_dialogos$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM DE PERÍCIAS SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.pericias_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_pericia()
+RETURNS BIGINT AS $gerar_id_pericia$
+BEGIN
+    RETURN 80000000 + nextval('public.pericias_id_seq');
+END;
+    $gerar_id_pericia$ LANGUAGE plpgsql;
+
+-- GERA O ID DO INVENTÁRIO JOGAVEL SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.inventario_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_inventario()
+RETURNS BIGINT AS $gerar_id_inventario$
+BEGIN
+    RETURN 90000000 + nextval('public.inventario_id_seq');
+END;
+    $gerar_id_inventario$ LANGUAGE plpgsql;
+
+-- GERA O ID DE PERSONAGENS POSSUEM PERÍCIAS SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.personagens_possuem_pericias_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_personagens_possuem_pericias()
+RETURNS BIGINT AS $gerar_id_personagens_possuem_pericias$
+BEGIN
+    RETURN 13000000 + nextval('public.personagens_possuem_pericias_id_seq');
+END;
+    $gerar_id_personagens_possuem_pericias$ LANGUAGE plpgsql;
+
+-- GERA O ID DE INSTÂNCIAS DE ITEM SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.instancia_de_item_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_instancia_de_item()
+RETURNS BIGINT AS $gerar_id_instancia_de_item$
+BEGIN
+    RETURN 88000000 + nextval('public.instancia_de_item_id_seq');
+END;
+    $gerar_id_instancia_de_item$ LANGUAGE plpgsql;
+
+-- GERA O ID DE INSTÂNCIAS DE MONSTRO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.instancia_de_monstro_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_instancia_de_monstro()
+RETURNS BIGINT AS $gerar_id_instancia_de_monstro$
+BEGIN
+    RETURN 99000000 + nextval('public.instancia_de_monstro_id_seq');
+END;
+    $gerar_id_instancia_de_monstro$ LANGUAGE plpgsql;
+
+-- ===============================================
+
 --             TABELAS DO RPG
 
 -- ===============================================
 
 CREATE TABLE public.personagens_jogaveis(
-    id public.id NOT NULL PRIMARY KEY,
+    -- id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    id public.id_personagem_jogavel NOT NULL PRIMARY KEY DEFAULT public.gerar_id_personagem_jogavel(),
     nome public.nome NOT NULL,
     ocupacao public.ocupacao NOT NULL,
     residencia public.residencia NOT NULL,
@@ -583,12 +1082,12 @@ CREATE TABLE public.personagens_jogaveis(
     pontos_de_vida_atual SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_sala public.id,  
-    id_corredor public.id, 
-    id_inventario public.id NOT NULL, 
-    id_armadura public.id, 
-    id_arma public.id,
-    id_tipo_personagem public.id NOT NULL
+    id_sala public.id_sala,  
+    id_corredor public.id_corredor, 
+    id_inventario public.id_inventario NOT NULL, 
+    id_armadura public.id_item_de_armadura, 
+    id_arma public.id_item_arma
+    -- id_tipo_personagem public.id NOT NULL
 
     /*
 
@@ -603,7 +1102,7 @@ CREATE TABLE public.personagens_jogaveis(
 );
 
 CREATE TABLE public.npcs(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_personagem_npc NOT NULL PRIMARY KEY DEFAULT public.gerar_id_personagem_npc(),
     nome public.nome NOT NULL,
     ocupacao public.ocupacao NOT NULL,
 
@@ -614,60 +1113,61 @@ CREATE TABLE public.npcs(
     local_nascimento public.local_nascimento DEFAULT 'arkham' NOT NULL,
 
     -- FOREIGN KEYS
-    id_sala public.id, 
-    id_corredor public.id,
-    id_tipo_personagem public.id NOT NULL
+    id_sala public.id_sala, 
+    id_corredor public.id_corredor
+    -- id_tipo_personagem public.id NOT NULL
 );
 
 CREATE TABLE public.dialogos(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_dialogo NOT NULL PRIMARY KEY DEFAULT public.gerar_id_dialogos(),
     script_dialogo public.script_dialogo NOT NULL,
 
     -- FOREIGN KEYS
-    npc_id public.id NOT NULL 
+    npc_id public.id_personagem_npc NOT NULL 
 
 );
 
 CREATE TABLE public.inventarios(
-    id public.id NOT NULL PRIMARY KEY,
+    -- id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY, -- Use INTEGER diretamente
+    id public.id_inventario NOT NULL PRIMARY KEY DEFAULT public.gerar_id_inventario(),
     tamanho SMALLINT NOT NULL
 );
 
 CREATE TABLE public.templos(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_templo NOT NULL PRIMARY KEY DEFAULT public.gerar_id_templo(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL
 );
 
 CREATE TABLE public.andares(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_andar NOT NULL PRIMARY KEY DEFAULT public.gerar_id_andar(),
     descricao public.descricao NOT NULL,
 
     -- FOREIGN KEYS
-    id_templo public.id NOT NULL,
-    sala_inicial public.id NOT NULL
+    id_templo public.id_templo NOT NULL DEFAULT public.gerar_id_templo(),
+    sala_inicial public.id_sala NOT NULL
 );
 
 CREATE TABLE public.salas(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_sala NOT NULL PRIMARY KEY DEFAULT public.gerar_id_sala(),
     descricao public.descricao NOT NULL
 );
 
 CREATE TABLE public.corredores(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_corredor NOT NULL PRIMARY KEY DEFAULT public.gerar_id_corredor(),
     status BOOLEAN NOT NULL,
     descricao public.descricao NOT NULL
 );
 
 CREATE TABLE public.pericias(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_pericia NOT NULL PRIMARY KEY DEFAULT public.gerar_id_pericia(),
     nome public.nome NOT NULL UNIQUE,
     valor SMALLINT,
     eh_de_ocupacao BOOLEAN
 );
 
 CREATE TABLE public.agressivos(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_monstro_agressivo NOT NULL PRIMARY KEY DEFAULT public.gerar_id_monstro_agressivo(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     defesa SMALLINT,
@@ -678,11 +1178,13 @@ CREATE TABLE public.agressivos(
     velocidade_ataque SMALLINT,
     loucura_induzida SMALLINT,
     ponto_magia SMALLINT,
-    dano public.dano NOT NULL
+    dano public.dano NOT NULL,
+
+    id_tipo_monstro INTEGER -- FK
 );
 
 CREATE TABLE public.pacificos(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_monstro_pacifico NOT NULL PRIMARY KEY DEFAULT public.gerar_id_monstro_pacifico(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     defesa SMALLINT NOT NULL,
@@ -690,42 +1192,44 @@ CREATE TABLE public.pacificos(
     motivo_passividade public.comportamento_pacifico,
     tipo_pacifico public.tipo_monstro_pacifico NOT NULL,
     conhecimento_geografico CHARACTER(128),
-    conhecimento_proibido CHARACTER(128)
+    conhecimento_proibido CHARACTER(128),
+
+    id_tipo_monstro INTEGER -- FK
 );
 
 CREATE TABLE public.instancias_monstros(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_instancia_de_monstro NOT NULL PRIMARY KEY DEFAULT public.gerar_id_instancia_de_monstro(),
 
     -- FOREING KEYS
-    id_instancia_de_item public.id NOT NULL,
-    id_sala public.id,  
-    id_corredor public.id,
-    id_monstro public.id NOT NULL
+    id_instancia_de_item public.id_instancia_de_item NOT NULL,
+    id_sala public.id_sala,  
+    id_corredor public.id_corredor,
+    id_monstro public.id_monstro NOT NULL
 );
 
 CREATE TABLE public.missoes(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_missao NOT NULL PRIMARY KEY DEFAULT public.gerar_id_missao(),
     nome public.nome NOT NULL UNIQUE,
     descricao CHARACTER(512) NOT NULL,
     tipo public.tipo_missao NOT NULL,
     ordem CHARACTER(128) NOT NULL,
 
     -- FOREIGN KEYS
-    id_npc public.id NOT NULL 
+    id_npc public.id_personagem_npc NOT NULL 
 );
 
 CREATE TABLE public.magicos(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_item_magico NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_magico(),
     funcao public.funcao_magica NOT NULL,
     qts_usos SMALLINT NOT NULL,
     custo_sanidade SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_feitico public.id NOT NULL
+    id_feitico public.id_feitico NOT NULL
 );
 
 CREATE TABLE public.curas(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_item_de_cura NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_de_cura(),
     funcao public.funcao_cura NOT NULL,
     qts_usos SMALLINT NOT NULL,
     qtd_pontos_sanidade_recupera SMALLINT NOT NULL,
@@ -733,7 +1237,7 @@ CREATE TABLE public.curas(
 );
 
 CREATE TABLE public.armaduras(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_item_de_armadura NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_de_armadura(),
     atributo_necessario public.tipo_atributo_personagem,
     durabilidade SMALLINT NOT NULL,
     funcao funcao_armadura NOT NULL,
@@ -743,11 +1247,11 @@ CREATE TABLE public.armaduras(
     qtd_dano_mitigado SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_pericia_necessaria public.id NOT NULL
+    id_pericia_necessaria public.id_pericia NOT NULL
 );
 
 CREATE TABLE public.armas(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_item_arma NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_arma(),
     atributo_necessario public.tipo_atributo_personagem,
     qtd_atributo_necessario SMALLINT NOT NULL,
     durabilidade SMALLINT NOT NULL,
@@ -758,11 +1262,11 @@ CREATE TABLE public.armas(
     dano public.dano NOT NULL,
     
     -- FOREIGN KEYS
-    id_pericia_necessaria public.id NOT NULL
+    id_pericia_necessaria public.id_pericia NOT NULL
 );
 
 CREATE TABLE public.feiticos_status(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_feitico_de_status NOT NULL PRIMARY KEY DEFAULT public.gerar_id_feitico_de_status(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     qtd_pontos_de_magia SMALLINT NOT NULL,
@@ -772,7 +1276,7 @@ CREATE TABLE public.feiticos_status(
 );
 
 CREATE TABLE public.feiticos_dano(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_feitico_de_dano NOT NULL PRIMARY KEY DEFAULT public.gerar_id_feitico_de_dano(),
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     qtd_pontos_de_magia SMALLINT NOT NULL,
@@ -782,7 +1286,7 @@ CREATE TABLE public.feiticos_dano(
 
 
 CREATE TABLE public.itens(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_item NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item(),
     tipo public.tipo_item NOT NULL,
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
@@ -790,14 +1294,14 @@ CREATE TABLE public.itens(
 );
 
 CREATE TABLE public.instancias_de_itens(
-    id public.id NOT NULL PRIMARY KEY,
+    id public.id_instancia_de_item NOT NULL PRIMARY KEY DEFAULT public.gerar_id_instancia_de_item(),
     durabilidade SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_sala public.id,
-    id_missao_requer public.id,
-    id_missao_recompensa public.id,
-    id_item public.id NOT NULL
+    id_sala public.id_sala,
+    id_missao_requer public.id_missao,
+    id_missao_recompensa public.id_missao,
+    id_item public.id_item NOT NULL
 );
 
 -- ===============================================
@@ -807,17 +1311,17 @@ CREATE TABLE public.instancias_de_itens(
 -- =============================================== 
 
 CREATE TABLE public.tipos_personagem(
-    id public.id NOT NULL PRIMARY KEY,
+    id SERIAL NOT NULL PRIMARY KEY,
     tipo public.tipo_personagem NOT NULL
 );
 
 CREATE TABLE public.tipos_feitico(
-	id public.id NOT NULL PRIMARY KEY,
+	id SERIAL NOT NULL PRIMARY KEY,
     tipo public.funcao_feitico NOT NULL
 );
 
 CREATE TABLE public.tipos_monstro(
-    id public.id NOT NULL PRIMARY KEY,
+    id SERIAL NOT NULL PRIMARY KEY,
     tipo public.tipo_monstro NOT null
 );
 
@@ -832,26 +1336,26 @@ Essa seção contém as tabelas derivadas de relacionamentos N para N
 */
 
 CREATE TABLE public.batalhas(
-    id_jogador public.id NOT NULL,
-    id_monstro public.id NOT NULL,
+    id_jogador public.id_personagem_jogavel NOT NULL,
+    id_monstro public.id_instancia_de_monstro NOT NULL,
     PRIMARY KEY (id_jogador, id_monstro)
 );
 
 CREATE TABLE public.entregas_missoes(
-    id_jogador public.id NOT NULL,
-    id_npc public.id NOT NULL,
+    id_jogador public.id_personagem_jogavel NOT NULL,
+    id_npc public.id_personagem_npc NOT NULL,
     PRIMARY KEY (id_jogador, id_npc)
 );
 
 CREATE TABLE public.corredores_salas_destino(
-    id_sala public.id NOT NULL,
-    id_corredor public.id NOT NULL, 
+    id_sala public.id_sala NOT NULL,
+    id_corredor public.id_corredor NOT NULL, 
     PRIMARY KEY (id_sala, id_corredor)
 );
 
 CREATE TABLE public.inventarios_possuem_instancias_item(
-    id_instancias_de_item public.id NOT NULL,
-    id_inventario public.id NOT NULL,
+    id_instancias_de_item public.id_instancia_de_item NOT NULL,
+    id_inventario public.id_inventario NOT NULL,
     PRIMARY KEY (id_instancias_de_item, id_inventario)
 );
 
@@ -860,8 +1364,8 @@ CREATE TABLE public.personagens_possuem_pericias (
     PRIMARY KEY (id_personagem, id_pericia),
 
     -- FOREIGN KEYS
-    id_personagem public.id NOT NULL,
-    id_pericia public.id NOT NULL
+    id_personagem public.id_personagem_jogavel NOT NULL,
+    id_pericia public.id_pericia NOT NULL
 );
 
 -- ===============================================
@@ -946,10 +1450,14 @@ ADD CONSTRAINT fk_pj_inventario_instancia_armadura
     FOREIGN KEY (id_armadura) 
     REFERENCES public.instancias_de_itens (id);
 
+/*
+
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_tipos_personagem 
     FOREIGN KEY (id_tipo_personagem) 
     REFERENCES public.tipos_personagem (id);  
+
+*/
 
 -- PERSONAGENS POSSUEM PERÍCIAS
 
@@ -975,10 +1483,14 @@ ADD CONSTRAINT fk_npcs_corredores
     FOREIGN KEY (id_corredor) 
     REFERENCES public.corredores (id);
 
+/*
+
 ALTER TABLE public.npcs 
 ADD CONSTRAINT fk_npcs_tipos_personagem 
     FOREIGN KEY (id_tipo_personagem) 
     REFERENCES public.tipos_personagem (id);    
+
+*/
 
 -- DIÁLOGOS
 
@@ -1057,11 +1569,6 @@ ADD CONSTRAINT fk_feiticos_dano_tipo_feitico
 
 -- INSTÂNCIAS DE MONSTRO
 
-ALTER TABLE public.instancias_monstros
-ADD CONSTRAINT fk_instancias_de_monstro_tipo_monstro 
-    FOREIGN KEY (id_monstro) 
-    REFERENCES public.tipos_monstro (id);
-
 ALTER TABLE public.instancias_monstros 
 ADD CONSTRAINT fk_instancias_monstro_salas 
     FOREIGN KEY (id_sala) 
@@ -1081,14 +1588,14 @@ ADD CONSTRAINT fk_instancias_monstro_instancia_de_item
 
 ALTER TABLE public.pacificos 
 ADD CONSTRAINT fk_pacificos_tipo_monstro 
-    FOREIGN KEY (id) 
+    FOREIGN KEY (id_tipo_monstro) 
     REFERENCES public.tipos_monstro (id);
 
 -- MONSTROS AGRESSIVOS
 
 ALTER TABLE public.agressivos 
 ADD CONSTRAINT fk_agressivos_tipo_monstro 
-    FOREIGN KEY (id) 
+    FOREIGN KEY (id_tipo_monstro) 
     REFERENCES public.tipos_monstro (id);
 
 -- BATALHAS
