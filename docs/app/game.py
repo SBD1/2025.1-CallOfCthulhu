@@ -31,19 +31,27 @@ class Game:
         new_local_nascimento = input('Digite o local de nascimento do seu personagem: ').strip()
         if not new_local_nascimento: print('Local de nascimento inválido!'); return
 
-        try:
-            new_idade = int(input('Digite a idade do seu personagem: ').strip())
-            if not (1 <= new_idade <= 120):
-                print("Idade inválida! (Entre 1 e 120).")
-                return
-        except ValueError:
-            print("Idade inválida! Digite um número.")
-            return
+        # --- Loop para Idade ---
+        new_idade = None
+        while new_idade is None:
+            idade_input = input('Digite a idade do seu personagem: ').strip()
+            try:
+                idade = int(idade_input)
+                if 1 <= idade <= 120:
+                    new_idade = idade
+                else:
+                    print(f"Idade inválida: {idade}. Por favor, digite um número entre 1 e 120.")
+            except ValueError:
+                print(f"Entrada inválida: '{idade_input}'. Por favor, digite um número para a idade.")
 
-        new_sexo = input('Digite o sexo do seu personagem (masculino/feminino): ').strip().lower()
-        if new_sexo not in ['masculino', 'feminino']:
-            print('Sexo inválido! Digite "masculino" ou "feminino".')
-            return
+        # --- Loop para Sexo ---
+        new_sexo = None
+        while new_sexo is None:
+            sexo_input = input('Digite o sexo do seu personagem (masculino/feminino): ').strip().lower()
+            if sexo_input in ['masculino', 'feminino']:
+                new_sexo = sexo_input
+            else:
+                print(f"Sexo inválido: '{sexo_input}'. Por favor, digite 'masculino' ou 'feminino'.")
 
         # Tenta criar o personagem no banco de dados
         new_player_id = self.db.create_new_character(
@@ -163,7 +171,10 @@ class Game:
             # 2. Mostra o status atual
             clear()
             print("==================================================")
-            print(f"Você está em: {detalhes_local['descricao']}")
+            if local_atual == 'sala':
+                print(f"Você está em uma SALA: {detalhes_local['descricao']}")
+            elif local_atual == 'corredor':
+                print(f"Você está em um CORREDOR: {detalhes_local['descricao']}")
             print("==================================================")
             print("\nSAÍDAS DISPONÍVEIS:")
             
