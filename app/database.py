@@ -97,8 +97,6 @@ class DataBase:
             if cursor: # Garante que o cursor seja fechado se criado
                 cursor.close()
 
-#Exemplo
-
     def get_corredor(self, id_corredor: int):
             """
             Retorna um objeto Corredor pelo ID.
@@ -119,9 +117,6 @@ class DataBase:
                 print(f"Corredor com ID {id_corredor} não encontrado ou erro na consulta.")
                 return None
 
-
-
-    #Aqui Luiz
 
     def get_personagem(self, nome_personagem: str): 
         """
