@@ -54,6 +54,7 @@ Todos integrates do grupo participou da elaboração do DDL
 ----
 
 ## DDL - Linguagem de Definição de Dados
+Para acessar o script completo, clique no link a seguir: [Visualizar DDL no GitHub](https://github.com/SBD1/2025.1-CallOfCthulhu/blob/main/docs/entregas/segunda/ddl.sql).
 
 ```
 /*
@@ -1764,3 +1765,4 @@ ADD CONSTRAINT fk_tipos_personagem_npc
 | Versão | Descrição            | Autor(es)                                      | Data de Produção | Revisor(es)                                    | Data de Revisão |
 | :----: | -------------------- | ---------------------------------------------- | :--------------: | ---------------------------------------------- | :-------------: |
 | `1.0`  | Criação do documento | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [João Marcos](https://github.com/JJOAOMARCOSS) |    16/06/25     |
+| `1.1`  | Arrumando o documento e coloando o ddl | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [João Marcos](https://github.com/JJOAOMARCOSS) |    16/06/25     |
