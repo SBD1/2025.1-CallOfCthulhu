@@ -12,13 +12,13 @@
         <meta name="author" content="Grupo 01 - Engenharia de Requisitos - UnB">
       
       
-        <link rel="canonical" href="https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/segunda/ML/">
+        <link rel="canonical" href="https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/segunda/DQL/">
       
       
-        <link rel="prev" href="../MER/">
+        <link rel="prev" href="../DML/">
       
       
-        <link rel="next" href="../DD/">
+        <link rel="next" href="../DER/">
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
@@ -26,7 +26,7 @@
     
     
       
-        <title>ML - Call of Cthulhu</title>
+        <title>DQL - Call of Cthulhu</title>
       
     
     
@@ -89,7 +89,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#entrega-2" class="md-skip">
+        <a href="#linguagem-de-consulta-de-dados-dql" class="md-skip">
           Pular para conteúdo
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              ML
+              DQL
             
           </span>
         </div>
@@ -493,10 +493,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../DQL/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    DQL
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -507,6 +529,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introducao" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introdução
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metodologia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metodologia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dql-linguagem-de-consulta-de-dados" class="md-nav__link">
+    <span class="md-ellipsis">
+      DQL - Linguagem de Consulta de Dados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dql-linguagem-de-consulta-de-dados_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      DQL - Linguagem de Consulta de Dados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bibliografia" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Bibliografia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      📑 Histórico de Versões
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -562,32 +658,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    ML
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../ML/" class="md-nav__link">
         
   
   
@@ -598,44 +672,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Índice">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Índice
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#historico-de-versoes" class="md-nav__link">
-    <span class="md-ellipsis">
-      Histórico de versões
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#modelo-logico" class="md-nav__link">
-    <span class="md-ellipsis">
-      Modelo Lógico
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1016,18 +1052,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#historico-de-versoes" class="md-nav__link">
+  <a href="#introducao" class="md-nav__link">
     <span class="md-ellipsis">
-      Histórico de versões
+      Introdução
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#modelo-logico" class="md-nav__link">
+  <a href="#metodologia" class="md-nav__link">
     <span class="md-ellipsis">
-      Modelo Lógico
+      Metodologia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dql-linguagem-de-consulta-de-dados" class="md-nav__link">
+    <span class="md-ellipsis">
+      DQL - Linguagem de Consulta de Dados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dql-linguagem-de-consulta-de-dados_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      DQL - Linguagem de Consulta de Dados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bibliografia" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Bibliografia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      📑 Histórico de Versões
     </span>
   </a>
   
@@ -1052,53 +1124,601 @@
   
 
 
-<h1 id="entrega-2">Entrega 2</h1>
-<h2 id="historico-de-versoes">Histórico de versões</h2>
+<h1 id="linguagem-de-consulta-de-dados-dql">Linguagem de Consulta de Dados (DQL)</h1>
+<h2 id="introducao">Introdução</h2>
+<p>A <strong>Linguagem de Consulta de Dados (DQL - <em>Data Query Language</em>)</strong> é um dos principais subconjuntos da linguagem SQL, dedicada exclusivamente à <strong>consulta e recuperação de informações</strong> em um banco de dados. Enquanto a DDL cria a estrutura e a DML manipula os dados, a DQL tem como objetivo extrair informações específicas que auxiliam na tomada de decisão e na geração de relatórios.</p>
+<p>O principal comando da DQL é o <code>SELECT</code>, que permite consultar dados de tabelas, realizar junções, aplicar filtros e efetuar ordenações. De acordo com Elmasri e Navathe, "o comando <code>SELECT</code> é a base para a recuperação eficiente de dados em sistemas de banco de dados" <a id="FRM1" href="#REF1">[1]</a>.</p>
+<p>Dominar a DQL é essencial para profissionais que trabalham com dados, como desenvolvedores, DBAs, analistas e cientistas de dados, pois possibilita acessar e analisar os dados armazenados de forma precisa e eficiente.</p>
+<h2 id="metodologia">Metodologia</h2>
+<p>A construção das consultas deste trabalho seguiu as seguintes etapas:</p>
+<ul>
+<li><strong>Análise do Modelo Relacional:</strong> Estudo das tabelas e seus relacionamentos para identificar as melhores formas de consulta.</li>
+<li><strong>Elaboração de Consultas:</strong> Criação de instruções SQL utilizando o comando <code>SELECT</code> com diferentes níveis de complexidade.</li>
+<li><strong>Execução no PostgreSQL:</strong> Testes e validação das consultas no ambiente PostgreSQL para garantir a integridade e o retorno esperado dos dados.</li>
+<li><strong>Ajustes e Otimizações:</strong> Refinamento das consultas para melhorar a eficiência e a clareza dos resultados.</li>
+</ul>
+<hr />
+<h2 id="dql-linguagem-de-consulta-de-dados">DQL - Linguagem de Consulta de Dados</h2>
+<p>Para acessar o script completo, clique no link a seguir: <a href="https://github.com/SBD1/2025.1-CallOfCthulhu/blob/main/docs/entregas/segunda/dql.sql">Visualizar DQL no GitHub</a></p>
+<div class="highlight"><pre><span></span><code>/*
+
+HISTÓRICO DE VERSÕES
+
+Versão: 0.1
+Data: 12/06/2025
+Descrição: Criando a versão inicial do DQL com consultas básicas que envolvem somente uma tabela.
+Autor: Luiz Guilherme
+
+*/
+
+-- ===============================================
+
+--           CONSULTAS DE PERSONAGEM
+
+-- ===============================================
+
+-- MOSTRAR OS ATRIBUTOS DE UM PERSONAGEM JOGÁVEL
+SELECT
+    forca,
+    constituicao,
+    poder,
+    destreza,
+    aparencia,
+    tamanho,
+    inteligencia,
+    educacao,
+    ideia,
+    conhecimento,
+    sorte
+FROM 
+    public.view_personagens_jogaveis_completos
+WHERE 
+    id = %s;
+
+-- MOSTRAR A VIDA ATUAL E MÁXIMA DO PERSONAGEM JOGÁVEL
+SELECT 
+    pts_de_vida,
+    pontos_de_vida_atual
+FROM 
+    public.view_personagens_jogaveis_completos
+WHERE 
+    id = %s;
+
+-- MOSTRAR A SANIDADE ATUAL E MÁXIMA DO PERSONAGEM JOGÁVEL
+SELECT 
+    sanidade,
+    sanidade_atual
+FROM 
+    public.view_personagens_jogaveis_completos
+WHERE 
+    id = %s;
+
+-- MOSTRAR SE O PERSONAGEM ESTÁ EM UMA SALA OU CORREDOR
+SELECT
+    pj.id AS id_personagem,
+    pj.nome AS nome_personagem,
+    pj.ocupacao,
+    CASE
+        WHEN pj.id_sala IS NOT NULL THEN &#39;Sala&#39;
+        WHEN pj.id_corredor IS NOT NULL THEN &#39;Corredor&#39;
+        ELSE &#39;Local Desconhecido (erro ou sem localização)&#39; -- Caso inesperado
+    END AS tipo_local,
+    COALESCE(s.descricao, c.descricao) AS descricao_do_local
+FROM
+    public.personagens_jogaveis pj
+LEFT JOIN
+    public.salas s ON pj.id_sala = s.id
+LEFT JOIN
+    public.corredores c ON pj.id_corredor = c.id;
+
+-- ===============================================
+
+--           CONSULTAS DE NPC
+
+-- ===============================================
+
+-- MOSTRAR TODAS AS INFORMAÇÕES DE UM NPC
+SELECT
+    nome,
+    ocupacao,
+    idade,
+    sexo,
+    residencia,
+    local_nascimento,
+FROM 
+    public.npcs
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--           CONSULTAS DE DIÁLOGOS
+
+-- ===============================================
+
+-- MOSTRAR OS DIÁLOGOS DE UM NPC
+SELECT 
+    script_dialogo
+FROM 
+    public.dialogos
+WHERE 
+    npc_id = %s;
+
+-- ===============================================
+
+--           CONSULTAS DE INVENTÁRIOS
+
+-- ===============================================
+
+-- ===============================================
+
+--           CONSULTAS DE TEMPLOS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM TEMPLO
+SELECT 
+    nome,
+    descricao
+FROM 
+    public.templos
+WHERE
+    id = %s;
+
+-- ===============================================
+
+--           CONSULTAS DE ANDARES
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM ANDAR
+SELECT 
+    descricao
+FROM 
+    public.andares
+WHERE
+    id = %s;
+
+-- ===============================================
+
+--           CONSULTAS DE SALAS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UMA SALA
+SELECT 
+    descricao
+FROM 
+    public.salas
+WHERE
+    id = %s;
+
+-- ===============================================
+
+--           CONSULTAS DE CORREDORES
+
+-- ===============================================
+
+-- ===============================================
+
+--           CONSULTAS DE PERÍCIAS
+
+-- ===============================================
+
+-- ===============================================
+
+--         CONSULTAS MONSTROS AGRESSIVOS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM MONSTRO AGRESSIVO
+SELECT 
+    nome,
+    descricao,
+    defesa,
+    vida,
+    catalisador_agressividade,
+    poder,
+    tipo_agressivo,
+    velocidade_ataque,
+    loucura_induzida,
+    dano
+FROM 
+    public.agressivos
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--         CONSULTAS MONSTROS PACÍFICOS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM MONSTRO PACÍFICOS
+SELECT 
+    nome,
+    descricao,
+    defesa,
+    vida,
+    motivo_passividade,
+    tipo_pacifico,
+    conhecimento_geografico,
+    conhecimento_proibido
+FROM 
+    public.pacificos
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--         CONSULTAS INSTÂNCIAS DE MOSNTRO
+
+-- ===============================================
+
+-- ===============================================
+
+--              CONSULTAS MISSÕES
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UMA MISSÃO
+SELECT
+    nome,
+    descricao,
+    tipo,
+    ordem
+FROM
+    public.missoes
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--              CONSULTAS ITENS MÁGICOS
+
+-- ===============================================
+
+--  MOSTRA AS INFORMAÇÕES DE UM ITEM MÁGICO
+SELECT
+    i.nome,
+    i.descricao,
+    i.valor,
+    m.funcao,
+    m.qtd_usos,
+    m.custo_sanidade
+SELECT
+    public.magicos m
+JOIN 
+    public.itens i ON m.id = i.id
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--              CONSULTAS ITENS DE CURA
+
+-- ===============================================
+
+--  MOSTRAR AS INFORMAÇÕES DE UM ITEM DE CURA
+SELECT
+    i.nome,
+    i.descricao,
+    i.valor,
+    c.funcao,
+    c.qtd_usos,
+    c.qtd_pontos_sanidade_recupera,
+    c.qtd_pontos_vida_recupera
+SELECT
+    public.curas c
+JOIN 
+    public.itens i ON c.id = i.id
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--              CONSULTAS ARMADURAS
+
+-- ===============================================
+
+--  MOSTRAR AS INFORMAÇÕES DE UMA ARMADURA
+SELECT
+    i.nome,
+    i.descricao,
+    i.valor,
+    a.atributo_necessario,
+    a.durabilidade,
+    a.funcao,
+    a.qtd_atributo_necessario,
+    a.qtd_atributo_recebe,
+    a.qtd_dano_mitigado
+SELECT
+    public.armaduras a
+JOIN 
+    public.itens i ON a.id = i.id
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--              CONSULTAS ARMAS
+
+-- ===============================================
+
+--  MOSTRAR AS INFORMAÇÕES DE UMA ARMA
+SELECT
+    i.nome,
+    i.descricao,
+    i.valor,
+    a.atributo_necessario,
+    a.durabilidade,
+    a.funcao,
+    a.qtd_atributo_necessario,
+    a.alcance,
+    a.tipo_municao,
+    a.tipo_dano,
+    a.dano
+SELECT
+    public.armas a 
+JOIN 
+    public.itens i ON a.id = i.id
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--              CONSULTAS FEITIÇOS DE STATUS
+
+-- ===============================================
+
+--  MOSTRAR AS INFORMAÇÕES DE UM FEITÇO DE STATUS
+SELECT
+    nome, 
+    descricao,
+    qtd_pontos_de_magia,
+    buff_debuff,
+    qtd_buff_debuff,
+    status_afetado
+SELECT
+    public.feitico_status
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--              CONSULTAS FEITIÇOS DE DANO
+
+-- ===============================================
+
+--  MOSTRAR AS INFORMAÇÕES DE UM FEITÇO DE DANO
+SELECT
+    nome, 
+    descricao,
+    qtd_pontos_de_magia,
+    tipo_dano,
+    qtd_dano
+SELECT
+    public.feitico_dano
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--              CONSULTAS DE UM ITEM
+
+-- ===============================================
+
+--  Não possui consultas diretas
+</code></pre></div>
+<hr />
+<h2 id="dql-linguagem-de-consulta-de-dados_1">DQL - Linguagem de Consulta de Dados</h2>
+<p>Dentro do nosso jogo a gente utilizou essas consultas basicas.
+Para acessar o script completo, clique no link a seguir: <a href="https://github.com/SBD1/2025.1-CallOfCthulhu/blob/main/docs/app/database.py">Visualizar DQL do Jogo no GitHub</a></p>
+<div class="highlight"><pre><span></span><code>def get_personagem(self, nome_personagem: str): 
+        &quot;&quot;&quot;
+        Retorna um objeto Player (Personagem Jogável) pelo nome.
+        Retorna None se o personagem não for encontrado ou em caso de erro.
+        &quot;&quot;&quot;
+        query = &quot;&quot;&quot;
+        SELECT
+            id, nome, ocupacao, residencia, local_nascimento, idade, sexo,
+            forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao,
+            movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida,
+            pm_base, pm_max, pontos_de_vida_atual,
+            id_sala, id_corredor, id_inventario, id_armadura, id_arma
+        FROM
+            public.personagens_jogaveis
+        WHERE
+            nome = %s;
+        &quot;&quot;&quot;
+        personagem_data = self._execute_query(query, (nome_personagem,), fetch_one=True)
+
+        if personagem_data:
+            return Player(
+                idJogador=personagem_data[&#39;id&#39;],
+                nome=personagem_data[&#39;nome&#39;],
+                ocupacao=personagem_data[&#39;ocupacao&#39;],
+                residencia=personagem_data[&#39;residencia&#39;],
+                local_nascimento=personagem_data[&#39;local_nascimento&#39;],
+                idade=personagem_data[&#39;idade&#39;],
+                sexo=personagem_data[&#39;sexo&#39;],
+                forca=personagem_data[&#39;forca&#39;],
+                constituicao=personagem_data[&#39;constituicao&#39;],
+                poder=personagem_data[&#39;poder&#39;],
+                destreza=personagem_data[&#39;destreza&#39;],
+                aparencia=personagem_data[&#39;aparencia&#39;],
+                tamanho=personagem_data[&#39;tamanho&#39;],
+                inteligencia=personagem_data[&#39;inteligencia&#39;],
+                educacao=personagem_data[&#39;educacao&#39;],
+                movimento=personagem_data[&#39;movimento&#39;],
+                sanidade_atual=personagem_data[&#39;sanidade_atual&#39;],
+                insanidade_temporaria=personagem_data[&#39;insanidade_temporaria&#39;],
+                insanidade_indefinida=personagem_data[&#39;insanidade_indefinida&#39;],
+                PM_base=personagem_data[&#39;pm_base&#39;], 
+                PM_max=personagem_data[&#39;pm_max&#39;],
+                pontos_de_vida_atual=personagem_data[&#39;pontos_de_vida_atual&#39;],
+                id_sala=personagem_data[&#39;id_sala&#39;],
+                id_corredor=personagem_data[&#39;id_corredor&#39;],
+                id_inventario=personagem_data[&#39;id_inventario&#39;],
+                id_armadura=personagem_data[&#39;id_armadura&#39;],
+                id_arma=personagem_data[&#39;id_arma&#39;]
+            )
+        else:
+            print(f&quot;Personagem &#39;{nome_personagem}&#39; não encontrado ou erro na consulta.&quot;)
+            return None
+
+def get_sala_com_saidas(self, id_sala: int):
+        resultado = {&#39;id&#39;: id_sala, &#39;descricao&#39;: None, &#39;saidas&#39;: []}
+        sala_data = self._execute_query(&quot;SELECT descricao FROM public.salas WHERE id = %s;&quot;, (id_sala,), fetch_one=True)
+        if not sala_data: return None
+        resultado[&#39;descricao&#39;] = sala_data[&#39;descricao&#39;].strip()
+
+        saidas_query = &quot;&quot;&quot;
+            SELECT c.id AS id_saida, c.descricao AS desc_saida
+            FROM public.corredores c
+            JOIN public.corredores_salas_destino j ON c.id = j.id_corredor
+            WHERE j.id_sala = %s;
+        &quot;&quot;&quot;
+        saidas_data = self._execute_query(saidas_query, (id_sala,), fetch_all=True)
+        if saidas_data:
+            resultado[&#39;saidas&#39;] = [{&#39;id_saida&#39;: s[&#39;id_saida&#39;], &#39;desc_saida&#39;: s[&#39;desc_saida&#39;].strip()} for s in saidas_data]
+        return resultado
+
+    def get_corredor_com_saidas(self, id_corredor: int):
+        resultado = {&#39;id&#39;: id_corredor, &#39;descricao&#39;: None, &#39;saidas&#39;: []}
+        corredor_data = self._execute_query(&quot;SELECT descricao FROM public.corredores WHERE id = %s;&quot;, (id_corredor,), fetch_one=True)
+        if not corredor_data: return None
+        resultado[&#39;descricao&#39;] = corredor_data[&#39;descricao&#39;].strip()
+
+        saidas_query = &quot;&quot;&quot;
+            SELECT s.id AS id_saida, s.descricao AS desc_saida
+            FROM public.salas s
+            JOIN public.corredores_salas_destino j ON s.id = j.id_sala
+            WHERE j.id_corredor = %s;
+        &quot;&quot;&quot;
+        saidas_data = self._execute_query(saidas_query, (id_corredor,), fetch_all=True)
+        if saidas_data:
+            resultado[&#39;saidas&#39;] = [{&#39;id_saida&#39;: s[&#39;id_saida&#39;], &#39;desc_saida&#39;: s[&#39;desc_saida&#39;].strip()} for s in saidas_data]
+        return resultado
+
+
+    def update_localizacao_jogador_na_sala(self, id_jogador: int, nova_sala_id: int):
+        &quot;&quot;&quot;
+        Atualiza a localização do jogador para um novo corredor no banco de dados.
+        &quot;&quot;&quot;
+        # Define a nova sala e zera o corredor para cumprir a regra do banco de dados
+        query = &quot;&quot;&quot;
+            UPDATE public.personagens_jogaveis
+            SET id_sala = NULL, id_corredor = %s
+            WHERE id = %s;
+        &quot;&quot;&quot;
+        self._execute_query(query, (nova_sala_id, id_jogador))
+        print(f&quot;[DB] Localização do jogador {id_jogador} atualizada para corredor {nova_sala_id}.&quot;)
+
+    def update_localizacao_jogador(self, id_jogador: int, nova_sala_id: int = None, novo_corredor_id: int = None):
+        query = &quot;UPDATE public.personagens_jogaveis SET id_sala = %s, id_corredor = %s WHERE id = %s;&quot;
+        self._execute_query(query, (nova_sala_id, novo_corredor_id, id_jogador))
+
+    def get_ficha_personagem(self, id_jogador: int):
+        &quot;&quot;&quot;
+        Obtém e exibe a ficha completa do personagem usando a view.
+        &quot;&quot;&quot;
+
+        query = &quot;&quot;&quot;
+            SELECT nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza,
+                   aparencia, tamanho, inteligencia, educacao, ideia, conhecimento, sorte, movimento, sanidade_maxima,
+                   sanidade_atual, insanidade_temporaria, insanidade_indefinida, PM_base, PM_max,
+                   pts_de_vida, pontos_de_vida_atual
+            FROM public.view_personagens_jogaveis_completos
+            WHERE id = %s;
+        &quot;&quot;&quot;
+
+        ficha_data = self._execute_query(query, (id_jogador,), fetch_one=True)
+
+        if ficha_data:
+
+            # Trata o nome para ficar sem valores nulos depois do texto
+            nome_limpo = ficha_data[&#39;nome&#39;].strip()
+
+            print(&quot;\n===========================================\n&quot;)
+            print(f&quot;              FICHA DE {nome_limpo.upper()}             \n&quot;)
+            print(&quot;===========================================\n&quot;)
+            print(&quot;* INFORMAÇÕES BÁSICAS&quot;)
+            print(f&quot;  Nome: .......................... {nome_limpo}&quot;)
+            print(f&quot;  Ocupação: ...................... {ficha_data[&#39;ocupacao&#39;].strip()}&quot;)
+            print(f&quot;  Residência: .................... {ficha_data[&#39;residencia&#39;].strip()}&quot;)
+            print(f&quot;  Local de Nascimento:............ {ficha_data[&#39;local_nascimento&#39;].strip()}&quot;)
+            print(f&quot;  Idade: ......................... {ficha_data[&#39;idade&#39;]} anos&quot;)
+            print(f&quot;  Sexo: .......................... {ficha_data[&#39;sexo&#39;].strip()}\n&quot;)
+
+            print(&quot;* ATRIBUTOS&quot;)
+            print(f&quot;  Força: {ficha_data[&#39;forca&#39;]} | Constituição: {ficha_data[&#39;constituicao&#39;]} | Poder: {ficha_data[&#39;poder&#39;]}&quot;)
+            print(f&quot;  Destreza: {ficha_data[&#39;destreza&#39;]} | Aparência: {ficha_data[&#39;aparencia&#39;]} | Tamanho: {ficha_data[&#39;tamanho&#39;]}&quot;)
+            print(f&quot;  Inteligência: {ficha_data[&#39;inteligencia&#39;]} | Educação: {ficha_data[&#39;educacao&#39;]} | Movimento: {ficha_data[&#39;movimento&#39;]} \n&quot;)
+
+            print(&quot;* ATRIBUTOS DERIVADOS&quot;)
+            print(f&quot;  Ideia: {ficha_data[&#39;ideia&#39;]} | Conhecimento: {ficha_data[&#39;conhecimento&#39;]} | Sorte: {ficha_data[&#39;sorte&#39;]}%\n&quot;)
+
+            print(&quot;* STATUS DO PERSONAGEM&quot;)
+            print(f&quot;  Pontos de Vida: ................. {ficha_data[&#39;pontos_de_vida_atual&#39;]} / {ficha_data[&#39;pts_de_vida&#39;]}&quot;)
+            print(f&quot;  Sanidade: ....................... {ficha_data[&#39;sanidade_atual&#39;]} / {ficha_data[&#39;sanidade_maxima&#39;]}&quot;)
+            print(f&quot;  Insanidade Temporária: .......... {&#39;Sim&#39; if ficha_data[&#39;insanidade_temporaria&#39;] else &#39;Não&#39;}&quot;)
+            print(f&quot;  Insanidade Indefinida: .......... {&#39;Sim&#39; if ficha_data[&#39;insanidade_indefinida&#39;] else &#39;Não&#39;}&quot;)
+            print(f&quot;  Pontos de Magia: ................ {ficha_data[&#39;pm_base&#39;]} / {ficha_data[&#39;pm_max&#39;]}&quot;)
+            print(&quot;\n===========================================&quot;)
+
+        else:
+            print(f&quot;Não foi possível encontrar a ficha para o personagem com ID: {id_jogador}&quot;)
+</code></pre></div>
+<hr />
+<h2 id="bibliografia">📚 Bibliografia</h2>
+<blockquote>
+<p><a id="REF1" href="#FRM1">[1]</a> ELMASRI, R.; NAVATHE, S. B. <em>Sistemas de Banco de Dados</em>. 7. ed. Pearson Education do Brasil, 2018.  </p>
+<p>DATE, C. J. <em>An Introduction to Database Systems</em>. 8. ed. Addison-Wesley, 2003.  </p>
+<p>SILBERSCHATZ, A.; KORTH, H. F.; SUDARSHAN, S. <em>Database System Concepts</em>. 7. ed. McGraw-Hill Education, 2019.</p>
+<p>Oracle Database SQL Language Reference. Disponível em: <a href="https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/index.html">https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/index.html</a> (Acesso em 28 de maio de 2025).</p>
+<p>PostgreSQL Documentation. Disponível em: <a href="https://www.postgresql.org/docs/">https://www.postgresql.org/docs/</a> (Acesso em 28 de maio de 2025).</p>
+<p>Microsoft SQL Server Documentation. Disponível em: <a href="https://docs.microsoft.com/en-us/sql/sql-server/sql-server-documentation">https://docs.microsoft.com/en-us/sql/sql-server/sql-server-documentation</a> (Acesso em 28 de maio de 2025).</p>
+</blockquote>
+<h2 id="historico-de-versoes">📑 Histórico de Versões</h2>
 <table>
 <thead>
 <tr>
 <th style="text-align: center;">Versão</th>
-<th style="text-align: center;">Data</th>
 <th>Descrição</th>
-<th>Autor</th>
+<th>Autor(es)</th>
+<th style="text-align: center;">Data de Produção</th>
+<th>Revisor(es)</th>
+<th style="text-align: center;">Data de Revisão</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;"><code>0.1</code></td>
-<td style="text-align: center;">02/05/25</td>
-<td>Adicinando a figura e link do modelo lógico</td>
-<td>Equipe</td>
+<td style="text-align: center;"><code>1.0</code></td>
+<td>Criação do documento</td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td style="text-align: center;">16/06/25</td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td style="text-align: center;">16/06/25</td>
 </tr>
 <tr>
-<td style="text-align: center;"><code>0.2</code></td>
-<td style="text-align: center;">02/05/25</td>
-<td>Atualizando as imagens</td>
-<td><a href="https://github.com/JJOAOMARCOS">João Marcos</a></td>
+<td style="text-align: center;"><code>1.1</code></td>
+<td>Arruamando o DQL e colocando aqui</td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td style="text-align: center;">16/06/25</td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td style="text-align: center;">16/06/25</td>
 </tr>
 <tr>
-<td style="text-align: center;"><code>0.3</code></td>
-<td style="text-align: center;">15/05/25</td>
-<td>Normalizando o banco de dados adicionando a tabela de diálogos</td>
-<td><a href="https://github.com/luizfaria1989">Luiz</a></td>
-</tr>
-<tr>
-<td style="text-align: center;"><code>0.4</code></td>
-<td style="text-align: center;">19/05/25</td>
-<td>Atualizando as imagens</td>
-<td><a href="https://github.com/luizfaria1989">Luiz</a></td>
+<td style="text-align: center;"><code>1.2</code></td>
+<td>Adicionando as consultas do jogo por enquanto</td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td style="text-align: center;">16/06/25</td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td style="text-align: center;">16/06/25</td>
 </tr>
 </tbody>
 </table>
-<h2 id="modelo-logico">Modelo Lógico</h2>
-<figure>
-<a class="glightbox" href="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/normalizacao-do-banco/docs/assets/modelo-relacional-entrega-2.png" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/normalizacao-do-banco/docs/assets/modelo-relacional-entrega-2.png"></a>
-<br />
-<figcaption>Modelo Lógico</figcaption>
-</figure>
-<ul>
-<li><a href="https://dbdiagram.io/d/modelo-relacional-entrega-2-68265e8a5b2fc4582fd38a0c">Link para Modelo Relacional</a></li>
-</ul>
 
 
 
