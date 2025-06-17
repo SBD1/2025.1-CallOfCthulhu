@@ -1730,5 +1730,5 @@ ADD CONSTRAINT fk_tipos_personagem_npc
 
 | Versão | Descrição            | Autor(es)                                      | Data de Produção | Revisor(es)                                    | Data de Revisão |
 | :----: | -------------------- | ---------------------------------------------- | :--------------: | ---------------------------------------------- | :-------------: |
-| `1.0`  | Criação do documento | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [João Marcos](https://github.com/JJOAOMARCOSS) |    16/06/25     |
-| `1.1`  | Arrumando o documento e coloando o ddl | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [João Marcos](https://github.com/JJOAOMARCOSS) |    16/06/25     |
+| `1.0`  | Criação do documento | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [Christopher](https://github.com/wChrstphr) |    16/06/25     |
+| `1.1`  | Corrigindo o documento e adicionado o DDL completo | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [Christopher](https://github.com/wChrstphr) |    16/06/25     |

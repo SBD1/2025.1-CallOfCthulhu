@@ -13,7 +13,7 @@ def display_cthulhu_intro():
     clear()
     print(" _____   ___   _      _       ___________   _____ _____ _   _ _   _ _      _   _ _   _ ")
     print("/  __ \\ / _ \\ | |    | |     |  _  |  ___| /  __ \\_   _| | | | | | | |    | | | | | | |")
-    print("| /  \\// /_\\ \\| |    | |     | | | | |_    | /  \\/ | | | |_| | | | | |    | |_| | | | |")
+    print("| /  \\/ /_\\ \\| |    | |     | | | | |_    | /  \\/ | | | |_| | | | | |    | |_| | | | |")
     print("| |    |  _  || |    | |     | | | |  _|   | |     | | |  _  | | | | |    |  _  | | | |")
     print("| \\__/\\| | | || |____| |____ \\ \\_/ / |     | \\__/\\ | | | | | | |_| | |____| | | | |_| |")
     print(" \\____/\\_| |_/\\_____/\\_____/  \\___/\\_|      \\____/ \\_/ \\_| |_/\\___/\\_____/\_| |_/\\___/ ")
@@ -51,8 +51,33 @@ class Game:
             print('Nome inválido! Voltando ao menu principal.')
             return
 
-        new_ocupacao = input('Digite a ocupação do seu personagem: ').strip()
-        if not new_ocupacao: print('Ocupação inválida!'); return
+        ocupacoes = [
+            "Médico",
+            "Doutor",
+            "Arqueólogo",
+            "Detetive",
+            "Jornalista",
+            "Professor",
+            "Engenheiro",
+            "Artista",
+            "Soldado",
+            "Explorador"
+            # demais ocupacoes podem ser adicionadas aqui
+        ]
+        print("\nEscolha a ocupação do seu personagem:")
+        for index, ocupacao in enumerate(ocupacoes, 1):
+            print(f"{index}. {ocupacao}")
+        new_ocupacao = None
+        while new_ocupacao is None:
+            escolha = input("Digite o número da ocupação desejada: ").strip()
+            try:
+                escolha_num = int(escolha)
+                if 1 <= escolha_num <= len(ocupacoes):
+                    new_ocupacao = ocupacoes[escolha_num - 1]
+                else:
+                    print("Ocupação inválida. Digite novamente.")
+            except ValueError:
+                print("Entrada inválida. Digite apenas o número da ocupação.")
 
         new_residencia = input('Digite a residência do seu personagem: ').strip()
         if not new_residencia: print('Residência inválida!'); return

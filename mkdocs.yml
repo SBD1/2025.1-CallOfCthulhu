@@ -62,31 +62,30 @@ plugins:
 nav:
   - Início: index.md
   - Apresentação: entregas/apresentacao/apresentacao.md
-  - Entregas 1:
+  - Módulo 1:
       - DER: entregas/primeira/DER.md
       - MER: entregas/primeira/MER.md
       - ML: entregas/primeira/ML.md
       - DD: entregas/primeira/DD.md
-  - Entregas 2:
-      - DDL: entregas/segunda/DDL.md
-      - DML: entregas/segunda/DML.md
-      - DQL: entregas/segunda/DQL.md
-      - DER: entregas/segunda/DER.md
+  - Módulo 2:
       - MER: entregas/segunda/MER.md
       - ML: entregas/segunda/ML.md
       - DD: entregas/segunda/DD.md
-  - Entregas 3:
+      - DDL: entregas/segunda/DDL.md
+      - DML: entregas/segunda/DML.md
+      - DQL: entregas/segunda/DQL.md
+  - Módulo 3:
       - DER: entregas/terceira/DER.md
       - MER: entregas/terceira/MER.md
       - ML: entregas/terceira/ML.md
       - DD: entregas/terceira/DD.md
-  - Entregas Final:
+  - Trabalho Final:
       - DER: entregas/final/DER.md
       - MER: entregas/final/MER.md
       - ML: entregas/final/ML.md
       - DD: entregas/final/DD.md
   - Referências: referencias/referencias.md 
-  - Backlog: backlog/backlog.md
+
 
 # Extra CSS
 extra_css:

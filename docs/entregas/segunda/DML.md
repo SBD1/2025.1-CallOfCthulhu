@@ -399,5 +399,5 @@ VALUES
 
 | Versão | Descrição            | Autor(es)                                      | Data de Produção | Revisor(es)                                    | Data de Revisão |
 | :----: | -------------------- | ---------------------------------------------- | :--------------: | ---------------------------------------------- | :-------------: |
-| `1.0`  | Criação do documento | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [João Marcos](https://github.com/JJOAOMARCOSS) |    16/06/25     |
-| `1.1`  | Arruamando o DML e colocando aqui | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [João Marcos](https://github.com/JJOAOMARCOSS) |    16/06/25     |
+| `1.0`  | Criação do documento | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [Christopher](https://github.com/wChrstphr) |    16/06/25     |
+| `1.1`  | Corrige e adiciona DML | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [Christopher](https://github.com/wChrstphr) |    16/06/25     |

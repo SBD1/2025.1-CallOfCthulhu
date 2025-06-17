@@ -400,7 +400,7 @@ WHERE
 
 ## DQL - Linguagem de Consulta de Dados
 Dentro do nosso jogo a gente utilizou essas consultas basicas.
-Para acessar o script completo, clique no link a seguir: [Visualizar DQL do Jogo no GitHub](https://github.com/SBD1/2025.1-CallOfCthulhu/blob/main/docs/app/database.py)
+Para acessar o script completo, clique no link a seguir: [Visualizar DQL do Jogo no GitHub](https://github.com/SBD1/2025.1-CallOfCthulhu/blob/main/app/database.py)
 
 ```
 def get_personagem(self, nome_personagem: str): 
@@ -581,6 +581,6 @@ def get_sala_com_saidas(self, id_sala: int):
 
 | Versão | Descrição            | Autor(es)                                      | Data de Produção | Revisor(es)                                    | Data de Revisão |
 | :----: | -------------------- | ---------------------------------------------- | :--------------: | ---------------------------------------------- | :-------------: |
-| `1.0`  | Criação do documento | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [João Marcos](https://github.com/JJOAOMARCOSS) |    16/06/25     |
-| `1.1`  | Arruamando o DQL e colocando aqui | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [João Marcos](https://github.com/JJOAOMARCOSS) |    16/06/25     |
-| `1.2`  | Adicionando as consultas do jogo por enquanto | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [João Marcos](https://github.com/JJOAOMARCOSS) |    16/06/25     |
+| `1.0`  | Criação do documento | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [Christopher](https://github.com/wChrstphr) |    16/06/25     |
+| `1.1`  | Corrige e adiciona o DQL | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [Christopher](https://github.com/wChrstphr) |    16/06/25     |
+| `1.2`  | Adiciona consultas atuais do jogo | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [Christopher](https://github.com/wChrstphr) |    16/06/25     |

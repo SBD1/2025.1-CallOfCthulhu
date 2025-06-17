@@ -1,12 +1,4 @@
 # Entrega 2
-
-## Histórico de versões
-
-| Versão |    Data    | Descrição               | Autor                                                                                                                 |
-| :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `0.1`  | 02/05/25 |  Adicionando o modelo entidade relacionamento  |        Equipe                |
-| `0.2`  | 15/05/25 | Adicionando a entidade Diálogos | [Luiz Guilherme](https://github.com/luizfaria1989) |
-
 O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve os objetos (entidades) envolvidos em um negócio, com suas características (atributos) e como elas se relacionam entre si (relacionamentos).
 
 ### 1. Entidades
@@ -134,8 +126,9 @@ O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve 
 **Batalha dropa Instancia de Item**
 - Uma Batalha dropa nenhuma ou várias Instancia de Item e uma Instância de Item é dropada por nenhum ou apenas uma batalha.
 
+## 📑 Histórico de versões
 
-
-
-
-
+| Versão | Descrição                                   | Autor(es)                                              | Data de Produção | Revisor(es)                                   | Data de Revisão |
+| :----: | :------------------------------------------ | :----------------------------------------------------- | :--------------: | :-------------------------------------------- | :-------------: |
+| `0.1`  | Adicionando o modelo entidade relacionamento| Equipe                                                 | 02/05/25         | [Christopher](https://github.com/wChrstphr)   |   16/06/25      |
+| `0.2`  | Adicionando a entidade Diálogos             | [Luiz Guilherme](https://github.com/luizfaria1989)     | 15/05/25         | [Christopher](https://github.com/wChrstphr)   |   16/06/25      |

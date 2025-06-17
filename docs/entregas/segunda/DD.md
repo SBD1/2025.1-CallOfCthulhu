@@ -1,16 +1,3 @@
-## Histórico de versões
-
-| Versão |    Data    | Descrição               | Autor                                                                                                                 |
-| :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `1.0`  | 01/05/25 | Criação do documento DD | [Christopher Paraizo](https://github.com/wChrstphr)                                                                  |
-| `1.1`  | 02/05/25 | Populando o DD | [Christopher Paraizo](https://github.com/wChrstphr)   |
-| `1.2`  | 02/05/25 | Populando o DD com as tabelas de entidades | [Christopher Paraizo](https://github.com/wChrstphr) e [João Marcos](https://github.com/JJOAOMARCOSS)   |
-| `1.3`  | 02/05/25 | Populando o DD com as tabelas provindas de relacionamentos, generalizações e especializações | [Christopher Paraizo](https://github.com/wChrstphr)      |   
-| `1.4`  | 15/05/25 | Adicionando a tabela Diálogos | [Luiz](https://github.com/luizfaria1989)      |  
-| `2.0`  | 08/06/25 | Adicionando a seção que explica os domínios criados no DDL | [Luiz](https://github.com/luizfaria1989)      |                                                          
-| `2.1`  | 09/06/25 | Atualizando os tipos dos atributos para condizer com os domínios criados no DDL | [Luiz](https://github.com/luizfaria1989)      | 
-| `2.2`  | 10/06/25 | Ajustando os dados do dicionário para as mudanças feitas no DDL. | [Luiz](https://github.com/luizfaria1989)      | 
-
 # DD - Dicionário de Dados
 
 > "Um dicionário de dados é uma coleção de nomes, atributos e definições sobre elementos de dados que estão sendo usados ​​em seu estudo" (ABCD-USP) 
@@ -464,14 +451,15 @@ Essa seção contém uma tabela de todos os domínios que foram criados no arqui
 
 É importante ressaltar a escolha dos tipo Character ao invés de Varchar, ao utilizar uma quantidade fixa de caracteres para os dados de uma tabela, as suas linhas passam a ter um tamanho fixo. Essa característica para uma tabela de um banco de dados pode ser útil, uma vez que facilita as pesquisas feitas pelo banco, dado que para avançar uma linha basta multiplicar o valor pelo tamanho da tupla daquela tabela pelo número da linha que se quer.
 
+## 📑 Histórico de versões
 
-
-
-
-
-
-
-
-
-
-
+| Versão |    Data    | Descrição               | Autor                                                                                                                 |
+| :----: | :--------: | ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `1.0`  | 01/05/25 | Criação do documento DD | [Christopher Paraizo](https://github.com/wChrstphr)                                                                  |
+| `1.1`  | 02/05/25 | Populando o DD | [Christopher Paraizo](https://github.com/wChrstphr)   |
+| `1.2`  | 02/05/25 | Populando o DD com as tabelas de entidades | [Christopher Paraizo](https://github.com/wChrstphr) e [João Marcos](https://github.com/JJOAOMARCOSS)   |
+| `1.3`  | 02/05/25 | Populando o DD com as tabelas provindas de relacionamentos, generalizações e especializações | [Christopher Paraizo](https://github.com/wChrstphr)      |   
+| `1.4`  | 15/05/25 | Adicionando a tabela Diálogos | [Luiz](https://github.com/luizfaria1989)      |  
+| `2.0`  | 08/06/25 | Adicionando a seção que explica os domínios criados no DDL | [Luiz](https://github.com/luizfaria1989)      |                                                          
+| `2.1`  | 09/06/25 | Atualizando os tipos dos atributos para condizer com os domínios criados no DDL | [Luiz](https://github.com/luizfaria1989)      | 
+| `2.2`  | 10/06/25 | Ajustando os dados do dicionário para as mudanças feitas no DDL. | [Luiz](https://github.com/luizfaria1989)      | 

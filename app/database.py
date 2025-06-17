@@ -1,8 +1,7 @@
 import psycopg2
 import psycopg2.extras 
-import pandas as pd
 import random
-from psycopg2 import OperationalError, errorcodes, errors
+from psycopg2 import OperationalError, errors
 from classes import *
 
 class DataBase:
