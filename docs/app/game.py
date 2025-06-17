@@ -2,10 +2,38 @@ import os
 import sys
 from classes import Player, Corredor, Sala
 from database import DataBase
+import time # Importa o módulo time para usar time.sleep()
 
 def clear():
     """Limpa a tela do terminal."""
     os.system('cls' if os.name == 'nt' else 'clear')
+
+# --- Função para a introdução do Call of Cthulhu ---
+def display_cthulhu_intro():
+    clear()
+    print("    __   ____  _      _           ___   _____         __ ______  __ __  __ __  _      __ __  __ __ ")
+    print("   /  ] /    || |    | |         /   \\ |     |       /  ]      ||  |  ||  |  || |    |  |  ||  |  |")
+    print("  /  / |  o  || |    | |        |     ||   __|      /  /|      ||  |  ||  |  || |    |  |  ||  |  |")
+    print(" /  /  |     || |___ | |___     |  O  ||  |_       /  / |_|  |_||  _  ||  |  || |___ |  _  ||  |  |")
+    print("/   \\_ |  _  ||     ||     |    |     ||   _]     /   \\_  |  |  |  |  ||  :  ||     ||  |  ||  :  |")
+    print("\\     ||  |  ||     ||     |    |     ||  |       \\     | |  |  |  |  ||     ||     ||  |  ||     |")
+    print(" \\____||__|__||_____||_____|     \\___/ |__|        \\____| |__|  |__|__| \\__,_||_____||__|__| \\__,_|")
+    print("                                                                                                   \n\n")
+
+
+    
+    time.sleep(1) # Pequena pausa para a leitura inicial do título
+
+    print("                                            O CHAMADO ECOA...")
+    time.sleep(2)
+    print("                           NAS PROFUNDEZAS ESQUECIDAS DO TEMPO E DO ESPAÇO...")
+    time.sleep(2)
+    print("                                  UMA ENTIDADE ANTIGA AGUARDA...")
+    time.sleep(2)
+    print("                                       E SEU PESADELO COMEÇA.")
+    time.sleep(3) # Pausa mais longa para o impacto final
+    clear() # Limpa a tela antes de ir para o menu principal do jogo
+# --- Fim da função de introdução ---
 
 class Game:
 
@@ -227,6 +255,7 @@ class Game:
 
 
 if __name__ == '__main__':
+    display_cthulhu_intro()
     game = Game()
     game.start()
     # No final do script principal, garante que a conexão do DB seja fechada.
