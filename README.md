@@ -9,7 +9,22 @@ Repositório do grupo 1 de Banco de Dados 1 para desenvolvimento do jogo inspira
 Com base no universo criado por HP Lovecraft, Call of Cthulhu busca contar a história de um personagem principal que enfrenta criaturas sobrenaturais enquanto soluciona missões de outros personagens. O jogo foi modelado com base em um RPG, assim os personagens, montros e itens possuem caracteristicas semelhantes as presentes nos livros de mestre.
 
 ## Entregas
-### Entrega 1
+### Módulo 1
+
+- [Diagrama entidade relacionamento](./docs/entregas/primeira/DER.md)
+- [Modelo entidade relacionamento](./docs/entregas/primeira/MER.md)
+- [Modelo lógico](./docs/entregas/primeira/ML.md)
+- [Dicionário de Dados](./docs/entregas/primeira/DD.md)
+
+### Módulo 2
+
+- [Diagrama entidade relacionamento](./docs/entregas/segunda/DER.md)
+- [Modelo entidade relacionamento](./docs/entregas/segunda/MER.md)
+- [Modelo lógico](./docs/entregas/segunda/ML.md)
+- [Dicionário de Dados](./docs/entregas/segunda/DD.md)
+- 
+
+### Módulo 3
 
 - [Diagrama entidade relacionamento](./docs/entregas/primeira/DER.md)
 - [Modelo entidade relacionamento](./docs/entregas/primeira/MER.md)
@@ -45,8 +60,8 @@ O DBBeaver é uma plataforma gratuíta para trabalhar com bancos de dados, com s
 1. Acesse o site e [baixe o DBBeaver](https://dbeaver.io/download/)
 1. Após ter concluído os passos 1, 2 e 3 passados. Faça a conexão com o database da seguinte maneira:<br>
     1. Clique em nova conexão
-    ![passo1](image.png)
+    ![passo1](/docs/assets/dbeaver_tutorial-0.png)
     1. Selecione o Postgres
-    ![passo2](image-2.png)
+    ![passo2](/docs/assets/dbeaver_tutorial-1.png)
     1. Preencha as informações do banco, são as mesmas do arquivo ``docker-compose.yml``
-    ![passo3](image-1.png)
+    ![passo3](/docs/assets/dbeaver_tutorial-2.png)
