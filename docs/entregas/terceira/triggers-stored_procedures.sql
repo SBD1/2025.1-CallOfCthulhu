@@ -378,3 +378,26 @@ END;
 $func_valida_atributos_monstro_pacifico$ LANGUAGE plpgsql;
 
 
+-- ---------------------------------------------------------------------------------
+--         3.4. CRIAÇÃO DOS TRIGGERS DE MONSTROS
+-- ---------------------------------------------------------------------------------
+
+-- Trigger para validar a exclusividade na tabela 'agressivos'
+CREATE TRIGGER trigger_valida_exclusividade_agressivo
+    BEFORE INSERT OR UPDATE ON public.agressivos
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_agressivo();
+
+-- Trigger para validar a exclusividade na tabela 'pacificos'
+CREATE TRIGGER trigger_valida_exclusividade_pacifico
+    BEFORE INSERT OR UPDATE ON public.pacificos
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_pacifico();
+
+-- Trigger para validar os atributos dos monstros agressivos
+CREATE TRIGGER trigger_valida_atributos_agressivo
+    BEFORE INSERT OR UPDATE ON public.agressivos
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_atributos_monstro_agressivo();
+
+-- Trigger para validar os atributos dos monstros pacíficos
+CREATE TRIGGER trigger_valida_atributos_pacifico
+    BEFORE INSERT OR UPDATE ON public.pacificos
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_atributos_monstro_pacifico();
