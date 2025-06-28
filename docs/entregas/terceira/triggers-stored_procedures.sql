@@ -112,7 +112,36 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-----p
+-------------------------------------------------------------
+-- Ajusta atributos calculados de um novo PJ
+-- Calcula e define os valores derivados
+-------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.func_ajustar_atributos_personagem()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Cálculo do MOVIMENTO
+    IF NEW.destreza < NEW.tamanho AND NEW.forca < NEW.tamanho THEN
+        NEW.movimento := 7;
+    ELSIF NEW.destreza > NEW.tamanho AND NEW.forca > NEW.tamanho THEN
+        NEW.movimento := 9;
+    ELSE
+        NEW.movimento := 8;
+    END IF;
+    
+    -- Cálculo de Sanidade, Vida e PM iniciais, usa funções do DDL auxiliares.
+    NEW.sanidade_atual := public.calcular_sanidade(NEW.poder);
+    NEW.pontos_de_vida_atual := public.calcular_pts_de_vida(NEW.constituicao, NEW.tamanho);
+    NEW.pm_base := NEW.poder;
+    NEW.pm_max := NEW.poder;
+
+    -- Definindo valores iniciais padrão para colunas booleanas.
+    NEW.insanidade_temporaria := FALSE;
+    NEW.insanidade_indefinida := FALSE;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 
 -- ---------------------------------------------------------------------------------
 --         3.2 STORED PROCEDURE PARA CRIAÇÃO DE PJs
@@ -183,4 +212,7 @@ CREATE TRIGGER trigger_validar_atributos_personagem
     BEFORE INSERT ON public.personagens_jogaveis
     FOR EACH ROW EXECUTE FUNCTION public.func_validar_dados_personagem();
 
-
+-- Ajusta os atributos de um novo personagem jogável
+CREATE TRIGGER trigger_ajustar_atributos_personagem
+    BEFORE INSERT ON public.personagens_jogaveis
+    FOR EACH ROW EXECUTE FUNCTION public.func_ajustar_atributos_personagem();
