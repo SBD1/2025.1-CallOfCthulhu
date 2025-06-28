@@ -69,6 +69,10 @@ Data: 14/06/2025
 Descrição: Adicionando geradores de IDs para as tabelas do banco de dados
 Autor: Luiz Guilherme
 
+Versão: 1.1
+Data: 28/06/2025
+Descrição: Adicionando valores DEFAULT para a tabela public.personagens_jogaveis. Atributos agora estão sendo calculados pela trigger 'trigger_ajustar_atributos_personagem', da função 'public.func_ajustar_atributos_personagem()'
+Autor: Wanjo Christopher
 
 */
 
@@ -1060,26 +1064,35 @@ CREATE TABLE public.personagens_jogaveis(
     idade public.idade DEFAULT 18 NOT NULL,
     sexo public.sexo NOT NULL,
 
-    forca public.atributo NOT NULL, -- 3d6
-    constituicao public.atributo NOT NULL, -- 3d6
-    poder public.atributo NOT NULL, -- 3d6
-    destreza public.atributo NOT NULL, -- 3d6
-    aparencia public.atributo NOT NULL, -- 3d6
-    tamanho public.atributo NOT NULL, -- 3d6
-    inteligencia public.atributo NOT NULL, -- 3d6
-    educacao public.atributo NOT NULL, -- 3d6
+
+    -- Atributos agora com DEFAULT diretamente na criação
+    /* Explicação do random()
+    1. random() no psql gera um número decimal entre 0.0 e 0.999
+    2. random() * 16 gera um número entre 0.0 e 15.999
+    3. random() * 16 + 3 move esse intervalo para 3.0 até 18.999...
+    4. floor(...) arredonda para baixo, resultando em um número inteiro de 3 a 18, equivalente ao 3d6.
+    */
+    forca public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    constituicao public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    poder public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    destreza public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    aparencia public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    tamanho public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    inteligencia public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    educacao public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
 
 
-    movimento SMALLINT NOT NULL, -- (destreza < tamanho) && (forca < tamanho) ? movimento = 7; (destreza = tamanho) || (forca = tamanho) ? movimento = 8; (destreza > tamanho) && (forca > tamanho) ? movimento = 9;
+    -- TRIGGER 'public.verificar_atributos_personagem_jogavel()' valores base posteriormente
+    movimento SMALLINT NOT NULL DEFAULT 0,
+    sanidade_atual SMALLINT NOT NULL DEFAULT 0,
+    pontos_de_vida_atual SMALLINT NOT NULL DEFAULT 0,
 
-    sanidade_atual SMALLINT NOT NULL, -- = forca 
-    insanidade_temporaria BOOLEAN, 
-    insanidade_indefinida BOOLEAN, -- quando sanidade é 0
-    
-   	PM_base SMALLINT NOT NULL, 
-    PM_max SMALLINT NOT NULL,
+    PM_base SMALLINT NOT NULL DEFAULT 0,
+    PM_max SMALLINT NOT NULL DEFAULT 0,
 
-    pontos_de_vida_atual SMALLINT NOT NULL,
+    -- Colunas booleanas com DEFAULT
+    insanidade_temporaria BOOLEAN DEFAULT FALSE,
+    insanidade_indefinida BOOLEAN DEFAULT FALSE,
 
     -- FOREIGN KEYS
     id_sala public.id_sala,  
