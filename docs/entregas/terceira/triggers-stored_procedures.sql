@@ -54,13 +54,33 @@ DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_pacifico() CASCADE;
 -- Funções de Personagem Jogável
 DROP FUNCTION IF EXISTS public.func_validar_atributos_personagem() CASCADE;
 DROP FUNCTION IF EXISTS public.func_ajustar_atributos_personagem() CASCADE;
-DROP FUNCTION IF EXISTS public.sp_criar_personagem() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_personagem(public.nome, public.ocupacao, public.residencia,
+ public.local_nascimento, public.idade, public.sexo) CASCADE;
 
 -- Funções de monstros agressivos e pacíficos
 DROP FUNCTION IF EXISTS public.func_valida_atributos_monstro_agressivo() CASCADE;
 DROP FUNCTION IF EXISTS public.func_valida_atributos_monstro_pacifico() CASCADE;
 DROP FUNCTION IF EXISTS public.func_bloquear_insert_direto_monstro() CASCADE;
-DROP FUNCTION IF EXISTS public.sp_criar_monstro() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_monstro(    
+    public.nome,
+    public.descricao,
+    public.tipo_monstro,
+    SMALLINT,
+    SMALLINT,
+    public.gatilho_agressividade,
+    SMALLINT,
+    public.tipo_monstro_agressivo,
+    SMALLINT,
+    SMALLINT,
+    SMALLINT,
+    public.dano,
+    SMALLINT,
+    SMALLINT,
+    public.comportamento_pacifico,
+    public.tipo_monstro_pacifico,
+    CHARACTER(128),
+    CHARACTER(128)
+) CASCADE;
 
 
 -- =================================================================================
