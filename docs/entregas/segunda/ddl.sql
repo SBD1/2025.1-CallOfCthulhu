@@ -77,8 +77,11 @@ Autor: Wanjo Christopher
 Versão: 1.2
 Data: 28/06/2025
 Descrição: Cria tabela pai para monstros contendo apenas id, tipo e atributos gerais para facilitar criação de instâncias de monstros e o SELECT de monstros.
-
 Autor: Wanjo Christopher
+
+Versão: 1.3
+Data: 28/06/2025
+Descrição: Erro de Colunas Faltando na Tabela de Junção personagens_possuem_pericias, você definiu a chave primária e as chaves estrangeiras, mas esqueceu de declarar as colunas na criação da tabela.
 */
 
 DROP SCHEMA public CASCADE;
@@ -1384,12 +1387,10 @@ CREATE TABLE public.inventarios_possuem_instancias_item(
 );
 
 CREATE TABLE public.personagens_possuem_pericias (
+    id_personagem public.id_personagem_jogavel NOT NULL, -- Declarar a coluna aqui
+    id_pericia public.id_pericia NOT NULL,              -- Declarar a coluna aqui
     valor_atual SMALLINT NOT NULL,
-    PRIMARY KEY (id_personagem, id_pericia),
-
-    -- FOREIGN KEYS
-    id_personagem public.id_personagem_jogavel NOT NULL,
-    id_pericia public.id_pericia NOT NULL
+    PRIMARY KEY (id_personagem, id_pericia)
 );
 
 -- ===============================================
