@@ -174,16 +174,16 @@ class DataBase:
         """
         Cria um novo personagem chamando a Stored Procedure no banco de dados.
         A aplicação apenas envia os dados básicos e recebe o ID de volta.
-        Utiliza da função 'public.func_criar_personagem()' para criar o personagem.
+        Utiliza da função 'public.sp_criar_personagem()' para criar o personagem.
         Retorna o ID do novo personagem ou None em caso de falha.
         """
         try:
             print(f"Solicitando ao banco de dados para criar o personagem '{nome}'...")
 
-            # Usamos SELECT para obter o valor de retorno da função 'public.func_criar_personagem()'.
+            # Usamos SELECT para obter o valor de retorno da função 'public.sp_criar_personagem()'.
             # Aqui especificamos qual o tipo de cada uma das strings ao invés de enviar somente uma string '%s'
             #   Ex: %s::public.nome, indica que o parâmetro deve ser tratado como do domínio de tipo 'public.nome'
-            query = "SELECT public.func_criar_personagem(" \
+            query = "SELECT public.sp_criar_personagem(" \
             "%s::public.nome, " \
             "%s::public.ocupacao, " \
             "%s::public.residencia, " \
@@ -203,8 +203,8 @@ class DataBase:
             # Executa a query e espera receber o ID do novo personagem
             new_player_id_data = self._execute_query(query, params, fetch_one=True)
 
-            if new_player_id_data and new_player_id_data['func_criar_personagem']:
-                novo_id_personagem = new_player_id_data['func_criar_personagem']
+            if new_player_id_data and new_player_id_data['sp_criar_personagem']:
+                novo_id_personagem = new_player_id_data['sp_criar_personagem']
                 print(f"Personagem '{nome}' criado com sucesso pelo banco de dados com ID: {novo_id_personagem}")
                 return novo_id_personagem
             else:
