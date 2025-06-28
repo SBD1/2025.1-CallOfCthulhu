@@ -171,78 +171,50 @@ class DataBase:
             return None
 
     def create_new_character(self, nome: str, ocupacao: str, residencia: str, local_nascimento: str, idade: int, sexo: str):
-    
-            new_forca = random.randint(3, 18)
-            new_constituicao = random.randint(3, 18)
-            new_poder = random.randint(3, 18)
-            new_destreza = random.randint(3, 18)
-            new_aparencia = random.randint(3, 18)
-            new_tamanho = random.randint(3, 18)
-            new_inteligencia = random.randint(3, 18)
-            new_educacao = random.randint(3, 18)
-    
-            pontos_de_vida_atual = (new_constituicao + new_tamanho) // 2
-            sanidade_atual = new_poder * 5
-            pm_max = new_poder * 5
-            pm_base = pm_max 
-            
-            movimento = 8 
-            if new_destreza < new_tamanho and new_forca < new_tamanho:
-                movimento = 7
-            elif new_destreza > new_tamanho and new_forca > new_tamanho:
-                movimento = 9
+        """
+        Cria um novo personagem chamando a Stored Procedure no banco de dados.
+        A aplicação apenas envia os dados básicos e recebe o ID de volta.
+        Utiliza da função 'public.func_criar_personagem()' para criar o personagem.
+        Retorna o ID do novo personagem ou None em caso de falha.
+        """
+        try:
+            print(f"Solicitando ao banco de dados para criar o personagem '{nome}'...")
 
-            insanidade_temporaria = False
-            insanidade_indefinida = False
-    
-            # novo_id_personagem = random.randint(100, 9999)
-    
-            id_inventario = self.create_new_inventory()
-            if not id_inventario: 
-                print('Falha ao criar o invetário')
-                return None
-            
-            id_sala_inicial = 40300002 
-            id_corredor_inicial = None 
-            id_armadura_inicial = None 
-            id_arma_inicial = None     
-    
-            """
-            Cria um novo personagem
-            """
-            query = """
-            INSERT INTO public.personagens_jogaveis (
-                nome, ocupacao, residencia, local_nascimento, idade, sexo,
-                forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao,
-                movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida,
-                PM_base, PM_max, pontos_de_vida_atual,
-                id_sala, id_corredor, id_inventario, id_armadura, id_arma
-            ) VALUES (
-                %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s, %s, %s, %s, %s,
-                %s, %s, %s, %s,
-                %s, %s, %s,
-                %s, %s, %s, %s, %s
-            ) RETURNING id; 
-            """
-            
+            # Usamos SELECT para obter o valor de retorno da função 'public.func_criar_personagem()'.
+            # Aqui especificamos qual o tipo de cada uma das strings ao invés de enviar somente uma string '%s'
+            #   Ex: %s::public.nome, indica que o parâmetro deve ser tratado como do domínio de tipo 'public.nome'
+            query = "SELECT public.func_criar_personagem(" \
+            "%s::public.nome, " \
+            "%s::public.ocupacao, " \
+            "%s::public.residencia, " \
+            "%s::public.local_nascimento, " \
+            "%s::public.idade, " \
+            "%s::public.sexo);"
+
             params = (
-                nome, ocupacao, residencia, local_nascimento, idade, sexo,
-                new_forca, new_constituicao, new_poder, new_destreza, new_aparencia, new_tamanho, new_inteligencia, new_educacao,
-                movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida,
-                pm_base, pm_max, pontos_de_vida_atual,
-                id_sala_inicial, id_corredor_inicial, id_inventario, id_armadura_inicial, id_arma_inicial
+                nome,
+                ocupacao,
+                residencia,
+                local_nascimento,
+                idade,
+                sexo
             )
-    
+
+            # Executa a query e espera receber o ID do novo personagem
             new_player_id_data = self._execute_query(query, params, fetch_one=True)
-            
-            if new_player_id_data:
-                novo_id_personagem = new_player_id_data['id'] 
-                print(f"Personagem '{nome}' criado com sucesso com ID: {novo_id_personagem}")
-                return novo_id_personagem 
+
+            if new_player_id_data and new_player_id_data['func_criar_personagem']:
+                novo_id_personagem = new_player_id_data['func_criar_personagem']
+                print(f"Personagem '{nome}' criado com sucesso pelo banco de dados com ID: {novo_id_personagem}")
+                return novo_id_personagem
             else:
-                print(f"Falha ao criar personagem '{nome}'.")
-                return None 
+                print(f"Falha ao criar personagem '{nome}'. Verifique os logs do banco de dados para mais detalhes.")
+                return None
+        except Exception as e:
+            print("!!!!!!!!!! OCORREU UM ERRO NO BANCO DE DADOS !!!!!!!!!!!")
+            print(f"Tipo de Erro: {type(e)}")
+            print(f"Mensagem Completa: {e}")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     
 
     def create_new_inventory(self):
