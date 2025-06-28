@@ -16,6 +16,11 @@ DATA: 28/06/2025
 AUTOR: Wanjo Christopher
 DESCRIÇÃO: Reorganização do arquivo e do nome das funções e triggers.
 
+VERSÃO: 0.4
+DATA: 28/06/2025
+AUTOR: Wanjo Christopher
+DESCRIÇÃO: Criação de stored procedure para criação de monstros, com validações de regras de negócio e exclusividade.
+
 */
 
 -- =================================================================================
