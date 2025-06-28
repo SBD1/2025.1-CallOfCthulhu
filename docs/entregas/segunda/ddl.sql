@@ -74,6 +74,11 @@ Data: 28/06/2025
 Descrição: Adicionando valores DEFAULT para a tabela public.personagens_jogaveis. Atributos agora estão sendo calculados pela trigger 'trigger_ajustar_atributos_personagem', da função 'public.func_ajustar_atributos_personagem()'
 Autor: Wanjo Christopher
 
+Versão: 1.2
+Data: 28/06/2025
+Descrição: Cria tabela pai para monstros contendo apenas id, tipo e atributos gerais para facilitar criação de instâncias de monstros e o SELECT de monstros.
+
+Autor: Wanjo Christopher
 */
 
 DROP SCHEMA public CASCADE;
@@ -1179,10 +1184,16 @@ CREATE TABLE public.pericias(
     eh_de_ocupacao BOOLEAN
 );
 
-CREATE TABLE public.agressivos(
-    id public.id_monstro_agressivo NOT NULL PRIMARY KEY DEFAULT public.gerar_id_monstro_agressivo(),
+-- Tabela pai de monstros
+CREATE TABLE public.monstros(
+    id public.id_monstro NOT NULL PRIMARY KEY, 
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
+    tipo public.tipo_monstro NOT NULL -- define se é 'agressivo' ou 'pacífico'
+);
+
+CREATE TABLE public.agressivos(
+    id public.id_monstro_agressivo NOT NULL PRIMARY KEY, -- Usa o ID específico de agressivo
     defesa SMALLINT,
     vida SMALLINT NOT NULL,
     catalisador_agressividade public.gatilho_agressividade,
@@ -1193,13 +1204,12 @@ CREATE TABLE public.agressivos(
     ponto_magia SMALLINT,
     dano public.dano NOT NULL,
 
-    id_tipo_monstro INTEGER -- FK
+    -- Chave estrangeira que aponta para a tabela pai de monstros
+    CONSTRAINT fk_agressivos_monstros FOREIGN KEY (id) REFERENCES public.monstros(id) ON DELETE CASCADE
 );
 
 CREATE TABLE public.pacificos(
-    id public.id_monstro_pacifico NOT NULL PRIMARY KEY DEFAULT public.gerar_id_monstro_pacifico(),
-    nome public.nome NOT NULL UNIQUE,
-    descricao public.descricao NOT NULL,
+    id public.id_monstro_pacifico NOT NULL PRIMARY KEY, 
     defesa SMALLINT NOT NULL,
     vida SMALLINT NOT NULL,
     motivo_passividade public.comportamento_pacifico,
@@ -1207,7 +1217,8 @@ CREATE TABLE public.pacificos(
     conhecimento_geografico CHARACTER(128),
     conhecimento_proibido CHARACTER(128),
 
-    id_tipo_monstro INTEGER -- FK
+    -- Chave estrangeira que aponta para a tabela pai de monstros
+    CONSTRAINT fk_pacificos_monstros FOREIGN KEY (id) REFERENCES public.monstros(id) ON DELETE CASCADE
 );
 
 CREATE TABLE public.instancias_monstros(
@@ -1215,7 +1226,7 @@ CREATE TABLE public.instancias_monstros(
 
     -- FOREING KEYS
     id_instancia_de_item public.id_instancia_de_item NOT NULL,
-    id_sala public.id_sala,  
+    id_sala public.id_sala,
     id_corredor public.id_corredor,
     id_monstro public.id_monstro NOT NULL
 );
@@ -1593,23 +1604,23 @@ ADD CONSTRAINT fk_instancias_monstro_corredores
     REFERENCES public.corredores (id);
 
 ALTER TABLE public.instancias_monstros
-ADD CONSTRAINT fk_instancias_monstro_instancia_de_item 
-    FOREIGN KEY (id_instancia_de_item) 
-    REFERENCES public.instancias_de_itens (id);
+ADD CONSTRAINT fk_instancias_monstro_monstros
+    FOREIGN KEY (id_monstro)
+    REFERENCES public.monstros(id);
 
--- MONSTROS PACÍFICOS
+-- -- MONSTROS PACÍFICOS
 
-ALTER TABLE public.pacificos 
-ADD CONSTRAINT fk_pacificos_tipo_monstro 
-    FOREIGN KEY (id_tipo_monstro) 
-    REFERENCES public.tipos_monstro (id);
+-- ALTER TABLE public.pacificos 
+-- ADD CONSTRAINT fk_pacificos_tipo_monstro 
+--     FOREIGN KEY (id_tipo_monstro) 
+--     REFERENCES public.tipos_monstro (id);
 
--- MONSTROS AGRESSIVOS
+-- -- MONSTROS AGRESSIVOS
 
-ALTER TABLE public.agressivos 
-ADD CONSTRAINT fk_agressivos_tipo_monstro 
-    FOREIGN KEY (id_tipo_monstro) 
-    REFERENCES public.tipos_monstro (id);
+-- ALTER TABLE public.agressivos 
+-- ADD CONSTRAINT fk_agressivos_tipo_monstro 
+--     FOREIGN KEY (id_tipo_monstro) 
+--     REFERENCES public.tipos_monstro (id);
 
 -- BATALHAS
 
