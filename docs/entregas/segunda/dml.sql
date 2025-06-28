@@ -52,6 +52,11 @@ Data: 14/06/2025
 Descrição: Atualizando o dml para suportar a criação automática de ids nas tabelas
 Autor: Luiz Guilherme
 
+Versão: 1.1 
+Data: 28/06/2025
+Descrição: Refatorado para usar o Stored Procedure sp_criar_monstro
+Autor: Wanjo Christopher
+
 */
 -- ===============================================
 
@@ -60,7 +65,6 @@ Autor: Luiz Guilherme
 -- ===============================================
 
 INSERT INTO public.tipos_personagem (tipo) VALUES ('personagem jogavel'), ('NPC');
-INSERT INTO public.tipos_monstro (tipo) VALUES ('agressivo'), ('pacífico');
 
 -- ===============================================
 
@@ -176,7 +180,7 @@ ela também pega o id da sala inicial por meio da descrição da sala inicial
 WITH 
         templo_criado AS (
                 INSERT INTO public.templos(nome, descricao)
-                VALUES ('Templo de Chutullu', 'O templo é colossal, suas paredes de pedra verde-escura brilham sob uma luz sobrenatural, entalhadas com runas alienígenas que sussurram segredos proibidos. O ar é salgado e pesado, e cada passo ecoa em corredores que se torcem como pesadelos. No altar central, um ídolo pulsante de Cthulhu aguarda, enquanto sombras insanas dançam à sua volta.')
+                VALUES ('Templo de Cthulhu', 'O templo é colossal, suas paredes de pedra verde-escura brilham sob uma luz sobrenatural, entalhadas com runas alienígenas que sussurram segredos proibidos. O ar é salgado e pesado, e cada passo ecoa em corredores que se torcem como pesadelos. No altar central, um ídolo pulsante de Cthulhu aguarda, enquanto sombras insanas dançam à sua volta.')
                 RETURNING id
         ),
         salas_criadas AS (
@@ -235,6 +239,9 @@ Aqui preenchemos os dados nas tabelas dos personagens jogáveis, utilizamos uma 
 adicionar o seu id no seu respectivo personagem, note que cada personagem também retorna um id, ele é utilizado 
 para adicionar as perícias para os personagens na tabela personagens_possuem_pericias
 */
+
+-- NOTA: A criação de PJs agora deve ser feita via Stored Procedure na aplicação para usar a lógica de geração de atributos.
+-- Estes INSERTs diretos são mantidos para compatibilidade inicial, mas o ideal é removê-los e criar os personagens via aplicação.
 
 WITH
   inv_samuel AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
@@ -317,14 +324,46 @@ também criamos os itens, os quais retornam um id, que é usado nas instâncias 
 também criamos as batalhas com base no nome do personagem 
 */
 
+-- ===============================================
+
+-- ADIÇÃO NA TABELA DE MONSTROS e ITENS
+
+-- ===============================================
+
+/*
+Aqui adicionamos os monstros no dml do jogo, cada monstro retorna um id, que é usado na instancia de monstro e em batalhas
+também criamos os itens, os quais retornam um id, que é usado nas instâncias de item e nas intâncias de monstro
+também criamos as batalhas com base no nome do personagem 
+*/
+
 WITH
-  monstro_agressivo AS (
-    INSERT INTO public.agressivos (nome, descricao, defesa, vida, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
-    VALUES ('Abominável Horror', 'Criatura grotesca que se esconde nas sombras...', 10, 50, 'proximidade', 15, 'psiquico', 5, 20, 10, 30) RETURNING id
+  monstro_agressivo_criado AS (
+    SELECT id FROM public.sp_criar_monstro(
+        p_nome                  := 'Abominável Horror'::public.nome,
+        p_descricao             := 'Criatura grotesca que se esconde nas sombras...'::public.descricao,
+        p_tipo                  := 'agressivo'::public.tipo_monstro,
+        p_agressivo_defesa      := 10::SMALLINT,
+        p_agressivo_vida        := 50::SMALLINT,
+        p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+        p_agressivo_poder       := 15::SMALLINT,
+        p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
+        p_agressivo_velocidade  := 5::SMALLINT,
+        p_agressivo_loucura     := 20::SMALLINT,
+        p_agressivo_pm          := 10::SMALLINT,
+        p_agressivo_dano        := 30::public.dano
+    ) AS id
   ),
-  monstro_pacifico AS (
-    INSERT INTO public.pacificos (nome, descricao, defesa, vida, motivo_passividade, tipo_pacifico)
-    VALUES ('Espírito Guardião', 'Um espírito antigo que protege certas áreas...', 5, 30, 'indiferente', 'sobrenatural') RETURNING id
+  monstro_pacifico_criado AS (
+    SELECT id FROM public.sp_criar_monstro(
+        p_nome                       := 'Espírito Guardião'::public.nome,
+        p_descricao                  := 'Um espírito antigo que protege certas áreas...'::public.descricao,
+        p_tipo                       := 'pacífico'::public.tipo_monstro,
+        p_pacifico_defesa            := 5::SMALLINT,
+        p_pacifico_vida              := 30::SMALLINT,
+        p_pacifico_motivo            := 'indiferente'::public.comportamento_pacifico,
+        p_pacifico_tipo              := 'sobrenatural'::public.tipo_monstro_pacifico,
+        p_pacifico_conhecimento_proibido := 'Sabe sobre a fraqueza de uma entidade maior.'::CHARACTER(128)
+    ) AS id
   ),
   item_adaga AS (
     INSERT INTO public.itens (tipo, nome, descricao, valor)
@@ -336,7 +375,7 @@ WITH
   ),
   instancia_monstro AS (
     INSERT INTO public.instancias_monstros (id_monstro, id_sala, id_instancia_de_item)
-    SELECT (SELECT id FROM monstro_agressivo), (SELECT id FROM public.salas WHERE descricao LIKE 'Um salão circular%'), id FROM instancia_adaga RETURNING id
+    SELECT (SELECT id FROM monstro_agressivo_criado), (SELECT id FROM public.salas WHERE descricao LIKE 'Um salão circular%'), id FROM instancia_adaga RETURNING id
   )
 INSERT INTO public.batalhas (id_jogador, id_monstro)
 VALUES
