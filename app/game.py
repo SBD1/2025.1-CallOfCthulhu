@@ -2,7 +2,7 @@ import os
 import sys
 from classes import Player, Corredor, Sala
 from database import DataBase
-import time # Importa o módulo time para usar time.sleep()
+# import time # Importa o módulo time para usar time.sleep()
 
 def clear():
     """Limpa a tela do terminal."""
@@ -10,7 +10,7 @@ def clear():
 
 # --- Função para a introdução do Call of Cthulhu ---
 def display_cthulhu_intro():
-    clear()
+    # clear()
     print(" _____   ___   _      _       ___________   _____ _____ _   _ _   _ _      _   _ _   _ ")
     print("/  __ \\ / _ \\ | |    | |     |  _  |  ___| /  __ \\_   _| | | | | | | |    | | | | | | |")
     print("| /  \\/ /_\\ \\| |    | |     | | | | |_    | /  \\/ | | | |_| | | | | |    | |_| | | | |")
@@ -23,17 +23,17 @@ def display_cthulhu_intro():
 
 
     
-    time.sleep(1) # Pequena pausa para a leitura inicial do título
+    # time.sleep(1) # Pequena pausa para a leitura inicial do título
 
     print("                                            O CHAMADO ECOA...")
-    time.sleep(2)
+    # time.sleep(2)
     print("                           NAS PROFUNDEZAS ESQUECIDAS DO TEMPO E DO ESPAÇO...")
-    time.sleep(2)
+    # time.sleep(2)
     print("                                  UMA ENTIDADE ANTIGA AGUARDA...")
-    time.sleep(2)
+    # time.sleep(2)
     print("                                       E SEU PESADELO COMEÇA.")
-    time.sleep(3) # Pausa mais longa para o impacto final
-    clear() # Limpa a tela antes de ir para o menu principal do jogo
+    # time.sleep(3) # Pausa mais longa para o impacto final
+    # clear() # Limpa a tela antes de ir para o menu principal do jogo
 # --- Fim da função de introdução ---
 
 class Game:
@@ -43,7 +43,7 @@ class Game:
         self.player = None
 
     def create_new_character_flow(self):
-        clear()
+        # clear()
         print("--- Criação de Novo Personagem ---")
         
         new_name = input('Digite o nome do seu personagem: ').strip()
@@ -132,7 +132,7 @@ class Game:
             self.start()
 
     def load_character(self):
-        clear()
+        # clear()
         print("--- Carregar Personagem Existente ---")
         nome = input('Digite o nome do personagem (ou "sair" para voltar ao menu): ').strip()
         
@@ -152,7 +152,7 @@ class Game:
             self.start()
 
     def list_characters(self):
-        clear()
+        # clear()
         print("--- Personagens Salvos ---")
         personagens = self.db._execute_query("SELECT id, nome, ocupacao FROM public.personagens_jogaveis ORDER BY id;", fetch_all=True)
 
@@ -168,7 +168,7 @@ class Game:
     def start(self):
         """Exibe o menu inicial e gerencia as opções do usuário."""
         while True:
-            clear() # Limpa a tela a cada exibição do menu
+            # clear() # Limpa a tela a cada exibição do menu
             print('\n--- Chamado de Cthulhu ---')
             print('Bem-vindo ao jogo! \n')
             print('1 - Criar Personagem')
@@ -223,7 +223,7 @@ class Game:
                 return self.start()
 
             # 2. Mostra o status atual
-            clear()
+            # clear()
             print("==================================================")
             if local_atual == 'sala':
                 print(f"Você está em uma SALA: {detalhes_local['descricao']}")

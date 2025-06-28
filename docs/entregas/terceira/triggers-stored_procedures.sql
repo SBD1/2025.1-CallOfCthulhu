@@ -118,7 +118,7 @@ $func_valida_exclusividade_id_npc$ LANGUAGE plpgsql;
 -------------------------------------------------------------
 -- Valida os dados de entrada de um novo PJ
 -------------------------------------------------------------
-CREATE OR REPLACE FUNCTION public.func_validar_atributos_personagem()
+CREATE FUNCTION public.func_validar_atributos_personagem()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Validação do nome
@@ -139,7 +139,7 @@ $$ LANGUAGE plpgsql;
 -- Ajusta atributos calculados de um novo PJ
 -- Calcula e define os valores derivados
 -------------------------------------------------------------
-CREATE OR REPLACE FUNCTION public.func_ajustar_atributos_personagem()
+CREATE FUNCTION public.func_ajustar_atributos_personagem()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Cálculo do MOVIMENTO
@@ -173,7 +173,7 @@ $$ LANGUAGE plpgsql;
 /*
     Aqui utilizamos 'p' como parametro advindos da interface, e 'v' como variável utilizada somente no escopo da função.
 */
-CREATE OR REPLACE FUNCTION public.sp_criar_personagem(
+CREATE FUNCTION public.sp_criar_personagem(
     p_nome public.nome,
     p_ocupacao public.ocupacao,
     p_residencia public.residencia,
@@ -251,7 +251,7 @@ CREATE TRIGGER trigger_ajustar_atributos_personagem
 --         Este SP é o único ponto de entrada e garante as regras Total, Exclusiva e de Atributos.
 -- ---------------------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION public.sp_criar_monstro(
+CREATE FUNCTION public.sp_criar_monstro(
     -- Parâmetros da tabela pai 'monstros'
     p_nome public.nome,
     p_descricao public.descricao,
@@ -359,7 +359,7 @@ $$ LANGUAGE plpgsql;
 --         Força o uso do Stored Procedure para garantir as regras
 -- ---------------------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION public.func_bloquear_insert_direto_monstro()
+CREATE FUNCTION public.func_bloquear_insert_direto_monstro()
 RETURNS TRIGGER AS $$
 BEGIN
     RAISE EXCEPTION 'Inserção direta não é permitida. Utilize o Stored Procedure "sp_criar_monstro" para criar monstros.';
