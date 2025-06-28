@@ -1,32 +1,55 @@
 /*
 ARQUIVO: triggers-stored_procedures.sql
-VERSÃO: 1.0
+
+VERSÃO: 0.1
 DATA: 28/06/2025
 AUTOR: Wanjo Christopher
-DESCRIÇÃO: Criação dos triggers e stored procedures para a generalização e especialização de personagens jogáveis e NPCs
+DESCRIÇÃO: Criação dos triggers e stored procedures para a generalização e especialização de personagens jogáveis e NPCs.
+
+VERSÃO: 0.2
+DATA: 28/06/2025
+AUTOR: Wanjo Christopher
+DESCRIÇÃO: Criação dos triggers e stored procedures para criação de personagens jogáveis e validação de atributos.
+
+VERSÃO: 0.3
+DATA: 28/06/2025
+AUTOR: Wanjo Christopher
+DESCRIÇÃO: Reorganização do arquivo e do nome das funções e triggers.
+
 */
 
-DROP FUNCTION IF EXISTS public.verifica_personagem_npc_existente() CASCADE;
-DROP TRIGGER IF EXISTS trgg_valida_personagem_jogavel ON public.personagens_jogaveis CASCADE;
-DROP FUNCTION IF EXISTS public.verifica_personagem_jogavel_existente() CASCADE;
-DROP TRIGGER IF EXISTS trgg_valida_npc ON public.npcs CASCADE;
-DROP FUNCTION IF EXISTS public.verificar_atributos_personagem_jogavel() CASCADE;
-DROP TRIGGER IF EXISTS trgg_valida_atributos_personagem_jogavel ON public.personagens_jogaveis CASCADE;
+-- =================================================================================
+--         1. DROP TRIGGER E DROP FUNTIONS
+-- Para que a criação de triggers e funções não gere erros, é necessário remover as existentes
+-- =================================================================================
+
+-- ======== DROP DE TRIGGERS ========
+DROP TRIGGER IF EXISTS trigger_valida_unicidade_personagem_jogavel ON public.personagens_jogaveis CASCADE;
+DROP TRIGGER IF EXISTS trigger_valida_unicidade_npc ON public.npcs CASCADE;
+DROP TRIGGER IF EXISTS trigger_validar_atributos_personagem ON public.personagens_jogaveis CASCADE;
+DROP TRIGGER IF EXISTS trigger_ajustar_atributos_personagem ON public.personagens_jogaveis CASCADE;
+
+-- ======== DROP DE FUNÇÕES ========
+-- Funções de Generalização/Especialização
+DROP FUNCTION IF EXISTS public.func_verifica_personagem_npc_existente() CASCADE;
+DROP FUNCTION IF EXISTS public.func_verifica_personagem_jogavel_existente() CASCADE;
+
+-- Funções de Personagem Jogável
+DROP FUNCTION IF EXISTS public.func_validar_dados_personagem() CASCADE;
+DROP FUNCTION IF EXISTS public.func_ajustar_atributos_personagem() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_personagem(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
 
 
--- ==============================================
-
---          GENERALIZAÇÃO E ESPECIALIZAÇÃO (T,D)
-
--- ==============================================
-
--- ================== PERSONAGENS =================
+-- =================================================================================
+--         2. REGRAS DE PERSONAGENS (GERAL)
+-- Lógica de Generalização e Especialização para garantir a exclusividade
+-- =================================================================================
 
 -------------------------------------------------------------
--- TRIGGER PARA GARANTIR EXCLUSIVIDADE DO PERSONAGEM JOGÁVEL
+-- FUNÇÃO DE TRIGGER: Garante que um PJ não possa ser um NPC
 -------------------------------------------------------------
-CREATE FUNCTION public.verifica_personagem_npc_existente()
-RETURNS TRIGGER AS $verifica_personagem_npc_existente$
+CREATE FUNCTION public.func_verifica_personagem_npc_existente()
+RETURNS TRIGGER AS $func_verifica_personagem_npc_existente$
 BEGIN
     -- Verifica se o ID que está sendo inserido/atualizado em 'personagens_jogaveis' já existe na tabela 'npcs'. 
     PERFORM 1 FROM public.npcs WHERE id = NEW.id;
@@ -39,19 +62,13 @@ BEGIN
     -- Se a verificação passar, retorna a tupla para continuar a operação de INSERT ou UPDATE.
     RETURN NEW;
 END;
-$verifica_personagem_npc_existente$ LANGUAGE plpgsql;
-
--- Trigger que executa a função de verificação em 'personagens_jogaveis'
-CREATE TRIGGER trgg_valida_personagem_jogavel
-    BEFORE INSERT OR UPDATE ON public.personagens_jogaveis
-    FOR EACH ROW EXECUTE FUNCTION public.verifica_personagem_npc_existente();
-
+$func_verifica_personagem_npc_existente$ LANGUAGE plpgsql;
 
 -------------------------------------------------------------
--- TRIGGER PARA GARANTIR EXCLUSIVIDADE DO NPC
+-- FUNÇÃO DE TRIGGER: Garante que um NPC não possa ser um PJ
 -------------------------------------------------------------
-CREATE FUNCTION public.verifica_personagem_jogavel_existente()
-RETURNS TRIGGER AS $verifica_personagem_jogavel_existente$
+CREATE FUNCTION public.func_verifica_personagem_jogavel_existente()
+RETURNS TRIGGER AS $func_verifica_personagem_jogavel_existente$
 BEGIN
     -- Verifica se o ID que está sendo inserido/atualizado em 'npcs' já existe na tabela 'personagens_jogaveis'. 
     PERFORM 1 FROM public.personagens_jogaveis WHERE id = NEW.id;
@@ -64,62 +81,106 @@ BEGIN
     -- Se a verificação passar, retorna a tupla para continuar a operação de INSERT ou UPDATE.
     RETURN NEW;
 END;
-$verifica_personagem_jogavel_existente$ LANGUAGE plpgsql;
-
--- Trigger que executa a função de verificação em 'npcs'
-CREATE TRIGGER trgg_valida_npc
-    BEFORE INSERT OR UPDATE ON public.npcs
-    FOR EACH ROW EXECUTE FUNCTION public.verifica_personagem_jogavel_existente();
+$func_verifica_personagem_jogavel_existente$ LANGUAGE plpgsql;
 
 
+-- =================================================================================
+--         3. REGRAS E PROCEDIMENTOS DE PERSONAGENS JOGÁVEIS (PJ)
+-- =================================================================================
+
+-- ---------------------------------------------------------------------------------
+--         3.1 FUNÇÕES DE TRIGGER PARA PJs
+-- ---------------------------------------------------------------------------------
 
 -------------------------------------------------------------
--- TRIGGER PARA GARANTIR E VALIDAR ATRIBUTOS ESPECÍFICOS DE PERSONAGENS JOGÁVEIS
+-- Valida os dados de entrada de um novo PJ
 -------------------------------------------------------------
-CREATE FUNCTION public.verificar_atributos_personagem_jogavel()
-RETURNS TRIGGER AS $verificar_atributos_personagem_jogavel$
+CREATE OR REPLACE FUNCTION public.func_validar_dados_personagem()
+RETURNS TRIGGER AS $$
 BEGIN
-    -- ======== Validação de campos de texto ========
+    -- Validação do nome
     IF NEW.nome IS NULL OR TRIM(NEW.nome) = '' OR NEW.nome ~ '[0-9]' THEN
-        RAISE EXCEPTION 'O nome do personagem jogável não pode ser nulo, vazio ou conter números.';
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O nome do personagem não pode ser nulo, vazio ou conter números.';
     END IF;
 
-    IF TRIM(NEW.nome) = '' THEN
-        RAISE EXCEPTION 'O campo "nome" do NPC não pode ser nulo ou vazio.';
+    -- Validação de outros campos de texto obrigatórios
+    IF TRIM(NEW.ocupacao) = '' OR TRIM(NEW.residencia) = '' OR TRIM(NEW.local_nascimento) = '' THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: Os campos "ocupacao", "residencia" e "local_nascimento" não podem ser nulos ou vazios.';
     END IF;
-
-    IF TRIM(NEW.descricao) = '' THEN
-        RAISE EXCEPTION 'O campo "descricao" do NPC não pode ser nulo ou vazio.';
-    END IF;
-
-    IF TRIM(NEW.residencia) = '' OR TRIM(NEW.local_nascimento) = '' THEN
-        RAISE EXCEPTION 'Os campos "residencia" e "local_nascimento" do NPC não podem ser nulos ou vazios.';
-    END IF;
-
-    -- ======== Validação de campos de atributos derivados ========
-    -- Calcular o MOVIMENTO com base na Força, Destreza e Tamanho.
-    IF NEW.destreza < NEW.tamanho AND NEW.forca < NEW.tamanho THEN
-        NEW.movimento := 7;
-    ELSIF NEW.destreza > NEW.tamanho AND NEW.forca > NEW.tamanho THEN
-        NEW.movimento := 9;
-    ELSE
-        NEW.movimento := 8;
-    END IF;
-    
-    -- Calcular Sanidade, Vida e PM iniciais usando as funções do seu DDL.
-    NEW.sanidade_atual := public.calcular_sanidade(NEW.poder);
-    NEW.pontos_de_vida_atual := public.calcular_pts_de_vida(NEW.constituicao, NEW.tamanho);
-    NEW.pm_base := NEW.poder;
-    NEW.pm_max := NEW.poder;
 
     RETURN NEW;
 END;
-$verificar_atributos_personagem_jogavel$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
--- Trigger que executa a função de verificação em 'personagens_jogaveis'
-CREATE TRIGGER trgg_valida_atributos_personagem_jogavel
+----p
+
+-- ---------------------------------------------------------------------------------
+--         3.2 STORED PROCEDURE PARA CRIAÇÃO DE PJs
+-- ---------------------------------------------------------------------------------
+
+/*
+    Aqui utilizamos 'p' como parametro advindos da interface, e 'v' como variável utilizada somente no escopo da função.
+*/
+CREATE OR REPLACE FUNCTION public.sp_criar_personagem(
+    p_nome public.nome,
+    p_ocupacao public.ocupacao,
+    p_residencia public.residencia,
+    p_local_nascimento public.local_nascimento,
+    p_idade public.idade,
+    p_sexo public.sexo
+)
+RETURNS public.id_personagem_jogavel AS $$
+DECLARE
+    v_novo_inventario_id public.id_inventario;
+    v_novo_personagem_id public.id_personagem_jogavel;
+BEGIN
+    -- Cria o inventário.
+    INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id INTO v_novo_inventario_id;
+
+    -- Insere dados básicos. O resto é feito pelo DEFAULT e pelo TRIGGER.
+    INSERT INTO public.personagens_jogaveis (
+        nome, ocupacao, residencia, local_nascimento, idade, sexo,
+        id_inventario, id_sala -- Valores iniciais de localização
+    ) VALUES (
+        p_nome, p_ocupacao, p_residencia, p_local_nascimento, p_idade, p_sexo,
+        v_novo_inventario_id, 40300002 -- Sala inicial padrão
+    ) RETURNING id INTO v_novo_personagem_id;
+
+    RETURN v_novo_personagem_id;
+
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- =================================================================================
+--         4. REGRAS E PROCEDIMENTOS DE NPCs
+-- =================================================================================
+
+-- EM CONSTRUÇÃO 
+
+
+-- =================================================================================
+--         5. CRIAÇÃO DOS TRIGGERS
+-- =================================================================================
+
+-- ======== TRIGGERS DE PERSONAGENS (GERAL) ========
+
+-- Executa a função de verificação de exclusividade em 'personagens_jogaveis'
+CREATE TRIGGER trigger_valida_unicidade_personagem_jogavel
     BEFORE INSERT OR UPDATE ON public.personagens_jogaveis
-    FOR EACH ROW EXECUTE FUNCTION public.verificar_atributos_personagem_jogavel();
+    FOR EACH ROW EXECUTE FUNCTION public.func_verifica_personagem_npc_existente();
+
+-- Executa a função de verificação de exclusividade em 'npcs'
+CREATE TRIGGER trigger_valida_unicidade_npc
+    BEFORE INSERT OR UPDATE ON public.npcs
+    FOR EACH ROW EXECUTE FUNCTION public.func_verifica_personagem_jogavel_existente();
 
 
--- 
+-- ======== TRIGGERS DE PERSONAGENS JOGÁVEIS ========
+
+-- Valida os dados de entrada de um novo personagem jogável
+CREATE TRIGGER trigger_validar_atributos_personagem
+    BEFORE INSERT ON public.personagens_jogaveis
+    FOR EACH ROW EXECUTE FUNCTION public.func_validar_dados_personagem();
+
+
