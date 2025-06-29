@@ -26,6 +26,12 @@ DATA: 28/06/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Adição das funções e triggers para validação e criação de NPCs, e correção no DROP FUNCTION.
 
+VERSÃO: 0.6
+DATA: 28/06/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Criação de triggers e stored procedures para missões, incluindo validações de regras de negócio e exclusividade.
+
+
 */
 /*
 -- =================================================================================
@@ -54,6 +60,9 @@ DROP TRIGGER IF EXISTS trigger_valida_atributos_pacifico ON public.pacificos CAS
 DROP TRIGGER IF EXISTS trigger_bloqueia_insert_monstros ON public.monstros CASCADE;
 DROP TRIGGER IF EXISTS trigger_bloqueia_insert_agressivos ON public.agressivos CASCADE;
 DROP TRIGGER IF EXISTS trigger_bloqueia_insert_pacificos ON public.pacificos CASCADE;
+
+-- Triggers de missões
+DROP TRIGGER IF EXISTS trigger_validar_dados_missao ON public.missoes CASCADE;
 
 -- ======== DROP DE FUNÇÕES ========
 -- Funções de Generalização/Especialização
@@ -97,6 +106,10 @@ DROP FUNCTION IF EXISTS public.sp_criar_monstro(
     CHARACTER(128),
     CHARACTER(128)
 ) CASCADE;
+
+-- Funções de missões
+DROP FUNCTION IF EXISTS public.func_validar_dados_missao() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), public.tipo_missao, CHARACTER(128), public.id_personagem_npc) CASCADE;
 
 
 -- =================================================================================
@@ -468,3 +481,93 @@ CREATE TRIGGER trigger_bloqueia_insert_agressivos
 CREATE TRIGGER trigger_bloqueia_insert_pacificos
     BEFORE INSERT ON public.pacificos
     FOR EACH ROW EXECUTE FUNCTION public.func_bloquear_insert_direto_monstro();
+
+/*
+=================================================================================
+        4. LÓGICA PARA MISSÕES
+=================================================================================
+*/
+
+-- =================================================================================
+--         4.1. FUNÇÕES DE TRIGGER PARA MISSÕES
+-- =================================================================================
+
+-------------------------------------------------------------
+-- FUNÇÃO DE TRIGGER: Valida os dados de uma nova Missão
+-------------------------------------------------------------
+CREATE FUNCTION public.func_validar_dados_missao()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- 1. Validação dos campos de texto obrigatórios
+    IF NEW.nome IS NULL OR TRIM(NEW.nome) = '' THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O nome da missão não pode ser nulo ou vazio.';
+    END IF;
+
+    IF NEW.descricao IS NULL OR TRIM(NEW.descricao) = '' THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A descrição da missão não pode ser nula ou vazia.';
+    END IF;
+
+    -- 2. Validação da existência do NPC
+    -- Garante que o NPC que entrega a missão realmente existe.
+    IF NOT EXISTS (SELECT 1 FROM public.npcs WHERE id = NEW.id_npc) THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA DE FK: O NPC com ID % não existe. Não é possível criar uma missão para um NPC inexistente.', NEW.id_npc;
+    END IF;
+    
+    -- 3. Validação do tipo de missão (embora o DOMAIN já faça isso, é uma boa prática reforçar)
+    IF NEW.tipo IS NULL THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O tipo da missão não pode ser nulo.';
+    END IF;
+
+    -- Se todas as validações passarem, permite a operação.
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- =================================================================================
+--         4.2. STORED PROCEDURE PARA CRIAÇÃO DE MISSÕES
+-- =================================================================================
+
+-------------------------------------------------------------
+-- STORED PROCEDURE: Facilita a criação de novas missões
+-------------------------------------------------------------
+CREATE FUNCTION public.sp_criar_missao(
+    p_nome public.nome,
+    p_descricao CHARACTER(512),
+    p_tipo public.tipo_missao,
+    p_ordem CHARACTER(128),
+    p_id_npc public.id_personagem_npc
+)
+RETURNS public.id_missao AS $$
+DECLARE
+    v_nova_missao_id public.id_missao;
+BEGIN
+    -- A inserção irá automaticamente disparar a trigger 'trigger_validar_dados_missao'
+    -- para garantir a integridade dos dados antes de confirmar a operação.
+    INSERT INTO public.missoes (
+        nome,
+        descricao,
+        tipo,
+        ordem,
+        id_npc
+    ) VALUES (
+        p_nome,
+        p_descricao,
+        p_tipo,
+        p_ordem,
+        p_id_npc
+    ) RETURNING id INTO v_nova_missao_id;
+
+    RETURN v_nova_missao_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- =================================================================================
+--         4.3. CRIAÇÃO DO TRIGGER DE MISSÃO
+-- =================================================================================
+
+-- Trigger que executa a função de validação antes de inserir ou atualizar uma missão.
+CREATE TRIGGER trigger_validar_dados_missao
+    BEFORE INSERT OR UPDATE ON public.missoes
+    FOR EACH ROW EXECUTE FUNCTION public.func_validar_dados_missao();
