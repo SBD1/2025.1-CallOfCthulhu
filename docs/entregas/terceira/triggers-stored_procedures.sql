@@ -21,6 +21,16 @@ DATA: 28/06/2025
 AUTOR: Wanjo Christopher
 DESCRIÇÃO: Criação de stored procedure para criação de monstros, com validações de regras de negócio e exclusividade.
 
+VERSÃO: 0.5
+DATA: 28/06/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Adição das funções e triggers para validação e criação de NPCs, e correção no DROP FUNCTION.
+
+*/
+/*
+-- =================================================================================
+Comentário:
+-- =================================================================================
 */
 
 -- =================================================================================
@@ -34,6 +44,7 @@ DROP TRIGGER IF EXISTS trigger_valida_unicidade_personagem_jogavel ON public.per
 DROP TRIGGER IF EXISTS trigger_valida_unicidade_npc ON public.npcs CASCADE;
 DROP TRIGGER IF EXISTS trigger_validar_atributos_personagem ON public.personagens_jogaveis CASCADE;
 DROP TRIGGER IF EXISTS trigger_ajustar_atributos_personagem ON public.personagens_jogaveis CASCADE;
+DROP TRIGGER IF EXISTS trigger_validar_atributos_npc ON public.npcs CASCADE;
 
 -- Triggers de monstros agressivos e pacíficos
 DROP TRIGGER IF EXISTS trigger_valida_exclusividade_agressivo ON public.agressivos CASCADE;
@@ -56,6 +67,11 @@ DROP FUNCTION IF EXISTS public.func_validar_atributos_personagem() CASCADE;
 DROP FUNCTION IF EXISTS public.func_ajustar_atributos_personagem() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_personagem(public.nome, public.ocupacao, public.residencia,
  public.local_nascimento, public.idade, public.sexo) CASCADE;
+
+-- Funções de NPC
+DROP FUNCTION IF EXISTS public.func_validar_atributos_npc() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_npc(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
+
 
 -- Funções de monstros agressivos e pacíficos
 DROP FUNCTION IF EXISTS public.func_valida_atributos_monstro_agressivo() CASCADE;
@@ -228,8 +244,54 @@ $$ LANGUAGE plpgsql;
 --         2.2. REGRAS E PROCEDIMENTOS DE NPCs
 -- =================================================================================
 
--- EM CONSTRUÇÃO 
+-------------------------------------------------------------
+-- 2.2.1 FUNÇÃO DE TRIGGER: Valida os dados de entrada de um novo NPC
+-------------------------------------------------------------
 
+CREATE FUNCTION public.func_validar_atributos_npc() RETURNS TRIGGER AS $$
+BEGIN
+    -- Validação do nome (similar ao PJ)
+    IF NEW.nome IS NULL OR TRIM(NEW.nome) = '' OR NEW.nome ~ '[0-9]' THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O nome do NPC não pode ser nulo, vazio ou conter números.';
+    END IF;
+
+    -- Validação de outros campos de texto obrigatórios
+    IF TRIM(NEW.ocupacao) = '' OR TRIM(NEW.residencia) = '' OR TRIM(NEW.local_nascimento) = '' THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: Os campos "ocupacao", "residencia" e "local_nascimento" do NPC não podem ser nulos ou vazios.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-------------------------------------------------------------
+-- 2.2.2 STORED PROCEDURE: Criação de NPCs
+-------------------------------------------------------------
+
+CREATE FUNCTION public.sp_criar_npc(
+    p_nome public.nome,
+    p_ocupacao public.ocupacao,
+    p_residencia public.residencia,
+    p_local_nascimento public.local_nascimento,
+    p_idade public.idade,
+    p_sexo public.sexo
+)
+RETURNS public.id_personagem_npc AS $$
+DECLARE
+    v_novo_npc_id public.id_personagem_npc;
+BEGIN
+    -- Insere os dados do NPC. NPCs não têm atributos calculados complexos nem inventário inicial.
+    INSERT INTO public.npcs (
+        nome, ocupacao, residencia, local_nascimento, idade, sexo,
+        id_sala -- Localização inicial
+    ) VALUES (
+        p_nome, p_ocupacao, p_residencia, p_local_nascimento, p_idade, p_sexo,
+        40300003 -- Sala inicial padrão para NPCs (exemplo)
+    ) RETURNING id INTO v_novo_npc_id;
+
+    RETURN v_novo_npc_id;
+END;
+$$ LANGUAGE plpgsql;
 
 -- =================================================================================
 --         2.3. CRIAÇÃO DOS TRIGGERS
@@ -259,6 +321,11 @@ CREATE TRIGGER trigger_validar_atributos_personagem
 CREATE TRIGGER trigger_ajustar_atributos_personagem
     BEFORE INSERT ON public.personagens_jogaveis
     FOR EACH ROW EXECUTE FUNCTION public.func_ajustar_atributos_personagem();
+
+-- ======== TRIGGER DE NPCS (NOVO) ========
+CREATE TRIGGER trigger_validar_atributos_npc
+    BEFORE INSERT ON public.npcs
+    FOR EACH ROW EXECUTE FUNCTION public.func_validar_atributos_npc();
 
 /*
 =================================================================================
