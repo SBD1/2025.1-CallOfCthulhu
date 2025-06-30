@@ -11,7 +11,7 @@ Versão: 0.2
 Data: 28/06/2025
 Descrição: Atualizando DQL para refletir a unificação de 'salas' e 'corredores' na tabela 'public.local'.
            Correção de erros de sintaxe em consultas de item e feitiço.
-Autor: Luiz Guilherme, Gemini
+Autor: Luiz Guilherme
 
 */
 

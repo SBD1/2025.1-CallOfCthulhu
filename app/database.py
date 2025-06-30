@@ -313,12 +313,12 @@ class DataBase:
             l.descricao,
             l.tipo_local,
             l.status,
-            l.sul AS id_sul,
-            l.norte AS id_norte,
-            l.leste AS id_leste,
-            l.oeste AS id_oeste,
-            l.cima AS id_cima,
-            l.baixo AS id_baixo
+            l.local_sul AS id_sul,
+            l.local_norte AS id_norte,
+            l.local_leste AS id_leste,
+            l.local_oeste AS id_oeste,
+            l.local_cima AS id_cima,
+            l.local_baixo AS id_baixo
         FROM
             public.local l
         WHERE

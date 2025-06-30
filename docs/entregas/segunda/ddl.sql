@@ -69,6 +69,11 @@ Data: 14/06/2025
 Descrição: Adicionando geradores de IDs para as tabelas do banco de dados
 Autor: Luiz Guilherme
 
+Versão 1.1
+Data: 30/06/2025
+Descrição: Adicionando a tabela local e removendo as tabelas de corredores e salas
+Autores: Luiz Guilherme e Cayo
+
 
 */
 
@@ -1126,8 +1131,8 @@ CREATE TABLE public.andares(
     descricao public.descricao NOT NULL,
 
     -- FOREIGN KEYS
-    id_templo public.id_templo NOT NULL DEFAULT public.gerar_id_templo(),
-    sala_inicial public.id_local NOT NULL
+    id_templo public.id_templo NOT NULL DEFAULT public.gerar_id_templo()
+    -- sala_inicial public.id_local NOT NULL
 );
     --TABELA LOCAL
 CREATE TABLE public.local(
@@ -1135,13 +1140,15 @@ CREATE TABLE public.local(
     descricao public.descricao NOT NULL,
     tipo_local CHARACTER VARYING(8) NOT NULL,
     status BOOLEAN,
+
     --FOREIGN KEY
-    sul public.id_local, 
-    norte public.id_local,
-    leste public.id_local,
-    oeste public.id_local,
-    cima public.id_local,
-    baixo public.id_local
+    local_sul public.id_local, 
+    local_norte public.id_local,
+    local_leste public.id_local,
+    local_oeste public.id_local,
+    local_cima public.id_local,
+    local_baixo public.id_local,
+    andar public.id_andar NOT NULL
 );
 
 
@@ -1462,12 +1469,51 @@ ALTER TABLE public.andares
 ADD CONSTRAINT fk_andares_templo 
     FOREIGN KEY (id_templo) 
     REFERENCES public.templos (id);
+/*
 
 ALTER TABLE public.andares 
-ADD CONSTRAINT fk_andares_salas 
+ADD CONSTRAINT fk_andares_local
     FOREIGN KEY (sala_inicial) 
     REFERENCES public.local (id);
 
+*/
+
+-- LOCAIS
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_sul_local 
+    FOREIGN KEY (local_sul) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_norte_local 
+    FOREIGN KEY (local_norte) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_leste_local 
+    FOREIGN KEY (local_leste) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_oeste_local 
+    FOREIGN KEY (local_oeste) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_cima_local 
+    FOREIGN KEY (local_cima) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_baixo_local 
+    FOREIGN KEY (local_baixo) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_andar
+    FOREIGN KEY (andar) 
+    REFERENCES public.andares (id);
 
 -- CURAS
 
