@@ -68,6 +68,20 @@ Data: 01/07/2025
 Descrição: Insere as conexões entre salas e corredores do mapa até a sala 8
 Autor: Wanjo Christopher
 
+Versão: 1.4
+Data: 01/07/2025
+Descrição: Adicionado tipo feitiço
+Autores: João Marcos e Luiz Guilherme
+
+Versão: 1.5
+Data: 01/07/2025
+Descrição: Refatoração completa dos INSERTs para se alinhar com as correções do DDL e garantir a integridade dos dados. As principais mudanças foram:
+- Implementação de um novo padrão transacional com 'BEGIN/COMMIT' para a inserção de todos os tipos de itens, garantindo a lógica de herança correta (inserção em tabela filha e depois na pai).
+- Correção nos 'INSERT's de 'feiticos_status' e 'feiticos_dano' para incluir a referência ao 'id_tipo_feitico'.
+- Substituição do bloco de inserção de monstros e da 'Adaga Simples' para utilizar os novos padrões de DML.
+- Ajuste na criação de itens mágicos para referenciar um feitiço específico em vez de um tipo de feitiço genérico.
+Autor: João Marcos, Luiz Guilherme.
+
 */
 -- ===============================================
 
@@ -77,6 +91,7 @@ Autor: Wanjo Christopher
 
 INSERT INTO public.tipos_personagem (tipo) VALUES ('personagem jogavel'), ('NPC');
 INSERT INTO public.tipos_monstro (tipo) VALUES ('agressivo'), ('pacífico');
+INSERT INTO public.tipos_feitico (tipo) VALUES ('status'), ('dano');
 
 -- ===============================================
 
@@ -441,35 +456,57 @@ SELECT 1;
 
 -- ===============================================
 
--- ADIÇÃO NA TABELA DE MONSTROS E ITENS
+--       ADIÇÃO NAS TABELAS DE FEITIÇOS 
 
 -- ===============================================
 
-WITH
-  monstro_agressivo AS (
-    INSERT INTO public.agressivos (nome, descricao, defesa, vida, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
-    VALUES ('Abominável Horror', 'Criatura grotesca que se esconde nas sombras...', 10, 50, 'proximidade', 15, 'psiquico', 5, 20, 10, 30) RETURNING id
-  ),
-  monstro_pacifico AS (
-    INSERT INTO public.pacificos (nome, descricao, defesa, vida, motivo_passividade, tipo_pacifico)
-    VALUES ('Espírito Guardião', 'Um espírito antigo que protege certas áreas...', 5, 30, 'indiferente', 'sobrenatural') RETURNING id
-  ),
-  item_adaga AS (
-    INSERT INTO public.itens (tipo, nome, descricao, valor)
-    VALUES ('arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5) RETURNING id
-  ),
-  instancia_adaga AS (
-    INSERT INTO public.instancias_de_itens (durabilidade, id_item, id_local)
-    SELECT 100, id, (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%' AND tipo_local = 'Sala') FROM item_adaga RETURNING id
-  ),
-  instancia_monstro AS (
-    INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
-    SELECT (SELECT id FROM monstro_agressivo), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%' AND tipo_local = 'Sala'), id FROM instancia_adaga RETURNING id
-  ),
-  batalhas_inseridas AS (
-    INSERT INTO public.batalhas (id_jogador, id_monstro)
-    VALUES
-        ((SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'), (SELECT id FROM instancia_monstro))
-    RETURNING id_jogador
-  )
-SELECT 1;
+-- Adicionando feitiços, agora referenciando o ID do tipo corretamente.
+-- O ID do feitiço em si será gerado automaticamente (ex: 60100001)
+INSERT INTO public.feiticos_status (nome, descricao, qtd_pontos_de_magia, buff_debuff, qtd_buff_debuff, status_afetado, id_tipo_feitico)
+VALUES ('Bênção da Coragem', 'Aumenta temporariamente a sanidade do alvo.', 10, TRUE, 5, 'sanidade', 1); -- 1 = status
+
+INSERT INTO public.feiticos_dano (nome, descricao, qtd_pontos_de_magia, tipo_dano, qtd_dano, id_tipo_feitico)
+VALUES ('Toque da Agonia', 'Causa dano psíquico direto na mente do alvo.', 15, 'unico', 8, 2); -- 2 = dano
+
+
+-- ===============================================
+
+-- ADIÇÃO DE MONSTROS, ITENS E BATALHAS 
+
+-- ===============================================
+
+-- Inserindo monstros (não precisam de transação especial)
+INSERT INTO public.agressivos (nome, descricao, defesa, vida, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
+VALUES ('Abominável Horror', 'Criatura grotesca que se esconde nas sombras...', 10, 50, 'proximidade', 15, 'psiquico', 5, 20, 10, 30);
+
+INSERT INTO public.pacificos (nome, descricao, defesa, vida, motivo_passividade, tipo_pacifico)
+VALUES ('Espírito Guardião', 'Um espírito antigo que protege certas áreas...', 5, 30, 'indiferente', 'sobrenatural');
+
+-- Inserindo a "Adaga Simples" e sua instância
+BEGIN;
+WITH adaga_criada AS (
+  INSERT INTO public.armas (atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_dano, dano, id_pericia_necessaria)
+  VALUES ('destreza', 7, 80, 'corpo_a_corpo_leve', 1, 'unico', 4, (SELECT id FROM public.pericias WHERE nome = 'Briga'))
+  RETURNING id
+)
+INSERT INTO public.itens (id, tipo, nome, descricao, valor)
+VALUES ((SELECT id FROM adaga_criada), 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);
+COMMIT;
+
+INSERT INTO public.instancias_de_itens (durabilidade, id_item, id_local)
+VALUES (80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'));
+
+-- Inserindo a instância do monstro com a instância do item
+INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
+
+-- Inserindo a batalha
+INSERT INTO public.batalhas (id_jogador, id_monstro)
+SELECT
+    (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
+    (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'));
+
+
