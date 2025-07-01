@@ -69,6 +69,15 @@ Data: 14/06/2025
 Descrição: Adicionando geradores de IDs para as tabelas do banco de dados
 Autor: Luiz Guilherme
 
+Versão 1.1
+Data: 30/06/2025
+Descrição: Adicionando a tabela local e removendo as tabelas de corredores e salas
+Autores: Luiz Guilherme e Cayo
+
+Versão 1.2
+Data: 01/07/2025
+Descrição: Adiciona chaves estrangeiras na tabela de locais para inserção de mais movimentações
+Autores: Wanjo Christopher
 
 */
 
@@ -365,7 +374,7 @@ DROP DOMAIN IF EXISTS public.id_item_arma;
 DROP DOMAIN IF EXISTS public.id_localizacao;
 DROP DOMAIN IF EXISTS public.id_templo;
 DROP DOMAIN IF EXISTS public.id_andar;
-DROP DOMAIN IF EXISTS public.id_sala;
+DROP DOMAIN IF EXISTS public.id_local;
 DROP DOMAIN IF EXISTS public.id_corredor;
 DROP DOMAIN IF EXISTS public.id_missao;
 DROP DOMAIN IF EXISTS public.id_feitico;
@@ -674,17 +683,11 @@ CREATE DOMAIN public.id_andar AS public.id_localizacao
 
 -- CRIAÇÃO DO DOMÍNIO DAS SALAS
 -- TODA SALA TEM ID QUE COMEÇA COM 0403
-CREATE DOMAIN public.id_sala AS public.id_localizacao
-    CONSTRAINT id_sala_check CHECK (
+CREATE DOMAIN public.id_local AS public.id_localizacao
+    CONSTRAINT id_local_check CHECK (
         VALUE BETWEEN 40300000 AND 40399999
 );
 
--- CRIAÇÃO DO DOMÍNIO DOS CORREDORES
--- TODO CORREDOR TEM ID QUE COMEÇA COM 0404
-CREATE DOMAIN public.id_corredor AS public.id_localizacao
-    CONSTRAINT id_corredor_check CHECK (
-        VALUE BETWEEN 40400000 AND 40499999
-);
 
 -- ========== IDS PARA MISSÕES =========
 
@@ -933,25 +936,15 @@ BEGIN
 END;
     $gerar_id_andar$ LANGUAGE plpgsql;
 
--- GERA O ID DO PRÓXIMO ITEM DE SALA SEGUINDO O PADRÃO DE IDS
-CREATE SEQUENCE public.sala_id_seq START WITH 1;
+-- GERA O ID DO PRÓXIMO ITEM DE LOCAL SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.local_id_seq START WITH 1;
 
-CREATE FUNCTION public.gerar_id_sala()
-RETURNS BIGINT AS $gerar_id_sala$
+CREATE FUNCTION public.gerar_id_local()
+RETURNS BIGINT AS $gerar_id_local$
 BEGIN
-    RETURN 40300000 + nextval('public.sala_id_seq');
+    RETURN 40300000 + nextval('public.local_id_seq');
 END;
-    $gerar_id_sala$ LANGUAGE plpgsql;
-
--- GERA O ID DO PRÓXIMO ITEM DE CORREDOR SEGUINDO O PADRÃO DE IDS
-CREATE SEQUENCE public.corredor_id_seq START WITH 1;
-
-CREATE FUNCTION public.gerar_id_corredor()
-RETURNS BIGINT AS $gerar_id_corredor$
-BEGIN
-    RETURN 40400000 + nextval('public.corredor_id_seq');
-END;
-    $gerar_id_corredor$ LANGUAGE plpgsql;
+    $gerar_id_local$ LANGUAGE plpgsql;
 
 -- GERA O ID DO PRÓXIMO ITEM DE MISSÃO SEGUINDO O PADRÃO DE IDS
 CREATE SEQUENCE public.missao_id_seq START WITH 1;
@@ -1082,8 +1075,7 @@ CREATE TABLE public.personagens_jogaveis(
     pontos_de_vida_atual SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_sala public.id_sala,  
-    id_corredor public.id_corredor, 
+    id_local public.id_local,  
     id_inventario public.id_inventario NOT NULL, 
     id_armadura public.id_item_de_armadura, 
     id_arma public.id_item_arma
@@ -1113,8 +1105,7 @@ CREATE TABLE public.npcs(
     local_nascimento public.local_nascimento DEFAULT 'arkham' NOT NULL,
 
     -- FOREIGN KEYS
-    id_sala public.id_sala, 
-    id_corredor public.id_corredor
+    id_local public.id_local
     -- id_tipo_personagem public.id NOT NULL
 );
 
@@ -1144,20 +1135,30 @@ CREATE TABLE public.andares(
     descricao public.descricao NOT NULL,
 
     -- FOREIGN KEYS
-    id_templo public.id_templo NOT NULL DEFAULT public.gerar_id_templo(),
-    sala_inicial public.id_sala NOT NULL
+    id_templo public.id_templo NOT NULL DEFAULT public.gerar_id_templo()
+    -- sala_inicial public.id_local NOT NULL
+);
+    --TABELA LOCAL
+CREATE TABLE public.local(
+    id public.id_local NOT NULL PRIMARY KEY DEFAULT public.gerar_id_local(),
+    descricao public.descricao NOT NULL,
+    tipo_local CHARACTER VARYING(8) NOT NULL,
+    status BOOLEAN,
+
+    --FOREIGN KEY
+    local_norte public.id_local,
+    local_sul public.id_local, 
+    local_leste public.id_local,
+    local_oeste public.id_local,
+    local_nordeste public.id_local,
+    local_noroeste public.id_local,
+    local_sudeste public.id_local,
+    local_sudoeste public.id_local,
+    local_cima public.id_local,
+    local_baixo public.id_local,
+    andar public.id_andar NOT NULL
 );
 
-CREATE TABLE public.salas(
-    id public.id_sala NOT NULL PRIMARY KEY DEFAULT public.gerar_id_sala(),
-    descricao public.descricao NOT NULL
-);
-
-CREATE TABLE public.corredores(
-    id public.id_corredor NOT NULL PRIMARY KEY DEFAULT public.gerar_id_corredor(),
-    status BOOLEAN NOT NULL,
-    descricao public.descricao NOT NULL
-);
 
 CREATE TABLE public.pericias(
     id public.id_pericia NOT NULL PRIMARY KEY DEFAULT public.gerar_id_pericia(),
@@ -1202,8 +1203,7 @@ CREATE TABLE public.instancias_monstros(
 
     -- FOREING KEYS
     id_instancia_de_item public.id_instancia_de_item NOT NULL,
-    id_sala public.id_sala,  
-    id_corredor public.id_corredor,
+    id_local public.id_local,  
     id_monstro public.id_monstro NOT NULL
 );
 
@@ -1298,7 +1298,7 @@ CREATE TABLE public.instancias_de_itens(
     durabilidade SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_sala public.id_sala,
+    id_local public.id_local,
     id_missao_requer public.id_missao,
     id_missao_recompensa public.id_missao,
     id_item public.id_item NOT NULL
@@ -1347,11 +1347,7 @@ CREATE TABLE public.entregas_missoes(
     PRIMARY KEY (id_jogador, id_npc)
 );
 
-CREATE TABLE public.corredores_salas_destino(
-    id_sala public.id_sala NOT NULL,
-    id_corredor public.id_corredor NOT NULL, 
-    PRIMARY KEY (id_sala, id_corredor)
-);
+
 
 CREATE TABLE public.inventarios_possuem_instancias_item(
     id_instancias_de_item public.id_instancia_de_item NOT NULL,
@@ -1399,20 +1395,6 @@ FROM
 Essas próximas três restrições garantem que o personagem ou NPC não esteja em uma sala ou corredor ao mesmo tempo, ou não esteja em nenhum dos dois ao mesmo tempo
 */
 
-ALTER TABLE public.personagens_jogaveis
-ADD CONSTRAINT chk_pj_local_exclusivo
-    CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
-            (id_sala IS NULL AND id_corredor IS NOT NULL));
-
-ALTER TABLE public.npcs
-ADD CONSTRAINT chk_pj_local_exclusivo
-    CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
-            (id_sala IS NULL AND id_corredor IS NOT NULL));  
-
-ALTER TABLE public.instancias_monstros
-ADD CONSTRAINT chk_pj_local_exclusivo
-    CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
-            (id_sala IS NULL AND id_corredor IS NOT NULL)); 
 
 -- ===============================================
 
@@ -1432,13 +1414,8 @@ ADD CONSTRAINT fk_pj_inventario
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);
-
-ALTER TABLE public.personagens_jogaveis 
-ADD CONSTRAINT fk_pj_corredores 
-    FOREIGN KEY (id_corredor) 
-    REFERENCES public.corredores (id);
+    FOREIGN KEY (id_local) 
+    REFERENCES public.local (id);
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_inventario_instancia_arma
@@ -1475,13 +1452,8 @@ ADD CONSTRAINT  fk_personagens_possuem_pericias_pericia
 
 ALTER TABLE public.npcs 
 ADD CONSTRAINT fk_npcs_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);
-
-ALTER TABLE public.npcs 
-ADD CONSTRAINT fk_npcs_corredores 
-    FOREIGN KEY (id_corredor) 
-    REFERENCES public.corredores (id);
+    FOREIGN KEY (id_local) 
+    REFERENCES public.local (id);
 
 /*
 
@@ -1505,22 +1477,51 @@ ALTER TABLE public.andares
 ADD CONSTRAINT fk_andares_templo 
     FOREIGN KEY (id_templo) 
     REFERENCES public.templos (id);
+/*
 
 ALTER TABLE public.andares 
-ADD CONSTRAINT fk_andares_salas 
+ADD CONSTRAINT fk_andares_local
     FOREIGN KEY (sala_inicial) 
-    REFERENCES public.salas (id);
+    REFERENCES public.local (id);
 
--- CORREDORES E SALAS
-ALTER TABLE public.corredores_salas_destino 
-ADD CONSTRAINT fk_corredores_salas_destino_corredores 
-    FOREIGN KEY (id_corredor) 
-    REFERENCES public.corredores (id);
+*/
 
-ALTER TABLE public.corredores_salas_destino 
-ADD CONSTRAINT fk_corredores_salas_destino_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);
+-- LOCAIS
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_sul_local 
+    FOREIGN KEY (local_sul) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_norte_local 
+    FOREIGN KEY (local_norte) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_leste_local 
+    FOREIGN KEY (local_leste) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_oeste_local 
+    FOREIGN KEY (local_oeste) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_cima_local 
+    FOREIGN KEY (local_cima) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_baixo_local 
+    FOREIGN KEY (local_baixo) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_andar
+    FOREIGN KEY (andar) 
+    REFERENCES public.andares (id);
 
 -- CURAS
 
@@ -1571,13 +1572,8 @@ ADD CONSTRAINT fk_feiticos_dano_tipo_feitico
 
 ALTER TABLE public.instancias_monstros 
 ADD CONSTRAINT fk_instancias_monstro_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);
-
-ALTER TABLE public.instancias_monstros 
-ADD CONSTRAINT fk_instancias_monstro_corredores 
-    FOREIGN KEY (id_corredor) 
-    REFERENCES public.corredores (id);
+    FOREIGN KEY (id_local) 
+    REFERENCES public.local (id);
 
 ALTER TABLE public.instancias_monstros
 ADD CONSTRAINT fk_instancias_monstro_instancia_de_item 
@@ -1648,8 +1644,8 @@ ADD CONSTRAINT fk_instancias_de_item_itens
 
 ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_item_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);  
+    FOREIGN KEY (id_local) 
+    REFERENCES public.local (id);  
 
 -- ARMADURAS
 
