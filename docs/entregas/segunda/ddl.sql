@@ -74,6 +74,10 @@ Data: 30/06/2025
 Descrição: Adicionando a tabela local e removendo as tabelas de corredores e salas
 Autores: Luiz Guilherme e Cayo
 
+Versão 1.2
+Data: 01/07/2025
+Descrição: Adiciona chaves estrangeiras na tabela de locais para inserção de mais movimentações
+Autores: Wanjo Christopher
 
 */
 
@@ -1142,10 +1146,14 @@ CREATE TABLE public.local(
     status BOOLEAN,
 
     --FOREIGN KEY
-    local_sul public.id_local, 
     local_norte public.id_local,
+    local_sul public.id_local, 
     local_leste public.id_local,
     local_oeste public.id_local,
+    local_nordeste public.id_local,
+    local_noroeste public.id_local,
+    local_sudeste public.id_local,
+    local_sudoeste public.id_local,
     local_cima public.id_local,
     local_baixo public.id_local,
     andar public.id_andar NOT NULL

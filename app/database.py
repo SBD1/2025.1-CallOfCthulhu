@@ -317,6 +317,10 @@ class DataBase:
             l.local_norte AS id_norte,
             l.local_leste AS id_leste,
             l.local_oeste AS id_oeste,
+            l.local_noroeste AS id_noroeste,
+            l.local_nordeste AS id_nordeste,
+            l.local_sudeste AS id_sudeste,
+            l.local_sudoeste AS id_sudoeste,
             l.local_cima AS id_cima,
             l.local_baixo AS id_baixo
         FROM
@@ -338,6 +342,14 @@ class DataBase:
             saidas_raw.append({'id_saida': local_data['id_leste'], 'direcao': 'Leste'})
         if local_data['id_oeste']:
             saidas_raw.append({'id_saida': local_data['id_oeste'], 'direcao': 'Oeste'})
+        if local_data['id_noroeste']:
+            saidas_raw.append({'id_saida': local_data['id_noroeste'], 'direcao': 'Noroeste'})
+        if local_data['id_nordeste']:
+            saidas_raw.append({'id_saida': local_data['id_nordeste'], 'direcao': 'Nordeste'})
+        if local_data['id_sudeste']:
+            saidas_raw.append({'id_saida': local_data['id_sudeste'], 'direcao': 'Sudeste'})
+        if local_data['id_sudoeste']:
+            saidas_raw.append({'id_saida': local_data['id_sudoeste'], 'direcao': 'Sudoeste'})
         if local_data['id_cima']:
             saidas_raw.append({'id_saida': local_data['id_cima'], 'direcao': 'Cima'})
         if local_data['id_baixo']:
