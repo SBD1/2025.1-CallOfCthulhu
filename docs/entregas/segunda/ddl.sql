@@ -79,6 +79,11 @@ Data: 01/07/2025
 Descrição: Adiciona chaves estrangeiras na tabela de locais para inserção de mais movimentações
 Autores: Wanjo Christopher
 
+Versão 1.3
+Data: 01/07/2025
+Descrição: Adicionando o o Varying para o domínio funcao_feitico
+Autores: João Marcos e Luiz Guilherme
+
 */
 
 DROP SCHEMA public CASCADE;
@@ -491,11 +496,11 @@ CREATE DOMAIN public.tipo_personagem AS CHARACTER VARYING(18)
         ])
     );     
 
-CREATE DOMAIN public.funcao_feitico AS CHARACTER(6)
+CREATE DOMAIN public.funcao_feitico AS CHARACTER VARYING(6)
     CONSTRAINT funcao_feitico_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('status'::character)::text, 
-            ('dano'::character)::text
+            ('status'::character VARYING)::text, 
+            ('dano'::character VARYING)::text
         ])
     );  
 
@@ -866,16 +871,6 @@ BEGIN
 END;
     $gerar_id_monstro_pacifico$ LANGUAGE plpgsql;
 
--- GERA O ID DO PRÓXIMO ITEM MÁGICO SEGUINDO O PADRÃO DE IDS
-CREATE SEQUENCE public.item_magico_id_seq START WITH 1;
-
-CREATE FUNCTION public.gerar_id_item_magico()
-RETURNS BIGINT AS $gerar_id_item_magico$
-BEGIN
-    RETURN 30100000 + nextval('public.item_magico_id_seq');
-END;
-    $gerar_id_item_magico$ LANGUAGE plpgsql;
-
 -- GERA O ID DO PRÓXIMO ITEM O PADRÃO DE IDS
 CREATE SEQUENCE public.item_id_seq START WITH 1;
 
@@ -885,6 +880,16 @@ BEGIN
     RETURN 30000000 + nextval('public.item_id_seq');
 END;
     $gerar_id_item$ LANGUAGE plpgsql;
+
+-- GERA O ID DO PRÓXIMO ITEM MÁGICO SEGUINDO O PADRÃO DE IDS
+CREATE SEQUENCE public.item_magico_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_magico()
+RETURNS BIGINT AS $gerar_id_item_magico$
+BEGIN
+    RETURN 30100000 + nextval('public.item_magico_id_seq');
+END;
+    $gerar_id_item_magico$ LANGUAGE plpgsql;
 
 -- GERA O ID DO PRÓXIMO ITEM DE CURA SEGUINDO O PADRÃO DE IDS
 CREATE SEQUENCE public.item_de_cura_id_seq START WITH 1;
@@ -966,7 +971,9 @@ BEGIN
 END;
     $gerar_id_feitico_de_status$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE FEITIÇO DE DANO SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.feitico_de_dano_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_feitico_de_dano()
@@ -976,7 +983,9 @@ BEGIN
 END;
     $gerar_id_feitico_de_dano$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE DIÁLOGOS SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.dialogos_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_dialogos()

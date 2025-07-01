@@ -68,6 +68,11 @@ Data: 01/07/2025
 Descrição: Insere as conexões entre salas e corredores do mapa até a sala 8
 Autor: Wanjo Christopher
 
+Versão: 1.4
+Data: 01/07/2025
+Descrição: Adicionado tipo feitiço
+Autor: João Marcos e Luiz Guilherme
+
 */
 -- ===============================================
 
@@ -77,6 +82,7 @@ Autor: Wanjo Christopher
 
 INSERT INTO public.tipos_personagem (tipo) VALUES ('personagem jogavel'), ('NPC');
 INSERT INTO public.tipos_monstro (tipo) VALUES ('agressivo'), ('pacífico');
+INSERT INTO public.tipos_feitico (tipo) VALUES ('status'), ('dano');
 
 -- ===============================================
 
