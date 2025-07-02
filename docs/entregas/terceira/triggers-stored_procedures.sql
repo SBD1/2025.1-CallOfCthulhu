@@ -443,7 +443,7 @@ EXCEPTION
     WHEN OTHERS THEN
         RAISE NOTICE 'Ocorreu um erro na criação do monstro: %', SQLERRM;
 
-        -- =================== REABILITAR TRIGGERS (EM CASO DE ERRO) ===================
+        -- =================== REABILITANDO TRIGGERS ===================
         -- Garante que os gatilhos sejam reabilitados mesmo que ocorra uma exceção.
         ALTER TABLE public.monstros ENABLE TRIGGER trigger_bloqueia_insert_monstros;
         ALTER TABLE public.agressivos ENABLE TRIGGER trigger_bloqueia_insert_agressivos;
