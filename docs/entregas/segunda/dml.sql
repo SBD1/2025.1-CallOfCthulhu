@@ -487,47 +487,54 @@ também criamos os itens, os quais retornam um id, que é usado nas instâncias 
 também criamos as batalhas com base no nome do personagem 
 */
 
-WITH
-  monstro_agressivo_criado AS (
-    SELECT id FROM public.sp_criar_monstro(
-        p_nome                  := 'Abominável Horror'::public.nome,
-        p_descricao             := 'Criatura grotesca que se esconde nas sombras...'::public.descricao,
-        p_tipo                  := 'agressivo'::public.tipo_monstro,
-        p_agressivo_defesa      := 10::SMALLINT,
-        p_agressivo_vida        := 50::SMALLINT,
-        p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
-        p_agressivo_poder       := 15::SMALLINT,
-        p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
-        p_agressivo_velocidade  := 5::SMALLINT,
-        p_agressivo_loucura     := 20::SMALLINT,
-        p_agressivo_pm          := 10::SMALLINT,
-        p_agressivo_dano        := 30::public.dano
-    ) AS id
-  ),
-  monstro_pacifico_criado AS (
-    SELECT id FROM public.sp_criar_monstro(
-        p_nome                       := 'Espírito Guardião'::public.nome,
-        p_descricao                  := 'Um espírito antigo que protege certas áreas...'::public.descricao,
-        p_tipo                       := 'pacífico'::public.tipo_monstro,
-        p_pacifico_defesa            := 5::SMALLINT,
-        p_pacifico_vida              := 30::SMALLINT,
-        p_pacifico_motivo            := 'indiferente'::public.comportamento_pacifico,
-        p_pacifico_tipo              := 'sobrenatural'::public.tipo_monstro_pacifico,
-        p_pacifico_conhecimento_proibido := 'Sabe sobre a fraqueza de uma entidade maior.'::CHARACTER(128)
-    ) AS id
-  ),
-  item_adaga AS (
-    INSERT INTO public.itens (tipo, nome, descricao, valor)
-    VALUES ('arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5) RETURNING id
-  ),
-  instancia_adaga AS (
-    INSERT INTO public.instancias_de_itens (durabilidade, id_item, id_sala)
-    SELECT 100, id, (SELECT id FROM public.salas WHERE descricao LIKE 'Um salão circular%') FROM item_adaga RETURNING id
-  ),
-  instancia_monstro AS (
-    INSERT INTO public.instancias_monstros (id_monstro, id_sala, id_instancia_de_item)
-    SELECT (SELECT id FROM monstro_agressivo_criado), (SELECT id FROM public.salas WHERE descricao LIKE 'Um salão circular%'), id FROM instancia_adaga RETURNING id
-  )
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Abominável Horror'::public.nome,
+    p_descricao             := 'Criatura grotesca que se esconde nas sombras...'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 10::SMALLINT,
+    p_agressivo_vida        := 50::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 15::SMALLINT,
+    p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 5::SMALLINT,
+    p_agressivo_loucura     := 20::SMALLINT,
+    p_agressivo_pm          := 10::SMALLINT,
+    p_agressivo_dano        := 30::public.dano
+);
+
+SELECT public.sp_criar_monstro(
+    p_nome                       := 'Espírito Guardião'::public.nome,
+    p_descricao                  := 'Um espírito antigo que protege certas áreas...'::public.descricao,
+    p_tipo                       := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa            := 5::SMALLINT,
+    p_pacifico_vida              := 30::SMALLINT,
+    p_pacifico_motivo            := 'indiferente'::public.comportamento_pacifico,
+    p_pacifico_tipo              := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_proibido := 'Sabe sobre a fraqueza de uma entidade maior.'::CHARACTER(128)
+);
+
+-- Inserindo a "Adaga Simples" e sua instância
+BEGIN;
+WITH adaga_criada AS (
+  INSERT INTO public.armas (atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_dano, dano, id_pericia_necessaria)
+  VALUES ('destreza', 7, 80, 'corpo_a_corpo_leve', 1, 'unico', 4, (SELECT id FROM public.pericias WHERE nome = 'Briga'))
+  RETURNING id
+)
+INSERT INTO public.itens (id, tipo, nome, descricao, valor)
+VALUES ((SELECT id FROM adaga_criada), 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);
+COMMIT;
+
+INSERT INTO public.instancias_de_itens (durabilidade, id_item, id_local)
+VALUES (80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'));
+
+-- Inserindo a instância do monstro com a instância do item
+INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
+
+-- Inserindo a batalha
 INSERT INTO public.batalhas (id_jogador, id_monstro)
 SELECT
     (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
