@@ -169,7 +169,7 @@ INSERT INTO public.pericias
             ('Motosserras', 10, FALSE),
             ('Mundo Natural', 10, FALSE),
             ('Mythos de Cthulhu', 0, FALSE),
-            ('Natação', 20, FALSE),
+            ('Natacao', 20, FALSE),
             ('Navegação', 10, FALSE),
             ('Nível de Crédito', 0, FALSE),
             ('Ocultismo', 5, FALSE),
@@ -185,7 +185,7 @@ INSERT INTO public.pericias
             ('Rastrear', 10, FALSE),
             ('Rifles', 25, FALSE),
             ('Saltar', 20, FALSE),
-            ('Sobrevivência', 10, FALSE),
+            ('Sobrevivencia', 10, FALSE),
             ('Submetralhadoras', 15, FALSE),
             ('Treinar Animais', 5, FALSE),
             ('Usar Bibliotecas', 20, FALSE),
@@ -249,11 +249,11 @@ WITH
 
 -- Mapeamento das conexões originais para as novas direções
 -- (Sala X, Corredor Y) = Sala X.local_sul -> Corredor Y, e Corredor Y.local_norte -> Sala X
--- Para conexões múltiplas de uma sala/corredor, usaremos outras direções (Leste/Oeste)
+-- Para conexões múltiplas de uma sala/corredor, usaremos outras direções (Leste/Oeste, Sudeste/Sudoeste, Nordeste/Noroeste)
 
--- ==========
+-- ====================
 -- SALA 0 INICIAL
--- ==========
+-- ====================
 
 -- Conexão 0.S: Sala 0 <-> Corredor 1 SUL
 UPDATE public.local SET local_sul = (SELECT id FROM public.local WHERE descricao LIKE 'O corredor estreito serpenteia adiante%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala';
@@ -272,25 +272,25 @@ UPDATE public.local SET local_oeste = (SELECT id FROM public.local WHERE descric
 -- UPDATE public.local SET local_oeste = (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor tem as paredes cobertas por uma%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala';
 -- UPDATE public.local SET local_leste = (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Este corredor tem as paredes cobertas por uma%' AND tipo_local = 'Corredor';
 
--- ==========
+-- ====================
 -- SALA 1 
--- ==========
+-- ====================
 
 -- Conexão 1.O: Sala 1 <-> Corredor 2 OESTE
-UPDATE public.local SET local_oeste = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor largo e cavernoso, com colunas naturais%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala';
-UPDATE public.local SET local_leste = (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Um corredor largo e cavernoso, com colunas naturais%' AND tipo_local = 'Corredor';
+UPDATE public.local SET local_oeste = (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é estreito e serpenteia por uma série de arcos baixos%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala';
+UPDATE public.local SET local_leste = (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Este corredor é estreito e serpenteia por uma série de arcos baixos%' AND tipo_local = 'Corredor';
 
 -- Conexão 1.S: Sala 1 <-> Corredor 3 SUL
-UPDATE public.local SET local_sul = (SELECT id FROM public.local WHERE descricao LIKE 'O corredor estreito serpenteia adiante%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala';
-UPDATE public.local SET local_norte = (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala') WHERE descricao LIKE 'O corredor estreito serpenteia adiante%' AND tipo_local = 'Corredor';
+UPDATE public.local SET local_sul = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor largo e cavernoso, com colunas naturais%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala';
+UPDATE public.local SET local_norte = (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Um corredor largo e cavernoso, com colunas naturais%' AND tipo_local = 'Corredor';
 
 -- Conexão 1.SO: Sala 1 <-> Corredor 5 SUDOESTE
-UPDATE public.local SET local_sudoeste = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor largo e cavernoso, com colunas naturais%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala';
-UPDATE public.local SET local_nordeste = (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Um corredor largo e cavernoso, com colunas naturais%' AND tipo_local = 'Corredor';
+UPDATE public.local SET local_sudoeste = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor que se estende em linha reta%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala';
+UPDATE public.local SET local_nordeste = (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Um corredor que se estende em linha reta%' AND tipo_local = 'Corredor';
 
--- ==========
+-- ====================
 -- SALA 2
--- ==========
+-- ====================
 
 -- Conexão 2.N: Sala 2 <-> Corredor 1 NORTE
 UPDATE public.local SET local_norte = (SELECT id FROM public.local WHERE descricao LIKE 'O corredor estreito serpenteia adiante%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Um salão circular com paredes que pulsam%' AND tipo_local = 'Sala';
@@ -304,14 +304,14 @@ UPDATE public.local SET local_oeste = (SELECT id FROM public.local WHERE descric
 UPDATE public.local SET local_nordeste = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor que se estende em linha reta%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Um salão circular com paredes que pulsam%' AND tipo_local = 'Sala';
 UPDATE public.local SET local_sudoeste = (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular com paredes que pulsam%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Um corredor que se estende em linha reta%' AND tipo_local = 'Corredor';
 
--- Conexão 2.NE: Sala 2 <-> Corredor 5 SUL
+-- Conexão 2.S: Sala 2 <-> Corredor 10 SUL
 -- TODO trigger e stored procedure para fazer o update somente quando o player chegar na sala 7
 UPDATE public.local SET local_nordeste = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor espaçoso com colunas maciças%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Um salão circular com paredes que pulsam%' AND tipo_local = 'Sala';
 UPDATE public.local SET local_sudoeste = (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular com paredes que pulsam%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Um corredor espaçoso com colunas maciças%' AND tipo_local = 'Corredor';
 
--- ==========
+-- ====================
 -- SALA 3
--- ==========
+-- ====================
 
 -- Conexão 3.N: Sala 3 <-> Corredor 3 NORTE
 UPDATE public.local SET local_norte = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor largo e cavernoso, com colunas naturais%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta sala é um labirinto de pilares retorcidos%' AND tipo_local = 'Sala';
@@ -325,9 +325,9 @@ UPDATE public.local SET local_leste = (SELECT id FROM public.local WHERE descric
 UPDATE public.local SET local_sul = (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é irregular e parece descer em espiral%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta sala é um labirinto de pilares retorcidos%' AND tipo_local = 'Sala';
 UPDATE public.local SET local_norte = (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares retorcidos%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Este corredor é irregular e parece descer em espiral%' AND tipo_local = 'Corredor';
 
--- ==========
+-- ====================
 -- SALA 4
--- ==========
+-- ====================
 
 -- Conexão 4.N: Sala 4 <-> Corredor 6 NORTE
 UPDATE public.local SET local_norte = (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é irregular e parece descer em espiral%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Uma câmara triangular com um altar de obsidiana%' AND tipo_local = 'Sala';
@@ -337,9 +337,9 @@ UPDATE public.local SET local_sul = (SELECT id FROM public.local WHERE descricao
 UPDATE public.local SET local_leste = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor sinuoso que desce abruptamente%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Uma câmara triangular com um altar de obsidiana%' AND tipo_local = 'Sala';
 UPDATE public.local SET local_oeste = (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular com um altar de obsidiana%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Um corredor sinuoso que desce abruptamente%' AND tipo_local = 'Corredor';
 
--- ==========
+-- ====================
 -- SALA 5
--- ==========
+-- ====================
 
 -- Conexão 5.O: Sala 5 <-> Corredor 7 OESTE
 UPDATE public.local SET local_oeste = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor sinuoso que desce abruptamente%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta é uma sala de observação, com uma grande janela arqueada%' AND tipo_local = 'Sala';
@@ -349,9 +349,9 @@ UPDATE public.local SET local_leste = (SELECT id FROM public.local WHERE descric
 UPDATE public.local SET local_sudoeste = (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é uma passagem estreita e claustrofóbica%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Esta é uma sala de observação, com uma grande janela arqueada%' AND tipo_local = 'Sala';
 UPDATE public.local SET local_nordeste = (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação, com uma grande janela arqueada%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Este corredor é uma passagem estreita e claustrofóbica%' AND tipo_local = 'Corredor';
 
--- ==========
+-- ====================
 -- SALA 6
--- ==========
+-- ====================
 
 -- Conexão 6.NE: Sala 6 <-> Corredor 8 NORDESTE
 UPDATE public.local SET local_nordeste = (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é uma passagem estreita e claustrofóbica%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Uma biblioteca submersa, onde estantes de coral e algas%' AND tipo_local = 'Sala';
@@ -361,9 +361,9 @@ UPDATE public.local SET local_sudoeste = (SELECT id FROM public.local WHERE desc
 UPDATE public.local SET local_oeste = (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado com água salgada%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Uma biblioteca submersa, onde estantes de coral e algas%' AND tipo_local = 'Sala';
 UPDATE public.local SET local_leste = (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde estantes de coral e algas%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Um túnel inundado com água salgada%' AND tipo_local = 'Corredor';
 
--- ==========
+-- ====================
 -- SALA 7
--- ==========
+-- ====================
 
 -- Conexão 7.L: Sala 7 <-> Corredor 9 LESTE
 UPDATE public.local SET local_leste = (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado com água salgada%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Um laboratório abandonado, com bancadas de pedra cobertas%' AND tipo_local = 'Sala';
@@ -378,9 +378,9 @@ UPDATE public.local SET local_norte = (SELECT id FROM public.local WHERE descric
 UPDATE public.local SET local_norte = (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor espaçoso com colunas maciças%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Um laboratório abandonado, com bancadas de pedra cobertas%' AND tipo_local = 'Sala';
 UPDATE public.local SET local_sul = (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com bancadas de pedra cobertas%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Um corredor espaçoso com colunas maciças%' AND tipo_local = 'Corredor';
 
--- ==========
+-- ====================
 -- SALA 8 FINAL
--- ==========
+-- ====================
 
 -- Conexão 8.N: Sala 8 <-> Corredor 11 NORTE
 UPDATE public.local SET local_norte = (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor leva a uma área de transição%' AND tipo_local = 'Corredor') WHERE descricao LIKE 'Uma cripta úmida, revestida de musgo bioluminescente%' AND tipo_local = 'Sala';
@@ -515,13 +515,13 @@ SELECT public.sp_criar_monstro(
 
 -- Inserindo a "Adaga Simples" e sua instância
 BEGIN;
-WITH adaga_criada AS (
-  INSERT INTO public.armas (atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_dano, dano, id_pericia_necessaria)
-  VALUES ('destreza', 7, 80, 'corpo_a_corpo_leve', 1, 'unico', 4, (SELECT id FROM public.pericias WHERE nome = 'Briga'))
-  RETURNING id
-)
-INSERT INTO public.itens (id, tipo, nome, descricao, valor)
-VALUES ((SELECT id FROM adaga_criada), 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);
+  WITH adaga_criada AS (
+    INSERT INTO public.armas (atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_dano, dano, id_pericia_necessaria)
+    VALUES ('destreza', 7, 80, 'corpo_a_corpo_leve', 1, 'unico', 4, (SELECT id FROM public.pericias WHERE nome = 'Briga'))
+    RETURNING id
+  )
+  INSERT INTO public.itens (id, tipo, nome, descricao, valor)
+  VALUES ((SELECT id FROM adaga_criada), 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);
 COMMIT;
 
 INSERT INTO public.instancias_de_itens (durabilidade, id_item, id_local)

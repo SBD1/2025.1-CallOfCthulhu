@@ -1117,7 +1117,6 @@ END;
 -- ===============================================
 
 CREATE TABLE public.personagens_jogaveis(
-    -- id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     id public.id_personagem_jogavel NOT NULL PRIMARY KEY DEFAULT public.gerar_id_personagem_jogavel(),
     nome public.nome NOT NULL,
     ocupacao public.ocupacao NOT NULL,

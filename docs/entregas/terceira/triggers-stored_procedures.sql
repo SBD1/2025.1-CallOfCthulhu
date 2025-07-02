@@ -33,11 +33,6 @@ DESCRIÇÃO: Criação de triggers e stored procedures para missões, incluindo 
 
 
 */
-/*
--- =================================================================================
-Comentário:
--- =================================================================================
-*/
 
 -- =================================================================================
 --         1. DROP TRIGGER E DROP FUNCTIONS
@@ -64,6 +59,9 @@ DROP TRIGGER IF EXISTS trigger_bloqueia_insert_pacificos ON public.pacificos CAS
 -- Triggers de missões
 DROP TRIGGER IF EXISTS trigger_validar_dados_missao ON public.missoes CASCADE;
 
+-- Triggers de itens
+DROP TRIGGER IF EXIST trigger_bloqueia_insert_itens ON public.itens CASCADE;
+
 -- ======== DROP DE FUNÇÕES ========
 -- Funções de Generalização/Especialização
 DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_pj() CASCADE;
@@ -80,7 +78,6 @@ DROP FUNCTION IF EXISTS public.sp_criar_personagem(public.nome, public.ocupacao,
 -- Funções de NPC
 DROP FUNCTION IF EXISTS public.func_validar_atributos_npc() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_npc(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
-
 
 -- Funções de monstros agressivos e pacíficos
 DROP FUNCTION IF EXISTS public.func_valida_atributos_monstro_agressivo() CASCADE;
@@ -110,6 +107,9 @@ DROP FUNCTION IF EXISTS public.sp_criar_monstro(
 -- Funções de missões
 DROP FUNCTION IF EXISTS public.func_validar_dados_missao() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), public.tipo_missao, CHARACTER(128), public.id_personagem_npc) CASCADE;
+
+-- Funções de itens
+DROP FUNCTION IF EXIST public.sp_criar_item(public.nome, public.descricao, public.tipo_item, public.valor, public.id_inventario) CASCADE;
 
 
 -- =================================================================================
@@ -241,10 +241,10 @@ BEGIN
     -- Insere dados básicos. O resto é feito pelo DEFAULT e pelo TRIGGER.
     INSERT INTO public.personagens_jogaveis (
         nome, ocupacao, residencia, local_nascimento, idade, sexo,
-        id_inventario, id_sala -- Valores iniciais de localização
+        id_inventario, id_local -- Valores iniciais de localização
     ) VALUES (
         p_nome, p_ocupacao, p_residencia, p_local_nascimento, p_idade, p_sexo,
-        v_novo_inventario_id, 40300002 -- Sala inicial padrão
+        v_novo_inventario_id, (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala' LIMIT 1) -- Sala inicial padrão
     ) RETURNING id INTO v_novo_personagem_id;
 
     RETURN v_novo_personagem_id;
@@ -571,3 +571,155 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trigger_validar_dados_missao
     BEFORE INSERT OR UPDATE ON public.missoes
     FOR EACH ROW EXECUTE FUNCTION public.func_validar_dados_missao();
+
+
+/*
+=================================================================================
+        4. LÓGICA PARA ITENS
+=================================================================================
+*/
+
+-- =================================================================================
+--         4.1. FUNÇÕES DE TRIGGER PARA ITENS
+-- =================================================================================
+CREATE FUNCTION public.sp_criar_arma(
+    p_nome public.nome,
+    p_descricao public.descricao,
+    p_valor public.valor,
+
+    -- Parâmetros específicos de arma
+    p_atributo_necessario public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario SMALLINT DEFAULT NULL,
+    p_durabilidade SMALLINT DEFAULT NULL,
+    p_funcao public.funcao_arma,
+    p_alcance SMALLINT,
+    p_tipo_municao public.tipo_municao DEFAULT NULL,
+    p_tipo_dano public.tipo_dano DEFAULT NULL,
+    p_dano public.dano DEFAULT NULL
+)
+RETURNS public.id_item AS $$
+DECLARE
+    v_novo_item_id public.id_item;
+    v_pericia_id public.id_pericia;
+BEGIN
+    -- Passe livre para inserção de itens, sem bloqueio de triggers.
+    -- Esse set volta a ter valor 'NULL' ao final da transação, garantindo que nenhuma tupla seja inserida sem passsar pelo sp_criar_arma.
+    SET LOCAL meu_app.pode_inserir_item = 'true';
+
+    -- =================== VALIDAÇÃO ===================
+    SELECT id INTO v_pericia_id FROM public.pericias WHERE nome = 'Briga';
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'A perícia obrigatória "Briga" não foi encontrada na tabela public.pericias.';
+    END IF;
+    -- =================== INSERÇÃO ===================
+    v_novo_item_id := public.gerar_id_item_arma();
+
+    -- Insere na tabela pai 'itens'
+    INSERT INTO public.itens(id, tipo, nome, descricao, valor)
+    VALUES(v_novo_item_id, 'arma', p_nome, p_descricao, p_valor);
+
+    -- Insere na tabela filha correta
+    INSERT INTO public.armas (id, atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_municao, tipo_dano, dano, id_pericia_necessaria)
+    VALUES (v_novo_item_id, p_atributo_necessario_arma, p_qtd_atributo_necessario_arma, p_durabilidade_arma, p_funcao_arma, p_alcance_arma, p_tipo_municao_arma, p_tipo_dano_arma, p_dano_arma, v_pericia_id);
+
+    RETURN v_novo_item_id;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro na criação da arma: %', SQLERRM;      
+        RAISE; -- Re-lança a exceção para que a transação seja desfeita.
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION public.func_bloquear_insert_direto_itens()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF current_setting('meu_app.pode_inserir_item', true) IS DISTINCT FROM 'true' THEN
+        RAISE EXCEPTION 'Inserção direta na tabela "itens" não é permitida. Utilize a função apropriada.';
+    END IF;
+
+    -- Se o código chegou aqui, é porque o sinalizador estava 'true', então a inserção é permitida.
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- =================================================================================
+--         4.2. CRIAÇÃO DOS TRIGGERS
+-- =================================================================================
+
+CREATE TRIGGER trigger_bloqueia_insert_itens
+    BEFORE INSERT ON public.itens 
+    FOR EACH ROW EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
+
+
+------------- TABELAS PARA REFERENCIA NA CRIAÇÃO, NÃO TEM USO NO TRIGGER OU PROCEDURE!!!!!!!!!!!!-------
+-- -- Atualmente funciona assim:
+-- BEGIN;
+--   WITH adaga_criada AS (
+--     INSERT INTO public.armas (atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_dano, dano, id_pericia_necessaria)
+--     VALUES ('destreza', 7, 80, 'corpo_a_corpo_leve', 1, 'unico', 4, (SELECT id FROM public.pericias WHERE nome = 'Briga'))
+--     RETURNING id
+--   )
+--   INSERT INTO public.itens (id, tipo, nome, descricao, valor)
+--   VALUES ((SELECT id FROM adaga_criada), 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);
+-- COMMIT;
+
+-- -- Tipos de itens
+--             ('armadura'::character VARYING)::text, 
+--             ('arma'::character VARYING)::text,
+--             ('cura'::character VARYING)::text,
+--             ('magico'::character VARYING)::text
+
+
+-- -- Tipos de armadura
+--  CREATE DOMAIN public.funcao_armadura AS CHARACTER VARYING(8)
+--     CONSTRAINT funcao_armadura_check CHECK (
+--         (VALUE)::text = ANY (ARRAY[
+--             ('cabeca'::character VARYING)::text, 
+--             ('peitoral'::character VARYING)::text,
+--             ('bracos'::character VARYING)::text,
+--             ('pernas'::character VARYING)::text,
+--             ('pes'::character VARYING)::text,
+--             ('mao'::character VARYING)::text
+--         ])
+--     ); */
+
+
+-- -- Tabelas de arma e armadura
+-- CREATE TABLE public.armaduras(
+--     id public.id_item_de_armadura NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_de_armadura(),
+--     atributo_necessario public.tipo_atributo_personagem,
+--     durabilidade SMALLINT NOT NULL,
+--     funcao funcao_armadura NOT NULL,
+--     qtd_atributo_recebe SMALLINT NOT NULL,
+--     qtd_atributo_necessario SMALLINT NOT NULL,
+--     tipo_atributo_recebe public.tipo_atributo_personagem,
+--     qtd_dano_mitigado SMALLINT NOT NULL,
+
+--     -- FOREIGN KEYS
+--     id_pericia_necessaria public.id_pericia NOT NULL
+-- );
+
+-- CREATE TABLE public.armas(
+--     id public.id_item_arma NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_arma(),
+--     atributo_necessario public.tipo_atributo_personagem,
+--     qtd_atributo_necessario SMALLINT NOT NULL,
+--     durabilidade SMALLINT NOT NULL,
+--     funcao public.funcao_arma,
+--     alcance SMALLINT,
+--     tipo_municao public.tipo_municao DEFAULT NULL,
+--     tipo_dano public.tipo_dano NOT NULL,
+--     dano public.dano NOT NULL,
+    
+--     -- FOREIGN KEYS
+--     id_pericia_necessaria public.id_pericia NOT NULL
+-- );
+
+-- -- Tabela de itens
+-- CREATE TABLE public.itens(
+--     id public.id_item NOT NULL PRIMARY KEY,
+--     tipo public.tipo_item NOT NULL,
+--     nome public.nome NOT NULL UNIQUE,
+--     descricao public.descricao NOT NULL,
+--     valor SMALLINT
+-- );
