@@ -1,7 +1,9 @@
 import os
 import sys
-from classes import Player, Corredor, Sala
+# Removendo importações antigas de Corredor e Sala, pois foram unificadas no DB
+from classes import Player # Agora importamos apenas Player
 from database import DataBase
+# import time # Importa o módulo time para usar time.sleep()
 # import time # Importa o módulo time para usar time.sleep()
 
 def clear():
@@ -16,11 +18,9 @@ def display_cthulhu_intro():
     print("| /  \\/ /_\\ \\| |    | |     | | | | |_    | /  \\/ | | | |_| | | | | |    | |_| | | | |")
     print("| |    |  _  || |    | |     | | | |  _|   | |     | | |  _  | | | | |    |  _  | | | |")
     print("| \\__/\\| | | || |____| |____ \\ \\_/ / |     | \\__/\\ | | | | | | |_| | |____| | | | |_| |")
-    print(" \\____/\\_| |_/\\_____/\\_____/  \\___/\\_|      \\____/ \\_/ \\_| |_/\\___/\\_____/\_| |_/\\___/ ")
-    print("                                                                                       ")
-    print("                                                                                       \n\n")
-
-
+    print(" \\____/\\_| |_/\\_____/\\_____/  \\___/\\_|      \\____/ \\_/ \\_| |_/\\___/\\_____/\\_| |_/\\___/ ")
+    print("                                                                                         ")
+    print("                                                                                         \n\n")
 
     
     # time.sleep(1) # Pequena pausa para a leitura inicial do título
@@ -48,13 +48,13 @@ class Game:
         
         new_name = input('Digite o nome do seu personagem: ').strip()
         if not new_name:
-            print('Nome inválido! Voltando ao menu principal.')
+            print('Nome invalido! Voltando ao menu principal.')
             return
 
         ocupacoes = [
-            "Médico",
+            "Medico",
             "Doutor",
-            "Arqueólogo",
+            "Arqueologo",
             "Detetive",
             "Jornalista",
             "Professor",
@@ -64,26 +64,26 @@ class Game:
             "Explorador"
             # demais ocupacoes podem ser adicionadas aqui
         ]
-        print("\nEscolha a ocupação do seu personagem:")
+        print("\nEscolha a ocupacao do seu personagem:")
         for index, ocupacao in enumerate(ocupacoes, 1):
             print(f"{index}. {ocupacao}")
         new_ocupacao = None
         while new_ocupacao is None:
-            escolha = input("Digite o número da ocupação desejada: ").strip()
+            escolha = input("Digite o numero da ocupacao desejada: ").strip()
             try:
                 escolha_num = int(escolha)
                 if 1 <= escolha_num <= len(ocupacoes):
                     new_ocupacao = ocupacoes[escolha_num - 1]
                 else:
-                    print("Ocupação inválida. Digite novamente.")
+                    print("Ocupacao invalida. Digite novamente.")
             except ValueError:
-                print("Entrada inválida. Digite apenas o número da ocupação.")
+                print("Entrada invalida. Digite apenas o numero da ocupacao.")
 
-        new_residencia = input('Digite a residência do seu personagem: ').strip()
-        if not new_residencia: print('Residência inválida!'); return
+        new_residencia = input('Digite a residencia do seu personagem: ').strip()
+        if not new_residencia: print('Residencia invalida!'); return
 
         new_local_nascimento = input('Digite o local de nascimento do seu personagem: ').strip()
-        if not new_local_nascimento: print('Local de nascimento inválido!'); return
+        if not new_local_nascimento: print('Local de nascimento invalido!'); return
 
         # --- Loop para Idade ---
         new_idade = None
@@ -94,9 +94,9 @@ class Game:
                 if 1 <= idade <= 120:
                     new_idade = idade
                 else:
-                    print(f"Idade inválida: {idade}. Por favor, digite um número entre 1 e 120.")
+                    print(f"Idade invalida: {idade}. Por favor, digite um numero entre 1 e 120.")
             except ValueError:
-                print(f"Entrada inválida: '{idade_input}'. Por favor, digite um número para a idade.")
+                print(f"Entrada invalida: '{idade_input}'. Por favor, digite um numero para a idade.")
 
         # --- Loop para Sexo ---
         new_sexo = None
@@ -105,7 +105,7 @@ class Game:
             if sexo_input in ['masculino', 'feminino']:
                 new_sexo = sexo_input
             else:
-                print(f"Sexo inválido: '{sexo_input}'. Por favor, digite 'masculino' ou 'feminino'.")
+                print(f"Sexo invalido: '{sexo_input}'. Por favor, digite 'masculino' ou 'feminino'.")
 
         # Tenta criar o personagem no banco de dados
         new_player_id = self.db.create_new_character(
@@ -119,16 +119,16 @@ class Game:
 
         if new_player_id:
             print(f"\nPersonagem '{new_name}' criado com sucesso! ID: {new_player_id}")
-            input("Pressione Enter para continuar e iniciar o jogo...") # Pausa para o usuário ver
+            input("Pressione Enter para continuar e iniciar o jogo...") 
             self.player = self.db.get_personagem(new_name)
             if self.player:
                 print(f"Bem-vindo(a) ao mundo, {self.player.nome}!")
                 self.gameplay()
             else:
-                print("Erro ao carregar o personagem recém-criado. Tente carregar manualmente pelo menu.")
+                print("Erro ao carregar o personagem recem-criado. Tente carregar manualmente pelo menu.")
                 self.start()
         else:
-            print("Falha na criação do personagem. Verifique se o nome já existe ou outros erros.")
+            print("Falha na criacao do personagem. Verifique se o nome ja existe ou outros erros.")
             self.start()
 
     def load_character(self):
@@ -148,7 +148,7 @@ class Game:
             input("Pressione Enter para iniciar o jogo...")
             self.gameplay()
         else:
-            print(f"Personagem '{nome}' não encontrado. Voltando ao menu principal.")
+            print(f"Personagem '{nome}' nao encontrado. Voltando ao menu principal.")
             self.start()
 
     def list_characters(self):
@@ -158,44 +158,41 @@ class Game:
 
         if personagens:
             for p in personagens:
-                print(f"ID: {p['id']}, Nome: {p['nome']}, Ocupação: {p['ocupacao']}")
+                print(f"ID: {p['id']}, Nome: {p['nome']}, Ocupacao: {p['ocupacao']}")
         else:
             print("Nenhum personagem encontrado no banco de dados.")
         
         input("\nPressione Enter para voltar ao menu principal...")
-        self.start() # Retorna ao menu inicial
+        self.start() 
 
     def start(self):
-        """Exibe o menu inicial e gerencia as opções do usuário."""
+        """Exibe o menu inicial e gerencia as opcoes do usuario."""
         while True:
             # clear() # Limpa a tela a cada exibição do menu
             print('\n--- Chamado de Cthulhu ---')
             print('Bem-vindo ao jogo! \n')
             print('1 - Criar Personagem')
             print('2 - Carregar personagem')
-            print('3 - Listar Personagens') # Nova opção
+            print('3 - Listar Personagens') 
             print('4 - Sair \n')
 
-            opcao = input('Digite a opção desejada: ').strip()
+            opcao = input('Digite a opcao desejada: ').strip()
 
             if opcao == '1':
                 self.create_new_character_flow()
-                # Após o fluxo de criação, o gameplay é chamado ou o menu inicial é retornado
-                break # Sai do loop 'start'
+                break 
             elif opcao == '2':
                 self.load_character()
-                # Após o fluxo de carregamento, o gameplay é chamado ou o menu inicial é retornado
-                break # Sai do loop 'start'
-            elif opcao == '3': # Nova opção
+                break 
+            elif opcao == '3': 
                 self.list_characters()
-                # Após listar, a função list_characters() chama start() novamente
             elif opcao == '4':
-                print("Saindo do jogo. Até mais!")
+                print("Saindo do jogo. Ate mais!")
                 if self.db:
                     self.db.close()
                 sys.exit()
             else:
-                input('Opção inválida! Digite 1, 2, 3 ou 4. Pressione Enter para tentar novamente.')
+                input('Opcao invalida! Digite 1, 2, 3 ou 4. Pressione Enter para tentar novamente.')
 
 
     def gameplay(self):
@@ -203,57 +200,53 @@ class Game:
             print("Erro: Nenhum jogador carregado.")
             return self.start()
 
-        print(f"\n--- Começa a aventura de {self.player.nome}! ---")
+        print(f"\n--- Comeca a aventura de {self.player.nome}! ---")
 
         while True:
-            detalhes_local = None
-            local_atual = None
-
-            # 1. Determina onde o jogador está e busca os detalhes
-            if self.player.id_sala:
-                local_atual = 'sala'
-                detalhes_local = self.db.get_sala_com_saidas(self.player.id_sala)
-            elif self.player.id_corredor:
-                local_atual = 'corredor'
-                detalhes_local = self.db.get_corredor_com_saidas(self.player.id_corredor)
+            # 1. Determina onde o jogador esta e busca os detalhes do local
+            detalhes_local = self.db.get_local_details_and_exits(self.player.id_local)
 
             if not detalhes_local:
-                location_id = self.player.id_sala or self.player.id_corredor
-                print(f"Erro: Não foi possível carregar os detalhes do local ID: {location_id}")
-                return self.start()
+                # Agora, o ID é simplesmente self.player.id_local, não id_sala ou id_corredor
+                print(f"Erro: Nao foi possivel carregar os detalhes do local ID: {self.player.id_local}")
+                return self.start() # Volta ao menu inicial se o local nao for encontrado
 
             # 2. Mostra o status atual
             # clear()
             print("==================================================")
-            if local_atual == 'sala':
-                print(f"Você está em uma SALA: {detalhes_local['descricao']}")
-            elif local_atual == 'corredor':
-                print(f"Você está em um CORREDOR: {detalhes_local['descricao']}")
+            # Usa o tipo_local diretamente do BD (ex: 'Sala' ou 'Corredor')
+            print(f"Voce esta em um(a) {detalhes_local['tipo_local']}: {detalhes_local['descricao']}")
+            
+            # Se for um corredor, pode mostrar o status dele
+            if detalhes_local['tipo_local'].lower() == 'corredor' and detalhes_local['status'] is not None:
+                print(f"Status do Corredor: {'Ativo' if detalhes_local['status'] else 'Inativo'}")
+            
             print("==================================================")
-            print("\nSAÍDAS DISPONÍVEIS:")
+            print("\nSAIDAS DISPONIVEIS:")
             
             saidas = detalhes_local['saidas']
             if not saidas:
-                print("Não há saídas visíveis daqui.")
+                print("Nao ha saidas visiveis daqui.")
                 input("Pressione Enter para continuar...")
                 continue
 
             for i, saida in enumerate(saidas):
-                destino_tipo = "Corredor" if local_atual == 'sala' else "Sala"
-                print(f"  [{i + 1}] Ir para {destino_tipo}: {saida['desc_saida']}")
+                # Usa tipo_destino para dizer se vai para uma Sala ou Corredor
+                print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']}): {saida['desc_saida']}")
 
-            # 3. Pede a ação do jogador
-            print("\nO que você deseja fazer? ('ficha', 'inventario', 'sair')")
+            # 3. Pede a acao do jogador
+            print("\nO que voce deseja fazer? ('ficha', 'inventario', 'sair')")
             escolha = input("> ").strip().lower()
 
             if escolha == 'sair':
                 break
             elif escolha == 'ficha':
-                self.db.get_ficha_personagem(self.player.idJogador)
-                input("\n Precisione Enter para continuar...")
+                # id_jogador eh o nome correto do atributo no objeto Player
+                self.db.get_ficha_personagem(self.player.id_jogador) 
+                input("\nPressione Enter para continuar...")
                 continue
             elif escolha == 'inventario':
-                print("Não implementado ainda")
+                print("Nao implementado ainda")
                 input("\nPressione Enter para continuar...")
                 continue
             
@@ -262,29 +255,25 @@ class Game:
                 escolha_num = int(escolha) - 1
                 if 0 <= escolha_num < len(saidas):
                     saida_escolhida = saidas[escolha_num]
-                    id_destino = saida_escolhida['id_saida']
+                    novo_local_id = saida_escolhida['id_saida']
 
-                    if local_atual == 'sala':
-                        self.db.update_localizacao_jogador(self.player.idJogador, novo_corredor_id=id_destino)
-                        self.player.id_sala = None
-                        self.player.id_corredor = id_destino
-                    elif local_atual == 'corredor':
-                        self.db.update_localizacao_jogador(self.player.idJogador, nova_sala_id=id_destino)
-                        self.player.id_corredor = None
-                        self.player.id_sala = id_destino
+                    # Apenas atualiza o id_local do jogador no banco de dados
+                    self.db.update_localizacao_jogador(self.player.id_jogador, novo_local_id)
+                    # Atualiza o id_local do jogador no objeto Player em memoria
+                    self.player.id_local = novo_local_id 
+
                 else:
-                    input("Escolha de saída inválida. Pressione Enter.")
+                    input("Escolha de saida invalida. Pressione Enter.")
             except ValueError:
-                input("Comando inválido. Pressione Enter.")
+                input("Comando invalido. Pressione Enter.")
 
-        self.start()
+        # Ao sair do loop gameplay, retorna ao menu principal
+        self.start() 
 
 
 if __name__ == '__main__':
     display_cthulhu_intro()
     game = Game()
     game.start()
-    # No final do script principal, garante que a conexão do DB seja fechada.
-    # Isso é importante se o sys.exit() não for chamado por algum motivo.
     if game.db:
         game.db.close()

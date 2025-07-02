@@ -81,7 +81,35 @@ Autor: Wanjo Christopher
 
 Versão: 1.3
 Data: 28/06/2025
-Descrição: Erro de Colunas Faltando na Tabela de Junção personagens_possuem_pericias, você definiu a chave primária e as chaves estrangeiras, mas esqueceu de declarar as colunas na criação da tabela.
+Descrição: Erro de Colunas Faltando na Tabela de Junção personagens_possuem_pericias, você definiu a chave primária e as chaves estrangeiras, mas esqueceu de declarar as colunas na criação da tabela.Versão 1.1
+Data: 30/06/2025
+Descrição: Adicionando a tabela local e removendo as tabelas de corredores e salas
+Autores: Luiz Guilherme e Cayo
+
+Versão 1.2
+Data: 01/07/2025
+Descrição: Adiciona chaves estrangeiras na tabela de locais para inserção de mais movimentações
+Autores: Wanjo Christopher
+
+Versão 1.3
+Data: 01/07/2025
+Descrição: Adicionando o Varying para o domínio funcao_feitico
+Autores: João Marcos e Luiz Guilherme
+
+Versão 1.4
+Data: 01/07/2025
+Descrição: Adicionando o tipo_item magico e alterando o tipo_item para varying
+Autores: João Marcos e Luiz Guilherme
+
+Versão: 1.5
+Data: 01/07/2025
+Descrição: Refatoração completa do modelo de herança de itens e correção de inconsistências lógicas. As principais mudanças foram:
+- Remoção do gerador de ID padrão da tabela 'itens' para permitir que os IDs sejam definidos pelas tabelas filhas.
+- Transformação das chaves estrangeiras de todos os subtipos de itens (armas, armaduras, etc.) para 'DEFERRABLE', garantindo a inserção transacional correta.
+- Ajuste nas tabelas 'feiticos_status' e 'feiticos_dano', adicionando a coluna 'id_tipo_feitico' para uma referência lógica correta.
+- Adição do valor 'magico' ao domínio 'tipo_item' para suportar itens mágicos.
+- Remoção da chave estrangeira incorreta da tabela 'magicos' que apontava para 'tipos_feitico'.
+Autores: João Marcos, Luiz Guilherme
 */
 
 DROP SCHEMA public CASCADE;
@@ -377,7 +405,7 @@ DROP DOMAIN IF EXISTS public.id_item_arma;
 DROP DOMAIN IF EXISTS public.id_localizacao;
 DROP DOMAIN IF EXISTS public.id_templo;
 DROP DOMAIN IF EXISTS public.id_andar;
-DROP DOMAIN IF EXISTS public.id_sala;
+DROP DOMAIN IF EXISTS public.id_local;
 DROP DOMAIN IF EXISTS public.id_corredor;
 DROP DOMAIN IF EXISTS public.id_missao;
 DROP DOMAIN IF EXISTS public.id_feitico;
@@ -461,52 +489,53 @@ CREATE DOMAIN public.tipo_personagem AS CHARACTER VARYING(18)
         (VALUE)::text = ANY (ARRAY[
             ('armadura'::character VARYING)::text, 
             ('arma'::character VARYING)::text,
-            ('cura'::character VARYING)::text
+            ('cura'::character VARYING)::text,
+            ('magico'::character VARYING)::text
         ])
     );   
 
- CREATE DOMAIN public.tipo_municao AS CHARACTER(13)
+ CREATE DOMAIN public.tipo_municao AS CHARACTER VARYING(13)
     CONSTRAINT tipo_municao_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('baixo-calibre'::character)::text, 
-            ('medio-calibre'::character)::text,
-            ('alto-calibre'::character)::text
+            ('baixo-calibre'::character VARYING)::text, 
+            ('medio-calibre'::character VARYING)::text,
+            ('alto-calibre'::character VARYING)::text
         ])
     );  
     
- CREATE DOMAIN public.funcao_armadura AS CHARACTER(8)
+ CREATE DOMAIN public.funcao_armadura AS CHARACTER VARYING(8)
     CONSTRAINT funcao_armadura_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('cabeca'::character)::text, 
-            ('peitoral'::character)::text,
-            ('bracos'::character)::text,
-            ('pernas'::character)::text,
-            ('pes'::character)::text,
-            ('mao'::character)::text
+            ('cabeca'::character VARYING)::text, 
+            ('peitoral'::character VARYING)::text,
+            ('bracos'::character VARYING)::text,
+            ('pernas'::character VARYING)::text,
+            ('pes'::character VARYING)::text,
+            ('mao'::character VARYING)::text
         ])
     );    
 
- CREATE DOMAIN public.tipo_dano AS CHARACTER(5)
+ CREATE DOMAIN public.tipo_dano AS CHARACTER VARYING(5)
     CONSTRAINT tipo_dano_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('area'::character)::text, 
-            ('unico'::character)::text
+            ('area'::character VARYING)::text, 
+            ('unico'::character VARYING)::text
         ])
     );     
 
-CREATE DOMAIN public.funcao_feitico AS CHARACTER(6)
+CREATE DOMAIN public.funcao_feitico AS CHARACTER VARYING(6)
     CONSTRAINT funcao_feitico_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('status'::character)::text, 
-            ('dano'::character)::text
+            ('status'::character VARYING)::text, 
+            ('dano'::character VARYING)::text
         ])
     );  
 
- CREATE DOMAIN public.tipo_de_status AS CHARACTER(8)
+ CREATE DOMAIN public.tipo_de_status AS CHARACTER VARYING(8)
     CONSTRAINT tipo_de_status_check CHECK (
         (VALUE)::text = ANY (ARRAY[
-            ('vida'::character)::text, 
-            ('sanidade'::character)::text
+            ('vida'::character VARYING)::text, 
+            ('sanidade'::character VARYING)::text
         ])
     );  
 
@@ -686,17 +715,11 @@ CREATE DOMAIN public.id_andar AS public.id_localizacao
 
 -- CRIAÇÃO DO DOMÍNIO DAS SALAS
 -- TODA SALA TEM ID QUE COMEÇA COM 0403
-CREATE DOMAIN public.id_sala AS public.id_localizacao
-    CONSTRAINT id_sala_check CHECK (
+CREATE DOMAIN public.id_local AS public.id_localizacao
+    CONSTRAINT id_local_check CHECK (
         VALUE BETWEEN 40300000 AND 40399999
 );
 
--- CRIAÇÃO DO DOMÍNIO DOS CORREDORES
--- TODO CORREDOR TEM ID QUE COMEÇA COM 0404
-CREATE DOMAIN public.id_corredor AS public.id_localizacao
-    CONSTRAINT id_corredor_check CHECK (
-        VALUE BETWEEN 40400000 AND 40499999
-);
 
 -- ========== IDS PARA MISSÕES =========
 
@@ -835,7 +858,9 @@ $calcular_pts_de_vida$ LANGUAGE plpgsql IMMUTABLE;
 Essas funções servem para garantir a integridade dos dados do banco, elas geram os ids das tabelas seguindo a regra de ids do banco de forma automática.
 */
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO PERSONAGEM JOGAVEL SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.personagem_jogavel_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_personagem_jogavel()
@@ -845,7 +870,9 @@ BEGIN
 END;
     $gerar_id_personagem_jogavel$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO NPC SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.personagem_npc_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_personagem_npc()
@@ -855,7 +882,9 @@ BEGIN
 END;
     $gerar_id_personagem_npc$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO MONSTRO AGRESSIVO SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.monstro_agressivo_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_monstro_agressivo()
@@ -865,7 +894,9 @@ BEGIN
 END;
     $gerar_id_monstro_agressivo$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO MONSTRO PACÍFICO SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.monstro_pacifico_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_monstro_pacifico()
@@ -875,17 +906,9 @@ BEGIN
 END;
     $gerar_id_monstro_pacifico$ LANGUAGE plpgsql;
 
--- GERA O ID DO PRÓXIMO ITEM MÁGICO SEGUINDO O PADRÃO DE IDS
-CREATE SEQUENCE public.item_magico_id_seq START WITH 1;
-
-CREATE FUNCTION public.gerar_id_item_magico()
-RETURNS BIGINT AS $gerar_id_item_magico$
-BEGIN
-    RETURN 30100000 + nextval('public.item_magico_id_seq');
-END;
-    $gerar_id_item_magico$ LANGUAGE plpgsql;
-
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.item_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_item()
@@ -895,7 +918,21 @@ BEGIN
 END;
     $gerar_id_item$ LANGUAGE plpgsql;
 
+-- ===============================================
+-- GERA O ID DO PRÓXIMO ITEM MÁGICO SEGUINDO O PADRÃO DE IDS
+-- ===============================================
+CREATE SEQUENCE public.item_magico_id_seq START WITH 1;
+
+CREATE FUNCTION public.gerar_id_item_magico()
+RETURNS BIGINT AS $gerar_id_item_magico$
+BEGIN
+    RETURN 30100000 + nextval('public.item_magico_id_seq');
+END;
+    $gerar_id_item_magico$ LANGUAGE plpgsql;
+
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE CURA SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.item_de_cura_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_item_de_cura()
@@ -905,7 +942,9 @@ BEGIN
 END;
     $gerar_id_item_de_cura$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE ARMADURA SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.item_de_armadura_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_item_de_armadura()
@@ -915,7 +954,9 @@ BEGIN
 END;
     $gerar_id_item_de_armadura$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DO TIPO ARMA SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.item_arma_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_item_arma()
@@ -925,7 +966,9 @@ BEGIN
 END;
     $gerar_id_item_arma$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE TEMPLO SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.templo_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_templo()
@@ -935,7 +978,9 @@ BEGIN
 END;
     $gerar_id_templo$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE ANDAR SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.andar_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_andar()
@@ -945,27 +990,21 @@ BEGIN
 END;
     $gerar_id_andar$ LANGUAGE plpgsql;
 
--- GERA O ID DO PRÓXIMO ITEM DE SALA SEGUINDO O PADRÃO DE IDS
-CREATE SEQUENCE public.sala_id_seq START WITH 1;
+-- ===============================================
+-- GERA O ID DO PRÓXIMO ITEM DE LOCAL SEGUINDO O PADRÃO DE IDS
+-- ===============================================
+CREATE SEQUENCE public.local_id_seq START WITH 1;
 
-CREATE FUNCTION public.gerar_id_sala()
-RETURNS BIGINT AS $gerar_id_sala$
+CREATE FUNCTION public.gerar_id_local()
+RETURNS BIGINT AS $gerar_id_local$
 BEGIN
-    RETURN 40300000 + nextval('public.sala_id_seq');
+    RETURN 40300000 + nextval('public.local_id_seq');
 END;
-    $gerar_id_sala$ LANGUAGE plpgsql;
+    $gerar_id_local$ LANGUAGE plpgsql;
 
--- GERA O ID DO PRÓXIMO ITEM DE CORREDOR SEGUINDO O PADRÃO DE IDS
-CREATE SEQUENCE public.corredor_id_seq START WITH 1;
-
-CREATE FUNCTION public.gerar_id_corredor()
-RETURNS BIGINT AS $gerar_id_corredor$
-BEGIN
-    RETURN 40400000 + nextval('public.corredor_id_seq');
-END;
-    $gerar_id_corredor$ LANGUAGE plpgsql;
-
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE MISSÃO SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.missao_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_missao()
@@ -975,7 +1014,9 @@ BEGIN
 END;
     $gerar_id_missao$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE FEITIÇO DE STATUS SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.feitico_de_status_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_feitico_de_status()
@@ -985,7 +1026,9 @@ BEGIN
 END;
     $gerar_id_feitico_de_status$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE FEITIÇO DE DANO SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.feitico_de_dano_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_feitico_de_dano()
@@ -995,7 +1038,9 @@ BEGIN
 END;
     $gerar_id_feitico_de_dano$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE DIÁLOGOS SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.dialogos_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_dialogos()
@@ -1005,7 +1050,9 @@ BEGIN
 END;
     $gerar_id_dialogos$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO PRÓXIMO ITEM DE PERÍCIAS SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.pericias_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_pericia()
@@ -1015,7 +1062,9 @@ BEGIN
 END;
     $gerar_id_pericia$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DO INVENTÁRIO JOGAVEL SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.inventario_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_inventario()
@@ -1025,7 +1074,9 @@ BEGIN
 END;
     $gerar_id_inventario$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DE PERSONAGENS POSSUEM PERÍCIAS SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.personagens_possuem_pericias_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_personagens_possuem_pericias()
@@ -1035,7 +1086,9 @@ BEGIN
 END;
     $gerar_id_personagens_possuem_pericias$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DE INSTÂNCIAS DE ITEM SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.instancia_de_item_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_instancia_de_item()
@@ -1045,7 +1098,9 @@ BEGIN
 END;
     $gerar_id_instancia_de_item$ LANGUAGE plpgsql;
 
+-- ===============================================
 -- GERA O ID DE INSTÂNCIAS DE MONSTRO SEGUINDO O PADRÃO DE IDS
+-- ===============================================
 CREATE SEQUENCE public.instancia_de_monstro_id_seq START WITH 1;
 
 CREATE FUNCTION public.gerar_id_instancia_de_monstro()
@@ -1103,8 +1158,7 @@ CREATE TABLE public.personagens_jogaveis(
     insanidade_indefinida BOOLEAN DEFAULT FALSE,
 
     -- FOREIGN KEYS
-    id_sala public.id_sala,  
-    id_corredor public.id_corredor, 
+    id_local public.id_local,  
     id_inventario public.id_inventario NOT NULL, 
     id_armadura public.id_item_de_armadura, 
     id_arma public.id_item_arma
@@ -1134,8 +1188,7 @@ CREATE TABLE public.npcs(
     local_nascimento public.local_nascimento DEFAULT 'arkham' NOT NULL,
 
     -- FOREIGN KEYS
-    id_sala public.id_sala, 
-    id_corredor public.id_corredor
+    id_local public.id_local
     -- id_tipo_personagem public.id NOT NULL
 );
 
@@ -1165,20 +1218,30 @@ CREATE TABLE public.andares(
     descricao public.descricao NOT NULL,
 
     -- FOREIGN KEYS
-    id_templo public.id_templo NOT NULL DEFAULT public.gerar_id_templo(),
-    sala_inicial public.id_sala NOT NULL
+    id_templo public.id_templo NOT NULL DEFAULT public.gerar_id_templo()
+    -- sala_inicial public.id_local NOT NULL
+);
+    --TABELA LOCAL
+CREATE TABLE public.local(
+    id public.id_local NOT NULL PRIMARY KEY DEFAULT public.gerar_id_local(),
+    descricao public.descricao NOT NULL,
+    tipo_local CHARACTER VARYING(8) NOT NULL,
+    status BOOLEAN,
+
+    --FOREIGN KEY
+    local_norte public.id_local,
+    local_sul public.id_local, 
+    local_leste public.id_local,
+    local_oeste public.id_local,
+    local_nordeste public.id_local,
+    local_noroeste public.id_local,
+    local_sudeste public.id_local,
+    local_sudoeste public.id_local,
+    local_cima public.id_local,
+    local_baixo public.id_local,
+    andar public.id_andar NOT NULL
 );
 
-CREATE TABLE public.salas(
-    id public.id_sala NOT NULL PRIMARY KEY DEFAULT public.gerar_id_sala(),
-    descricao public.descricao NOT NULL
-);
-
-CREATE TABLE public.corredores(
-    id public.id_corredor NOT NULL PRIMARY KEY DEFAULT public.gerar_id_corredor(),
-    status BOOLEAN NOT NULL,
-    descricao public.descricao NOT NULL
-);
 
 CREATE TABLE public.pericias(
     id public.id_pericia NOT NULL PRIMARY KEY DEFAULT public.gerar_id_pericia(),
@@ -1229,8 +1292,7 @@ CREATE TABLE public.instancias_monstros(
 
     -- FOREING KEYS
     id_instancia_de_item public.id_instancia_de_item NOT NULL,
-    id_sala public.id_sala,
-    id_corredor public.id_corredor,
+    id_local public.id_local,  
     id_monstro public.id_monstro NOT NULL
 );
 
@@ -1299,7 +1361,10 @@ CREATE TABLE public.feiticos_status(
     qtd_pontos_de_magia SMALLINT NOT NULL,
     buff_debuff BOOLEAN NOT NULL,
     qtd_buff_debuff SMALLINT,
-    status_afetado public.tipo_de_status NOT NULL
+    status_afetado public.tipo_de_status NOT NULL,
+
+    -- FOREIGN KEYS
+    id_tipo_feitico INTEGER
 );
 
 CREATE TABLE public.feiticos_dano(
@@ -1308,12 +1373,15 @@ CREATE TABLE public.feiticos_dano(
     descricao public.descricao NOT NULL,
     qtd_pontos_de_magia SMALLINT NOT NULL,
     tipo_dano public.tipo_dano NOT NULL,
-    qtd_dano public.dano NOT NULL
+    qtd_dano public.dano NOT NULL,
+
+    -- FOREIGN KEYS
+    id_tipo_feitico INTEGER
 );
 
 
 CREATE TABLE public.itens(
-    id public.id_item NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item(),
+    id public.id_item NOT NULL PRIMARY KEY,
     tipo public.tipo_item NOT NULL,
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
@@ -1325,7 +1393,7 @@ CREATE TABLE public.instancias_de_itens(
     durabilidade SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_sala public.id_sala,
+    id_local public.id_local,
     id_missao_requer public.id_missao,
     id_missao_recompensa public.id_missao,
     id_item public.id_item NOT NULL
@@ -1374,11 +1442,7 @@ CREATE TABLE public.entregas_missoes(
     PRIMARY KEY (id_jogador, id_npc)
 );
 
-CREATE TABLE public.corredores_salas_destino(
-    id_sala public.id_sala NOT NULL,
-    id_corredor public.id_corredor NOT NULL, 
-    PRIMARY KEY (id_sala, id_corredor)
-);
+
 
 CREATE TABLE public.inventarios_possuem_instancias_item(
     id_instancias_de_item public.id_instancia_de_item NOT NULL,
@@ -1424,20 +1488,6 @@ FROM
 Essas próximas três restrições garantem que o personagem ou NPC não esteja em uma sala ou corredor ao mesmo tempo, ou não esteja em nenhum dos dois ao mesmo tempo
 */
 
-ALTER TABLE public.personagens_jogaveis
-ADD CONSTRAINT chk_pj_local_exclusivo
-    CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
-            (id_sala IS NULL AND id_corredor IS NOT NULL));
-
-ALTER TABLE public.npcs
-ADD CONSTRAINT chk_pj_local_exclusivo
-    CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
-            (id_sala IS NULL AND id_corredor IS NOT NULL));  
-
-ALTER TABLE public.instancias_monstros
-ADD CONSTRAINT chk_pj_local_exclusivo
-    CHECK ((id_sala IS NOT NULL AND id_corredor IS NULL) OR 
-            (id_sala IS NULL AND id_corredor IS NOT NULL)); 
 
 -- ===============================================
 
@@ -1448,7 +1498,9 @@ ADD CONSTRAINT chk_pj_local_exclusivo
 Seção destinada a conter todos os relacionamentos que envolvem chaves estrageiras do banco, elas estão dividas em seções menores, cada uma para as relações daquela tabela em específico.
 */
 
---  PERSONAGENS JOGÁVEIS
+-- ==============================
+--    PERSONAGENS JOGÁVEIS
+-- ==============================
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_inventario 
@@ -1457,13 +1509,8 @@ ADD CONSTRAINT fk_pj_inventario
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);
-
-ALTER TABLE public.personagens_jogaveis 
-ADD CONSTRAINT fk_pj_corredores 
-    FOREIGN KEY (id_corredor) 
-    REFERENCES public.corredores (id);
+    FOREIGN KEY (id_local) 
+    REFERENCES public.local (id);
 
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_inventario_instancia_arma
@@ -1484,7 +1531,9 @@ ADD CONSTRAINT fk_pj_tipos_personagem
 
 */
 
+-- ==============================
 -- PERSONAGENS POSSUEM PERÍCIAS
+-- ==============================
 
 ALTER TABLE public.personagens_possuem_pericias
 ADD CONSTRAINT fk_personagens_possuem_pericias_pj
@@ -1496,17 +1545,14 @@ ADD CONSTRAINT  fk_personagens_possuem_pericias_pericia
     FOREIGN KEY (id_pericia) 
     REFERENCES public.pericias(id);
 
--- NPCS
+-- ==============================
+--           NPCS
+-- ==============================
 
 ALTER TABLE public.npcs 
 ADD CONSTRAINT fk_npcs_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);
-
-ALTER TABLE public.npcs 
-ADD CONSTRAINT fk_npcs_corredores 
-    FOREIGN KEY (id_corredor) 
-    REFERENCES public.corredores (id);
+    FOREIGN KEY (id_local) 
+    REFERENCES public.local (id);
 
 /*
 
@@ -1517,44 +1563,83 @@ ADD CONSTRAINT fk_npcs_tipos_personagem
 
 */
 
--- DIÁLOGOS
+-- ==============================
+--          DIÁLOGOS
+-- ==============================
 
 ALTER TABLE public.dialogos 
 ADD CONSTRAINT fk_dialogos_npc
     FOREIGN KEY (npc_id) 
     REFERENCES public.npcs (id);
 
--- ANDARES
+-- ==============================
+--          ANDARES
+-- ==============================
 
 ALTER TABLE public.andares 
 ADD CONSTRAINT fk_andares_templo 
     FOREIGN KEY (id_templo) 
     REFERENCES public.templos (id);
+/*
 
 ALTER TABLE public.andares 
-ADD CONSTRAINT fk_andares_salas 
+ADD CONSTRAINT fk_andares_local
     FOREIGN KEY (sala_inicial) 
-    REFERENCES public.salas (id);
+    REFERENCES public.local (id);
 
--- CORREDORES E SALAS
-ALTER TABLE public.corredores_salas_destino 
-ADD CONSTRAINT fk_corredores_salas_destino_corredores 
-    FOREIGN KEY (id_corredor) 
-    REFERENCES public.corredores (id);
+*/
 
-ALTER TABLE public.corredores_salas_destino 
-ADD CONSTRAINT fk_corredores_salas_destino_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);
+-- ==============================
+--          LOCAIS
+-- ==============================
 
--- CURAS
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_sul_local 
+    FOREIGN KEY (local_sul) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_norte_local 
+    FOREIGN KEY (local_norte) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_leste_local 
+    FOREIGN KEY (local_leste) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_oeste_local 
+    FOREIGN KEY (local_oeste) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_cima_local 
+    FOREIGN KEY (local_cima) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_baixo_local 
+    FOREIGN KEY (local_baixo) 
+    REFERENCES public.local (id);
+
+ALTER TABLE public.local 
+ADD CONSTRAINT fk_local_andar
+    FOREIGN KEY (andar) 
+    REFERENCES public.andares (id);
+
+-- ==============================
+--           CURAS
+-- ==============================
 
 ALTER TABLE public.curas
 ADD CONSTRAINT fk_curas_itens
     FOREIGN KEY (id)
-    REFERENCES public.itens (id);
+    REFERENCES public.itens (id) DEFERRABLE INITIALLY DEFERRED;
 
--- INVENTÁRIO
+-- ==============================
+--        INVENTÁRIO
+-- ==============================
 
 ALTER TABLE public.inventarios_possuem_instancias_item 
 ADD CONSTRAINT fk_inventarios_possuem_instancias_de_item 
@@ -1566,64 +1651,73 @@ ADD CONSTRAINT fk_inventarios_possuem_instancias_de_item_inventario
     FOREIGN KEY (id_inventario) 
     REFERENCES public.inventarios (id);    
 
--- MÁGICOS E FEITIÇOS
-
+-- ==============================
+--           MÁGICOS
+-- ==============================
+/*
 ALTER TABLE public.magicos 
 ADD CONSTRAINT fk_magicos_tipos_feitico 
     FOREIGN KEY (id_feitico) 
     REFERENCES public.tipos_feitico (id);
-
+*/
 ALTER TABLE public.magicos 
 ADD CONSTRAINT fk_magicos_itens 
     FOREIGN KEY (id) 
-    REFERENCES public.itens (id);    
+    REFERENCES public.itens (id) DEFERRABLE INITIALLY DEFERRED;    
 
--- FEITIÇOS STATUS
+-- ==============================
+--       FEITIÇOS STATUS
+-- ==============================
 
 ALTER TABLE public.feiticos_status 
 ADD CONSTRAINT fk_feiticos_status_tipo_feitico 
-    FOREIGN KEY (id) 
+    FOREIGN KEY (id_tipo_feitico)
     REFERENCES public.tipos_feitico (id);
 
--- FEITIÇOS DANO
+-- ==============================
+--        FEITIÇOS DANO
+-- ==============================
 
 ALTER TABLE public.feiticos_dano 
 ADD CONSTRAINT fk_feiticos_dano_tipo_feitico 
-    FOREIGN KEY (id) 
+    FOREIGN KEY (id_tipo_feitico)
     REFERENCES public.tipos_feitico (id);
 
--- INSTÂNCIAS DE MONSTRO
+-- ==============================
+--    INSTÂNCIAS DE MONSTRO
+-- ==============================
 
 ALTER TABLE public.instancias_monstros 
 ADD CONSTRAINT fk_instancias_monstro_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);
-
-ALTER TABLE public.instancias_monstros 
-ADD CONSTRAINT fk_instancias_monstro_corredores 
-    FOREIGN KEY (id_corredor) 
-    REFERENCES public.corredores (id);
+    FOREIGN KEY (id_local) 
+    REFERENCES public.local (id);
 
 ALTER TABLE public.instancias_monstros
-ADD CONSTRAINT fk_instancias_monstro_monstros
-    FOREIGN KEY (id_monstro)
-    REFERENCES public.monstros(id);
+ADD CONSTRAINT fk_instancias_monstro_instancia_de_item 
+    FOREIGN KEY (id_instancia_de_item) 
+    REFERENCES public.instancias_de_itens (id);
 
--- -- MONSTROS PACÍFICOS
+-- ==============================
+--      MONSTROS PACÍFICOS
+-- ==============================
 
 -- ALTER TABLE public.pacificos 
 -- ADD CONSTRAINT fk_pacificos_tipo_monstro 
 --     FOREIGN KEY (id_tipo_monstro) 
 --     REFERENCES public.tipos_monstro (id);
 
--- -- MONSTROS AGRESSIVOS
+-- ==============================
+--      MONSTROS AGRESSIVOS
+-- ==============================
 
 -- ALTER TABLE public.agressivos 
 -- ADD CONSTRAINT fk_agressivos_tipo_monstro 
 --     FOREIGN KEY (id_tipo_monstro) 
 --     REFERENCES public.tipos_monstro (id);
 
--- BATALHAS
+-- ==============================
+--          BATALHAS
+-- ==============================
 
 ALTER TABLE public.batalhas 
 ADD CONSTRAINT fk_batalhas_personagens_jogaveis 
@@ -1635,14 +1729,18 @@ ADD CONSTRAINT fk_batalhas_monstro
     FOREIGN KEY (id_monstro) 
     REFERENCES public.instancias_monstros (id);
 
--- MISSÕES
+-- ==============================
+--          MISSÕES
+-- ==============================
 
 ALTER TABLE public.missoes 
 ADD CONSTRAINT fk_missoes_npcs 
     FOREIGN KEY (id_npc) 
     REFERENCES public.npcs (id);
 
--- ENTREGAS DE MISSÕES
+-- ==============================
+--    ENTREGAS DE MISSÕES
+-- ==============================
 
 ALTER TABLE public.entregas_missoes 
 ADD CONSTRAINT fk_entregas_missoes_personagens_jogaveis 
@@ -1654,7 +1752,9 @@ ADD CONSTRAINT fk_entregas_missoes_npcs
     FOREIGN KEY (id_npc) 
     REFERENCES public.npcs (id);
 
--- INSTÂNCIAS DE ITENS
+-- ==============================
+--     INSTÂNCIAS DE ITENS
+-- ==============================
 
 ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_itens_missoes_recompensa
@@ -1673,10 +1773,12 @@ ADD CONSTRAINT fk_instancias_de_item_itens
 
 ALTER TABLE public.instancias_de_itens 
 ADD CONSTRAINT fk_instancias_de_item_salas 
-    FOREIGN KEY (id_sala) 
-    REFERENCES public.salas (id);  
+    FOREIGN KEY (id_local) 
+    REFERENCES public.local (id);  
 
--- ARMADURAS
+-- ==============================
+--          ARMADURAS
+-- ==============================
 
 ALTER TABLE public.armaduras 
 ADD CONSTRAINT fk_armaduras_pericia_necessaria
@@ -1686,9 +1788,11 @@ ADD CONSTRAINT fk_armaduras_pericia_necessaria
 ALTER TABLE public.armaduras 
 ADD CONSTRAINT fk_armaduras_itens
     FOREIGN KEY (id) 
-    REFERENCES public.itens (id);    
+    REFERENCES public.itens (id) DEFERRABLE INITIALLY DEFERRED;    
 
- -- ARMAS
+-- ==============================
+--           ARMAS
+-- ==============================
 
 ALTER TABLE public.armas 
 ADD CONSTRAINT fk_armas_pericia_necessaria
@@ -1698,9 +1802,11 @@ ADD CONSTRAINT fk_armas_pericia_necessaria
 ALTER TABLE public.armas 
 ADD CONSTRAINT fk_armas_itens
     FOREIGN KEY (id) 
-    REFERENCES public.itens (id); 
+    REFERENCES public.itens (id) DEFERRABLE INITIALLY DEFERRED; 
 
--- TIPOS PERSONAGEM
+-- ==============================
+--      TIPOS PERSONAGEM
+-- ==============================
 /*
 ALTER TABLE public.tipos_personagem
 ADD CONSTRAINT fk_tipos_personagem_personagens_jogaveis
