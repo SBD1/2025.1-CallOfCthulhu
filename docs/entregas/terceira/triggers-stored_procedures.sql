@@ -59,29 +59,29 @@ DESCRIÇÃO: Cria triggers, stored procedures e functions para itens consumívei
 
 
 */
--- ===============================================================================
---          0.1. DROP, CREATE, GRANK E REVOKE DE USUÁRIO PADRÃO DO BANCO 
--- ===============================================================================
-DROP ROLE IF EXISTS usuario_padrao;
+-- -- ===============================================================================
+-- --          0.1. DROP, CREATE, GRANK E REVOKE DE USUÁRIO PADRÃO DO BANCO 
+-- -- ===============================================================================
+-- DROP ROLE IF EXISTS usuario_padrao;
 
-CREATE ROLE usuario_padrao
-    WITH LOGIN
-    NOSUPERUSER
-    NOCREATEDB
-    NOCREATEROLE
-    INHERIT
-    NOREPLICATION
-    CONNECTION LIMIT -1
-    PASSWORD 'usuario_padrao';
-COMMENT ON ROLE usuario_padrao IS 'Usuário padrão para acesso ao banco de dados';
+-- CREATE ROLE usuario_padrao
+--     WITH LOGIN
+--     NOSUPERUSER
+--     NOCREATEDB
+--     NOCREATEROLE
+--     INHERIT
+--     NOREPLICATION
+--     CONNECTION LIMIT -1
+--     PASSWORD 'usuario_padrao';
+-- COMMENT ON ROLE usuario_padrao IS 'Usuário padrão para acesso ao banco de dados';
 
--- ===============================================================================
--- Permissões para o usuário padrão
--- ===============================================================================
+-- -- ===============================================================================
+-- -- Permissões para o usuário padrão
+-- -- ===============================================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO usuario_padrao;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO usuario_padrao;
 
-REVOKE INSERT, UPDATE, DELETE ON public.personagens_jogaveis FROM usuario_padrao;
+-- REVOKE INSERT, UPDATE, DELETE ON public.personagens_jogaveis FROM usuario_padrao;
 
 -- =================================================================================
 --         0.2. DROP TRIGGER E DROP FUNCTIONS
@@ -110,6 +110,9 @@ DROP TRIGGER IF EXISTS trigger_validar_dados_missao ON public.missoes CASCADE;
 
 -- Triggers de itens
 DROP TRIGGER IF EXISTS trigger_bloqueia_insert_itens ON public.itens CASCADE;
+
+-- Triggers de feitiços
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_feiticos ON public.feiticos CASCADE;
 
 -- ======== DROP DE FUNÇÕES ========
 -- Funções de Generalização/Especialização
@@ -410,9 +413,16 @@ BEGIN
         ELSIF p_agressivo_tipo = 'fisico' AND p_agressivo_velocidade IS NULL THEN
             RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: Monstros do tipo "fisico" devem ter valor para "velocidade_ataque".';
         END IF;
-        INSERT INTO public.agressivos (nome, descricao, defesa, vida, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
-            VALUES (p_nome, p_descricao, p_agressivo_defesa, p_agressivo_vida, p_agressivo_catalisador, p_agressivo_poder, p_agressivo_tipo, p_agressivo_velocidade, p_agressivo_loucura, p_agressivo_pm, p_agressivo_dano)
-        RETURNING id INTO v_novo_monstro_id;
+
+        v_novo_monstro_id := public.gerar_id_monstro_agressivo();
+
+        -- Insere na tabela de tipos_monstro
+        INSERT INTO public.tipos_monstro (id, tipo)
+            VALUES (v_novo_monstro_id, p_tipo);
+
+        -- Insere na tabela de monstros agressivos
+        INSERT INTO public.agressivos (id, nome, descricao, defesa, vida, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
+            VALUES (v_novo_monstro_id, p_nome, p_descricao, p_agressivo_defesa, p_agressivo_vida, p_agressivo_catalisador, p_agressivo_poder, p_agressivo_tipo, p_agressivo_velocidade, p_agressivo_loucura, p_agressivo_pm, p_agressivo_dano);
     ELSIF p_tipo = 'pacífico' THEN
         IF p_pacifico_vida IS NULL OR p_pacifico_defesa IS NULL OR p_pacifico_motivo IS NULL OR p_pacifico_tipo IS NULL THEN
             RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: Para monstros pacíficos, os campos vida, defesa, motivo_passividade e tipo_pacifico são obrigatórios.';
@@ -422,16 +432,18 @@ BEGIN
         ELSIF p_pacifico_tipo = 'humanoide' AND p_pacifico_conhecimento_geo IS NULL THEN
             RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: Monstros do tipo "humanoide" devem ter valor para "conhecimento_geografico".';
         END IF;
-        INSERT INTO public.pacificos (nome, descricao, defesa, vida, motivo_passividade, tipo_pacifico, conhecimento_geografico, conhecimento_proibido)
-            VALUES (p_nome, p_descricao, p_pacifico_defesa, p_pacifico_vida, p_pacifico_motivo, p_pacifico_tipo, p_pacifico_conhecimento_geo, p_pacifico_conhecimento_proibido)
-        RETURNING id INTO v_novo_monstro_id;
+
+        v_novo_monstro_id := public.gerar_id_monstro_pacifico();
+        -- Insere na tabela de tipos_monstro
+        INSERT INTO public.tipos_monstro (id, tipo)
+            VALUES (v_novo_monstro_id, p_tipo);
+
+        -- Insere na tabela de monstros pacíficos
+        INSERT INTO public.pacificos (id, nome, descricao, defesa, vida, motivo_passividade, tipo_pacifico, conhecimento_geografico, conhecimento_proibido)
+            VALUES (v_novo_monstro_id, p_nome, p_descricao, p_pacifico_defesa, p_pacifico_vida, p_pacifico_motivo, p_pacifico_tipo, p_pacifico_conhecimento_geo, p_pacifico_conhecimento_proibido);
     ELSE
         RAISE EXCEPTION 'Tipo de monstro inválido: %. Use "agressivo" ou "pacífico".', p_tipo;
     END IF;
-
-    -- Insere na tabela de tipos_monstro
-    INSERT INTO public.tipos_monstro (v, tipo)
-    VALUES (v_novo_monstro_id, p_tipo);
 
     RETURN v_novo_monstro_id;
 EXCEPTION
@@ -455,7 +467,7 @@ $$ LANGUAGE plpgsql;
 
 -- Trigger para bloquear inserção direta na tabela 'monstros'
 CREATE TRIGGER trigger_bloqueia_insert_monstros
-    BEFORE INSERT ON public.monstros
+    BEFORE INSERT ON public.tipos_monstro
     FOR EACH ROW EXECUTE FUNCTION public.func_bloquear_insert_direto_monstro();
 
 -- Trigger para bloquear inserção direta na tabela 'agressivos'
@@ -887,7 +899,7 @@ CREATE OR REPLACE FUNCTION public.sp_criar_feitico(
     p_dano_tipo public.tipo_dano DEFAULT NULL,
     p_dano_qtd public.dano DEFAULT NULL
 )
-RETURNS public.id_item 
+RETURNS public.id_feitico 
 LANGUAGE plpgsql
 AS $$
 DECLARE

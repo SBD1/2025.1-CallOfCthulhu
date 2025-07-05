@@ -101,10 +101,6 @@ Autor: Luiz Guilherme
 
 -- ===============================================
 
-INSERT INTO public.tipos_personagem (tipo) VALUES ('personagem jogavel'), ('NPC');
-INSERT INTO public.tipos_monstro (tipo) VALUES ('agressivo'), ('pacífico');
-INSERT INTO public.tipos_feitico (tipo) VALUES ('status'), ('dano');
-
 -- ===============================================
 
 --       ADIÇÃO NA TABELA DE PERÍCIAS
@@ -475,14 +471,29 @@ SELECT 1;
 --       ADIÇÃO NAS TABELAS DE FEITIÇOS
 
 -- ===============================================
+SELECT public.sp_criar_feitico(
+    p_nome                   := 'Bênção da Coragem'::public.nome,
+    p_descricao              := 'Inspira o alvo com bravura, aumentando sua força temporariamente.'::public.descricao,
+    p_qtd_pontos_de_magia    := 10::SMALLINT,
+    p_tipo_feitico           := 'status'::public.funcao_feitico,
+    p_status_buff_debuff     := TRUE,
+    p_status_qtd_buff_debuff := 5::SMALLINT,
+    p_status_afetado         := 'sanidade'::public.tipo_de_status,
+    p_dano_tipo              := NULL,
+    p_dano_qtd               := NULL
+);
 
--- Adicionando feitiços, agora referenciando o ID do tipo corretamente.
--- O ID do feitiço em si será gerado automaticamente (ex: 60100001)
-INSERT INTO public.feiticos_status (nome, descricao, qtd_pontos_de_magia, buff_debuff, qtd_buff_debuff, status_afetado, id_tipo_feitico)
-VALUES ('Bênção da Coragem', 'Aumenta temporariamente a sanidade do alvo.', 10, TRUE, 5, 'sanidade', 1); -- 1 = status
-
-INSERT INTO public.feiticos_dano (nome, descricao, qtd_pontos_de_magia, tipo_dano, qtd_dano, id_tipo_feitico)
-VALUES ('Toque da Agonia', 'Causa dano psíquico direto na mente do alvo.', 15, 'unico', 8, 2); -- 2 = dano
+SELECT public.sp_criar_feitico(
+    p_nome                    := 'Toque da Agonia'::public.nome,
+    p_descricao               := 'Causa dano psíquico direto na mente do alvo.'::public.descricao,
+    p_qtd_pontos_de_magia     := 15::SMALLINT,
+    p_tipo_feitico            := 'dano'::public.funcao_feitico,
+    p_status_buff_debuff      := NULL,
+    p_status_qtd_buff_debuff  := NULL,
+    p_status_afetado          := NULL,
+    p_dano_tipo               := 'unico'::public.tipo_dano,
+    p_dano_qtd                := 8::public.dano
+);
 
 -- ===============================================
 
@@ -541,7 +552,7 @@ VALUES (80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), (SELECT 
 -- Inserindo a instância do monstro com a instância do item
 INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
 SELECT
-    (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'),
+    (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
 
@@ -549,32 +560,6 @@ SELECT
 INSERT INTO public.batalhas (id_jogador, id_monstro)
 SELECT
     (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
-    (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'));
-
--- ===============================================
--- ADIÇÃO NA TABELA DE FEITICOS
--- ===============================================
-SELECT public.sp_criar_feitico(
-    p_nome                  := 'Bênção da Coragem',
-    p_descricao             := 'Inspira o alvo com bravura, aumentando sua força temporariamente.',
-    p_qtd_pontos_de_magia   := 10,
-    p_tipo_feitico          := 'status',
-    
-    -- Parâmetros específicos de status
-    p_status_buff_debuff      := TRUE, -- TRUE para buff, FALSE para debuff
-    p_status_qtd_buff_debuff  := 5,    -- Aumenta o status em 5
-    p_status_afetado          := 'forca' -- O status que será modificado
-);
-
-SELECT public.sp_criar_feitico(
-    p_nome                  := 'Seta de Gelo',
-    p_descricao             := 'Dispara um fragmento de gelo mágico que perfura o alvo.',
-    p_qtd_pontos_de_magia   := 8,
-    p_tipo_feitico          := 'dano',
-    
-    -- Parâmetros específicos de dano
-    p_dano_tipo             := 'unico', -- O tipo de dano causado
-    p_dano_qtd              := 12          -- A quantidade de dano
-);
+    (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'));
 
 -- COMMIT; -- Finaliza a transação

@@ -1261,10 +1261,7 @@ CREATE TABLE public.agressivos(
     velocidade_ataque SMALLINT,
     loucura_induzida SMALLINT,
     ponto_magia SMALLINT,
-    dano public.dano NOT NULL,
-
-    -- Chave estrangeira que aponta para a tabela pai de monstros
-    CONSTRAINT fk_agressivos_monstros FOREIGN KEY (id) REFERENCES public.monstros(id) ON DELETE CASCADE
+    dano public.dano NOT NULL
 );
 
 CREATE TABLE public.pacificos(
@@ -1276,10 +1273,7 @@ CREATE TABLE public.pacificos(
     motivo_passividade public.comportamento_pacifico,
     tipo_pacifico public.tipo_monstro_pacifico NOT NULL,
     conhecimento_geografico CHARACTER(128),
-    conhecimento_proibido CHARACTER(128),
-
-    -- Chave estrangeira que aponta para a tabela pai de monstros
-    CONSTRAINT fk_pacificos_monstros FOREIGN KEY (id) REFERENCES public.monstros(id) ON DELETE CASCADE
+    conhecimento_proibido CHARACTER(128)
 );
 
 CREATE TABLE public.instancias_monstros(
@@ -1696,19 +1690,19 @@ ADD CONSTRAINT fk_instancias_monstro_instancia_de_item
 --      MONSTROS PACÍFICOS
 -- ==============================
 
--- ALTER TABLE public.pacificos 
--- ADD CONSTRAINT fk_pacificos_tipo_monstro 
---     FOREIGN KEY (id_tipo_monstro) 
---     REFERENCES public.tipos_monstro (id);
+ALTER TABLE public.pacificos 
+ADD CONSTRAINT fk_pacificos_tipo_monstro 
+    FOREIGN KEY (id) 
+    REFERENCES public.tipos_monstro (id);
 
 -- ==============================
 --      MONSTROS AGRESSIVOS
 -- ==============================
 
--- ALTER TABLE public.agressivos 
--- ADD CONSTRAINT fk_agressivos_tipo_monstro 
---     FOREIGN KEY (id_tipo_monstro) 
---     REFERENCES public.tipos_monstro (id);
+ALTER TABLE public.agressivos 
+ADD CONSTRAINT fk_agressivos_tipo_monstro 
+    FOREIGN KEY (id) 
+    REFERENCES public.tipos_monstro (id);
 
 -- ==============================
 --          BATALHAS
