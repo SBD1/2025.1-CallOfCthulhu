@@ -1,4 +1,4 @@
-BEGIN; -- Inicia uma nova transação
+-- BEGIN; -- Inicia uma nova transação
 
 /*
 
@@ -197,7 +197,8 @@ INSERT INTO public.pericias
             ('Treinar Animais', 5, FALSE),
             ('Usar Bibliotecas', 20, FALSE),
             ('Usar Computadores', 5, FALSE),
-            ('Zoologia', 1, FALSE);
+            ('Zoologia', 1, FALSE),
+            ('Uso de Armadura', 1, TRUE);
 
 -- ===============================================
 
@@ -550,4 +551,4 @@ SELECT
     (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
     (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'));
 
-COMMIT; -- Finaliza a transação
+-- COMMIT; -- Finaliza a transação

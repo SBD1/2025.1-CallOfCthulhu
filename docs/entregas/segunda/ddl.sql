@@ -1144,7 +1144,7 @@ CREATE TABLE public.personagens_jogaveis(
     educacao public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
 
 
-    -- TRIGGER 'public.verificar_atributos_personagem_jogavel()' valores base posteriormente
+    -- TRIGGER 'public.func_ajustar_atributos_personagem()' valores base posteriormente
     movimento SMALLINT NOT NULL DEFAULT 0,
     sanidade_atual SMALLINT NOT NULL DEFAULT 0,
     pontos_de_vida_atual SMALLINT NOT NULL DEFAULT 0,
@@ -1307,7 +1307,7 @@ CREATE TABLE public.missoes(
 );
 
 CREATE TABLE public.magicos(
-    id public.id_item_magico NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_magico(),
+    id public.id_item_magico NOT NULL PRIMARY KEY,
     funcao public.funcao_magica NOT NULL,
     qts_usos SMALLINT NOT NULL,
     custo_sanidade SMALLINT NOT NULL,
@@ -1317,7 +1317,7 @@ CREATE TABLE public.magicos(
 );
 
 CREATE TABLE public.curas(
-    id public.id_item_de_cura NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_de_cura(),
+    id public.id_item_de_cura NOT NULL PRIMARY KEY,
     funcao public.funcao_cura NOT NULL,
     qts_usos SMALLINT NOT NULL,
     qtd_pontos_sanidade_recupera SMALLINT NOT NULL,
@@ -1325,7 +1325,7 @@ CREATE TABLE public.curas(
 );
 
 CREATE TABLE public.armaduras(
-    id public.id_item_de_armadura NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_de_armadura(),
+    id public.id_item_de_armadura NOT NULL PRIMARY KEY,
     atributo_necessario public.tipo_atributo_personagem,
     durabilidade SMALLINT NOT NULL,
     funcao funcao_armadura NOT NULL,
@@ -1339,7 +1339,7 @@ CREATE TABLE public.armaduras(
 );
 
 CREATE TABLE public.armas(
-    id public.id_item_arma NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_arma(),
+    id public.id_item_arma NOT NULL PRIMARY KEY,
     atributo_necessario public.tipo_atributo_personagem,
     qtd_atributo_necessario SMALLINT NOT NULL,
     durabilidade SMALLINT NOT NULL,
