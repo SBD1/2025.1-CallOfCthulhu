@@ -5,6 +5,7 @@ from classes import Player # Agora importamos apenas Player
 from database import DataBase
 # import time # Importa o módulo time para usar time.sleep()
 # import time # Importa o módulo time para usar time.sleep()
+import time # para a lua de sangue
 
 def clear():
     """Limpa a tela do terminal."""
@@ -41,6 +42,7 @@ class Game:
     def __init__(self):
         self.db = DataBase()
         self.player = None
+        self.last_lua_de_sangue_time = time.time()
 
     def create_new_character_flow(self):
         # clear()
@@ -153,17 +155,16 @@ class Game:
 
     def list_characters(self):
         # clear()
-        print("--- Personagens Salvos ---")
+        print("========== Personagens Salvos ==========")
         personagens = self.db._execute_query("SELECT id, nome, ocupacao FROM public.personagens_jogaveis ORDER BY id;", fetch_all=True)
 
         if personagens:
             for p in personagens:
-                print(f"ID: {p['id']}, Nome: {p['nome']}, Ocupacao: {p['ocupacao']}")
+                print(f"|ID: {p['id']}, Nome: {p['nome']}, Ocupacao: {p['ocupacao']}")
+            print("==========================================\n")
         else:
             print("Nenhum personagem encontrado no banco de dados.")
-        
-        input("\nPressione Enter para voltar ao menu principal...")
-        self.start() 
+    
 
     def start(self):
         """Exibe o menu inicial e gerencia as opcoes do usuario."""
@@ -172,9 +173,8 @@ class Game:
             print('\n--- Chamado de Cthulhu ---')
             print('Bem-vindo ao jogo! \n')
             print('1 - Criar Personagem')
-            print('2 - Carregar personagem')
-            print('3 - Listar Personagens') 
-            print('4 - Sair \n')
+            print('2 - Listar Personagens') 
+            print('3 - Sair \n')
 
             opcao = input('Digite a opcao desejada: ').strip()
 
@@ -182,11 +182,10 @@ class Game:
                 self.create_new_character_flow()
                 break 
             elif opcao == '2':
+                self.list_characters()
                 self.load_character()
                 break 
-            elif opcao == '3': 
-                self.list_characters()
-            elif opcao == '4':
+            elif opcao == '3':
                 print("Saindo do jogo. Ate mais!")
                 if self.db:
                     self.db.close()
@@ -203,6 +202,12 @@ class Game:
         print(f"\n--- Comeca a aventura de {self.player.nome}! ---")
 
         while True:
+
+            current_time = time.time()
+            if current_time - self.last_lua_de_sangue_time >= 60:
+                self.db.trigger_lua_de_sangue() # Chama o método que invoca a stored procedure
+                self.last_lua_de_sangue_time = current_time # Reseta o timer
+
             # 1. Determina onde o jogador esta e busca os detalhes do local
             detalhes_local = self.db.get_local_details_and_exits(self.player.id_local)
 
@@ -235,20 +240,93 @@ class Game:
                 print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']}): {saida['desc_saida']}")
 
             # 3. Pede a acao do jogador
-            print("\nO que voce deseja fazer? ('ficha', 'inventario', 'sair')")
+            print("\nO que voce deseja fazer? (Abrir Ficha [f], Abrir Inventário [i], Vasculhar [v], Procurar Monstros [p], Sair [s])")
             escolha = input("> ").strip().lower()
 
-            if escolha == 'sair':
+            if escolha == 's':
                 break
-            elif escolha == 'ficha':
+            elif escolha == 'f':
                 # id_jogador eh o nome correto do atributo no objeto Player
                 self.db.get_ficha_personagem(self.player.id_jogador) 
                 input("\nPressione Enter para continuar...")
                 continue
-            elif escolha == 'inventario':
-                print("Nao implementado ainda")
+            elif escolha == 'i':
+                print("\n--- Seu Inventário ---")
+                itens_inventario = self.db.get_inventario_do_jogador(self.player.id_jogador) 
+                
+                if itens_inventario:
+                    for item in itens_inventario:
+                        nome_item = item['item_nome'].strip()
+                        descricao_item = item['item_descricao'].strip()
+                        durabilidade = item['durabilidade']
+                        durabilidade_total = item['durabilidade_total']
+                        
+                        if durabilidade is not None and durabilidade_total is not None:
+                            print(f"- {nome_item}: {descricao_item} (Durabilidade: {durabilidade}/{durabilidade_total})")
+                        else:
+                            print(f"- {nome_item}: {descricao_item}")
+                else:
+                    print("Seu inventário está vazio.")
                 input("\nPressione Enter para continuar...")
                 continue
+            elif escolha == 'v':
+                print("\nVoce comeca a vasculhar o ambiente...")
+                itens_no_local = self.db.get_items_in_location(self.player.id_local)
+
+                if itens_no_local:
+                    print("\nVoce encontrou os seguintes itens:")
+                    for i, item in enumerate(itens_no_local):
+                        print(f"  [{i + 1}] {item['item_nome'].strip()} ({item['item_descricao'].strip()})")
+                    
+                    escolha_item = input("Digite o numero do item que deseja pegar (ou '0' para nao pegar nada): ").strip()
+                    try:
+                        idx_item = int(escolha_item) - 1
+                        if 0 <= idx_item < len(itens_no_local):
+                            item_escolhido = itens_no_local[idx_item]
+                            if self.db.add_item_to_inventory(self.player.id_jogador, item_escolhido['instancia_item_id']):
+                                print(f"Voce pegou '{item_escolhido['item_nome'].strip()}'.")
+                            else:
+                                print("Nao foi possivel pegar o item. Tente novamente.")
+                        elif escolha_item == '0':
+                            print("Voce decidiu nao pegar nenhum item.")
+                        else:
+                            print("Escolha de item invalida.")
+                    except ValueError:
+                        print("Entrada invalida para pegar item.")
+                else:
+                    print("Voce nao encontrou nada de interessante aqui.")
+                input("\nPressione Enter para continuar...")
+                continue # Voltar ao inicio do loop gameplay
+
+            elif escolha == 'p':
+                print("\nVoce se prepara para procurar por sinais de vida... nao-humana.")
+                monstros_no_local = self.db.get_monsters_in_location(self.player.id_local)
+
+                if monstros_no_local:
+                    print("\nVoce avista os seguintes seres horripilantes:")
+                    for i, monstro in enumerate(monstros_no_local):
+                        nome_monstro = monstro['monstro_nome'].strip()
+                        tipo_monstro = monstro['monstro_tipo'].strip()
+                        vida_atual = monstro['vida_atual']
+                        vida_total = monstro['vida_total']
+                        print(f"  [{i + 1}] {nome_monstro} (Tipo: {tipo_monstro}, Vida: {vida_atual}/{vida_total})")
+                else:
+                    print("O local parece estar livre de ameacas... por enquanto.")
+                input("\nPressione Enter para continuar...")
+                continue
+
+            elif escolha == 'kill':
+                print("\nVoce decide usar forca letal para limpar o local de qualquer ameaca...")
+                monstros_mortos_count = self.db.kill_monsters_in_location(self.player.id_local)
+                if monstros_mortos_count > 0:
+                    print(f"Voce aniquilou {monstros_mortos_count} monstros neste local!")
+                elif monstros_mortos_count == 0:
+                    print("Nao havia monstros para matar neste local.")
+                else:
+                    print("Ocorreu um erro ao tentar matar os monstros.")
+                input("\nPressione Enter para continuar...")
+                continue
+
             
             # 4. Processa o movimento
             try:
