@@ -551,4 +551,30 @@ SELECT
     (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
     (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'));
 
+-- ===============================================
+-- ADIÇÃO NA TABELA DE FEITICOS
+-- ===============================================
+SELECT public.sp_criar_feitico(
+    p_nome                  := 'Bênção da Coragem',
+    p_descricao             := 'Inspira o alvo com bravura, aumentando sua força temporariamente.',
+    p_qtd_pontos_de_magia   := 10,
+    p_tipo_feitico          := 'status',
+    
+    -- Parâmetros específicos de status
+    p_status_buff_debuff      := TRUE, -- TRUE para buff, FALSE para debuff
+    p_status_qtd_buff_debuff  := 5,    -- Aumenta o status em 5
+    p_status_afetado          := 'forca' -- O status que será modificado
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome                  := 'Seta de Gelo',
+    p_descricao             := 'Dispara um fragmento de gelo mágico que perfura o alvo.',
+    p_qtd_pontos_de_magia   := 8,
+    p_tipo_feitico          := 'dano',
+    
+    -- Parâmetros específicos de dano
+    p_dano_tipo             := 'unico', -- O tipo de dano causado
+    p_dano_qtd              := 12          -- A quantidade de dano
+);
+
 -- COMMIT; -- Finaliza a transação
