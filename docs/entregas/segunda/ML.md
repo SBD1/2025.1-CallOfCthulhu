@@ -4,7 +4,7 @@
 ## Modelo Lógico
 
 <figure markdown="span">
-<img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/normalizacao-do-banco/docs/assets/modelo-relacional-entrega-2.png">
+<img src="https://github.com/SBD1/2025.1-CallOfCthulhu/blob/736a2110fc2d55fdb1c6696f0a19c1f0507457f7/docs/assets/modelo-relacional-entrega-2.png">
   <figcaption>Modelo Lógico</figcaption>
 </figure>
 

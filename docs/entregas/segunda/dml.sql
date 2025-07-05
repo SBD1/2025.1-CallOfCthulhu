@@ -94,6 +94,11 @@ Data 05/07/2025
 Descrição: Adicionando itens com o procedure sp_criar_arma
 Autor: Luiz Guilherme
 
+Versão 1.8 
+Data 05/07/2025
+Descrição: Melhorias na inserção de instâncias de monstros e itens para permitir seu respawn
+Autor: Luiz Guilherme
+
 */
 -- ===============================================
 
@@ -512,6 +517,7 @@ SELECT public.sp_criar_monstro(
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 10::SMALLINT,
     p_agressivo_vida        := 50::SMALLINT,
+    p_agressivo_vida_total  := 50::SMALLINT,
     p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
     p_agressivo_poder       := 15::SMALLINT,
     p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
@@ -527,6 +533,7 @@ SELECT public.sp_criar_monstro(
     p_tipo                       := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa            := 5::SMALLINT,
     p_pacifico_vida              := 30::SMALLINT,
+    p_pacifico_vida_total        := 30::SMALLINT,
     p_pacifico_motivo            := 'indiferente'::public.comportamento_pacifico,
     p_pacifico_tipo              := 'sobrenatural'::public.tipo_monstro_pacifico,
     p_pacifico_conhecimento_proibido := 'Sabe sobre a fraqueza de uma entidade maior.'::CHARACTER(128)
@@ -546,13 +553,17 @@ SELECT public.sp_criar_arma(
     p_dano                  := 4::public.dano
 );
 
-INSERT INTO public.instancias_de_itens (durabilidade, id_item, id_local)
-VALUES (80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'));
+INSERT INTO public.instancias_de_itens (durabilidade, durabilidade_total, id_item, id_local, id_local_de_spawn)
+VALUES 
+  (80, 80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), 
+  (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'),
+  (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'));
 
 -- Inserindo a instância do monstro com a instância do item
-INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
     (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
 

@@ -110,6 +110,12 @@ Descrição: Refatoração completa do modelo de herança de itens e correção 
 - Adição do valor 'magico' ao domínio 'tipo_item' para suportar itens mágicos.
 - Remoção da chave estrangeira incorreta da tabela 'magicos' que apontava para 'tipos_feitico'.
 Autores: João Marcos, Luiz Guilherme
+
+Versão 1.6
+Data: 05/07/2025
+Descrição: Adições nas tabelas para permitir o respawn de itens e monstros
+Autores: Luiz Guilherme
+
 */
 
 DROP SCHEMA public CASCADE;
@@ -1254,7 +1260,8 @@ CREATE TABLE public.agressivos(
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     defesa SMALLINT,
-    vida SMALLINT NOT NULL,
+    vida SMALLINT,
+    vida_total SMALLINT NOT NULL,
     catalisador_agressividade public.gatilho_agressividade,
     poder SMALLINT,
     tipo_agressivo public.tipo_monstro_agressivo NOT NULL,
@@ -1269,7 +1276,8 @@ CREATE TABLE public.pacificos(
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
     defesa SMALLINT NOT NULL,
-    vida SMALLINT NOT NULL,
+    vida SMALLINT,
+    vida_total SMALLINT NOT NULL,
     motivo_passividade public.comportamento_pacifico,
     tipo_pacifico public.tipo_monstro_pacifico NOT NULL,
     conhecimento_geografico CHARACTER(128),
@@ -1278,10 +1286,12 @@ CREATE TABLE public.pacificos(
 
 CREATE TABLE public.instancias_monstros(
     id public.id_instancia_de_monstro NOT NULL PRIMARY KEY DEFAULT public.gerar_id_instancia_de_monstro(),
+    vida SMALLINT,
 
     -- FOREING KEYS
     id_instancia_de_item public.id_instancia_de_item NOT NULL,
-    id_local public.id_local,  
+    id_local public.id_local, -- id_local = NULL indica que o monstro está morto
+    id_local_de_spawn public.id_local,  
     id_monstro public.id_monstro NOT NULL
 );
 
@@ -1379,10 +1389,12 @@ CREATE TABLE public.itens(
 
 CREATE TABLE public.instancias_de_itens(
     id public.id_instancia_de_item NOT NULL PRIMARY KEY DEFAULT public.gerar_id_instancia_de_item(),
-    durabilidade SMALLINT NOT NULL,
+    durabilidade SMALLINT, -- duarabilidade = NULL, item quebra
+    durabilidade_total SMALLINT NOT NULL,
 
     -- FOREIGN KEYS
-    id_local public.id_local,
+    id_local public.id_local, -- Se o item foi coletado, seu local é null
+    id_local_de_spawn public.id_local NOT NULL,
     id_missao_requer public.id_missao,
     id_missao_recompensa public.id_missao,
     id_item public.id_item NOT NULL
