@@ -72,6 +72,11 @@ DATA: 05/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria triggers, stored procedures e functions para Batalha e conclusão de missões.
 
+VERSÃO: 0.15
+DATA: 05/07/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Cria triggers, stored procedures e functions para movimentação de jogadores, equipar itens e gerenciar durabilidade de itens.
+
 */
 -- -- ===============================================================================
 -- --          0.1. DROP, CREATE, GRANK E REVOKE DE USUÁRIO PADRÃO DO BANCO 
@@ -179,7 +184,20 @@ DROP FUNCTION IF EXISTS public.sp_matar_monstros_no_local(public.id_local) CASCA
 -- Função de Batalha
 DROP FUNCTION IF EXISTS public.sp_batalhar(public.id_personagem, public.id_monstro) CASCADE;
 
+-- Mover o jogador para um novo local
+DROP FUNCTION IF EXISTS public.sp_mover_jogador(public.id_personagem, public.id_novo_local) CASCADE;
 
+-- Equipar uma arma ou armadura
+DROP FUNCTION IF EXISTS public.sp_equipar_item(public.id_personagem, public.id_item) CASCADE;
+
+-- Função Usar um item de cura
+DROP FUNCTION IF EXISTS public.sp_usar_item_cura(public.id_personagem, public.id_item) CASCADE;
+
+-- Função para gerenciar durabilidade de itens
+DROP FUNCTION IF EXISTS public.sp_gerenciar_durabilidade(public.id_item, public.durabilidade) CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_durabilidade_arma ON public.armas CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_durabilidade_armadura ON public.armaduras CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_usos_cura ON public.curas CASCADE;
 
 -- =================================================================================
 --         1. REGRAS GERAIS DE PERSONAGENS
@@ -1471,3 +1489,189 @@ EXCEPTION
         RAISE;
 END;
 $$;
+
+/*
+=================================================================================
+        14. LÓGICA PARA AÇÕES DO JOGADOR E MANUTENÇÃO DO JOGO
+=================================================================================
+*/
+-- ---------------------------------------------------------------------------------
+--  14.1 STORED PROCEDURE: Mover o jogador para um novo local
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_mover_jogador(
+    p_id_jogador public.id_personagem_jogavel,
+    p_id_novo_local public.id_local
+)
+RETURNS TEXT -- Retorna uma mensagem de confirmação
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_local_atual public.id_local;
+    v_pode_mover BOOLEAN := FALSE;
+BEGIN
+    -- 1. Verifica a localização atual do jogador
+    SELECT id_local INTO v_local_atual FROM public.personagens_jogaveis WHERE id = p_id_jogador;
+
+    IF v_local_atual IS NULL THEN
+        RAISE EXCEPTION 'Jogador % não está em um local válido.', p_id_jogador;
+    END IF;
+
+    -- 2. Verifica se o novo local é adjacente ao local atual
+    SELECT TRUE INTO v_pode_mover
+    FROM public.local
+    WHERE id = v_local_atual AND p_id_novo_local IN (
+        local_norte, local_sul, local_leste, local_oeste,
+        local_nordeste, local_noroeste, local_sudeste, local_sudoeste,
+        local_cima, local_baixo
+    );
+
+    IF v_pode_mover IS NOT TRUE THEN
+        RAISE EXCEPTION 'Movimento inválido. O local % não é adjacente ao local atual %.', p_id_novo_local, v_local_atual;
+    END IF;
+
+    -- 3. Atualiza a localização do jogador
+    UPDATE public.personagens_jogaveis
+    SET id_local = p_id_novo_local
+    WHERE id = p_id_jogador;
+
+    RETURN 'Jogador movido para o local ' || p_id_novo_local || '.';
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao mover o jogador: %', SQLERRM;
+        RAISE;
+END;
+$$;
+
+-- ---------------------------------------------------------------------------------
+--  14.2 STORED PROCEDURE: Equipar uma arma ou armadura
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_equipar_item(
+    p_id_jogador public.id_personagem_jogavel,
+    p_id_instancia_item public.id_instancia_de_item
+)
+RETURNS TEXT
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_id_item_base public.id_item;
+    v_tipo_item public.tipo_item;
+    v_id_inventario public.id_inventario;
+BEGIN
+    -- 1. Verifica se o item está no inventário do jogador
+    SELECT pj.id_inventario INTO v_id_inventario FROM public.personagens_jogaveis pj WHERE pj.id = p_id_jogador;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM public.inventarios_possuem_instancias_item
+        WHERE id_inventario = v_id_inventario AND id_instancias_de_item = p_id_instancia_item
+    ) THEN
+        RAISE EXCEPTION 'O item % não está no inventário do jogador.', p_id_instancia_item;
+    END IF;
+
+    -- 2. Descobre o tipo do item (arma ou armadura)
+    SELECT i.id, i.tipo INTO v_id_item_base, v_tipo_item
+    FROM public.instancias_de_itens ii
+    JOIN public.itens i ON ii.id_item = i.id
+    WHERE ii.id = p_id_instancia_item;
+
+    -- 3. Equipa o item no slot correspondente
+    IF v_tipo_item = 'arma' THEN
+        UPDATE public.personagens_jogaveis SET id_arma = p_id_instancia_item WHERE id = p_id_jogador;
+        RETURN 'Arma equipada com sucesso.';
+    ELSIF v_tipo_item = 'armadura' THEN
+        UPDATE public.personagens_jogaveis SET id_armadura = p_id_instancia_item WHERE id = p_id_jogador;
+        RETURN 'Armadura equipada com sucesso.';
+    ELSE
+        RAISE EXCEPTION 'O item % não é um equipamento (arma ou armadura).', p_id_instancia_item;
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao equipar o item: %', SQLERRM;
+        RAISE;
+END;
+$$;
+
+-- ---------------------------------------------------------------------------------
+--  14.3 STORED PROCEDURE: Usar um item de cura
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_usar_item_cura(
+    p_id_jogador public.id_personagem_jogavel,
+    p_id_instancia_item public.id_instancia_de_item
+)
+RETURNS TEXT
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_item_cura RECORD;
+    v_jogador RECORD;
+    v_vida_max SMALLINT;
+    v_sanidade_max SMALLINT;
+BEGIN
+    -- 1. Verifica se o item é de cura e está no inventário do jogador
+    SELECT c.* INTO v_item_cura
+    FROM public.curas c
+    JOIN public.instancias_de_itens ii ON c.id = ii.id_item
+    JOIN public.inventarios_possuem_instancias_item ipi ON ii.id = ipi.id_instancias_de_item
+    JOIN public.personagens_jogaveis pj ON ipi.id_inventario = pj.id_inventario
+    WHERE pj.id = p_id_jogador AND ii.id = p_id_instancia_item;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'O item de cura % não foi encontrado no inventário do jogador %.', p_id_instancia_item, p_id_jogador;
+    END IF;
+
+    -- 2. Aplica os efeitos de cura
+    SELECT *, public.calcular_pts_de_vida(constituicao, tamanho) as vida_max, public.calcular_sanidade(poder) as sanidade_max
+    INTO v_jogador
+    FROM public.personagens_jogaveis WHERE id = p_id_jogador;
+
+    UPDATE public.personagens_jogaveis
+    SET
+        pontos_de_vida_atual = LEAST(v_jogador.vida_max, pontos_de_vida_atual + v_item_cura.qtd_pontos_vida_recupera),
+        sanidade_atual = LEAST(v_jogador.sanidade_max, sanidade_atual + v_item_cura.qtd_pontos_sanidade_recupera)
+    WHERE id = p_id_jogador;
+
+    -- 3. Consome um uso do item
+    UPDATE public.curas SET qts_usos = qts_usos - 1 WHERE id = v_item_cura.id;
+
+    RETURN 'Você usou ' || (SELECT nome FROM public.itens WHERE id = v_item_cura.id) || ' e se sente melhor.';
+END;
+$$;
+
+-- ---------------------------------------------------------------------------------
+--  14.4 TRIGGER: Gerencia a durabilidade e quebra de itens
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.func_gerenciar_durabilidade_item()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Se a durabilidade de um item chegar a 0 ou menos, ele "quebra".
+    -- Ações podem ser: remover o item, ou apenas impedir seu uso.
+    -- Aqui, vamos impedir que a durabilidade fique negativa e avisar.
+    IF NEW.durabilidade < 0 THEN
+        NEW.durabilidade := 0;
+    END IF;
+
+    IF NEW.durabilidade = 0 AND OLD.durabilidade > 0 THEN
+        RAISE NOTICE 'ATENÇÃO: O item de ID % quebrou!', NEW.id;
+        -- Poderia-se adicionar uma lógica para desequipar o item automaticamente se estivesse equipado.
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger para armas
+CREATE TRIGGER trigger_checar_durabilidade_arma
+    BEFORE UPDATE ON public.armas
+    FOR EACH ROW
+    WHEN (OLD.durabilidade IS DISTINCT FROM NEW.durabilidade)
+    EXECUTE FUNCTION public.func_gerenciar_durabilidade_item();
+
+-- Trigger para armaduras
+CREATE TRIGGER trigger_checar_durabilidade_armadura
+    BEFORE UPDATE ON public.armaduras
+    FOR EACH ROW
+    WHEN (OLD.durabilidade IS DISTINCT FROM NEW.durabilidade)
+    EXECUTE FUNCTION public.func_gerenciar_durabilidade_item();
+
+-- Trigger para itens de cura (usos)
+CREATE TRIGGER trigger_checar_usos_cura
+    BEFORE UPDATE ON public.curas
+    FOR EACH ROW
+    WHEN (OLD.qts_usos IS DISTINCT FROM NEW.qts_usos)
+    EXECUTE FUNCTION public.func_gerenciar_durabilidade_item(); -- Reutilizando a lógica para usos
