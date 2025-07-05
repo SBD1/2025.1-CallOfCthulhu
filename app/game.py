@@ -243,7 +243,7 @@ class Game:
                 print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']}): {saida['desc_saida']}")
 
             # 3. Pede a acao do jogador
-            print("\nO que voce deseja fazer? ('ficha', 'inventario', vasculhar, 'sair')")
+            print("\nO que voce deseja fazer? ('ficha', 'inventario', vasculhar, procurar_monstros, 'sair')")
             escolha = input("> ").strip().lower()
 
             if escolha == 'sair':
@@ -255,7 +255,6 @@ class Game:
                 continue
             elif escolha == 'inventario':
                 print("\n--- Seu Inventário ---")
-                # AGORA CHAMAMOS A STORED PROCEDURE PARA VER O INVENTÁRIO
                 itens_inventario = self.db.get_inventario_do_jogador(self.player.id_jogador) 
                 
                 if itens_inventario:
@@ -287,7 +286,6 @@ class Game:
                         idx_item = int(escolha_item) - 1
                         if 0 <= idx_item < len(itens_no_local):
                             item_escolhido = itens_no_local[idx_item]
-                            # Agora chamamos o método do DB que usa a stored procedure
                             if self.db.add_item_to_inventory(self.player.id_jogador, item_escolhido['instancia_item_id']):
                                 print(f"Voce pegou '{item_escolhido['item_nome'].strip()}'.")
                             else:
@@ -303,7 +301,7 @@ class Game:
                 input("\nPressione Enter para continuar...")
                 continue # Voltar ao inicio do loop gameplay
 
-            elif escolha == 'procurar_monstros': # <--- NOVA OPÇÃO PARA PROCURAR MONSTROS
+            elif escolha == 'procurar_monstros':
                 print("\nVoce se prepara para procurar por sinais de vida... nao-humana.")
                 monstros_no_local = self.db.get_monsters_in_location(self.player.id_local)
 
@@ -315,13 +313,12 @@ class Game:
                         vida_atual = monstro['vida_atual']
                         vida_total = monstro['vida_total']
                         print(f"  [{i + 1}] {nome_monstro} (Tipo: {tipo_monstro}, Vida: {vida_atual}/{vida_total})")
-                        # Futuramente, aqui voce poderia adicionar a logica para interagir com o monstro (ex: atacar)
                 else:
                     print("O local parece estar livre de ameacas... por enquanto.")
                 input("\nPressione Enter para continuar...")
                 continue
 
-            elif escolha == 'kill': # <--- NOVA OPÇÃO PARA MATAR MONSTROS
+            elif escolha == 'kill':
                 print("\nVoce decide usar forca letal para limpar o local de qualquer ameaca...")
                 monstros_mortos_count = self.db.kill_monsters_in_location(self.player.id_local)
                 if monstros_mortos_count > 0:

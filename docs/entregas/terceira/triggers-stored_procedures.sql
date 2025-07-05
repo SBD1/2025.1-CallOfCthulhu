@@ -114,6 +114,16 @@ DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, publ
 -- Funções de respawn
 DROP FUNCTION IF EXISTS public.lua_de_sangue() CASCADE;
 
+DROP FUNCTION IF EXISTS public.sp_vasculhar_local(public.id_local) CASCADE;
+
+DROP FUNCTION IF EXISTS public.sp_adicionar_item_ao_inventario(public.id_personagem, public.id_instancia_de_item) CASCADE;
+
+DROP FUNCTION IF EXISTS public.sp_ver_inventario(public.id_personagem) CASCADE;
+
+DROP FUNCTION IF EXISTS public.sp_encontrar_monstros_no_local(public.id_local) CASCADE;
+
+DROP FUNCTION IF EXISTS public.sp_matar_monstros_no_local(public.id_local) CASCADE;
+
 
 -- =================================================================================
 --         2. REGRAS DE PERSONAGENS (GERAL)
@@ -887,7 +897,8 @@ CREATE TRIGGER trigger_bloqueia_insert_magicos
 
 
 -- =================================================================================
---         5.3. RESPAWN DE MONSTROS E ITENS (LUA DE SANGUE)=================================================================================
+--    5.3. STORED PROCEDURE PARA RESPAWN DE MONSTROS E ITENS (LUA DE SANGUE)
+--=================================================================================
 
 CREATE FUNCTION public.lua_de_sangue()
 RETURNS VOID 
@@ -925,7 +936,7 @@ END;
 $$;
 
 --===============================================================================
---        5.4 VASCULHAR A SALA EM BUSCA DE ITENS 
+--        5.4 STORED PROCEDURE PARA VASCULHAR A SALA EM BUSCA DE ITENS 
 --===============================================================================
 
 CREATE FUNCTION public.sp_vasculhar_local(
@@ -943,6 +954,15 @@ RETURNS TABLE (
 )
 LANGUAGE plpgsql AS $$
 BEGIN
+
+    /*
+    Pesquisa os itens presentes em uma sala fazendo uma junção das informações do item: informações
+    básicas, presentes na tabela item, e informações da instância presente na tabela da instância,
+    para garantir que somente os itens que estejam naquela sala apareçam é feito um 
+    WHERE que pega o local que o jogador está, com esse id ele faz a seleção dos itens que estão
+    neste id
+    */
+
     RETURN QUERY
     SELECT
         iii.id AS instancia_item_id,
@@ -966,6 +986,10 @@ BEGIN
             RETURN;
 END;
 $$;
+
+--===============================================================================
+--        5.5 STORED PROCEDURE PARA ADICIONAR ITEM EM INVENTÁRIO
+--===============================================================================
 
 CREATE OR REPLACE FUNCTION public.sp_adicionar_item_ao_inventario(
     p_jogador_id public.id_personagem,
@@ -997,23 +1021,18 @@ BEGIN
         RETURN FALSE;
     END IF;
 
-    -- Opcional: Adicionar lógica para verificar se o item está no local do jogador
-    -- Se você quiser que o jogador só possa pegar itens da sua sala atual, precisaria passar o id_local do jogador
-    -- e comparar com v_local_atual_item. Por enquanto, a stored procedure apenas move o item de qualquer lugar para o inventário.
-
     -- Inicia uma transação para garantir que ambas as operações sejam atômicas
     BEGIN
-        -- 1. Remove o item do local (seta id_local para NULL)
+        -- 1. Remove o item do local (coloca o id_local do item como NULL)
         UPDATE public.instancias_de_itens
         SET id_local = NULL
         WHERE id = p_instancia_item_id;
 
         -- 2. Adiciona o item à tabela de junção inventarios_possuem_instancias_item
-        -- Isso é seguro mesmo se o item já estiver no inventário (a chave primária composta deve impedir duplicatas)
         INSERT INTO public.inventarios_possuem_instancias_item (id_instancias_de_item, id_inventario)
         VALUES (p_instancia_item_id, v_id_inventario);
 
-        RETURN TRUE; -- Sucesso
+        RETURN TRUE; -- Sucesso, o item foi adicionado ao inventário do jogador
     END;
 
 EXCEPTION
@@ -1027,7 +1046,7 @@ END;
 $$;
 
 --===============================================================================
---        5.5 VER O INVENTÁRIO
+--        5.6 STORED PROCEDURE PARA VER O INVENTÁRIO
 --===============================================================================
 
 CREATE OR REPLACE FUNCTION public.sp_ver_inventario(
@@ -1046,7 +1065,7 @@ LANGUAGE plpgsql AS $$
 DECLARE
     v_id_inventario public.id_inventario;
 BEGIN
-    -- Primeiro, obtemos o ID do inventário do jogador
+    -- Primeiro, é obtido o ID do inventário do jogador
     SELECT id_inventario INTO v_id_inventario
     FROM public.personagens_jogaveis
     WHERE id = p_jogador_id;
@@ -1058,7 +1077,7 @@ BEGIN
         RETURN; -- Retorna um conjunto vazio
     END IF;
 
-    -- Retorna os detalhes de todos os itens associados a este inventário
+    -- Retorna os detalhes de todos os itens associados a este inventário a partir de uma consulta
     RETURN QUERY
     SELECT
         ipii.id_instancias_de_item AS instancia_item_id,
@@ -1085,7 +1104,7 @@ END;
 $$;
 
 --===============================================================================
---        5.6 ENCONTRAR MONSTROS NO LOCAL
+--        5.7 STORED PROCEDURE PARA ENCONTRAR MONSTROS NO LOCAL
 --===============================================================================
 
 CREATE OR REPLACE FUNCTION public.sp_encontrar_monstros_no_local(
@@ -1097,28 +1116,14 @@ RETURNS TABLE (
     monstro_nome public.nome,
     monstro_descricao public.descricao,
     monstro_tipo public.tipo_monstro,
-    vida_atual SMALLINT, -- Assumindo que esta coluna agora existe em instancias_monstros
+    vida_atual SMALLINT,
     vida_total SMALLINT,
     defesa SMALLINT
-    -- Você pode adicionar mais colunas específicas aqui se precisar no Python,
-    -- como catalisador_agressividade, poder, velocidade_ataque, loucura_induzida,
-    -- ponto_magia, dano (para agressivos), ou motivo_passividade, conhecimento_proibido,
-    -- conhecimento_geografico (para pacificos).
-    -- Para isso, você precisaria adicionar essas colunas também no RETURNS TABLE e no SELECT.
-    -- Por exemplo:
-    -- catalisador_agressividade public.gatilho_agressividade DEFAULT NULL,
-    -- poder SMALLINT DEFAULT NULL,
-    -- tipo_agressivo public.tipo_monstro_agressivo DEFAULT NULL,
-    -- ...
-    -- COALESCE(a.catalisador_agressividade, NULL) AS catalisador_agressividade,
-    -- COALESCE(a.poder, NULL) AS poder,
-    -- ...
-    -- COALESCE(p.motivo_passividade, NULL) AS motivo_passividade,
-    -- ...
+    -- Mais atributos do monstro podem ser adicionados caso necessario
 )
 LANGUAGE plpgsql AS $$
 BEGIN
-    -- Retorna todas as instâncias de monstros que estão atualmente no local especificado
+    -- Retorna todas as instâncias de monstros que estão atualmente no local especificado com uma consulta
     RETURN QUERY
     SELECT
         im.id AS instancia_monstro_id,
@@ -1129,14 +1134,6 @@ BEGIN
         im.vida AS vida_atual, -- <--- Coluna 'vida' da instância do monstro
         COALESCE(a.vida_total, p.vida_total) AS vida_total, -- Vida total base do tipo de monstro
         COALESCE(a.defesa, p.defesa) AS defesa
-        -- Adicione as outras colunas aqui, se as adicionou no RETURNS TABLE
-        -- Por exemplo:
-        -- COALESCE(a.catalisador_agressividade, NULL),
-        -- COALESCE(a.poder, NULL),
-        -- COALESCE(a.tipo_agressivo, NULL),
-        -- ...
-        -- COALESCE(p.motivo_passividade, NULL),
-        -- ...
     FROM
         public.instancias_monstros im
     JOIN
@@ -1155,6 +1152,12 @@ EXCEPTION
 END;
 $$;
 
+--===============================================================================
+--        5.8 STORED PROCEDURE PARA MATAR TODOS OS MONSTROS DO LOCAL
+--===============================================================================
+
+-- Somente para testes do banco
+
 CREATE OR REPLACE FUNCTION public.sp_matar_monstros_no_local(
     p_local_id public.id_local
 )
@@ -1163,12 +1166,11 @@ LANGUAGE plpgsql AS $$
 DECLARE
     v_monstros_mortos INTEGER := 0;
 BEGIN
-    -- Atualiza o id_local dos monstros para NULL (removendo-os da sala)
-    -- e reseta a vida para 0 ou para a vida_total base para respawn futuro
+    -- Atualiza o id_local dos monstros para NULL e coloca a vida deles como 0
     UPDATE public.instancias_monstros im
     SET
         id_local = NULL, -- Remove da sala para que possam ser "respawnados" pela Lua de Sangue
-        vida = COALESCE( -- Reseta a vida para a vida_total do monstro base
+        vida = COALESCE(
             (SELECT a.vida_total FROM public.agressivos a WHERE a.id = im.id_monstro),
             (SELECT p.vida_total FROM public.pacificos p WHERE p.id = im.id_monstro)
         )

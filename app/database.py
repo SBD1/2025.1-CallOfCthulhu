@@ -352,7 +352,6 @@ class DataBase:
         query = "SELECT * FROM public.sp_vasculhar_local(%s);"
         return self._execute_query(query, (local_id,), fetch_all=True)
 
-    # Novo método para chamar a stored procedure sp_adicionar_item_ao_inventario
     def add_item_to_inventory(self, id_jogador: int, id_instancia_item: int):
         """
         Chama a stored procedure sp_adicionar_item_ao_inventario para adicionar
@@ -360,7 +359,6 @@ class DataBase:
         """
         query = "SELECT public.sp_adicionar_item_ao_inventario(%s, %s);"
         result = self._execute_query(query, (id_jogador, id_instancia_item), fetch_one=True)
-        # A stored procedure retorna TRUE ou FALSE, entao verificamos o valor booleano
         return result and result['sp_adicionar_item_ao_inventario']
     
 
