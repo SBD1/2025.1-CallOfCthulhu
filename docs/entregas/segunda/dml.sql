@@ -545,8 +545,8 @@ SELECT public.sp_criar_arma(
 INSERT INTO public.instancias_de_itens (durabilidade, durabilidade_total, id_item, id_local, id_local_de_spawn)
 VALUES 
   (80, 80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), 
-  (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
-  (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'));
+  (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'),
+  (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'));
 
 -- Inserindo a instância do monstro com a instância do item
 INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)

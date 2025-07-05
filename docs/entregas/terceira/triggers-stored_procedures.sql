@@ -46,6 +46,13 @@ VERSÃO: 0.9
 DATA: 05/07/2025
 AUTOR: Luiz Guilherme
 DESCRIÇÃO: Criação do procedure para permitir o respawn de monstros e itens no jogo
+
+VERSÃO: 0.10
+DATA: 05/07/2025
+AUTOR: Luiz Guilherme
+DESCRIÇÃO: Criação dos procedures: vasculhar sala, olhar inventario, pegar item da sala
+*/
+
 */
 
 -- =================================================================================
@@ -882,8 +889,7 @@ CREATE TRIGGER trigger_bloqueia_insert_magicos
 
 
 -- =================================================================================
---         5.3. RESPAWN DE MONSTROS E ITENS (LUA DE SANGUE)
--- =================================================================================
+--         5.3. RESPAWN DE MONSTROS E ITENS (LUA DE SANGUE)=================================================================================
 
 CREATE FUNCTION public.lua_de_sangue()
 RETURNS VOID 
@@ -913,8 +919,169 @@ BEGIN
         FROM public.inventarios_possuem_instancias_de_itens ipii 
         WHERE ipii.id_instancias_de_item = ii.id
     );
+    
 
     RAISE NOTICE 'Uma lua de sangue está ocorrendo. Monstros que foram derrotados voltam para vingar sua morte. Itens que já foram coletados podem ser encontrados novamente';
 
+END;
+$$;
+
+--===============================================================================
+--        5.4 VASCULHAR A SALA EM BUSCA DE ITENS 
+--===============================================================================
+
+CREATE FUNCTION public.sp_vasculhar_local(
+    p_local_id public.id_local
+)
+RETURNS TABLE (
+    instancia_item_id public.id_instancia_de_item,
+    durabilidade SMALLINT,
+    durabilidade_total SMALLINT,
+    item_base_id public.id_item,
+    item_nome public.nome,
+    item_descricao public.descricao,
+    item_tipo public.tipo_item,
+    item_valor SMALLINT
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        iii.id AS instancia_item_id,
+        iii.durabilidade,
+        iii.durabilidade_total,
+        it.id AS item_base_id,
+        it.nome AS item_nome,
+        it.descricao AS item_descricao,
+        it.tipo AS item_tipo,
+        it.valor AS item_valor
+    FROM 
+        public.instancias_de_itens iii
+    JOIN
+        public.itens it ON iii.id_item = it.id
+    WHERE 
+        iii.id_local = p_local_id;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE NOTICE 'Ocorreu um erro ao vasculhar o local %: %', p_local_id, SQLERRM;
+            RETURN;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.sp_adicionar_item_ao_inventario(
+    p_jogador_id public.id_personagem,
+    p_instancia_item_id public.id_instancia_de_item
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_id_inventario public.id_inventario;
+    v_local_atual_item public.id_local;
+BEGIN
+    -- Verifica se o jogador existe e obtém o ID do inventário dele
+    SELECT id_inventario INTO v_id_inventario
+    FROM public.personagens_jogaveis
+    WHERE id = p_jogador_id;
+
+    IF v_id_inventario IS NULL THEN
+        RAISE EXCEPTION 'Jogador com ID % nao encontrado ou nao possui inventario.', p_jogador_id;
+    END IF;
+
+    -- Verifica o local atual da instancia do item
+    SELECT id_local INTO v_local_atual_item
+    FROM public.instancias_de_itens
+    WHERE id = p_instancia_item_id;
+
+    IF v_local_atual_item IS NULL THEN
+        -- O item ja foi pego ou nao esta em nenhum local
+        RAISE NOTICE 'Item % ja foi pego ou nao esta em nenhum local.', p_instancia_item_id;
+        RETURN FALSE;
+    END IF;
+
+    -- Opcional: Adicionar lógica para verificar se o item está no local do jogador
+    -- Se você quiser que o jogador só possa pegar itens da sua sala atual, precisaria passar o id_local do jogador
+    -- e comparar com v_local_atual_item. Por enquanto, a stored procedure apenas move o item de qualquer lugar para o inventário.
+
+    -- Inicia uma transação para garantir que ambas as operações sejam atômicas
+    BEGIN
+        -- 1. Remove o item do local (seta id_local para NULL)
+        UPDATE public.instancias_de_itens
+        SET id_local = NULL
+        WHERE id = p_instancia_item_id;
+
+        -- 2. Adiciona o item à tabela de junção inventarios_possuem_instancias_item
+        -- Isso é seguro mesmo se o item já estiver no inventário (a chave primária composta deve impedir duplicatas)
+        INSERT INTO public.inventarios_possuem_instancias_item (id_instancias_de_item, id_inventario)
+        VALUES (p_instancia_item_id, v_id_inventario);
+
+        RETURN TRUE; -- Sucesso
+    END;
+
+EXCEPTION
+    WHEN unique_violation THEN
+        RAISE NOTICE 'Item % ja esta no inventario do jogador %.', p_instancia_item_id, p_jogador_id;
+        RETURN TRUE; -- Consideramos sucesso se já está no inventário
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao adicionar o item % ao inventario do jogador %: %', p_instancia_item_id, p_jogador_id, SQLERRM;
+        RETURN FALSE; -- Falha
+END;
+$$;
+
+--===============================================================================
+--        5.5 VER O INVENTÁRIO
+--===============================================================================
+
+CREATE OR REPLACE FUNCTION public.sp_ver_inventario(
+    p_jogador_id public.id_personagem
+)
+RETURNS TABLE (
+    instancia_item_id public.id_instancia_de_item,
+    item_nome public.nome,
+    item_descricao public.descricao,
+    durabilidade SMALLINT,
+    durabilidade_total SMALLINT,
+    item_tipo public.tipo_item,
+    item_valor SMALLINT
+)
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_id_inventario public.id_inventario;
+BEGIN
+    -- Primeiro, obtemos o ID do inventário do jogador
+    SELECT id_inventario INTO v_id_inventario
+    FROM public.personagens_jogaveis
+    WHERE id = p_jogador_id;
+
+    -- Se o jogador não tiver um inventário (o que não deve acontecer se a criação for bem feita),
+    -- ou se o ID do jogador for inválido, podemos levantar uma exceção ou retornar vazio.
+    IF v_id_inventario IS NULL THEN
+        RAISE NOTICE 'Jogador com ID % nao encontrado ou nao possui um inventario associado.', p_jogador_id;
+        RETURN; -- Retorna um conjunto vazio
+    END IF;
+
+    -- Retorna os detalhes de todos os itens associados a este inventário
+    RETURN QUERY
+    SELECT
+        ipii.id_instancias_de_item AS instancia_item_id,
+        it.nome AS item_nome,
+        it.descricao AS item_descricao,
+        iii.durabilidade,
+        iii.durabilidade_total,
+        it.tipo AS item_tipo,
+        it.valor AS item_valor
+    FROM
+        public.inventarios_possuem_instancias_item ipii
+    JOIN
+        public.instancias_de_itens iii ON ipii.id_instancias_de_item = iii.id
+    JOIN
+        public.itens it ON iii.id_item = it.id
+    WHERE
+        ipii.id_inventario = v_id_inventario;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao verificar o inventario do jogador %: %', p_jogador_id, SQLERRM;
+        RETURN; -- Retorna um conjunto vazio em caso de erro
 END;
 $$;

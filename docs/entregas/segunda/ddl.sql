@@ -1296,6 +1296,7 @@ CREATE TABLE public.pacificos(
 
 CREATE TABLE public.instancias_monstros(
     id public.id_instancia_de_monstro NOT NULL PRIMARY KEY DEFAULT public.gerar_id_instancia_de_monstro(),
+    vida SMALLINT,
 
     -- FOREING KEYS
     id_instancia_de_item public.id_instancia_de_item NOT NULL,
