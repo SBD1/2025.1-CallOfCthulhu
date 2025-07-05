@@ -4,6 +4,7 @@ import sys
 from classes import Player # Agora importamos apenas Player
 from database import DataBase
 # import time # Importa o módulo time para usar time.sleep()
+# import time # Importa o módulo time para usar time.sleep()
 
 def clear():
     """Limpa a tela do terminal."""
@@ -11,28 +12,28 @@ def clear():
 
 # --- Função para a introdução do Call of Cthulhu ---
 def display_cthulhu_intro():
-    clear()
-    print(" _____   ___   _       _         ___________   _____ _____ _   _ _   _ _     _   _ _   _ ")
-    print("/  __ \\ / _ \\ | |     | |       |  _  | ___| /  __ \\_  _| | | | | | | |     | | | | | | |")
-    print("| /  \\/ /_\\ \\| |     | |       | | | | |_    | /  \\/ | | | |_| | | | |     | |_| | | | |")
-    print("| |    | _  || |     | |       | | | |  _|   | |     | | |  _  | | | |     |  _  | | | |")
+    # clear()
+    print(" _____   ___   _      _       ___________   _____ _____ _   _ _   _ _      _   _ _   _ ")
+    print("/  __ \\ / _ \\ | |    | |     |  _  |  ___| /  __ \\_   _| | | | | | | |    | | | | | | |")
+    print("| /  \\/ /_\\ \\| |    | |     | | | | |_    | /  \\/ | | | |_| | | | | |    | |_| | | | |")
+    print("| |    |  _  || |    | |     | | | |  _|   | |     | | |  _  | | | | |    |  _  | | | |")
     print("| \\__/\\| | | || |____| |____ \\ \\_/ / |     | \\__/\\ | | | | | | |_| | |____| | | | |_| |")
     print(" \\____/\\_| |_/\\_____/\\_____/  \\___/\\_|      \\____/ \\_/ \\_| |_/\\___/\\_____/\\_| |_/\\___/ ")
     print("                                                                                         ")
     print("                                                                                         \n\n")
 
-    # time.sleep(1) # Pequena pausa para a leitura inicial do titulo
+    
+    # time.sleep(1) # Pequena pausa para a leitura inicial do título
 
-    print("                           O CHAMADO ECOA...")
+    print("                                            O CHAMADO ECOA...")
     # time.sleep(2)
-    print("                 NAS PROFUNDEZAS ESQUECIDAS DO TEMPO E DO ESPACO...")
+    print("                           NAS PROFUNDEZAS ESQUECIDAS DO TEMPO E DO ESPAÇO...")
     # time.sleep(2)
-    print("                           UMA ENTIDADE ANTIGA AGUARDA...")
+    print("                                  UMA ENTIDADE ANTIGA AGUARDA...")
     # time.sleep(2)
-    print("                              E SEU PESADELO COMECA.")
+    print("                                       E SEU PESADELO COMEÇA.")
     # time.sleep(3) # Pausa mais longa para o impacto final
-    clear() # Limpa a tela antes de ir para o menu principal do jogo
-
+    # clear() # Limpa a tela antes de ir para o menu principal do jogo
 # --- Fim da função de introdução ---
 
 class Game:
@@ -43,7 +44,7 @@ class Game:
 
     def create_new_character_flow(self):
         # clear()
-        print("--- Criacao de Novo Personagem ---")
+        print("--- Criação de Novo Personagem ---")
         
         new_name = input('Digite o nome do seu personagem: ').strip()
         if not new_name:
@@ -167,7 +168,7 @@ class Game:
     def start(self):
         """Exibe o menu inicial e gerencia as opcoes do usuario."""
         while True:
-            # clear() 
+            # clear() # Limpa a tela a cada exibição do menu
             print('\n--- Chamado de Cthulhu ---')
             print('Bem-vindo ao jogo! \n')
             print('1 - Criar Personagem')
@@ -211,7 +212,7 @@ class Game:
                 return self.start() # Volta ao menu inicial se o local nao for encontrado
 
             # 2. Mostra o status atual
-            clear()
+            # clear()
             print("==================================================")
             # Usa o tipo_local diretamente do BD (ex: 'Sala' ou 'Corredor')
             print(f"Voce esta em um(a) {detalhes_local['tipo_local']}: {detalhes_local['descricao']}")

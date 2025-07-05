@@ -69,7 +69,19 @@ Data: 14/06/2025
 Descrição: Adicionando geradores de IDs para as tabelas do banco de dados
 Autor: Luiz Guilherme
 
-Versão 1.1
+Versão: 1.1
+Data: 28/06/2025
+Descrição: Adicionando valores DEFAULT para a tabela public.personagens_jogaveis. Atributos agora estão sendo calculados pela trigger 'trigger_ajustar_atributos_personagem', da função 'public.func_ajustar_atributos_personagem()'
+Autor: Wanjo Christopher
+
+Versão: 1.2
+Data: 28/06/2025
+Descrição: Cria tabela pai para monstros contendo apenas id, tipo e atributos gerais para facilitar criação de instâncias de monstros e o SELECT de monstros.
+Autor: Wanjo Christopher
+
+Versão: 1.3
+Data: 28/06/2025
+Descrição: Erro de Colunas Faltando na Tabela de Junção personagens_possuem_pericias, você definiu a chave primária e as chaves estrangeiras, mas esqueceu de declarar as colunas na criação da tabela.Versão 1.1
 Data: 30/06/2025
 Descrição: Adicionando a tabela local e removendo as tabelas de corredores e salas
 Autores: Luiz Guilherme e Cayo
@@ -1105,7 +1117,6 @@ END;
 -- ===============================================
 
 CREATE TABLE public.personagens_jogaveis(
-    -- id INTEGER NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     id public.id_personagem_jogavel NOT NULL PRIMARY KEY DEFAULT public.gerar_id_personagem_jogavel(),
     nome public.nome NOT NULL,
     ocupacao public.ocupacao NOT NULL,
@@ -1115,26 +1126,35 @@ CREATE TABLE public.personagens_jogaveis(
     idade public.idade DEFAULT 18 NOT NULL,
     sexo public.sexo NOT NULL,
 
-    forca public.atributo NOT NULL, -- 3d6
-    constituicao public.atributo NOT NULL, -- 3d6
-    poder public.atributo NOT NULL, -- 3d6
-    destreza public.atributo NOT NULL, -- 3d6
-    aparencia public.atributo NOT NULL, -- 3d6
-    tamanho public.atributo NOT NULL, -- 3d6
-    inteligencia public.atributo NOT NULL, -- 3d6
-    educacao public.atributo NOT NULL, -- 3d6
+
+    -- Atributos agora com DEFAULT diretamente na criação
+    /* Explicação do random()
+    1. random() no psql gera um número decimal entre 0.0 e 0.999
+    2. random() * 16 gera um número entre 0.0 e 15.999
+    3. random() * 16 + 3 move esse intervalo para 3.0 até 18.999...
+    4. floor(...) arredonda para baixo, resultando em um número inteiro de 3 a 18, equivalente ao 3d6.
+    */
+    forca public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    constituicao public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    poder public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    destreza public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    aparencia public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    tamanho public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    inteligencia public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
+    educacao public.atributo NOT NULL DEFAULT floor(random() * 16 + 3),
 
 
-    movimento SMALLINT NOT NULL, -- (destreza < tamanho) && (forca < tamanho) ? movimento = 7; (destreza = tamanho) || (forca = tamanho) ? movimento = 8; (destreza > tamanho) && (forca > tamanho) ? movimento = 9;
+    -- TRIGGER 'public.verificar_atributos_personagem_jogavel()' valores base posteriormente
+    movimento SMALLINT NOT NULL DEFAULT 0,
+    sanidade_atual SMALLINT NOT NULL DEFAULT 0,
+    pontos_de_vida_atual SMALLINT NOT NULL DEFAULT 0,
 
-    sanidade_atual SMALLINT NOT NULL, -- = forca 
-    insanidade_temporaria BOOLEAN, 
-    insanidade_indefinida BOOLEAN, -- quando sanidade é 0
-    
-   	PM_base SMALLINT NOT NULL, 
-    PM_max SMALLINT NOT NULL,
+    PM_base SMALLINT NOT NULL DEFAULT 0,
+    PM_max SMALLINT NOT NULL DEFAULT 0,
 
-    pontos_de_vida_atual SMALLINT NOT NULL,
+    -- Colunas booleanas com DEFAULT
+    insanidade_temporaria BOOLEAN DEFAULT FALSE,
+    insanidade_indefinida BOOLEAN DEFAULT FALSE,
 
     -- FOREIGN KEYS
     id_local public.id_local,  
@@ -1229,10 +1249,16 @@ CREATE TABLE public.pericias(
     eh_de_ocupacao BOOLEAN
 );
 
-CREATE TABLE public.agressivos(
-    id public.id_monstro_agressivo NOT NULL PRIMARY KEY DEFAULT public.gerar_id_monstro_agressivo(),
+-- Tabela pai de monstros
+CREATE TABLE public.monstros(
+    id public.id_monstro NOT NULL PRIMARY KEY, 
     nome public.nome NOT NULL UNIQUE,
     descricao public.descricao NOT NULL,
+    tipo public.tipo_monstro NOT NULL -- define se é 'agressivo' ou 'pacífico'
+);
+
+CREATE TABLE public.agressivos(
+    id public.id_monstro_agressivo NOT NULL PRIMARY KEY, -- Usa o ID específico de agressivo
     defesa SMALLINT,
     vida SMALLINT NOT NULL,
     catalisador_agressividade public.gatilho_agressividade,
@@ -1243,13 +1269,12 @@ CREATE TABLE public.agressivos(
     ponto_magia SMALLINT,
     dano public.dano NOT NULL,
 
-    id_tipo_monstro INTEGER -- FK
+    -- Chave estrangeira que aponta para a tabela pai de monstros
+    CONSTRAINT fk_agressivos_monstros FOREIGN KEY (id) REFERENCES public.monstros(id) ON DELETE CASCADE
 );
 
 CREATE TABLE public.pacificos(
-    id public.id_monstro_pacifico NOT NULL PRIMARY KEY DEFAULT public.gerar_id_monstro_pacifico(),
-    nome public.nome NOT NULL UNIQUE,
-    descricao public.descricao NOT NULL,
+    id public.id_monstro_pacifico NOT NULL PRIMARY KEY, 
     defesa SMALLINT NOT NULL,
     vida SMALLINT NOT NULL,
     motivo_passividade public.comportamento_pacifico,
@@ -1257,7 +1282,8 @@ CREATE TABLE public.pacificos(
     conhecimento_geografico CHARACTER(128),
     conhecimento_proibido CHARACTER(128),
 
-    id_tipo_monstro INTEGER -- FK
+    -- Chave estrangeira que aponta para a tabela pai de monstros
+    CONSTRAINT fk_pacificos_monstros FOREIGN KEY (id) REFERENCES public.monstros(id) ON DELETE CASCADE
 );
 
 CREATE TABLE public.instancias_monstros(
@@ -1424,12 +1450,10 @@ CREATE TABLE public.inventarios_possuem_instancias_item(
 );
 
 CREATE TABLE public.personagens_possuem_pericias (
+    id_personagem public.id_personagem_jogavel NOT NULL, -- Declarar a coluna aqui
+    id_pericia public.id_pericia NOT NULL,              -- Declarar a coluna aqui
     valor_atual SMALLINT NOT NULL,
-    PRIMARY KEY (id_personagem, id_pericia),
-
-    -- FOREIGN KEYS
-    id_personagem public.id_personagem_jogavel NOT NULL,
-    id_pericia public.id_pericia NOT NULL
+    PRIMARY KEY (id_personagem, id_pericia)
 );
 
 -- ===============================================
@@ -1676,19 +1700,19 @@ ADD CONSTRAINT fk_instancias_monstro_instancia_de_item
 --      MONSTROS PACÍFICOS
 -- ==============================
 
-ALTER TABLE public.pacificos 
-ADD CONSTRAINT fk_pacificos_tipo_monstro 
-    FOREIGN KEY (id_tipo_monstro) 
-    REFERENCES public.tipos_monstro (id);
+-- ALTER TABLE public.pacificos 
+-- ADD CONSTRAINT fk_pacificos_tipo_monstro 
+--     FOREIGN KEY (id_tipo_monstro) 
+--     REFERENCES public.tipos_monstro (id);
 
 -- ==============================
 --      MONSTROS AGRESSIVOS
 -- ==============================
 
-ALTER TABLE public.agressivos 
-ADD CONSTRAINT fk_agressivos_tipo_monstro 
-    FOREIGN KEY (id_tipo_monstro) 
-    REFERENCES public.tipos_monstro (id);
+-- ALTER TABLE public.agressivos 
+-- ADD CONSTRAINT fk_agressivos_tipo_monstro 
+--     FOREIGN KEY (id_tipo_monstro) 
+--     REFERENCES public.tipos_monstro (id);
 
 -- ==============================
 --          BATALHAS
