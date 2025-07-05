@@ -67,6 +67,10 @@ DATA: 05/07/2025
 AUTOR: Wanjo Christopher
 DESCRIÇÃO: Cria triggers, stored procedures e functions para itens consumíveis (cura e mágicos) e feitiços.
 
+VERSÃO: 0.14
+DATA: 05/07/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Cria triggers, stored procedures e functions para Batalha e conclusão de missões.
 
 */
 -- -- ===============================================================================
@@ -150,6 +154,7 @@ DROP FUNCTION IF EXISTS public.func_bloquear_insert_direto_monstro() CASCADE;
 -- Funções de missões
 DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), public.tipo_missao, CHARACTER(128), public.id_personagem_npc) CASCADE;
 DROP FUNCTION IF EXISTS public.func_validar_dados_missao() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_entregar_missao() CASCADE;
 
 -- Funções de itens
 DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, public.tipo_item, SMALLINT, public.id_inventario) CASCADE;
@@ -170,6 +175,10 @@ DROP FUNCTION IF EXISTS public.sp_adicionar_item_ao_inventario(public.id_persona
 DROP FUNCTION IF EXISTS public.sp_ver_inventario(public.id_personagem) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_encontrar_monstros_no_local(public.id_local) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_matar_monstros_no_local(public.id_local) CASCADE;
+
+-- Função de Batalha
+DROP FUNCTION IF EXISTS public.sp_batalhar(public.id_personagem, public.id_monstro) CASCADE;
+
 
 
 -- =================================================================================
@@ -1278,3 +1287,187 @@ EXCEPTION
 END;
 $$;
 
+/*
+=================================================================================
+        12. LÓGICA PARA BATALHAS
+=================================================================================
+*/
+
+-- ---------------------------------------------------------------------------------
+--  STORED PROCEDURE: Executa uma batalha completa entre um jogador e um monstro.
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_executar_batalha(
+    p_id_jogador public.id_personagem_jogavel,
+    p_id_instancia_monstro public.id_instancia_de_monstro
+)
+RETURNS TEXT -- Retorna uma mensagem com o resultado da batalha
+LANGUAGE plpgsql AS $$
+DECLARE
+    -- Variáveis para os status do Jogador
+    v_vida_jogador SMALLINT;
+    v_dano_jogador SMALLINT;
+    v_defesa_jogador SMALLINT;
+    v_id_inventario public.id_inventario;
+
+    -- Variáveis para os status do Monstro
+    v_id_monstro_base public.id_monstro;
+    v_vida_monstro SMALLINT;
+    v_dano_monstro SMALLINT;
+    v_defesa_monstro SMALLINT;
+    v_nome_monstro public.nome;
+    v_item_drop_id public.id_instancia_de_item;
+
+    -- Variável de resultado
+    v_resultado TEXT;
+BEGIN
+    -- 1. BUSCAR DADOS DO JOGADOR
+    SELECT
+        pj.pontos_de_vida_atual,
+        COALESCE(a.dano, 1), -- Dano da arma, ou 1 se desarmado (soco)
+        COALESCE(ar.qtd_dano_mitigado, 0), -- Defesa da armadura, ou 0 se sem armadura
+        pj.id_inventario
+    INTO
+        v_vida_jogador, v_dano_jogador, v_defesa_jogador, v_id_inventario
+    FROM public.personagens_jogaveis pj
+    LEFT JOIN public.instancias_de_itens ii_arma ON pj.id_arma = ii_arma.id
+    LEFT JOIN public.armas a ON ii_arma.id_item = a.id
+    LEFT JOIN public.instancias_de_itens ii_armadura ON pj.id_armadura = ii_armadura.id
+    LEFT JOIN public.armaduras ar ON ii_armadura.id_item = ar.id
+    WHERE pj.id = p_id_jogador;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Jogador com ID % não encontrado.', p_id_jogador;
+    END IF;
+
+    -- 2. BUSCAR DADOS DO MONSTRO
+    SELECT
+        im.id_monstro,
+        im.id_instancia_de_item,
+        m.nome,
+        a.vida,
+        a.dano,
+        COALESCE(a.defesa, 0)
+    INTO
+        v_id_monstro_base, v_item_drop_id, v_nome_monstro, v_vida_monstro, v_dano_monstro, v_defesa_monstro
+    FROM public.instancias_monstros im
+    JOIN public.monstros m ON im.id_monstro = m.id
+    JOIN public.agressivos a ON m.id = a.id -- Assumindo que a batalha só ocorre com monstros agressivos
+    WHERE im.id = p_id_instancia_monstro;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Instância de monstro agressivo com ID % não encontrada.', p_id_instancia_monstro;
+    END IF;
+
+    RAISE NOTICE 'Batalha iniciada! Jogador (Vida: %) vs % (Vida: %)', v_vida_jogador, v_nome_monstro, v_vida_monstro;
+
+    -- 3. LOOP DE COMBATE
+    WHILE v_vida_jogador > 0 AND v_vida_monstro > 0 LOOP
+        -- Turno do Jogador
+        v_vida_monstro := v_vida_monstro - GREATEST(1, v_dano_jogador - v_defesa_monstro);
+        RAISE NOTICE 'Jogador ataca! Vida do monstro: %', v_vida_monstro;
+
+        IF v_vida_monstro <= 0 THEN
+            EXIT; -- Monstro foi derrotado
+        END IF;
+
+        -- Turno do Monstro
+        v_vida_jogador := v_vida_jogador - GREATEST(1, v_dano_monstro - v_defesa_jogador);
+        RAISE NOTICE 'Monstro ataca! Vida do jogador: %', v_vida_jogador;
+    END LOOP;
+
+    -- 4. DETERMINAR RESULTADO
+    IF v_vida_monstro <= 0 THEN
+        v_resultado := 'VITÓRIA! O monstro ' || v_nome_monstro || ' foi derrotado.';
+        RAISE NOTICE '%', v_resultado;
+
+        -- Remover o monstro do jogo
+        DELETE FROM public.instancias_monstros WHERE id = p_id_instancia_monstro;
+
+        -- Entregar o item dropado (loot) para o inventário do jogador, se houver
+        IF v_item_drop_id IS NOT NULL THEN
+            INSERT INTO public.inventarios_possuem_instancias_item (id_instancias_de_item, id_inventario)
+            VALUES (v_item_drop_id, v_id_inventario);
+            -- Remove o item do mapa, pois agora está no inventário
+            UPDATE public.instancias_de_itens SET id_local = NULL WHERE id = v_item_drop_id;
+            v_resultado := v_resultado || ' Você recebeu um item como recompensa!';
+            RAISE NOTICE 'O jogador recebeu o item de ID %.', v_item_drop_id;
+        END IF;
+
+    ELSE -- Se o jogador perdeu
+        v_resultado := 'DERROTA! Você foi vencido pelo ' || v_nome_monstro || '.';
+        RAISE NOTICE '%', v_resultado;
+        -- Atualizar a vida do jogador na tabela
+        UPDATE public.personagens_jogaveis SET pontos_de_vida_atual = 0 WHERE id = p_id_jogador;
+    END IF;
+
+    RETURN v_resultado;
+END;
+$$;
+
+
+/*
+=================================================================================
+        13. LÓGICA PARA CONCLUSÃO DE MISSÕES
+=================================================================================
+*/
+
+-- ---------------------------------------------------------------------------------
+--  STORED PROCEDURE: Finaliza uma missão e entrega a recompensa ao jogador.
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_entregar_missao(
+    p_id_jogador public.id_personagem_jogavel,
+    p_id_missao public.id_missao
+)
+RETURNS TEXT -- Retorna uma mensagem de sucesso
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_id_recompensa public.id_instancia_de_item;
+    v_nome_recompensa public.nome;
+    v_id_inventario public.id_inventario;
+    v_id_npc_missao public.id_personagem_npc;
+BEGIN
+    -- 1. VERIFICAR SE A MISSÃO EXISTE E OBTER O NPC ASSOCIADO
+    SELECT id_npc INTO v_id_npc_missao FROM public.missoes WHERE id = p_id_missao;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Missão com ID % não encontrada.', p_id_missao;
+    END IF;
+
+    -- 2. ENCONTRAR O ITEM DE RECOMPENSA PARA A MISSÃO
+    SELECT ii.id, i.nome
+    INTO v_id_recompensa, v_nome_recompensa
+    FROM public.instancias_de_itens ii
+    JOIN public.itens i ON ii.id_item = i.id
+    WHERE ii.id_missao_recompensa = p_id_missao;
+
+    -- 3. SE HOUVER RECOMPENSA, ADICIONAR AO INVENTÁRIO DO JOGADOR
+    IF FOUND THEN
+        -- Obter o inventário do jogador
+        SELECT id_inventario INTO v_id_inventario FROM public.personagens_jogaveis WHERE id = p_id_jogador;
+
+        -- Adicionar o item de recompensa à tabela de junção do inventário
+        INSERT INTO public.inventarios_possuem_instancias_item (id_instancias_de_item, id_inventario)
+        VALUES (v_id_recompensa, v_id_inventario);
+
+        -- Remover o item do mapa e desassociar da missão (para não ser pego de novo)
+        UPDATE public.instancias_de_itens
+        SET id_local = NULL, id_missao_recompensa = NULL
+        WHERE id = v_id_recompensa;
+
+        RAISE NOTICE 'O jogador % completou a missão % e recebeu a recompensa: %.', p_id_jogador, p_id_missao, v_nome_recompensa;
+    ELSE
+        RAISE NOTICE 'O jogador % completou a missão %, mas não havia recompensa em item associada.', p_id_jogador, p_id_missao;
+    END IF;
+
+    -- 4. REGISTRAR A CONCLUSÃO DA MISSÃO NA TABELA 'entregas_missoes'
+    -- Isso previne que a mesma missão seja entregue novamente.
+    INSERT INTO public.entregas_missoes (id_jogador, id_npc)
+    VALUES (p_id_jogador, v_id_npc_missao)
+    ON CONFLICT (id_jogador, id_npc) DO NOTHING; -- Não faz nada se o jogador já entregou uma missão para este NPC
+
+    RETURN 'Missão concluída com sucesso!';
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao entregar a missão: %', SQLERRM;
+        RAISE;
+END;
+$$;
