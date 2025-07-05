@@ -1,3 +1,5 @@
+BEGIN; -- Inicia uma nova transação
+
 /*
 
 HISTÓRICO DE VERSÕES
@@ -86,6 +88,11 @@ Descrição: Refatoração completa dos INSERTs para se alinhar com as correçõ
 - Substituição do bloco de inserção de monstros e da 'Adaga Simples' para utilizar os novos padrões de DML.
 - Ajuste na criação de itens mágicos para referenciar um feitiço específico em vez de um tipo de feitiço genérico.
 Autor: João Marcos, Luiz Guilherme.
+
+Versão 1.7 
+Data 05/07/2025
+Descrição: Adicionando itens com o procedure sp_criar_arma
+Autor: Luiz Guilherme
 
 */
 -- ===============================================
@@ -274,7 +281,7 @@ UPDATE public.local SET local_oeste = (SELECT id FROM public.local WHERE descric
 -- UPDATE public.local SET local_leste = (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala') WHERE descricao LIKE 'Este corredor tem as paredes cobertas por uma%' AND tipo_local = 'Corredor';
 
 -- ====================
--- SALA 1 
+-- SALA 1
 -- ====================
 
 -- Conexão 1.O: Sala 1 <-> Corredor 2 OESTE
@@ -465,7 +472,7 @@ SELECT 1;
 
 -- ===============================================
 
---       ADIÇÃO NAS TABELAS DE FEITIÇOS 
+--       ADIÇÃO NAS TABELAS DE FEITIÇOS
 
 -- ===============================================
 
@@ -485,7 +492,7 @@ VALUES ('Toque da Agonia', 'Causa dano psíquico direto na mente do alvo.', 15, 
 /*
 Aqui adicionamos os monstros no dml do jogo, cada monstro retorna um id, que é usado na instancia de monstro e em batalhas
 também criamos os itens, os quais retornam um id, que é usado nas instâncias de item e nas intâncias de monstro
-também criamos as batalhas com base no nome do personagem 
+também criamos as batalhas com base no nome do personagem
 */
 
 CALL public.sp_criar_monstro(
@@ -514,16 +521,19 @@ CALL public.sp_criar_monstro(
     p_pacifico_conhecimento_proibido := 'Sabe sobre a fraqueza de uma entidade maior.'::CHARACTER(128)
 );
 
--- Inserindo a "Adaga Simples" e sua instância
-BEGIN;
-  WITH adaga_criada AS (
-    INSERT INTO public.armas (atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_dano, dano, id_pericia_necessaria)
-    VALUES ('destreza', 7, 80, 'corpo_a_corpo_leve', 1, 'unico', 4, (SELECT id FROM public.pericias WHERE nome = 'Briga'))
-    RETURNING id
-  )
-  INSERT INTO public.itens (id, tipo, nome, descricao, valor)
-  VALUES ((SELECT id FROM adaga_criada), 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);
-COMMIT;
+SELECT public.sp_criar_arma(
+    p_nome                  := 'Adaga Simples'::public.nome,
+    p_descricao             := 'Uma adaga enferrujada.'::public.descricao,
+    p_valor                 := 5::SMALLINT,
+    p_atributo_necessario   := 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario := 7::SMALLINT,
+    p_durabilidade          := 80::SMALLINT,
+    p_funcao                := 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               := 1::SMALLINT,
+    p_tipo_municao          := NULL, -- Adagas geralmente não usam munição
+    p_tipo_dano             := 'unico'::public.tipo_dano,
+    p_dano                  := 4::public.dano
+);
 
 INSERT INTO public.instancias_de_itens (durabilidade, id_item, id_local)
 VALUES (80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'));
@@ -541,3 +551,4 @@ SELECT
     (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
     (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'));
 
+COMMIT; -- Finaliza a transação

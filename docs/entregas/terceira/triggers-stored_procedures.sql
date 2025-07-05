@@ -31,8 +31,13 @@ DATA: 28/06/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Criação de triggers e stored procedures para missões, incluindo validações de regras de negócio e exclusividade.
 
-VERSÃO: 0.7
-DATA: 28/06/2025
+VERSÃO: 0.7 
+DATA: 05/07/2025
+AUTOR: Luiz Guilherme
+DESCRIÇÃO: Correção de bugs no arquivo
+
+VERSÃO: 0.8
+DATA: 05/07/2025
 AUTOR: Wanjo Christopher
 DESCRIÇÃO: Cria triggers e stored procedures para armas e armaduras, incluindo validações de regras de negócio e exclusividade.
 
@@ -65,7 +70,7 @@ DROP TRIGGER IF EXISTS trigger_bloqueia_insert_pacificos ON public.pacificos CAS
 DROP TRIGGER IF EXISTS trigger_validar_dados_missao ON public.missoes CASCADE;
 
 -- Triggers de itens
-DROP TRIGGER IF EXIST trigger_bloqueia_insert_itens ON public.itens CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_itens ON public.itens CASCADE;
 
 -- ======== DROP DE FUNÇÕES ========
 -- Funções de Generalização/Especialização
@@ -95,7 +100,7 @@ DROP FUNCTION IF EXISTS public.func_validar_dados_missao() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), public.tipo_missao, CHARACTER(128), public.id_personagem_npc) CASCADE;
 
 -- Funções de itens
-DROP FUNCTION IF EXIST public.sp_criar_item(public.nome, public.descricao, public.tipo_item, public.valor, public.id_inventario) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, public.tipo_item, public.valor, public.id_inventario) CASCADE;
 
 
 -- =================================================================================
@@ -573,14 +578,14 @@ $$ LANGUAGE plpgsql;
 CREATE FUNCTION public.sp_criar_arma(
     p_nome public.nome,
     p_descricao public.descricao,
-    p_valor public.valor,
+    p_valor SMALLINT,
 
     -- Parâmetros específicos de arma
     p_atributo_necessario public.tipo_atributo_personagem,
     p_qtd_atributo_necessario SMALLINT DEFAULT NULL,
     p_durabilidade SMALLINT DEFAULT NULL,
-    p_funcao public.funcao_arma,
-    p_alcance SMALLINT,
+    p_funcao public.funcao_arma DEFAULT NULL,
+    p_alcance SMALLINT DEFAULT NULL,
     p_tipo_municao public.tipo_municao DEFAULT NULL,
     p_tipo_dano public.tipo_dano DEFAULT NULL,
     p_dano public.dano DEFAULT NULL
@@ -610,12 +615,12 @@ BEGIN
 
     -- Insere na tabela filha correta
     INSERT INTO public.armas (id, atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_municao, tipo_dano, dano, id_pericia_necessaria)
-    VALUES (v_novo_item_id, p_atributo_necessario_arma, p_qtd_atributo_necessario_arma, p_durabilidade_arma, p_funcao_arma, p_alcance_arma, p_tipo_municao_arma, p_tipo_dano_arma, p_dano_arma, v_pericia_id);
+    VALUES (v_novo_item_id, p_atributo_necessario, p_qtd_atributo_necessario, p_durabilidade, p_funcao, p_alcance, p_tipo_municao, p_tipo_dano, p_dano, v_pericia_id);
 
     RETURN v_novo_item_id;
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE NOTICE 'Ocorreu um erro na criação da arma: %', SQLERRM;      
+        RAISE NOTICE 'Ocorreu um erro na criação da arma: %', SQLERRM;
         RAISE; -- Re-lança a exceção para que a transação seja desfeita.
 END;
 $$;
@@ -666,11 +671,10 @@ BEGIN
     RETURN v_novo_item_id;
 EXCEPTION
     WHEN OTHERS THEN
-        RAISE NOTICE 'Ocorreu um erro na criação da arma: %', SQLERRM;      
+        RAISE NOTICE 'Ocorreu um erro na criação da arma: %', SQLERRM;
         RAISE; -- Re-lança a exceção para que a transação seja desfeita.
 END;
 $$;
-
 -- =================================================================================
 --         5.3.  STORED PROCEDURE PARA ITENS DE CURA E MÁGICOS
 
