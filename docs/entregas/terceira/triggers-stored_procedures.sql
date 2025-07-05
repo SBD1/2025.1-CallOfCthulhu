@@ -42,7 +42,10 @@ DATA: 05/07/2025
 AUTOR: Wanjo Christopher
 DESCRIÇÃO: Cria triggers e stored procedures para armas e armaduras, incluindo validações de regras de negócio e exclusividade.
 
-
+VERSÃO: 0.9
+DATA: 05/07/2025
+AUTOR: Luiz Guilherme
+DESCRIÇÃO: Criação do procedure para permitir o respawn de monstros e itens no jogo
 */
 
 -- =================================================================================
@@ -102,6 +105,9 @@ DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), publ
 
 -- Funções de itens
 DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, public.tipo_item, SMALLINT, public.id_inventario) CASCADE;
+
+-- Funções de respawn
+DROP FUNCTION IF EXISTS public.lua_de_sangue() CASCADE;
 
 
 -- =================================================================================
@@ -342,6 +348,7 @@ CREATE FUNCTION public.sp_criar_monstro(
     -- Parâmetros para monstro agressivo (podem ser NULL)
     p_agressivo_defesa SMALLINT DEFAULT NULL,
     p_agressivo_vida SMALLINT DEFAULT NULL,
+    p_agressivo_vida_total SMALLINT DEFAULT NULL,
     p_agressivo_catalisador public.gatilho_agressividade DEFAULT NULL,
     p_agressivo_poder SMALLINT DEFAULT NULL,
     p_agressivo_tipo public.tipo_monstro_agressivo DEFAULT NULL,
@@ -353,6 +360,7 @@ CREATE FUNCTION public.sp_criar_monstro(
     -- Parâmetros para monstro pacífico (podem ser NULL)
     p_pacifico_defesa SMALLINT DEFAULT NULL,
     p_pacifico_vida SMALLINT DEFAULT NULL,
+    p_pacifico_vida_total SMALLINT DEFAULT NULL,
     p_pacifico_motivo public.comportamento_pacifico DEFAULT NULL,
     p_pacifico_tipo public.tipo_monstro_pacifico DEFAULT NULL,
     p_pacifico_conhecimento_geo CHARACTER(128) DEFAULT NULL,
@@ -406,11 +414,12 @@ BEGIN
 
     -- Insere na tabela filha correta
     IF p_tipo = 'agressivo' THEN
-        INSERT INTO public.agressivos (id, defesa, vida, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
-        VALUES (v_novo_monstro_id, p_agressivo_defesa, p_agressivo_vida, p_agressivo_catalisador, p_agressivo_poder, p_agressivo_tipo, p_agressivo_velocidade, p_agressivo_loucura, p_agressivo_pm, p_agressivo_dano);
+        INSERT INTO public.agressivos (id, defesa, vida, vida_total, catalisador_agressividade, poder, tipo_agressivo, velocidade_ataque, loucura_induzida, ponto_magia, dano)
+        VALUES (v_novo_monstro_id, p_agressivo_defesa, p_agressivo_vida,p_agressivo_vida_total, p_agressivo_catalisador, p_agressivo_poder, p_agressivo_tipo, p_agressivo_velocidade, p_agressivo_loucura, p_agressivo_pm, p_agressivo_dano);
     ELSE
-        INSERT INTO public.pacificos (id, defesa, vida, motivo_passividade, tipo_pacifico, conhecimento_geografico, conhecimento_proibido)
-        VALUES (v_novo_monstro_id, p_pacifico_defesa, p_pacifico_vida, p_pacifico_motivo, p_pacifico_tipo, p_pacifico_conhecimento_geo, p_pacifico_conhecimento_proibido);
+        INSERT INTO public.pacificos (id, defesa, vida, vida_total, motivo_passividade, tipo_pacifico, conhecimento_geografico, conhecimento_proibido)
+        VALUES (v_novo_monstro_id, p_pacifico_defesa, p_pacifico_vida, p_pacifico_vida_total, 
+        p_pacifico_motivo, p_pacifico_tipo, p_pacifico_conhecimento_geo, p_pacifico_conhecimento_proibido);
     END IF;
 
     RETURN v_novo_monstro_id;
@@ -872,3 +881,40 @@ CREATE TRIGGER trigger_bloqueia_insert_magicos
     EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
 
+-- =================================================================================
+--         5.3. RESPAWN DE MONSTROS E ITENS (LUA DE SANGUE)
+-- =================================================================================
+
+CREATE FUNCTION public.lua_de_sangue()
+RETURNS VOID 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- Primeiro passo: Respawn de Monstros
+    -- Atualiza os monstros que não estão em um local (monstros mortos tem id_local = NULL)
+    UPDATE public.instancias_monstros im
+    SET
+        id_local = im.id_local_de_spawn,
+        vida = COALESCE(
+            (SELECT a.vida_total FROM public.agressivos a WHERE a.id = im.id_monstro),
+            (SELECT p.vida_total FROM public.pacificos p WHERE p.id = im.id_monstro)
+        )
+    WHERE im.id_local IS NULL;
+
+    -- Segundo passo: Respawn de itens
+    -- Adiciona os itens para os seus locais de origem
+    UPDATE public.instancias_de_itens ii
+    SET
+        id_local = ii.id_local_de_spawn,
+        durabilidade = ii.durabilidade_total
+    WHERE ii.id_local IS NULL
+    AND NOT EXISTS ( -- Para não duplicar itens que estão no inventário do jogador
+        SELECT 1
+        FROM public.inventarios_possuem_instancias_de_itens ipii 
+        WHERE ipii.id_instancias_de_item = ii.id
+    );
+
+    RAISE NOTICE 'Uma lua de sangue está ocorrendo. Monstros que foram derrotados voltam para vingar sua morte. Itens que já foram coletados podem ser encontrados novamente';
+
+END;
+$$;
