@@ -112,12 +112,13 @@ DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), publ
 -- Funções de itens
 DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, public.tipo_item, SMALLINT, public.id_inventario) CASCADE;
 
+DROP ROLE IF EXISTS usuario_padrao;
 
 -- =================================================================================
 --         Usuário Padrão
 -- =================================================================================
 
-CREATE ROLE public.usuario_padrao
+CREATE ROLE usuario_padrao
     WITH LOGIN
     NOSUPERUSER
     NOCREATEDB
@@ -126,15 +127,15 @@ CREATE ROLE public.usuario_padrao
     NOREPLICATION
     CONNECTION LIMIT -1
     PASSWORD 'usuario_padrao';
-COMMENT ON ROLE public.usuario_padrao IS 'Usuário padrão para acesso ao banco de dados.';
+COMMENT ON ROLE usuario_padrao IS 'Usuário padrão para acesso ao banco de dados';
 
 -- =================================================================================
 -- Permissões para o usuário padrão
 -- =================================================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO public.usuario_padrao;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO usuario_padrao;
 
-REVOKE INSERT, UPDATE, DELETE ON public.personagens_jogaveis FROM public.usuario_padrao;
+REVOKE INSERT, UPDATE, DELETE ON public.personagens_jogaveis FROM usuario_padrao;
 
 -- DEPOIS TERMINAR EM CIMA
 
