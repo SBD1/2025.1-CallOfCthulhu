@@ -302,6 +302,37 @@ class Game:
                     print("Voce nao encontrou nada de interessante aqui.")
                 input("\nPressione Enter para continuar...")
                 continue # Voltar ao inicio do loop gameplay
+
+            elif escolha == 'procurar_monstros': # <--- NOVA OPÇÃO PARA PROCURAR MONSTROS
+                print("\nVoce se prepara para procurar por sinais de vida... nao-humana.")
+                monstros_no_local = self.db.get_monsters_in_location(self.player.id_local)
+
+                if monstros_no_local:
+                    print("\nVoce avista os seguintes seres horripilantes:")
+                    for i, monstro in enumerate(monstros_no_local):
+                        nome_monstro = monstro['monstro_nome'].strip()
+                        tipo_monstro = monstro['monstro_tipo'].strip()
+                        vida_atual = monstro['vida_atual']
+                        vida_total = monstro['vida_total']
+                        print(f"  [{i + 1}] {nome_monstro} (Tipo: {tipo_monstro}, Vida: {vida_atual}/{vida_total})")
+                        # Futuramente, aqui voce poderia adicionar a logica para interagir com o monstro (ex: atacar)
+                else:
+                    print("O local parece estar livre de ameacas... por enquanto.")
+                input("\nPressione Enter para continuar...")
+                continue
+
+            elif escolha == 'kill': # <--- NOVA OPÇÃO PARA MATAR MONSTROS
+                print("\nVoce decide usar forca letal para limpar o local de qualquer ameaca...")
+                monstros_mortos_count = self.db.kill_monsters_in_location(self.player.id_local)
+                if monstros_mortos_count > 0:
+                    print(f"Voce aniquilou {monstros_mortos_count} monstros neste local!")
+                elif monstros_mortos_count == 0:
+                    print("Nao havia monstros para matar neste local.")
+                else:
+                    print("Ocorreu um erro ao tentar matar os monstros.")
+                input("\nPressione Enter para continuar...")
+                continue
+
             
             # 4. Processa o movimento
             try:

@@ -53,8 +53,6 @@ AUTOR: Luiz Guilherme
 DESCRIÇÃO: Criação dos procedures: vasculhar sala, olhar inventario, pegar item da sala
 */
 
-*/
-
 -- =================================================================================
 --         1. DROP TRIGGER E DROP FUNCTIONS
 -- Para que a criação de triggers e funções não gere erros, é necessário remover as existentes
@@ -916,7 +914,7 @@ BEGIN
     WHERE ii.id_local IS NULL
     AND NOT EXISTS ( -- Para não duplicar itens que estão no inventário do jogador
         SELECT 1
-        FROM public.inventarios_possuem_instancias_de_itens ipii 
+        FROM public.inventarios_possuem_instancias_item ipii 
         WHERE ipii.id_instancias_de_item = ii.id
     );
     
@@ -1083,5 +1081,110 @@ EXCEPTION
     WHEN OTHERS THEN
         RAISE NOTICE 'Ocorreu um erro ao verificar o inventario do jogador %: %', p_jogador_id, SQLERRM;
         RETURN; -- Retorna um conjunto vazio em caso de erro
+END;
+$$;
+
+--===============================================================================
+--        5.6 ENCONTRAR MONSTROS NO LOCAL
+--===============================================================================
+
+CREATE OR REPLACE FUNCTION public.sp_encontrar_monstros_no_local(
+    p_local_id public.id_local
+)
+RETURNS TABLE (
+    instancia_monstro_id public.id_instancia_de_monstro,
+    monstro_base_id public.id_monstro,
+    monstro_nome public.nome,
+    monstro_descricao public.descricao,
+    monstro_tipo public.tipo_monstro,
+    vida_atual SMALLINT, -- Assumindo que esta coluna agora existe em instancias_monstros
+    vida_total SMALLINT,
+    defesa SMALLINT
+    -- Você pode adicionar mais colunas específicas aqui se precisar no Python,
+    -- como catalisador_agressividade, poder, velocidade_ataque, loucura_induzida,
+    -- ponto_magia, dano (para agressivos), ou motivo_passividade, conhecimento_proibido,
+    -- conhecimento_geografico (para pacificos).
+    -- Para isso, você precisaria adicionar essas colunas também no RETURNS TABLE e no SELECT.
+    -- Por exemplo:
+    -- catalisador_agressividade public.gatilho_agressividade DEFAULT NULL,
+    -- poder SMALLINT DEFAULT NULL,
+    -- tipo_agressivo public.tipo_monstro_agressivo DEFAULT NULL,
+    -- ...
+    -- COALESCE(a.catalisador_agressividade, NULL) AS catalisador_agressividade,
+    -- COALESCE(a.poder, NULL) AS poder,
+    -- ...
+    -- COALESCE(p.motivo_passividade, NULL) AS motivo_passividade,
+    -- ...
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+    -- Retorna todas as instâncias de monstros que estão atualmente no local especificado
+    RETURN QUERY
+    SELECT
+        im.id AS instancia_monstro_id,
+        m.id AS monstro_base_id,
+        m.nome AS monstro_nome,
+        m.descricao AS monstro_descricao,
+        m.tipo AS monstro_tipo,
+        im.vida AS vida_atual, -- <--- Coluna 'vida' da instância do monstro
+        COALESCE(a.vida_total, p.vida_total) AS vida_total, -- Vida total base do tipo de monstro
+        COALESCE(a.defesa, p.defesa) AS defesa
+        -- Adicione as outras colunas aqui, se as adicionou no RETURNS TABLE
+        -- Por exemplo:
+        -- COALESCE(a.catalisador_agressividade, NULL),
+        -- COALESCE(a.poder, NULL),
+        -- COALESCE(a.tipo_agressivo, NULL),
+        -- ...
+        -- COALESCE(p.motivo_passividade, NULL),
+        -- ...
+    FROM
+        public.instancias_monstros im
+    JOIN
+        public.monstros m ON im.id_monstro = m.id
+    LEFT JOIN
+        public.agressivos a ON m.id = a.id AND m.tipo = 'agressivo'
+    LEFT JOIN
+        public.pacificos p ON m.id = p.id AND m.tipo = 'pacifico'
+    WHERE
+        im.id_local = p_local_id;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao encontrar monstros no local %: %', p_local_id, SQLERRM;
+        RETURN; -- Retorna um conjunto vazio em caso de erro
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.sp_matar_monstros_no_local(
+    p_local_id public.id_local
+)
+RETURNS INTEGER -- Retorna o número de monstros "mortos"
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_monstros_mortos INTEGER := 0;
+BEGIN
+    -- Atualiza o id_local dos monstros para NULL (removendo-os da sala)
+    -- e reseta a vida para 0 ou para a vida_total base para respawn futuro
+    UPDATE public.instancias_monstros im
+    SET
+        id_local = NULL, -- Remove da sala para que possam ser "respawnados" pela Lua de Sangue
+        vida = COALESCE( -- Reseta a vida para a vida_total do monstro base
+            (SELECT a.vida_total FROM public.agressivos a WHERE a.id = im.id_monstro),
+            (SELECT p.vida_total FROM public.pacificos p WHERE p.id = im.id_monstro)
+        )
+    WHERE im.id_local = p_local_id
+    RETURNING 1 INTO v_monstros_mortos; -- Conta as linhas afetadas (monstros mortos)
+
+    -- Se nenhum monstro foi encontrado, v_monstros_mortos sera 0, pois RETURNING 1 INTO
+    -- incrementa a variavel para cada linha afetada.
+
+    RAISE NOTICE 'Monstros no local % foram derrotados. Total: %', p_local_id, v_monstros_mortos;
+
+    RETURN v_monstros_mortos;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao tentar matar monstros no local %: %', p_local_id, SQLERRM;
+        RETURN -1; -- Retorna -1 para indicar um erro
 END;
 $$;

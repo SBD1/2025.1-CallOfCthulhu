@@ -382,6 +382,28 @@ class DataBase:
         self._execute_query(query)
         print("A Lua de Sangue passou. Novos perigos aguardam!")
 
+    
+    def get_monsters_in_location(self, local_id: int):
+        """
+        Chama a stored procedure sp_encontrar_monstros_no_local para buscar e retornar
+        todos os monstros presentes em um local específico.
+        """
+        query = "SELECT * FROM public.sp_encontrar_monstros_no_local(%s);"
+        return self._execute_query(query, (local_id,), fetch_all=True)
+    
+    def kill_monsters_in_location(self, local_id: int):
+        """
+        Chama a stored procedure sp_matar_monstros_no_local para "matar"
+        todos os monstros presentes em um local específico.
+        """
+        query = "SELECT public.sp_matar_monstros_no_local(%s);"
+        result = self._execute_query(query, (local_id,), fetch_one=True)
+        # A stored procedure retorna o número de monstros mortos (ou -1 em caso de erro)
+        if result and result['sp_matar_monstros_no_local'] is not None:
+            return result['sp_matar_monstros_no_local']
+        return -1 # Indica erro se nada for retornado ou se a procedure indicar erro
+
+
 
 # --- Bloco de Teste para o Modelo Básico ---
 if __name__ == "__main__":
