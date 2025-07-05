@@ -343,6 +343,45 @@ class DataBase:
             'status': local_data['status'], 
             'saidas': full_saidas
         }
+    
+    def get_items_in_location(self, local_id: int):
+        """
+        Chama a stored procedure sp_vasculhar_local para buscar e retornar
+        todos os itens presentes em um local específico.
+        """
+        query = "SELECT * FROM public.sp_vasculhar_local(%s);"
+        return self._execute_query(query, (local_id,), fetch_all=True)
+
+    # Novo método para chamar a stored procedure sp_adicionar_item_ao_inventario
+    def add_item_to_inventory(self, id_jogador: int, id_instancia_item: int):
+        """
+        Chama a stored procedure sp_adicionar_item_ao_inventario para adicionar
+        uma instância de item ao inventário do jogador e removê-la do local.
+        """
+        query = "SELECT public.sp_adicionar_item_ao_inventario(%s, %s);"
+        result = self._execute_query(query, (id_jogador, id_instancia_item), fetch_one=True)
+        # A stored procedure retorna TRUE ou FALSE, entao verificamos o valor booleano
+        return result and result['sp_adicionar_item_ao_inventario']
+    
+
+    def get_inventario_do_jogador(self, id_jogador: int):
+        """
+        Chama a stored procedure sp_ver_inventario para obter todos os itens
+        no inventário de um jogador.
+        """
+        query = "SELECT * FROM public.sp_ver_inventario(%s);"
+        return self._execute_query(query, (id_jogador,), fetch_all=True)
+    
+    def trigger_lua_de_sangue(self):
+        """
+        Chama a stored procedure lua_de_sangue para realizar o respawn
+        de monstros e itens no jogo.
+        """
+        print("\nUma energia estranha paira no ar... A Lua de Sangue esta subindo!")
+        query = "SELECT public.lua_de_sangue();"
+        self._execute_query(query)
+        print("A Lua de Sangue passou. Novos perigos aguardam!")
+
 
 # --- Bloco de Teste para o Modelo Básico ---
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from classes import Player # Agora importamos apenas Player
 from database import DataBase
 # import time # Importa o módulo time para usar time.sleep()
 # import time # Importa o módulo time para usar time.sleep()
+import time # para a lua de sangue
 
 def clear():
     """Limpa a tela do terminal."""
@@ -41,6 +42,7 @@ class Game:
     def __init__(self):
         self.db = DataBase()
         self.player = None
+        self.last_lua_de_sangue_time = time.time()
 
     def create_new_character_flow(self):
         # clear()
@@ -203,6 +205,12 @@ class Game:
         print(f"\n--- Comeca a aventura de {self.player.nome}! ---")
 
         while True:
+
+            current_time = time.time()
+            if current_time - self.last_lua_de_sangue_time >= 60:
+                self.db.trigger_lua_de_sangue() # Chama o método que invoca a stored procedure
+                self.last_lua_de_sangue_time = current_time # Reseta o timer
+
             # 1. Determina onde o jogador esta e busca os detalhes do local
             detalhes_local = self.db.get_local_details_and_exits(self.player.id_local)
 
@@ -235,7 +243,7 @@ class Game:
                 print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']}): {saida['desc_saida']}")
 
             # 3. Pede a acao do jogador
-            print("\nO que voce deseja fazer? ('ficha', 'inventario', 'sair')")
+            print("\nO que voce deseja fazer? ('ficha', 'inventario', vasculhar, 'sair')")
             escolha = input("> ").strip().lower()
 
             if escolha == 'sair':
@@ -246,9 +254,54 @@ class Game:
                 input("\nPressione Enter para continuar...")
                 continue
             elif escolha == 'inventario':
-                print("Nao implementado ainda")
+                print("\n--- Seu Inventário ---")
+                # AGORA CHAMAMOS A STORED PROCEDURE PARA VER O INVENTÁRIO
+                itens_inventario = self.db.get_inventario_do_jogador(self.player.id_jogador) 
+                
+                if itens_inventario:
+                    for item in itens_inventario:
+                        nome_item = item['item_nome'].strip()
+                        descricao_item = item['item_descricao'].strip()
+                        durabilidade = item['durabilidade']
+                        durabilidade_total = item['durabilidade_total']
+                        
+                        if durabilidade is not None and durabilidade_total is not None:
+                            print(f"- {nome_item}: {descricao_item} (Durabilidade: {durabilidade}/{durabilidade_total})")
+                        else:
+                            print(f"- {nome_item}: {descricao_item}")
+                else:
+                    print("Seu inventário está vazio.")
                 input("\nPressione Enter para continuar...")
                 continue
+            elif escolha == 'vasculhar':
+                print("\nVoce comeca a vasculhar o ambiente...")
+                itens_no_local = self.db.get_items_in_location(self.player.id_local)
+
+                if itens_no_local:
+                    print("\nVoce encontrou os seguintes itens:")
+                    for i, item in enumerate(itens_no_local):
+                        print(f"  [{i + 1}] {item['item_nome'].strip()} ({item['item_descricao'].strip()})")
+                    
+                    escolha_item = input("Digite o numero do item que deseja pegar (ou '0' para nao pegar nada): ").strip()
+                    try:
+                        idx_item = int(escolha_item) - 1
+                        if 0 <= idx_item < len(itens_no_local):
+                            item_escolhido = itens_no_local[idx_item]
+                            # Agora chamamos o método do DB que usa a stored procedure
+                            if self.db.add_item_to_inventory(self.player.id_jogador, item_escolhido['instancia_item_id']):
+                                print(f"Voce pegou '{item_escolhido['item_nome'].strip()}'.")
+                            else:
+                                print("Nao foi possivel pegar o item. Tente novamente.")
+                        elif escolha_item == '0':
+                            print("Voce decidiu nao pegar nenhum item.")
+                        else:
+                            print("Escolha de item invalida.")
+                    except ValueError:
+                        print("Entrada invalida para pegar item.")
+                else:
+                    print("Voce nao encontrou nada de interessante aqui.")
+                input("\nPressione Enter para continuar...")
+                continue # Voltar ao inicio do loop gameplay
             
             # 4. Processa o movimento
             try:
