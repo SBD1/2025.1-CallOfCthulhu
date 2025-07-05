@@ -452,6 +452,34 @@ WITH
     INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
     VALUES ('Sacerdotisa Sombria', 'Mestre dos Rituais', 50, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%' AND tipo_local = 'Sala')) RETURNING id
   ),
+  vendedor_C1 AS (
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
+    VALUES ('Gambireiro', 'Vendedor ambulante', 40, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'O corredor estreito serpenteia adiante,%' AND tipo_local = 'Sala')) RETURNING id
+  ),
+  vendedor_C2 AS (
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
+    VALUES ('Negociadora', 'Vendedor sofisticado', 19, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é estreito e%' AND tipo_local = 'Sala')) RETURNING id
+  ),
+  vendedor_C5 AS (
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
+    VALUES ('Tradder', 'Vendedor ambulante', 24, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor que se estende em linha reta%' AND tipo_local = 'Sala')) RETURNING id
+  ),
+  vendedor_C6 AS (
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
+    VALUES ('Pracista', 'Vendedor ambulante', 80, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é irregular e parece descer em espiral%' AND tipo_local = 'Sala')) RETURNING id
+  ),
+  vendedor_C10 AS (
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
+    VALUES ('Refugiado', 'Vendedor ambulante', 25, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor espaçoso com colunas maciças que se assemelham a ossos gigantes.%' AND tipo_local = 'Sala')) RETURNING id
+  ),
+  vendedor_C9 AS (
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
+    VALUES ('Refugiada', 'Vendedor ambulante', 20, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado com água salgada até a altura do joelho.%' AND tipo_local = 'Sala')) RETURNING id
+  ),
+  vendedor_C11 AS (
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
+    VALUES ('Mauricio o vendedor', 'Vendedor sofisticado', 30, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor leva a uma área de transição, com uma porta maciça%' AND tipo_local = 'Sala')) RETURNING id
+  ),
   dialogos_inseridos AS (
     INSERT INTO public.dialogos (script_dialogo, npc_id)
     VALUES
