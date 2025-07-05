@@ -1,3 +1,4 @@
+-- ROLLBACK;
 /*
 ARQUIVO: triggers-stored_procedures.sql
 
@@ -100,7 +101,7 @@ DROP FUNCTION IF EXISTS public.func_validar_dados_missao() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), public.tipo_missao, CHARACTER(128), public.id_personagem_npc) CASCADE;
 
 -- Funções de itens
-DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, public.tipo_item, public.valor, public.id_inventario) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, public.tipo_item, SMALLINT, public.id_inventario) CASCADE;
 
 
 -- =================================================================================
@@ -546,11 +547,14 @@ CREATE TRIGGER trigger_validar_dados_missao
 
 /*
 =================================================================================
-        5. REGRAS DE ITENS (GERAL)
+        5. FUNÇÕES DE ITENS (GERAL)
 -- Lógica de Generalização e Especialização para garantir a exclusividade
 =================================================================================
 */
--- FUNÇÃO DE TRIGGER: Garante que uma armadura não possa ser uma arma
+
+-- ---------------------------------------------------------------------------------
+-- Função/Trigger: Garante que uma armadura não possa ser uma arma
+-- ---------------------------------------------------------------------------------
 CREATE FUNCTION public.func_valida_exclusividade_id_arma()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -561,7 +565,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Função de trigger: Garante que uma arma não possa ser uma armadura
+CREATE TRIGGER trigger_valida_exclusividade_id_arma
+    BEFORE INSERT OR UPDATE ON public.armas
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_arma();
+
+-- ---------------------------------------------------------------------------------
+-- Função/Trigger: Garante que uma arma não possa ser uma armadura
+-- ---------------------------------------------------------------------------------
 CREATE FUNCTION public.func_valida_exclusividade_id_armadura()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -572,8 +582,66 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER trigger_valida_exclusividade_id_armadura
+    BEFORE INSERT OR UPDATE ON public.armaduras
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_armadura();
+
+-- ---------------------------------------------------------------------------------
+-- Função/Trigger: Valida os atributos de um item antes de inseri-lo ou atualizá-lo
+-- ---------------------------------------------------------------------------------
+CREATE FUNCTION public.func_valida_atributos_item()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.id IS NULL THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O ID do item não pode ser nulo.';
+    ELSIF NEW.nome IS NULL OR TRIM(NEW.nome) = '' THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O nome do item não pode ser nulo ou vazio.';
+    ELSIF NEW.descricao IS NULL OR TRIM(NEW.descricao) = '' THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] A descrição do item não pode ser nula ou vazia.';
+    ELSIF NEW.valor IS NULL OR NOT (NEW.valor BETWEEN 0 AND 999) THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O valor do item não pode ser nulo ou negativo ou maior que 999.';
+    ELSIF NEW.tipo IS NULL THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O tipo do item não pode ser nulo.';
+    END IF;
+    RETURN NEW;
+END;  
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_valida_atributos_item
+    BEFORE INSERT OR UPDATE ON public.itens
+    FOR EACH ROW
+    EXECUTE FUNCTION public.func_valida_atributos_item();
+
+-- ---------------------------------------------------------------------------------
+-- Função/Trigger: Bloqueia inserções diretas na tabela 'itens', 'armas' e 'armaduras'
+-- ---------------------------------------------------------------------------------
+CREATE FUNCTION public.func_bloquear_insert_direto_itens()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF current_setting('bd_cthulhu.inserir', true) IS DISTINCT FROM 'true' THEN
+        RAISE EXCEPTION 'Inserção direta na tabela "itens" não é permitida. Utilize a função apropriada.';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_bloqueia_insert_itens
+    BEFORE INSERT ON public.itens 
+    FOR EACH ROW 
+    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
+
+CREATE TRIGGER trigger_bloqueia_insert_armas
+    BEFORE INSERT ON public.armas 
+    FOR EACH ROW 
+    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
+
+CREATE TRIGGER trigger_bloqueia_insert_armaduras
+    BEFORE INSERT ON public.armaduras 
+    FOR EACH ROW 
+    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
+
 -- =================================================================================
---         5.1.  STORED PROCEDURE PARA ARMAS
+--         5.1.  FUNÇÕES, TRIGGERS E STORED PROCEDURES PARA ARMAS
 -- =================================================================================
 CREATE FUNCTION public.sp_criar_arma(
     p_nome public.nome,
@@ -632,17 +700,17 @@ $$;
 CREATE FUNCTION public.sp_criar_armadura(
     p_nome public.nome,
     p_descricao public.descricao,
-    p_valor public.valor,
+    p_valor SMALLINT,
 
     -- Parâmetros específicos de armadura
     p_atributo_necessario public.tipo_atributo_personagem,
-    p_durabilidade SMALLINT NOT NULL,
-    p_funcao funcao_armadura NOT NULL,
-    p_qtd_atributo_recebe SMALLINT NOT NULL,
-    p_qtd_atributo_necessario SMALLINT NOT NULL,
-    p_tipo_atributo_recebe public.tipo_atributo_personagem,
-    p_qtd_dano_mitigado SMALLINT NOT NULL,
-) 
+    p_durabilidade SMALLINT DEFAULT NULL,
+    p_funcao funcao_armadura DEFAULT NULL,
+    p_qtd_atributo_recebe SMALLINT DEFAULT NULL,
+    p_qtd_atributo_necessario SMALLINT DEFAULT NULL,
+    p_tipo_atributo_recebe public.tipo_atributo_personagem DEFAULT NULL,
+    p_qtd_dano_mitigado SMALLINT DEFAULT NULL
+)
 RETURNS public.id_item 
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -692,7 +760,7 @@ $$;
 CREATE FUNCTION public.sp_criar_item_cura(
     p_nome public.nome,
     p_descricao public.descricao,
-    p_valor,
+    p_valor SMALLINT,
 
     -- Parâmetros específicos de cura
     p_funcao public.funcao_cura,
@@ -716,7 +784,7 @@ BEGIN
     IF NOT(p_qtd_pontos_sanidade_recupera BETWEEN 1 AND 8) THEN
         RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A quantidade de pontos de sanidade recuperados deve estar entre 1 e 8.';
     END IF;
-    IF NOT (p_qtd_pontos_vida_recupera BETWEEN 1 AND 10)
+    IF NOT (p_qtd_pontos_vida_recupera BETWEEN 1 AND 10) THEN
         RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A quantidade de pontos de vida recuperados deve estar entre 1 e 10.';
     END IF;
 
@@ -742,7 +810,7 @@ END $$;
 CREATE FUNCTION public.sp_criar_item_magico(
     p_nome public.nome,
     p_descricao public.descricao,
-    p_valor public.valor,
+    p_valor SMALLINT,
 
     -- Parâmetros específicos de item mágico
     p_funcao public.funcao_magica,
@@ -759,14 +827,11 @@ BEGIN
     -- =================== VALIDAÇÃO ===================
     IF p_funcao IS NULL THEN
         RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A função mágica não pode ser nula.';
-    END IF;
-    IF p_qts_usos <= 0 THEN
+    ELSIF p_qts_usos <= 0 THEN
         RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A quantidade de usos deve ser maior que zero.';
-    END IF;
-    IF NOT (p_custo_sanidade BETWEEN 0 AND 15) THEN
+    ELSIF NOT (p_custo_sanidade BETWEEN 0 AND 15) THEN
         RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O custo de sanidade deve estar entre 1 e 10.';
-    END IF;
-    IF p_id_feitico IS NULL THEN
+    ELSIF p_id_feitico IS NULL THEN
         RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O ID do feitiço não pode ser nulo.';
     END IF;
 
@@ -789,54 +854,12 @@ END $$;
 -- =================================================================================
 --         5.4.  FUNÇÕES DE TRIGGER 
 -- =================================================================================
-CREATE FUNCTION public.func_bloquear_insert_direto_itens()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF current_setting('bd_cthulhu.inserir', true) IS DISTINCT FROM 'true' THEN
-        RAISE EXCEPTION 'Inserção direta na tabela "itens" não é permitida. Utilize a função apropriada.';
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE FUNCTION public.func_valida_atributos_item()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF NEW.id IS NULL THEN
-        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O ID do item não pode ser nulo.';
-    IF NEW.nome IS NULL OR TRIM(NEW.nome) = '' THEN
-        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O nome do item não pode ser nulo ou vazio.';
-    IF NEW.descricao IS NULL OR TRIM(NEW.descricao) = '' THEN
-        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] A descrição do item não pode ser nula ou vazia.';
-    IF NEW.valor IS NULL OR NOT (NEW.valor BETWEEN 0 AND 999) THEN
-        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O valor do item não pode ser nulo ou negativo ou maior que 999.';
-    IF NEW.tipo IS NULL THEN
-        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O tipo do item não pode ser nulo.';
-    END IF;
-
 -- =================================================================================
 --         5.2. CRIAÇÃO DOS TRIGGERS
 -- =================================================================================
 
-CREATE TRIGGER trigger_valida_atributos_item
-    BEFORE INSERT OR UPDATE ON public.itens
-    FOR EACH ROW
-    EXECUTE FUNCTION public.func_valida_atributos_item();
+
     
-CREATE TRIGGER trigger_bloqueia_insert_itens
-    BEFORE INSERT ON public.itens 
-    FOR EACH ROW 
-    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
-
-CREATE TRIGGER trigger_bloqueia_insert_armas
-    BEFORE INSERT ON public.armas 
-    FOR EACH ROW 
-    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
-
-CREATE TRIGGER trigger_bloqueia_insert_armaduras
-    BEFORE INSERT ON public.armaduras 
-    FOR EACH ROW 
-    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
 CREATE TRIGGER trigger_bloqueia_insert_curas
     BEFORE INSERT ON public.curas 
@@ -848,11 +871,4 @@ CREATE TRIGGER trigger_bloqueia_insert_magicos
     FOR EACH ROW 
     EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
-CREATE TRIGGER trigger_valida_exclusividade_id_arma
-    BEFORE INSERT OR UPDATE ON public.armas
-    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_arma();
-
-CREATE TRIGGER trigger_valida_exclusividade_id_armadura
-    BEFORE INSERT OR UPDATE ON public.armaduras
-    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_armadura();
 

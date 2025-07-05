@@ -1306,9 +1306,6 @@ CREATE TABLE public.missoes(
     id_npc public.id_personagem_npc NOT NULL 
 );
 
-CREATE TABLE public.feitico(
-
-)
 CREATE TABLE public.magicos(
     id public.id_item_magico NOT NULL PRIMARY KEY,
     funcao public.funcao_magica NOT NULL,

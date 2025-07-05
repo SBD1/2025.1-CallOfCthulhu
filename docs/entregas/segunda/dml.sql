@@ -1,4 +1,4 @@
-BEGIN; -- Inicia uma nova transação
+-- BEGIN; -- Inicia uma nova transação
 
 /*
 
@@ -495,7 +495,7 @@ também criamos os itens, os quais retornam um id, que é usado nas instâncias 
 também criamos as batalhas com base no nome do personagem
 */
 
-CALL public.sp_criar_monstro(
+SELECT public.sp_criar_monstro(
     p_nome                  := 'Abominável Horror'::public.nome,
     p_descricao             := 'Criatura grotesca que se esconde nas sombras...'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
@@ -510,7 +510,7 @@ CALL public.sp_criar_monstro(
     p_agressivo_dano        := 30::public.dano
 );
 
-CALL public.sp_criar_monstro(
+SELECT public.sp_criar_monstro(
     p_nome                       := 'Espírito Guardião'::public.nome,
     p_descricao                  := 'Um espírito antigo que protege certas áreas...'::public.descricao,
     p_tipo                       := 'pacífico'::public.tipo_monstro,
@@ -551,4 +551,4 @@ SELECT
     (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
     (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'));
 
-COMMIT; -- Finaliza a transação
+-- COMMIT; -- Finaliza a transação
