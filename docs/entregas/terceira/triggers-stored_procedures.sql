@@ -42,11 +42,49 @@ DATA: 05/07/2025
 AUTOR: Wanjo Christopher
 DESCRIÇÃO: Cria triggers e stored procedures para armas e armaduras, incluindo validações de regras de negócio e exclusividade.
 
+VERSÃO: 0.9
+DATA: 05/07/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Organiza so triggers de npc e personagem jogável.
+
+VERSÃO: 1.0
+DATA: 05/07/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Criando o ROLE usuario_padrao e concedendo permissões de acesso ao banco de dados.
+
+VERSÃO: 1.1
+DATA: 05/07/2025
+AUTOR: Wanjo Christopher
+DESCRIÇÃO: Cria triggers, stored procedures e functions para itens consumíveis (cura e mágicos) e feitiços.
+
 
 */
+-- ===============================================================================
+--          0.1. DROP, CREATE, GRANK E REVOKE DE USUÁRIO PADRÃO DO BANCO 
+-- ===============================================================================
+DROP ROLE IF EXISTS usuario_padrao;
+
+CREATE ROLE usuario_padrao
+    WITH LOGIN
+    NOSUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    INHERIT
+    NOREPLICATION
+    CONNECTION LIMIT -1
+    PASSWORD 'usuario_padrao';
+COMMENT ON ROLE usuario_padrao IS 'Usuário padrão para acesso ao banco de dados';
+
+-- ===============================================================================
+-- Permissões para o usuário padrão
+-- ===============================================================================
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO usuario_padrao;
+
+REVOKE INSERT, UPDATE, DELETE ON public.personagens_jogaveis FROM usuario_padrao;
 
 -- =================================================================================
---         1. DROP TRIGGER E DROP FUNCTIONS
+--         0.2. DROP TRIGGER E DROP FUNCTIONS
 -- Para que a criação de triggers e funções não gere erros, é necessário remover as existentes
 -- =================================================================================
 
@@ -111,53 +149,58 @@ DROP FUNCTION IF EXISTS func_valida_exclusividade_id_item() CASCADE;
 DROP FUNCTION IF EXISTS func_valida_exclusividade_id_arma() CASCADE;
 DROP FUNCTION IF EXISTS func_valida_exclusividade_id_armadura() CASCADE;
 
+
 -- =================================================================================
---         2. REGRAS DE PERSONAGENS (GERAL)
+--         1. REGRAS GERAIS DE PERSONAGENS
+--         Lógica para garantir a exclusividade entre PJ e NPC (Regra T,E)
 -- =================================================================================
-
-
-
 -------------------------------------------------------------
--- FUNÇÃO DE TRIGGER: Garante que um PJ não possa ser um NPC
+-- Função/Trigger: Garante que um PJ não possa ser um NPC
 -------------------------------------------------------------
 CREATE FUNCTION public.func_valida_exclusividade_id_pj()
 RETURNS TRIGGER AS $$
 BEGIN
+    -- Verifica se o ID que está sendo inserido/atualizado em PJ já existe na tabela de NPCs.
     IF EXISTS (SELECT 1 FROM public.npcs WHERE id = NEW.id) THEN
-        RAISE EXCEPTION 'O ID % já existe na tabela de NPCs. Um personagem não pode ser Jogável e NPC.', NEW.id;
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O ID % já existe na tabela de NPCs. Um personagem não pode ser Jogável e NPC ao mesmo tempo.', NEW.id;
     END IF;
 
-    -- Se a verificação passar, retorna a tupla para continuar a operação de INSERT ou UPDATE.
+    -- Se a verificação passar, permite que a operação continue.
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER trigger_valida_unicidade_personagem_jogavel
+    BEFORE INSERT OR UPDATE ON public.personagens_jogaveis
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_pj();
+
 -------------------------------------------------------------
--- FUNÇÃO DE TRIGGER: Garante que um NPC não possa ser um PJ
+-- Função/Trigger: Garante que um NPC não possa ser um PJ
 -------------------------------------------------------------
 CREATE FUNCTION public.func_valida_exclusividade_id_npc()
 RETURNS TRIGGER AS $$
 BEGIN
+    -- Verifica se o ID que está sendo inserido/atualizado em NPC já existe na tabela de PJs.
     IF EXISTS (SELECT 1 FROM public.personagens_jogaveis WHERE id = NEW.id) THEN
-        RAISE EXCEPTION 'O ID % já existe na tabela de Personagens Jogáveis. Um NPC não pode ser NPC e Jogável.', NEW.id;
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O ID % já existe na tabela de Personagens Jogáveis. Um NPC não pode ser NPC e Jogável ao mesmo tempo.', NEW.id;
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER trigger_valida_unicidade_npc
+    BEFORE INSERT OR UPDATE ON public.npcs
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_npc();
+
 
 -- =================================================================================
---         2.1. REGRAS E PROCEDIMENTOS DE PERSONAGENS JOGÁVEIS (PJ)
+--         1.2. REGRAS E PROCEDIMENTOS DE PERSONAGENS JOGÁVEIS (PJ)
 -- =================================================================================
 
--- ---------------------------------------------------------------------------------
---         2.1.1 FUNÇÕES DE TRIGGER PARA M.A.
--- ---------------------------------------------------------------------------------
-
 -------------------------------------------------------------
--- Valida os dados de entrada de um novo PJ
+-- Função/Trigger: Valida os dados de entrada de um novo PJ
 -------------------------------------------------------------
-CREATE FUNCTION public.func_validar_atributos_personagem()
+CREATE OR REPLACE FUNCTION public.func_validar_atributos_personagem()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Validação do nome
@@ -174,11 +217,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER trigger_validar_atributos_personagem
+    BEFORE INSERT ON public.personagens_jogaveis
+    FOR EACH ROW EXECUTE FUNCTION public.func_validar_atributos_personagem();
+
 -------------------------------------------------------------
--- Ajusta atributos calculados de um novo PJ
--- Calcula e define os valores derivados
+-- Função/Trigger: Ajusta atributos calculados de um novo PJ
 -------------------------------------------------------------
-CREATE FUNCTION public.func_ajustar_atributos_personagem()
+CREATE OR REPLACE FUNCTION public.func_ajustar_atributos_personagem()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Cálculo do MOVIMENTO
@@ -190,7 +236,7 @@ BEGIN
         NEW.movimento := 8;
     END IF;
     
-    -- Cálculo de Sanidade, Vida e PM iniciais, usa funções do DDL auxiliares.
+    -- Cálculo de Sanidade, Vida e PM iniciais, usando as funções auxiliares do DDL.
     NEW.sanidade_atual := public.calcular_sanidade(NEW.poder);
     NEW.pontos_de_vida_atual := public.calcular_pts_de_vida(NEW.constituicao, NEW.tamanho);
     NEW.pm_base := NEW.poder;
@@ -204,13 +250,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER trigger_ajustar_atributos_personagem
+    BEFORE INSERT ON public.personagens_jogaveis
+    FOR EACH ROW EXECUTE FUNCTION public.func_ajustar_atributos_personagem();
 
--- ---------------------------------------------------------------------------------
---         2.1.2 STORED PROCEDURE PARA CRIAÇÃO DE PJs
--- ---------------------------------------------------------------------------------
-
+-------------------------------------------------------------
+--  STORED PROCEDURE: Criação de PJs
+-------------------------------------------------------------
 /*
-    Aqui utilizamos 'p' como parametro advindos da interface, e 'v' como variável utilizada somente no escopo da função.
+    Este procedimento encapsula a lógica de criação de um novo Personagem Jogável.
+    'p_' indica um parâmetro de entrada.
+    'v_' indica uma variável local.
 */
 CREATE FUNCTION public.sp_criar_personagem_jogavel(
     p_nome public.nome,
@@ -225,34 +275,35 @@ DECLARE
     v_novo_inventario_id public.id_inventario;
     v_novo_personagem_id public.id_personagem_jogavel;
 BEGIN
-    -- Cria o inventário.
+    -- 1. Cria o inventário para o novo personagem.
     INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id INTO v_novo_inventario_id;
 
-    -- Insere dados básicos. O resto é feito pelo DEFAULT e pelo TRIGGER.
-    
+    -- 2. Insere os dados básicos na tabela. Os atributos calculados e as validações
+    --    serão processados automaticamente pelas triggers 'trigger_ajustar_atributos_personagem'
+    --    e 'trigger_validar_atributos_personagem'.
     INSERT INTO public.personagens_jogaveis (
         nome, ocupacao, residencia, local_nascimento, idade, sexo,
-        id_inventario, id_local -- Valores iniciais de localização
+        id_inventario, id_local
     ) VALUES (
         p_nome, p_ocupacao, p_residencia, p_local_nascimento, p_idade, p_sexo,
-        v_novo_inventario_id, (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala' LIMIT 1) -- Sala inicial padrão
+        v_novo_inventario_id, (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala' LIMIT 1) -- Define uma sala inicial padrão
     ) RETURNING id INTO v_novo_personagem_id;
 
+    -- 3. Retorna o ID do personagem recém-criado.
     RETURN v_novo_personagem_id;
-
 END;
 $$ LANGUAGE plpgsql;
 
 
 -- =================================================================================
---         2.2. REGRAS E PROCEDIMENTOS DE NPCs
+--         1.3. REGRAS E PROCEDIMENTOS DE NPCs
 -- =================================================================================
 
 -------------------------------------------------------------
--- 2.2.1 FUNÇÃO DE TRIGGER: Valida os dados de entrada de um novo NPC
+-- Função/Trigger: Valida os dados de entrada de um novo NPC
 -------------------------------------------------------------
-
-CREATE FUNCTION public.func_validar_atributos_npc() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION public.func_validar_atributos_npc()
+RETURNS TRIGGER AS $$
 BEGIN
     -- Validação do nome (similar ao PJ)
     IF NEW.nome IS NULL OR TRIM(NEW.nome) = '' OR NEW.nome ~ '[0-9]' THEN
@@ -268,11 +319,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--------------------------------------------------------------
--- 2.2.2 STORED PROCEDURE: Criação de NPCs
--------------------------------------------------------------
+CREATE TRIGGER trigger_validar_atributos_npc
+    BEFORE INSERT ON public.npcs
+    FOR EACH ROW EXECUTE FUNCTION public.func_validar_atributos_npc();
 
-CREATE FUNCTION public.sp_criar_npc(
+-------------------------------------------------------------
+-- STORED PROCEDURE: Criação de NPCs
+-------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_criar_npc(
     p_nome public.nome,
     p_ocupacao public.ocupacao,
     p_residencia public.residencia,
@@ -284,61 +338,27 @@ RETURNS public.id_personagem_npc AS $$
 DECLARE
     v_novo_npc_id public.id_personagem_npc;
 BEGIN
-    -- Insere os dados do NPC. NPCs não têm atributos calculados complexos nem inventário inicial.
+    -- Insere os dados do NPC. A validação será feita pela trigger 'trigger_validar_atributos_npc'.
     INSERT INTO public.npcs (
         nome, ocupacao, residencia, local_nascimento, idade, sexo,
-        id_sala -- Localização inicial
+        id_local -- Localização inicial
     ) VALUES (
         p_nome, p_ocupacao, p_residencia, p_local_nascimento, p_idade, p_sexo,
-        40300003 -- Sala inicial padrão para NPCs (exemplo)
+        40300003 -- Sala inicial padrão para NPCs (exemplo, pode ser alterado ou passado como parâmetro)
     ) RETURNING id INTO v_novo_npc_id;
 
     RETURN v_novo_npc_id;
 END;
 $$ LANGUAGE plpgsql;
 
--- =================================================================================
---         2.3. CRIAÇÃO DOS TRIGGERS
--- =================================================================================
-
--- ======== TRIGGERS DE PERSONAGENS (GERAL) ========
-
--- Executa a função de verificação de exclusividade em 'personagens_jogaveis'
-CREATE TRIGGER trigger_valida_unicidade_personagem_jogavel
-    BEFORE INSERT OR UPDATE ON public.personagens_jogaveis
-    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_pj();
-
--- Executa a função de verificação de exclusividade em 'npcs'
-CREATE TRIGGER trigger_valida_unicidade_npc
-    BEFORE INSERT OR UPDATE ON public.npcs
-    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_npc();
-
-
--- ======== TRIGGERS DE PERSONAGENS JOGÁVEIS ========
-
--- Valida os dados de entrada de um novo personagem jogável
-CREATE TRIGGER trigger_validar_atributos_personagem
-    BEFORE INSERT ON public.personagens_jogaveis
-    FOR EACH ROW EXECUTE FUNCTION public.func_validar_atributos_personagem();
-
--- Ajusta os atributos de um novo personagem jogável
-CREATE TRIGGER trigger_ajustar_atributos_personagem
-    BEFORE INSERT ON public.personagens_jogaveis
-    FOR EACH ROW EXECUTE FUNCTION public.func_ajustar_atributos_personagem();
-
--- ======== TRIGGER DE NPCS (NOVO) ========
-CREATE TRIGGER trigger_validar_atributos_npc
-    BEFORE INSERT ON public.npcs
-    FOR EACH ROW EXECUTE FUNCTION public.func_validar_atributos_npc();
-
 /*
 =================================================================================
-        3. LÓGICA PARA MONSTROS
+        2. LÓGICA PARA MONSTROS
 =================================================================================
 */
 
 -- ---------------------------------------------------------------------------------
---         3.1. STORED PROCEDURE PARA CRIAÇÃO DE MONSTROS
+--         2.1. STORED PROCEDURE PARA CRIAÇÃO DE MONSTROS
 --         Este SP é o único ponto de entrada e garante as regras Total, Exclusiva e de Atributos.
 -- ---------------------------------------------------------------------------------
 
@@ -421,7 +441,7 @@ EXCEPTION
 END;
 $$;
 ------------------------------------------------------------------------------------
---         3.2. FUNÇÕES E TRIGGERS PARA MONSTROS
+--         2.2. FUNÇÕES E TRIGGERS PARA MONSTROS
 -------------------------------------------------------------------------------------
 CREATE FUNCTION public.func_bloquear_insert_direto_monstro()
 RETURNS TRIGGER AS $$
@@ -450,11 +470,11 @@ CREATE TRIGGER trigger_bloqueia_insert_pacificos
 
 /*
 =================================================================================
-        4. LÓGICA PARA MISSÕES
+        3. LÓGICA PARA MISSÕES
 =================================================================================
 */
 -- =================================================================================
---         4.1. FUNÇÕES, TRIGGERS E STORED PROCEDURES PARA MISSÕES
+--         3.1. FUNÇÕES, TRIGGERS E STORED PROCEDURES PARA MISSÕES
 -- =================================================================================
 -------------------------------------------------------------
 -- STORED PROCEDURE: Facilita a criação de novas missões
@@ -528,7 +548,7 @@ CREATE TRIGGER trigger_validar_dados_missao
 
 /*
 =================================================================================
-        5. FUNÇÕES DE ITENS (GERAL)
+        4. FUNÇÕES DE ITENS (GERAL)
 =================================================================================
 */
 -- ---------------------------------------------------------------------------------
@@ -596,7 +616,7 @@ CREATE TRIGGER trigger_bloqueia_insert_itens_magicos
     EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
 -- =================================================================================
---         5.1.  FUNÇÕES, TRIGGERS E STORED PROCEDURES PARA ARMAS
+--         4.1.  FUNÇÕES, TRIGGERS E STORED PROCEDURES PARA ARMAS
 -- =================================================================================
 CREATE FUNCTION public.sp_criar_arma(
     p_nome public.nome,
@@ -666,7 +686,7 @@ CREATE TRIGGER trigger_valida_exclusividade_id_arma
     FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_arma();
 
 -- =================================================================================
---         5.2.  FUNÇÕES, TRIGGERS E STORED PROCEDURE PARA ARMADURAS
+--         4.2.  FUNÇÕES, TRIGGERS E STORED PROCEDURE PARA ARMADURAS
 -- =================================================================================
 
 CREATE FUNCTION public.sp_criar_armadura(
@@ -734,7 +754,7 @@ CREATE TRIGGER trigger_valida_exclusividade_id_armadura
     FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_armadura();
 
 -- =================================================================================
---         5.3.  STORED PROCEDURE PARA ITENS DE CURA E MÁGICOS
+--         4.3.  STORED PROCEDURE PARA ITENS CONSUMÍVEIS DE CURA 
 -- =================================================================================
 --  Atributos levados em consideração para min e max dos efeitos de cura e magia:
 --  ==== Sanidade Máxima (poder * 5) ====
@@ -795,7 +815,7 @@ EXCEPTION
 END $$;
 
 -- =================================================================================
---         5.4.  STORED PROCEDURE PARA ITENS MÁGICOS
+--         4.4.  STORED PROCEDURE PARA ITENS CONSUMÍVEIS MÁGICOS
 -- =================================================================================
 CREATE FUNCTION public.sp_criar_item_magico(
     p_nome public.nome,
