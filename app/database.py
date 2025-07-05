@@ -223,6 +223,90 @@ class DataBase:
         self._execute_query(query, (novo_local_id, id_jogador))
         print(f"[DB] Localizacao do jogador {id_jogador} atualizada para local {novo_local_id}.")
 
+    def move_item_from_ground_to_inventory(self, id_instancia_item: int, id_personagem_jogavel: int) -> bool:
+        """
+        Chama a stored procedure para mover um item do chão para o inventário do jogador.
+        Retorna True se a operação for bem-sucedida, False caso contrário.
+        """
+        # A função no banco de dados (sp_mover_item_chao_para_inventario) já contém
+        # toda a lógica de validação (se o item está no local, se o jogador está no mesmo local,
+        # se há espaço no inventário, etc.).
+        query = "SELECT public.sp_mover_item_chao_para_inventario(%s, %s);"
+        params = (id_instancia_item, id_personagem_jogavel)
+        
+        result = self._execute_query(query, params, fetch_one=True)
+
+        # A SP retorna um booleano. Verificamos se o retorno foi 'true'.
+        if result and result['sp_mover_item_chao_para_inventario']:
+            print(f"[DB] Ação de pegar item {id_instancia_item} pelo jogador {id_personagem_jogavel} foi bem-sucedida.")
+            return True
+        else:
+            # A função no DB já emite um NOTICE com o motivo do erro (inventário cheio, etc).
+            print(f"[DB] Falha ao mover item {id_instancia_item} para o inventário do jogador {id_personagem_jogavel}.")
+            return False
+
+    def get_items_in_local(self, id_local: int):
+        """
+        Busca e retorna uma lista de itens que estão em um determinado local (no chão).
+        """
+        query = """
+            SELECT
+                ii.id,
+                i.nome,
+                i.descricao
+            FROM
+                public.instancias_de_itens ii
+            JOIN
+                public.itens i ON ii.id_item = i.id
+            WHERE
+                ii.id_local = %s AND ii.esta_no_local = TRUE;
+        """
+        items = self._execute_query(query, (id_local,), fetch_all=True)
+        # Retorna a lista de itens ou uma lista vazia se não houver nenhum.
+        return items if items else []
+
+    def drop_item_from_inventory(self, id_instancia_item: int, id_personagem_jogavel: int) -> bool:
+        """
+        Chama a stored procedure para mover um item do inventário do jogador para o chão.
+        Retorna True se a operação for bem-sucedida, False caso contrário.
+        """
+        query = "SELECT public.sp_mover_item_inventario_para_chao(%s, %s);"
+        params = (id_instancia_item, id_personagem_jogavel)
+        
+        result = self._execute_query(query, params, fetch_one=True)
+
+        if result and result['sp_mover_item_inventario_para_chao']:
+            print(f"[DB] Ação de soltar item {id_instancia_item} pelo jogador {id_personagem_jogavel} foi bem-sucedida.")
+            return True
+        else:
+            # A SP já emite um NOTICE com o motivo do erro.
+            print(f"[DB] Falha ao soltar item {id_instancia_item} do inventário do jogador {id_personagem_jogavel}.")
+            return False
+
+    def get_inventory_items(self, id_jogador: int):
+        """
+        Busca e retorna uma lista de itens que estão no inventário de um personagem.
+        """
+        query = """
+            SELECT
+                ii.id AS id_instancia_item,
+                it.nome,
+                it.descricao,
+                ii.durabilidade
+            FROM
+                public.personagens_jogaveis pj
+            JOIN
+                public.inventarios_possuem_instancias_item ipii ON pj.id_inventario = ipii.id_inventario
+            JOIN
+                public.instancias_de_itens ii ON ipii.id_instancias_de_item = ii.id
+            JOIN
+                public.itens it ON ii.id_item = it.id
+            WHERE
+                pj.id = %s;
+        """
+        items = self._execute_query(query, (id_jogador,), fetch_all=True)
+        return items if items else []
+
     def get_ficha_personagem(self, id_jogador: int):
         """
         Obtém e exibe a ficha completa do personagem usando a view.
@@ -343,7 +427,7 @@ class DataBase:
             'status': local_data['status'], 
             'saidas': full_saidas
         }
-
+    
 # --- Bloco de Teste para o Modelo Básico ---
 if __name__ == "__main__":
     db = None 

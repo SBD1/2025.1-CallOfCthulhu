@@ -212,18 +212,25 @@ class Game:
                 return self.start() # Volta ao menu inicial se o local nao for encontrado
 
             # 2. Mostra o status atual
-            # clear()
+            clear()
             print("==================================================")
             # Usa o tipo_local diretamente do BD (ex: 'Sala' ou 'Corredor')
             print(f"Voce esta em um(a) {detalhes_local['tipo_local']}: {detalhes_local['descricao']}")
-            
+
+            #Listar itens no local
+            itens_no_chao = self.db.get_items_in_local(self.player.id_local)
+            if itens_no_chao:
+                print("\nITENS NO CHÃO:")
+                for i, item in enumerate(itens_no_chao):
+                    print(f"  - Item [{i + 1}]: {item['nome'].strip()}")
+
             # Se for um corredor, pode mostrar o status dele
             if detalhes_local['tipo_local'].lower() == 'corredor' and detalhes_local['status'] is not None:
                 print(f"Status do Corredor: {'Ativo' if detalhes_local['status'] else 'Inativo'}")
-            
+
             print("==================================================")
             print("\nSAIDAS DISPONIVEIS:")
-            
+
             saidas = detalhes_local['saidas']
             if not saidas:
                 print("Nao ha saidas visiveis daqui.")
@@ -235,7 +242,7 @@ class Game:
                 print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']}): {saida['desc_saida']}")
 
             # 3. Pede a acao do jogador
-            print("\nO que voce deseja fazer? ('ficha', 'inventario', 'sair')")
+            print("\nO que voce deseja fazer? ('ficha', 'inventario', 'pegar <numero>', 'soltar <numero>', 'sair')")
             escolha = input("> ").strip().lower()
 
             if escolha == 'sair':
@@ -246,11 +253,66 @@ class Game:
                 input("\nPressione Enter para continuar...")
                 continue
             elif escolha == 'inventario':
-                print("Nao implementado ainda")
+                self.display_inventory()
                 input("\nPressione Enter para continuar...")
                 continue
-            
-            # 4. Processa o movimento
+            elif escolha.startswith('pegar'):
+                try:
+                    partes = escolha.split()
+                    if len(partes) == 2 and itens_no_chao:
+                        item_num = int(partes[1]) - 1
+                        if 0 <= item_num < len(itens_no_chao):
+                            item_a_pegar = itens_no_chao[item_num]
+                            id_item_instancia = item_a_pegar['id']
+
+                            sucesso = self.db.move_item_from_ground_to_inventory(id_item_instancia, self.player.id_jogador)
+
+                            if sucesso:
+                                print(f"\nVocê pegou: {item_a_pegar['nome'].strip()}")
+                            else:
+                                print("\nVocê não conseguiu pegar o item.")
+
+                            input("\nPressione Enter para continuar...")
+                        else:
+                            print("Número do item inválido.")
+                            input("\nPressione Enter para continuar...")
+                    else:
+                        print("Comando 'pegar' inválido ou não há itens no chão. Use 'pegar <numero>'.")
+                        input("\nPressione Enter para continuar...")
+                except (ValueError, IndexError):
+                    print("Comando 'pegar' inválido. Use 'pegar <numero>'.")
+                    input("\nPressione Enter para continuar...")
+                continue
+            elif escolha.startswith('soltar'):
+                try:
+                    partes = escolha.split()
+                    inventory_items = self.db.get_inventory_items(self.player.id_jogador)
+
+                    if len(partes) == 2 and inventory_items:
+                        item_num = int(partes[1]) - 1
+                        if 0 <= item_num < len(inventory_items):
+                            item_a_soltar = inventory_items[item_num]
+                            id_item_instancia = item_a_soltar['id_instancia_item']
+
+                            sucesso = self.db.drop_item_from_inventory(id_item_instancia, self.player.id_jogador)
+
+                            if sucesso:
+                                print(f"\nVocê soltou: {item_a_soltar['nome'].strip()}")
+                            else:
+                                print("\nVocê não conseguiu soltar o item.")
+                            input("\nPressione Enter para continuar...")
+                        else:
+                            print("Número do item inválido. Veja seu inventário para a lista de itens.")
+                            input("\nPressione Enter para continuar...")
+                    else:
+                        print("Comando 'soltar' inválido ou seu inventário está vazio. Use 'soltar <numero>'.")
+                        input("\nPressione Enter para continuar...")
+                except (ValueError, IndexError):
+                    print("Comando 'soltar' inválido. Use 'soltar <numero>'.")
+                    input("\nPressione Enter para continuar...")
+                continue
+
+            # 4. Processa o movimento para uma nova sala/corredor
             try:
                 escolha_num = int(escolha) - 1
                 if 0 <= escolha_num < len(saidas):
@@ -260,7 +322,7 @@ class Game:
                     # Apenas atualiza o id_local do jogador no banco de dados
                     self.db.update_localizacao_jogador(self.player.id_jogador, novo_local_id)
                     # Atualiza o id_local do jogador no objeto Player em memoria
-                    self.player.id_local = novo_local_id 
+                    self.player.id_local = novo_local_id
 
                 else:
                     input("Escolha de saida invalida. Pressione Enter.")
@@ -269,7 +331,22 @@ class Game:
 
         # Ao sair do loop gameplay, retorna ao menu principal
         self.start() 
+    
+    def display_inventory(self):
+        """Busca e exibe os itens no inventário do jogador."""
+        #clear()
+        print("\n--- Inventário ---")
+        
+        inventory_items = self.db.get_inventory_items(self.player.id_jogador)
+        
+        if not inventory_items:
+            print("Seu inventário está vazio.")
+        else:
+            for i, item in enumerate(inventory_items):
+                print(f"  [{i + 1}] {item['nome'].strip()} (Durabilidade: {item['durabilidade']})")
+                print(f"      Descrição: {item['descricao'].strip()}")
 
+        print("------------------")
 
 if __name__ == '__main__':
     display_cthulhu_intro()

@@ -1390,6 +1390,9 @@ CREATE TABLE public.itens(
 CREATE TABLE public.instancias_de_itens(
     id public.id_instancia_de_item NOT NULL PRIMARY KEY DEFAULT public.gerar_id_instancia_de_item(),
     durabilidade SMALLINT NOT NULL,
+    esta_no_local BOOLEAN DEFAULT TRUE,
+    esta_no_inventario BOOLEAN DEFAULT FALSE,
+    --esta_equipado BOOLEAN
 
     -- FOREIGN KEYS
     id_local public.id_local,
@@ -1648,7 +1651,10 @@ ADD CONSTRAINT fk_inventarios_possuem_instancias_de_item
 ALTER TABLE public.inventarios_possuem_instancias_item 
 ADD CONSTRAINT fk_inventarios_possuem_instancias_de_item_inventario 
     FOREIGN KEY (id_inventario) 
-    REFERENCES public.inventarios (id);    
+    REFERENCES public.inventarios (id); 
+
+ALTER TABLE public.inventarios_possuem_instancias_item
+ADD CONSTRAINT UQ_InstanciaItem_Inventario UNIQUE (id_instancias_de_item);       
 
 -- ==============================
 --           MÁGICOS

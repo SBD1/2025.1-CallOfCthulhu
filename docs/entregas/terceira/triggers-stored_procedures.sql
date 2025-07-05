@@ -103,6 +103,10 @@ DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), publ
 -- Funções de itens
 DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, public.tipo_item, SMALLINT, public.id_inventario) CASCADE;
 
+-- Funções de Interação com o Mundo
+DROP FUNCTION IF EXISTS public.sp_mover_item_chao_para_inventario(public.id_instancia_de_item, public.id_personagem_jogavel) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_mover_item_inventario_para_chao(public.id_instancia_de_item, public.id_personagem_jogavel) CASCADE;
+
 
 -- =================================================================================
 --         2. REGRAS DE PERSONAGENS (GERAL)
@@ -871,4 +875,214 @@ CREATE TRIGGER trigger_bloqueia_insert_magicos
     FOR EACH ROW 
     EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
+/*
+=================================================================================
+        6. LÓGICA DE INTERAÇÃO COM O MUNDO
+=================================================================================
+*/
 
+-- =================================================================================
+--         6.1.  STORED PROCEDURE PARA MOVER ITEM DO CHÃO PARA O INVENTÁRIO
+-- =================================================================================
+
+CREATE OR REPLACE FUNCTION public.sp_mover_item_chao_para_inventario(
+    p_id_instancia_item public.id_instancia_de_item,
+    p_id_personagem_jogavel public.id_personagem_jogavel
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+    v_id_inventario public.id_inventario;
+    v_id_local_personagem public.id_local;
+    v_id_local_item public.id_local;
+    v_tamanho_inventario SMALLINT;
+    v_itens_no_inventario INT;
+    v_item_no_chao BOOLEAN;
+    v_item_no_inventario BOOLEAN;
+BEGIN
+    -- PASSO 1: Obter dados do personagem e do item.
+    SELECT pj.id_inventario, pj.id_local INTO v_id_inventario, v_id_local_personagem
+    FROM public.personagens_jogaveis pj
+    WHERE pj.id = p_id_personagem_jogavel;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Personagem com ID % não encontrado.', p_id_personagem_jogavel;
+        RETURN FALSE;
+    END IF;
+
+    SELECT ii.id_local, ii.esta_no_local, ii.esta_no_inventario INTO v_id_local_item, v_item_no_chao, v_item_no_inventario
+    FROM public.instancias_de_itens ii
+    WHERE ii.id = p_id_instancia_item;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Instância de item com ID % não encontrada.', p_id_instancia_item;
+        RETURN FALSE;
+    END IF;
+
+    -- PASSO 2: Validar as condições para mover o item.
+    IF v_item_no_chao IS NOT TRUE OR v_item_no_inventario IS TRUE THEN
+        RAISE NOTICE 'O item % não está no chão ou já está em um inventário.', p_id_instancia_item;
+        RETURN FALSE;
+    END IF;
+
+    IF v_id_local_personagem IS DISTINCT FROM v_id_local_item THEN
+        RAISE NOTICE 'O personagem e o item não estão no mesmo local.';
+        RETURN FALSE;
+    END IF;
+
+    -- PASSO 3: Verificar se há espaço no inventário.
+    SELECT inv.tamanho INTO v_tamanho_inventario FROM public.inventarios inv WHERE inv.id = v_id_inventario;
+    SELECT count(*) INTO v_itens_no_inventario FROM public.inventarios_possuem_instancias_item WHERE id_inventario = v_id_inventario;
+
+    IF v_itens_no_inventario >= v_tamanho_inventario THEN
+        RAISE NOTICE 'Inventário do personagem está cheio.';
+        RETURN FALSE;
+    END IF;
+
+    -- PASSO 4: Executar a movimentação do item.
+    UPDATE public.instancias_de_itens SET id_local = NULL, esta_no_local = FALSE, esta_no_inventario = TRUE WHERE id = p_id_instancia_item;
+    INSERT INTO public.inventarios_possuem_instancias_item (id_instancias_de_item, id_inventario) VALUES (p_id_instancia_item, v_id_inventario);
+
+    RAISE NOTICE 'Item % movido para o inventário do personagem % com sucesso.', p_id_instancia_item, p_id_personagem_jogavel;
+    RETURN TRUE;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro inesperado ao mover o item: %', SQLERRM;
+        RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql;
+
+-- =================================================================================
+--         6.2.  STORED PROCEDURE PARA MOVER ITEM DO INVENTÁRIO PARA O CHÃO
+-- =================================================================================
+
+CREATE OR REPLACE FUNCTION public.sp_mover_item_inventario_para_chao(
+    p_id_instancia_item public.id_instancia_de_item,
+    p_id_personagem_jogavel public.id_personagem_jogavel
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+    v_id_inventario public.id_inventario;
+    v_id_local_personagem public.id_local;
+    v_item_no_inventario BOOLEAN;
+    v_possui_item_count INT;
+BEGIN
+    -- PASSO 1: Obter dados do personagem e verificar se ele possui o item.
+    SELECT pj.id_inventario, pj.id_local INTO v_id_inventario, v_id_local_personagem
+    FROM public.personagens_jogaveis pj
+    WHERE pj.id = p_id_personagem_jogavel;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Personagem com ID % não encontrado.', p_id_personagem_jogavel;
+        RETURN FALSE;
+    END IF;
+
+    SELECT ii.esta_no_inventario INTO v_item_no_inventario
+    FROM public.instancias_de_itens ii
+    WHERE ii.id = p_id_instancia_item;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Instância de item com ID % não encontrada.', p_id_instancia_item;
+        RETURN FALSE;
+    END IF;
+
+    -- PASSO 2: Validar se o item está de fato no inventário do personagem.
+    SELECT count(*) INTO v_possui_item_count
+    FROM public.inventarios_possuem_instancias_item
+    WHERE id_inventario = v_id_inventario AND id_instancias_de_item = p_id_instancia_item;
+
+    IF v_item_no_inventario IS NOT TRUE OR v_possui_item_count = 0 THEN
+        RAISE NOTICE 'O item % não está no inventário do personagem %.', p_id_instancia_item, p_id_personagem_jogavel;
+        RETURN FALSE;
+    END IF;
+    
+    -- PASSO 3: Executar a movimentação do item.
+    -- Remove a associação do inventário
+    DELETE FROM public.inventarios_possuem_instancias_item
+    WHERE id_instancias_de_item = p_id_instancia_item AND id_inventario = v_id_inventario;
+
+    -- Atualiza o status da instância do item para estar no chão, no local atual do personagem
+    UPDATE public.instancias_de_itens
+    SET id_local = v_id_local_personagem, esta_no_local = TRUE, esta_no_inventario = FALSE
+    WHERE id = p_id_instancia_item;
+
+    RAISE NOTICE 'Item % solto no chão pelo personagem % com sucesso.', p_id_instancia_item, p_id_personagem_jogavel;
+    RETURN TRUE;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro inesperado ao soltar o item: %', SQLERRM;
+        RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql;
+
+-- =================================================================================
+--         6.3.  STORED PROCEDURE PARA MOVER ITEM DO CHÃO PARA O INVENTÁRIO
+-- =================================================================================
+
+CREATE OR REPLACE FUNCTION public.sp_mover_item_chao_para_inventario(
+    p_id_instancia_item public.id_instancia_de_item,
+    p_id_personagem_jogavel public.id_personagem_jogavel
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+    v_id_inventario public.id_inventario;
+    v_id_local_personagem public.id_local;
+    v_id_local_item public.id_local;
+    v_tamanho_inventario SMALLINT;
+    v_itens_no_inventario INT;
+    v_item_no_chao BOOLEAN;
+    v_item_no_inventario BOOLEAN;
+BEGIN
+    -- PASSO 1: Obter dados do personagem e do item.
+    SELECT pj.id_inventario, pj.id_local INTO v_id_inventario, v_id_local_personagem
+    FROM public.personagens_jogaveis pj
+    WHERE pj.id = p_id_personagem_jogavel;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Personagem com ID % não encontrado.', p_id_personagem_jogavel;
+        RETURN FALSE;
+    END IF;
+
+    SELECT ii.id_local, ii.esta_no_local, ii.esta_no_inventario INTO v_id_local_item, v_item_no_chao, v_item_no_inventario
+    FROM public.instancias_de_itens ii
+    WHERE ii.id = p_id_instancia_item;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Instância de item com ID % não encontrada.', p_id_instancia_item;
+        RETURN FALSE;
+    END IF;
+
+    -- PASSO 2: Validar as condições para mover o item.
+    IF v_item_no_chao IS NOT TRUE OR v_item_no_inventario IS TRUE THEN
+        RAISE NOTICE 'O item % não está no chão ou já está em um inventário.', p_id_instancia_item;
+        RETURN FALSE;
+    END IF;
+
+    IF v_id_local_personagem IS DISTINCT FROM v_id_local_item THEN
+        RAISE NOTICE 'O personagem e o item não estão no mesmo local.';
+        RETURN FALSE;
+    END IF;
+
+    -- PASSO 3: Verificar se há espaço no inventário.
+    SELECT inv.tamanho INTO v_tamanho_inventario FROM public.inventarios inv WHERE inv.id = v_id_inventario;
+    SELECT count(*) INTO v_itens_no_inventario FROM public.inventarios_possuem_instancias_item WHERE id_inventario = v_id_inventario;
+
+    IF v_itens_no_inventario >= v_tamanho_inventario THEN
+        RAISE NOTICE 'Inventário do personagem está cheio.';
+        RETURN FALSE;
+    END IF;
+
+    -- PASSO 4: Executar a movimentação do item.
+    UPDATE public.instancias_de_itens SET id_local = NULL, esta_no_local = FALSE, esta_no_inventario = TRUE WHERE id = p_id_instancia_item;
+    INSERT INTO public.inventarios_possuem_instancias_item (id_instancias_de_item, id_inventario) VALUES (p_id_instancia_item, v_id_inventario);
+
+    RAISE NOTICE 'Item % movido para o inventário do personagem % com sucesso.', p_id_instancia_item, p_id_personagem_jogavel;
+    RETURN TRUE;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro inesperado ao mover o item: %', SQLERRM;
+        RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql;

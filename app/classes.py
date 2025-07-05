@@ -51,11 +51,6 @@ class Player:
     def __str__(self):
         return f"Personagem: {self.nome}, Ocupacao: {self.ocupacao}, Local ID: {self.id_local}"
 
-# As classes Corredor e Sala nao sao mais necessarias para representar entidades separadas do DB,
-# pois foram unificadas na tabela 'local'. Se voce ainda precisa de objetos para estas,
-# elas seriam representacoes de dados, nao mapeamentos diretos de tabelas individuais.
-# Por simplicidade e alinhamento com a refatoracao do BD, elas serao removidas daqui.
-
 # class Corredor:
 #     def __init__(self, idCorredor, status, descricao):
 #         self.idCorredor = idCorredor
@@ -65,4 +60,4 @@ class Player:
 # class Sala:
 #     def __init__(self, idSala, descricao):
 #         self.idSala = idSala
-#         self.descricao = descricao
+#         self.descricao = descricao    
