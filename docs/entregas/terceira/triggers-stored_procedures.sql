@@ -31,6 +31,11 @@ DATA: 28/06/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Criação de triggers e stored procedures para missões, incluindo validações de regras de negócio e exclusividade.
 
+VERSÃO: 0.7
+DATA: 28/06/2025
+AUTOR: Wanjo Christopher
+DESCRIÇÃO: Cria triggers e stored procedures para armas e armaduras, incluindo validações de regras de negócio e exclusividade.
+
 
 */
 
@@ -83,26 +88,7 @@ DROP FUNCTION IF EXISTS public.sp_criar_npc(public.nome, public.ocupacao, public
 DROP FUNCTION IF EXISTS public.func_valida_atributos_monstro_agressivo() CASCADE;
 DROP FUNCTION IF EXISTS public.func_valida_atributos_monstro_pacifico() CASCADE;
 DROP FUNCTION IF EXISTS public.func_bloquear_insert_direto_monstro() CASCADE;
-DROP FUNCTION IF EXISTS public.sp_criar_monstro(    
-    public.nome,
-    public.descricao,
-    public.tipo_monstro,
-    SMALLINT,
-    SMALLINT,
-    public.gatilho_agressividade,
-    SMALLINT,
-    public.tipo_monstro_agressivo,
-    SMALLINT,
-    SMALLINT,
-    SMALLINT,
-    public.dano,
-    SMALLINT,
-    SMALLINT,
-    public.comportamento_pacifico,
-    public.tipo_monstro_pacifico,
-    CHARACTER(128),
-    CHARACTER(128)
-) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_monstro(public.nome, public.descricao, public.tipo_monstro, SMALLINT, SMALLINT, public.gatilho_agressividade, SMALLINT, public.tipo_monstro_agressivo, SMALLINT, SMALLINT, SMALLINT, public.dano, SMALLINT, SMALLINT, public.comportamento_pacifico, public.tipo_monstro_pacifico, CHARACTER(128), CHARACTER(128)) CASCADE;
 
 -- Funções de missões
 DROP FUNCTION IF EXISTS public.func_validar_dados_missao() CASCADE;
@@ -121,39 +107,29 @@ DROP FUNCTION IF EXIST public.sp_criar_item(public.nome, public.descricao, publi
 -- FUNÇÃO DE TRIGGER: Garante que um PJ não possa ser um NPC
 -------------------------------------------------------------
 CREATE FUNCTION public.func_valida_exclusividade_id_pj()
-RETURNS TRIGGER AS $func_valida_exclusividade_id_pj$
+RETURNS TRIGGER AS $$
 BEGIN
-    -- Verifica se o ID que está sendo inserido/atualizado em 'personagens_jogaveis' já existe na tabela 'npcs'. 
-    PERFORM 1 FROM public.npcs WHERE id = NEW.id;
-
-    IF FOUND THEN
-        -- Caso id já exista, gera um erro.
+    IF EXISTS (SELECT 1 FROM public.npcs WHERE id = NEW.id) THEN
         RAISE EXCEPTION 'O ID % já existe na tabela de NPCs. Um personagem não pode ser Jogável e NPC.', NEW.id;
     END IF;
 
     -- Se a verificação passar, retorna a tupla para continuar a operação de INSERT ou UPDATE.
     RETURN NEW;
 END;
-$func_valida_exclusividade_id_pj$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -------------------------------------------------------------
 -- FUNÇÃO DE TRIGGER: Garante que um NPC não possa ser um PJ
 -------------------------------------------------------------
 CREATE FUNCTION public.func_valida_exclusividade_id_npc()
-RETURNS TRIGGER AS $func_valida_exclusividade_id_npc$
+RETURNS TRIGGER AS $$
 BEGIN
-    -- Verifica se o ID que está sendo inserido/atualizado em 'npcs' já existe na tabela 'personagens_jogaveis'. 
-    PERFORM 1 FROM public.personagens_jogaveis WHERE id = NEW.id;
-
-    IF FOUND THEN
-        -- Caso id já exista, gera um erro.
+    IF EXISTS (SELECT 1 FROM public.personagens_jogaveis WHERE id = NEW.id) THEN
         RAISE EXCEPTION 'O ID % já existe na tabela de Personagens Jogáveis. Um NPC não pode ser NPC e Jogável.', NEW.id;
     END IF;
-
-    -- Se a verificação passar, retorna a tupla para continuar a operação de INSERT ou UPDATE.
     RETURN NEW;
 END;
-$func_valida_exclusividade_id_npc$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 
 -- =================================================================================
@@ -375,18 +351,18 @@ CREATE FUNCTION public.sp_criar_monstro(
     p_pacifico_tipo public.tipo_monstro_pacifico DEFAULT NULL,
     p_pacifico_conhecimento_geo CHARACTER(128) DEFAULT NULL,
     p_pacifico_conhecimento_proibido CHARACTER(128) DEFAULT NULL
-)
-RETURNS public.id_monstro AS $$
+) 
+RETURNS public.id_monstro 
+LANGUAGE plpgsql AS $$
 DECLARE
     v_novo_monstro_id public.id_monstro;
 BEGIN
-    -- =================== DESABILITAR TRIGGERS ===================
-    -- Desabilita temporariamente os gatilhos para permitir a inserção pelo procedimento.
-    ALTER TABLE public.monstros DISABLE TRIGGER trigger_bloqueia_insert_monstros;
-    ALTER TABLE public.agressivos DISABLE TRIGGER trigger_bloqueia_insert_agressivos;
-    ALTER TABLE public.pacificos DISABLE TRIGGER trigger_bloqueia_insert_pacificos;
+    -- == Funcionamento de current_setting('nome_da_config', 'missing_ok') ==
+    -- Caso 'missing_ok' seja 'true', não gera erro caso a configuração não exista
+    -- Caso seja 'false', gera Exception, o que daria problema pois testamos se o valor é inexistente (NULL)
+    SET LOCAL bd_cthulhu.inserir = 'true';
 
-    -- =================== BLOCO DE VALIDAÇÃO ===================
+    -- =================== VALIDAÇÃO ===================
     IF p_tipo = 'agressivo' THEN
         IF p_agressivo_vida IS NULL OR p_agressivo_dano IS NULL OR p_agressivo_tipo IS NULL THEN
             RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: Para monstros agressivos, os campos vida, dano e tipo_agressivo são obrigatórios.';
@@ -411,7 +387,7 @@ BEGIN
         RAISE EXCEPTION 'Tipo de monstro inválido: %. Use "agressivo" ou "pacífico".', p_tipo;
     END IF;
 
-    -- =================== BLOCO DE INSERÇÃO ===================
+    -- =================== INSERÇÃO ===================
     IF p_tipo = 'agressivo' THEN
         v_novo_monstro_id := public.gerar_id_monstro_agressivo();
     ELSE 
@@ -431,27 +407,14 @@ BEGIN
         VALUES (v_novo_monstro_id, p_pacifico_defesa, p_pacifico_vida, p_pacifico_motivo, p_pacifico_tipo, p_pacifico_conhecimento_geo, p_pacifico_conhecimento_proibido);
     END IF;
 
-    -- =================== REABILITAR TRIGGERS ===================
-    -- Reabilita os gatilhos após a conclusão da operação.
-    ALTER TABLE public.monstros ENABLE TRIGGER trigger_bloqueia_insert_monstros;
-    ALTER TABLE public.agressivos ENABLE TRIGGER trigger_bloqueia_insert_agressivos;
-    ALTER TABLE public.pacificos ENABLE TRIGGER trigger_bloqueia_insert_pacificos;
-
     RETURN v_novo_monstro_id;
 
 EXCEPTION
     WHEN OTHERS THEN
         RAISE NOTICE 'Ocorreu um erro na criação do monstro: %', SQLERRM;
-
-        -- =================== REABILITANDO TRIGGERS ===================
-        -- Garante que os gatilhos sejam reabilitados mesmo que ocorra uma exceção.
-        ALTER TABLE public.monstros ENABLE TRIGGER trigger_bloqueia_insert_monstros;
-        ALTER TABLE public.agressivos ENABLE TRIGGER trigger_bloqueia_insert_agressivos;
-        ALTER TABLE public.pacificos ENABLE TRIGGER trigger_bloqueia_insert_pacificos;
-        
-        RAISE; -- Re-lança a exceção para que a transação seja desfeita.
+        RAISE;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 
 -- ---------------------------------------------------------------------------------
@@ -462,8 +425,10 @@ $$ LANGUAGE plpgsql;
 CREATE FUNCTION public.func_bloquear_insert_direto_monstro()
 RETURNS TRIGGER AS $$
 BEGIN
-    RAISE EXCEPTION 'Inserção direta não é permitida. Utilize o Stored Procedure "sp_criar_monstro" para criar monstros.';
-    RETURN NULL;
+    IF current_setting('bd_cthulhu.inserir', true) IS DISTINCT FROM 'true' THEN
+        RAISE EXCEPTION 'Inserção direta não é permitida. Utilize o Stored Procedure "sp_criar_monstro" para criar monstros.';
+    END IF;
+    RETURN NEW; 
 END;
 $$ LANGUAGE plpgsql;
 
@@ -521,7 +486,7 @@ BEGIN
     -- Se todas as validações passarem, permite a operação.
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql ;
 
 
 -- =================================================================================
@@ -538,7 +503,8 @@ CREATE FUNCTION public.sp_criar_missao(
     p_ordem CHARACTER(128),
     p_id_npc public.id_personagem_npc
 )
-RETURNS public.id_missao AS $$
+RETURNS public.id_missao 
+LANGUAGE plpgsql AS $$
 DECLARE
     v_nova_missao_id public.id_missao;
 BEGIN
@@ -560,7 +526,7 @@ BEGIN
 
     RETURN v_nova_missao_id;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
 
 -- =================================================================================
@@ -575,12 +541,34 @@ CREATE TRIGGER trigger_validar_dados_missao
 
 /*
 =================================================================================
-        4. LÓGICA PARA ITENS
+        5. REGRAS DE ITENS (GERAL)
+-- Lógica de Generalização e Especialização para garantir a exclusividade
 =================================================================================
 */
+-- FUNÇÃO DE TRIGGER: Garante que uma armadura não possa ser uma arma
+CREATE FUNCTION public.func_valida_exclusividade_id_arma()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM public.armaduras WHERE id = NEW.id) THEN
+        RAISE EXCEPTION 'O ID % já existe na tabela de armaduras. Um item do tipo arma não pode ser do tipo armadura.', NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Função de trigger: Garante que uma arma não possa ser uma armadura
+CREATE FUNCTION public.func_valida_exclusividade_id_armadura()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM public.armas WHERE id = NEW.id) THEN
+        RAISE EXCEPTION 'O ID % já existe na tabela de armas. Um item do tipo armadura não pode ser do tipo arma.', NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 -- =================================================================================
---         4.1. FUNÇÕES DE TRIGGER PARA ITENS
+--         5.1.  STORED PROCEDURE PARA ARMAS
 -- =================================================================================
 CREATE FUNCTION public.sp_criar_arma(
     p_nome public.nome,
@@ -597,14 +585,15 @@ CREATE FUNCTION public.sp_criar_arma(
     p_tipo_dano public.tipo_dano DEFAULT NULL,
     p_dano public.dano DEFAULT NULL
 )
-RETURNS public.id_item AS $$
+RETURNS public.id_item 
+LANGUAGE plpgsql AS $$
 DECLARE
     v_novo_item_id public.id_item;
     v_pericia_id public.id_pericia;
 BEGIN
     -- Passe livre para inserção de itens, sem bloqueio de triggers.
     -- Esse set volta a ter valor 'NULL' ao final da transação, garantindo que nenhuma tupla seja inserida sem passsar pelo sp_criar_arma.
-    SET LOCAL meu_app.pode_inserir_item = 'true';
+    SET LOCAL bd_cthulhu.inserir = 'true';
 
     -- =================== VALIDAÇÃO ===================
     SELECT id INTO v_pericia_id FROM public.pericias WHERE nome = 'Briga';
@@ -629,97 +618,237 @@ EXCEPTION
         RAISE NOTICE 'Ocorreu um erro na criação da arma: %', SQLERRM;      
         RAISE; -- Re-lança a exceção para que a transação seja desfeita.
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
-CREATE OR REPLACE FUNCTION public.func_bloquear_insert_direto_itens()
-RETURNS TRIGGER AS $$
+-- =================================================================================
+--         5.2.  STORED PROCEDURE PARA ARMADURAS
+-- =================================================================================
+
+CREATE FUNCTION public.sp_criar_armadura(
+    p_nome public.nome,
+    p_descricao public.descricao,
+    p_valor public.valor,
+
+    -- Parâmetros específicos de armadura
+    p_atributo_necessario public.tipo_atributo_personagem,
+    p_durabilidade SMALLINT NOT NULL,
+    p_funcao funcao_armadura NOT NULL,
+    p_qtd_atributo_recebe SMALLINT NOT NULL,
+    p_qtd_atributo_necessario SMALLINT NOT NULL,
+    p_tipo_atributo_recebe public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado SMALLINT NOT NULL,
+) 
+RETURNS public.id_item 
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_novo_item_id public.id_item;
+    v_pericia_id public.id_pericia;
 BEGIN
-    IF current_setting('meu_app.pode_inserir_item', true) IS DISTINCT FROM 'true' THEN
-        RAISE EXCEPTION 'Inserção direta na tabela "itens" não é permitida. Utilize a função apropriada.';
+    SET LOCAL bd_cthulhu.inserir = 'true';
+
+    -- =================== VALIDAÇÃO ===================
+    SELECT id INTO v_pericia_id FROM public.pericias WHERE nome = 'Uso de Armadura';
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'A perícia obrigatória "Uso de Armadura" não foi encontrada na tabela public.pericias.';
+    END IF;
+    -- =================== INSERÇÃO ===================
+    v_novo_item_id := public.gerar_id_item_de_armadura();
+
+    -- Insere na tabela pai 'itens'
+    INSERT INTO public.itens(id, tipo, nome, descricao, valor)
+        VALUES(v_novo_item_id, 'armadura', p_nome, p_descricao, p_valor);
+
+    -- Insere na tabela filha correta
+    INSERT INTO public.armaduras (id, atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_municao, tipo_dano, dano, id_pericia_necessaria)
+        VALUES (v_novo_item_id, p_atributo_necessario, p_durabilidade, p_funcao , p_qtd_atributo_recebe, p_qtd_atributo_necessario, p_tipo_atributo_recebe, p_qtd_dano_mitigado, v_pericia_id);
+
+    RETURN v_novo_item_id;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro na criação da arma: %', SQLERRM;      
+        RAISE; -- Re-lança a exceção para que a transação seja desfeita.
+END;
+$$;
+
+-- =================================================================================
+--         5.3.  STORED PROCEDURE PARA ITENS DE CURA E MÁGICOS
+
+--  Atributos levados em consideração para min e max dos efeitos de cura e magia:
+--  ==== Sanidade Máxima (poder * 5) ====
+--      Mínima: 3 de poder = 15 de Sanidade
+--      Média: 10 de poder = 50 de Sanidade
+--      Máxima: 18 de poder = 90 de Sanidade
+
+-- ==== Pontos de Vida Máximos ((constituicao + tamanho) / 2) ====
+--      Mínimo: (3+3)/2 = 3 PV
+--      Médio: (10+10)/2 = 10 PV
+--      Máximo: (18+18)/2 = 18 PV
+-- =================================================================================
+CREATE FUNCTION public.sp_criar_item_cura(
+    p_nome public.nome,
+    p_descricao public.descricao,
+    p_valor,
+
+    -- Parâmetros específicos de cura
+    p_funcao public.funcao_cura,
+    p_qts_usos SMALLINT,
+    p_qtd_pontos_sanidade_recupera SMALLINT,
+    p_qtd_pontos_vida_recupera SMALLINT
+)
+RETURNS public.id_item_de_cura
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_novo_item_id public.id_item_de_cura;
+BEGIN
+    SET LOCAL bd_cthulhu.inserir = 'true';
+    -- =================== VALIDAÇÃO ===================
+    IF p_funcao IS NULL THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A função de cura não pode ser nula.';
+    END IF;
+    IF p_qts_usos <= 0 THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A quantidade de usos deve ser maior que zero.';
+    END IF;
+    IF NOT(p_qtd_pontos_sanidade_recupera BETWEEN 1 AND 8) THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A quantidade de pontos de sanidade recuperados deve estar entre 1 e 8.';
+    END IF;
+    IF NOT (p_qtd_pontos_vida_recupera BETWEEN 1 AND 10)
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A quantidade de pontos de vida recuperados deve estar entre 1 e 10.';
     END IF;
 
-    -- Se o código chegou aqui, é porque o sinalizador estava 'true', então a inserção é permitida.
+    -- =================== INSERÇÃO ===================
+    v_novo_item_id := public.gerar_id_item_de_cura();
+    -- Insere na tabela pai 'itens'
+    INSERT INTO public.itens(id, tipo, nome, descricao, valor)
+        VALUES(v_novo_item_id, 'cura', p_nome, p_descricao, p_valor);
+    -- Insere na tabela filha correta
+    INSERT INTO public.curas (id, funcao, qts_usos, qtd_pontos_sanidade_recupera, qtd_pontos_vida_recupera)
+        VALUES (v_novo_item_id, p_funcao, p_qts_usos, p_qtd_pontos_sanidade_recupera, p_qtd_pontos_vida_recupera);
+    
+    RETURN v_novo_item_id;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro na criação do item de cura: %', SQLERRM;      
+        RAISE; -- Re-lança a exceção para que a transação seja desfeita.
+END $$;
+
+-- =================================================================================
+--         5.4.  STORED PROCEDURE PARA ITENS MÁGICOS
+-- =================================================================================
+CREATE FUNCTION public.sp_criar_item_magico(
+    p_nome public.nome,
+    p_descricao public.descricao,
+    p_valor public.valor,
+
+    -- Parâmetros específicos de item mágico
+    p_funcao public.funcao_magica,
+    p_qts_usos SMALLINT,
+    p_custo_sanidade SMALLINT,
+    p_id_feitico public.id_feitico
+)
+RETURNS public.id_item_magico
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_novo_item_id public.id_item_magico;
+BEGIN
+    SET LOCAL bd_cthulhu.inserir = 'true';
+    -- =================== VALIDAÇÃO ===================
+    IF p_funcao IS NULL THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A função mágica não pode ser nula.';
+    END IF;
+    IF p_qts_usos <= 0 THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: A quantidade de usos deve ser maior que zero.';
+    END IF;
+    IF NOT (p_custo_sanidade BETWEEN 0 AND 15) THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O custo de sanidade deve estar entre 1 e 10.';
+    END IF;
+    IF p_id_feitico IS NULL THEN
+        RAISE EXCEPTION 'VIOLAÇÃO DE REGRA: O ID do feitiço não pode ser nulo.';
+    END IF;
+
+    -- =================== INSERÇÃO ===================
+    v_novo_item_id := public.gerar_id_item_magico();
+    -- Insere na tabela pai 'itens'
+    INSERT INTO public.itens(id, tipo, nome, descricao, valor)
+        VALUES(v_novo_item_id, 'magico', p_nome, p_descricao, p_valor);
+    -- Insere na tabela filha correta
+    INSERT INTO public.magicos (id, funcao, qts_usos, custo_sanidade, id_feitico)
+        VALUES (v_novo_item_id, p_funcao, p_qts_usos, p_custo_sanidade, p_id_feitico); 
+    
+    RETURN v_novo_item_id;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro na criação do item mágico: %', SQLERRM;      
+        RAISE; -- Re-lança a exceção para que a transação seja desfeita.
+END $$;
+
+-- =================================================================================
+--         5.4.  FUNÇÕES DE TRIGGER 
+-- =================================================================================
+CREATE FUNCTION public.func_bloquear_insert_direto_itens()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF current_setting('bd_cthulhu.inserir', true) IS DISTINCT FROM 'true' THEN
+        RAISE EXCEPTION 'Inserção direta na tabela "itens" não é permitida. Utilize a função apropriada.';
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE FUNCTION public.func_valida_atributos_item()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.id IS NULL THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O ID do item não pode ser nulo.';
+    IF NEW.nome IS NULL OR TRIM(NEW.nome) = '' THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O nome do item não pode ser nulo ou vazio.';
+    IF NEW.descricao IS NULL OR TRIM(NEW.descricao) = '' THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] A descrição do item não pode ser nula ou vazia.';
+    IF NEW.valor IS NULL OR NOT (NEW.valor BETWEEN 0 AND 999) THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O valor do item não pode ser nulo ou negativo ou maior que 999.';
+    IF NEW.tipo IS NULL THEN
+        RAISE EXCEPTION '[VIOLAÇÃO DE REGRA] O tipo do item não pode ser nulo.';
+    END IF;
+
 -- =================================================================================
---         4.2. CRIAÇÃO DOS TRIGGERS
+--         5.2. CRIAÇÃO DOS TRIGGERS
 -- =================================================================================
 
+CREATE TRIGGER trigger_valida_atributos_item
+    BEFORE INSERT OR UPDATE ON public.itens
+    FOR EACH ROW
+    EXECUTE FUNCTION public.func_valida_atributos_item();
+    
 CREATE TRIGGER trigger_bloqueia_insert_itens
     BEFORE INSERT ON public.itens 
-    FOR EACH ROW EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
+    FOR EACH ROW 
+    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
+CREATE TRIGGER trigger_bloqueia_insert_armas
+    BEFORE INSERT ON public.armas 
+    FOR EACH ROW 
+    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
-------------- TABELAS PARA REFERENCIA NA CRIAÇÃO, NÃO TEM USO NO TRIGGER OU PROCEDURE!!!!!!!!!!!!-------
--- -- Atualmente funciona assim:
--- BEGIN;
---   WITH adaga_criada AS (
---     INSERT INTO public.armas (atributo_necessario, qtd_atributo_necessario, durabilidade, funcao, alcance, tipo_dano, dano, id_pericia_necessaria)
---     VALUES ('destreza', 7, 80, 'corpo_a_corpo_leve', 1, 'unico', 4, (SELECT id FROM public.pericias WHERE nome = 'Briga'))
---     RETURNING id
---   )
---   INSERT INTO public.itens (id, tipo, nome, descricao, valor)
---   VALUES ((SELECT id FROM adaga_criada), 'arma', 'Adaga Simples', 'Uma adaga enferrujada.', 5);
--- COMMIT;
+CREATE TRIGGER trigger_bloqueia_insert_armaduras
+    BEFORE INSERT ON public.armaduras 
+    FOR EACH ROW 
+    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
--- -- Tipos de itens
---             ('armadura'::character VARYING)::text, 
---             ('arma'::character VARYING)::text,
---             ('cura'::character VARYING)::text,
---             ('magico'::character VARYING)::text
+CREATE TRIGGER trigger_bloqueia_insert_curas
+    BEFORE INSERT ON public.curas 
+    FOR EACH ROW 
+    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
+CREATE TRIGGER trigger_bloqueia_insert_magicos
+    BEFORE INSERT ON public.magicos 
+    FOR EACH ROW 
+    EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
--- -- Tipos de armadura
---  CREATE DOMAIN public.funcao_armadura AS CHARACTER VARYING(8)
---     CONSTRAINT funcao_armadura_check CHECK (
---         (VALUE)::text = ANY (ARRAY[
---             ('cabeca'::character VARYING)::text, 
---             ('peitoral'::character VARYING)::text,
---             ('bracos'::character VARYING)::text,
---             ('pernas'::character VARYING)::text,
---             ('pes'::character VARYING)::text,
---             ('mao'::character VARYING)::text
---         ])
---     ); */
+CREATE TRIGGER trigger_valida_exclusividade_id_arma
+    BEFORE INSERT OR UPDATE ON public.armas
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_arma();
 
+CREATE TRIGGER trigger_valida_exclusividade_id_armadura
+    BEFORE INSERT OR UPDATE ON public.armaduras
+    FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_armadura();
 
--- -- Tabelas de arma e armadura
--- CREATE TABLE public.armaduras(
---     id public.id_item_de_armadura NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_de_armadura(),
---     atributo_necessario public.tipo_atributo_personagem,
---     durabilidade SMALLINT NOT NULL,
---     funcao funcao_armadura NOT NULL,
---     qtd_atributo_recebe SMALLINT NOT NULL,
---     qtd_atributo_necessario SMALLINT NOT NULL,
---     tipo_atributo_recebe public.tipo_atributo_personagem,
---     qtd_dano_mitigado SMALLINT NOT NULL,
-
---     -- FOREIGN KEYS
---     id_pericia_necessaria public.id_pericia NOT NULL
--- );
-
--- CREATE TABLE public.armas(
---     id public.id_item_arma NOT NULL PRIMARY KEY DEFAULT public.gerar_id_item_arma(),
---     atributo_necessario public.tipo_atributo_personagem,
---     qtd_atributo_necessario SMALLINT NOT NULL,
---     durabilidade SMALLINT NOT NULL,
---     funcao public.funcao_arma,
---     alcance SMALLINT,
---     tipo_municao public.tipo_municao DEFAULT NULL,
---     tipo_dano public.tipo_dano NOT NULL,
---     dano public.dano NOT NULL,
-    
---     -- FOREIGN KEYS
---     id_pericia_necessaria public.id_pericia NOT NULL
--- );
-
--- -- Tabela de itens
--- CREATE TABLE public.itens(
---     id public.id_item NOT NULL PRIMARY KEY,
---     tipo public.tipo_item NOT NULL,
---     nome public.nome NOT NULL UNIQUE,
---     descricao public.descricao NOT NULL,
---     valor SMALLINT
--- );

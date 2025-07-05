@@ -190,7 +190,8 @@ INSERT INTO public.pericias
             ('Treinar Animais', 5, FALSE),
             ('Usar Bibliotecas', 20, FALSE),
             ('Usar Computadores', 5, FALSE),
-            ('Zoologia', 1, FALSE);
+            ('Zoologia', 1, FALSE),
+            ('Uso de Armadura', 1, TRUE);
 
 -- ===============================================
 
@@ -487,7 +488,7 @@ também criamos os itens, os quais retornam um id, que é usado nas instâncias 
 também criamos as batalhas com base no nome do personagem 
 */
 
-SELECT public.sp_criar_monstro(
+CALL public.sp_criar_monstro(
     p_nome                  := 'Abominável Horror'::public.nome,
     p_descricao             := 'Criatura grotesca que se esconde nas sombras...'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
@@ -502,7 +503,7 @@ SELECT public.sp_criar_monstro(
     p_agressivo_dano        := 30::public.dano
 );
 
-SELECT public.sp_criar_monstro(
+CALL public.sp_criar_monstro(
     p_nome                       := 'Espírito Guardião'::public.nome,
     p_descricao                  := 'Um espírito antigo que protege certas áreas...'::public.descricao,
     p_tipo                       := 'pacífico'::public.tipo_monstro,
