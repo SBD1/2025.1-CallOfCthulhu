@@ -47,6 +47,11 @@ DATA: 05/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Arrumando o trigger de npc e personagem jogável.
 
+VERSÃO: 1.0
+DATA: 05/07/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Criando o ROLE usuario_padrao e concedendo permissões de acesso ao banco de dados.
+
 */
 
 -- =================================================================================
@@ -106,6 +111,32 @@ DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), publ
 
 -- Funções de itens
 DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, public.tipo_item, SMALLINT, public.id_inventario) CASCADE;
+
+
+-- =================================================================================
+--         Usuário Padrão
+-- =================================================================================
+
+CREATE ROLE public.usuario_padrao
+    WITH LOGIN
+    NOSUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    INHERIT
+    NOREPLICATION
+    CONNECTION LIMIT -1
+    PASSWORD 'usuario_padrao';
+COMMENT ON ROLE public.usuario_padrao IS 'Usuário padrão para acesso ao banco de dados.';
+
+-- =================================================================================
+-- Permissões para o usuário padrão
+-- =================================================================================
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO public.usuario_padrao;
+
+REVOKE INSERT, UPDATE, DELETE ON public.personagens_jogaveis FROM public.usuario_padrao;
+
+-- DEPOIS TERMINAR EM CIMA
 
 -- =================================================================================
 --         1. REGRAS GERAIS DE PERSONAGENS
