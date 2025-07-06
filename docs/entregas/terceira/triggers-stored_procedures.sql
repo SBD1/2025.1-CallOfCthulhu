@@ -88,6 +88,11 @@ VERSÃO: 0.17
 DATA: 05/07/2025
 AUTOR: Wanjo Chritopher
 DESCRIÇÃO: Corrige sp_executar_batalha para buscar vida da instância. Melhora sp_ver_inventario para retornar os bônus dos itens.
+
+VERSÃO: 0.18
+DATA: 05/07/2025
+AUTOR: Wanjo Chritopher
+DESCRIÇÃO: Cria procedure de insperior monstro e melhora a de checar inventário
 */
 
 
@@ -513,6 +518,59 @@ EXCEPTION
     WHEN OTHERS THEN
         RAISE NOTICE 'Ocorreu um erro na criação do monstro: %', SQLERRM;
         RAISE;
+END;
+$$;
+-- --------------------------------------------------------------------
+--        2.2 Inspecionar detalhes de um monstro
+-- --------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_inspecionar_monstro(
+    p_id_instancia_monstro public.id_instancia_de_monstro
+)
+RETURNS TABLE (
+    nome public.nome,
+    descricao public.descricao,
+    tipo_monstro public.tipo_monstro,
+    vida_atual SMALLINT,
+    vida_total SMALLINT,
+    defesa SMALLINT,
+    -- Atributos de Monstro Agressivo
+    dano public.dano,
+    tipo_agressivo public.tipo_monstro_agressivo,
+    catalisador_agressividade public.gatilho_agressividade,
+    loucura_induzida SMALLINT,
+    ponto_magia SMALLINT,
+    velocidade_ataque SMALLINT,
+    -- Atributos de Monstro Pacífico
+    motivo_passividade public.comportamento_pacifico,
+    tipo_pacifico public.tipo_monstro_pacifico,
+    conhecimento_geografico CHARACTER(128),
+    conhecimento_proibido CHARACTER(128)
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        COALESCE(a.nome, p.nome),
+        COALESCE(a.descricao, p.descricao),
+        tm.tipo,
+        im.vida,
+        COALESCE(a.vida_total, p.vida_total),
+        COALESCE(a.defesa, p.defesa),
+        a.dano,
+        a.tipo_agressivo,
+        a.catalisador_agressividade,
+        a.loucura_induzida,
+        a.ponto_magia,
+        a.velocidade_ataque,
+        p.motivo_passividade,
+        p.tipo_pacifico,
+        p.conhecimento_geografico,
+        p.conhecimento_proibido
+    FROM public.instancias_monstros im
+    JOIN public.tipos_monstro tm ON im.id_monstro = tm.id
+    LEFT JOIN public.agressivos a ON tm.id = a.id AND tm.tipo = 'agressivo'
+    LEFT JOIN public.pacificos p ON tm.id = p.id AND tm.tipo = 'pacífico'
+    WHERE im.id = p_id_instancia_monstro;
 END;
 $$;
 ------------------------------------------------------------------------------------
@@ -1189,8 +1247,10 @@ RETURNS TABLE (
     item_tipo public.tipo_item,
     item_valor SMALLINT,
     dano public.dano,
+    qtd_dano_mitigado SMALLINT,
     qtd_atributo_recebe SMALLINT,
-    tipo_atributo_recebe public.tipo_atributo_personagem
+    tipo_atributo_recebe public.tipo_atributo_personagem,
+    esta_equipado BOOLEAN 
 )
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -1215,8 +1275,16 @@ BEGIN
         it.tipo,
         it.valor,
         a.dano,
+        ar.qtd_dano_mitigado, 
         ar.qtd_atributo_recebe,
-        ar.tipo_atributo_recebe
+        ar.tipo_atributo_recebe,
+        -- Lógica para verificar se o item está equipado
+        CASE
+            WHEN ipii.id_instancias_de_item = (SELECT pj.id_arma FROM public.personagens_jogaveis pj WHERE pj.id = p_jogador_id)
+              OR ipii.id_instancias_de_item = (SELECT pj.id_armadura FROM public.personagens_jogaveis pj WHERE pj.id = p_jogador_id)
+            THEN TRUE
+            ELSE FALSE
+        END AS esta_equipado
     FROM
         public.inventarios_possuem_instancias_item ipii
     JOIN
