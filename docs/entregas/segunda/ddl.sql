@@ -1521,7 +1521,7 @@ ADD CONSTRAINT fk_pj_inventario_instancia_arma
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_inventario_instancia_armadura 
     FOREIGN KEY (id_armadura) 
-    REFERENCES public.public.instancias_de_itens(id) (id);
+    REFERENCES public.instancias_de_itens(id);
 
 /*
 
