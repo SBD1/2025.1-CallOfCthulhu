@@ -264,18 +264,21 @@ class Game:
             return
 
         print("\n--- Ficha da Criatura ---")
-        print(f"Nome: {details['nome'].strip()}")
-        print(f"Descrição: {details['descricao'].strip()}")
+        print(f"Nome: {details['monstro_nome'].strip()}")
+        print(f"Descrição: {details['monstro_descricao'].strip()}")
         print(f"Vida: {details['vida_atual']}/{details['vida_total']} | Defesa: {details['defesa']}")
 
         if details['tipo_monstro'].strip() == 'agressivo':
             print(f"Dano: {details.get('dano', 'N/A')}")
-            if details.get('velocidade_ataque'):
-                print(f"Velocidade de Ataque: {details['velocidade_ataque']}")
-            if details.get('loucura_induzida'):
-                print(f"Loucura Induzida: {details['loucura_induzida']}")
-            if details.get('ponto_magia'):
-                print(f"Pontos de Magia: {details['ponto_magia']}")
+
+            specifics = details.get('detalhes_especificos', {})
+            
+            if specifics.get('velocidade_ataque') is not None:
+                print(f"Velocidade de Ataque: {specifics['velocidade_ataque']}")
+            if specifics.get('loucura_induzida') is not None:
+                print(f"Loucura Induzida: {specifics['loucura_induzida']}")
+            if specifics.get('ponto_magia') is not None:
+                print(f"Pontos de Magia: {specifics['ponto_magia']}")
         
         print("-------------------------\n")
 
