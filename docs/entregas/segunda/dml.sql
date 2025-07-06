@@ -89,15 +89,20 @@ Descrição: Refatoração completa dos INSERTs para se alinhar com as correçõ
 - Ajuste na criação de itens mágicos para referenciar um feitiço específico em vez de um tipo de feitiço genérico.
 Autor: João Marcos, Luiz Guilherme.
 
-Versão 1.7 
+Versão 1.7
 Data 05/07/2025
 Descrição: Adicionando itens com o procedure sp_criar_arma
 Autor: Luiz Guilherme
 
-Versão 1.8 
+Versão 1.8
 Data 05/07/2025
 Descrição: Melhorias na inserção de instâncias de monstros e itens para permitir seu respawn
 Autor: Luiz Guilherme
+
+Versão: 1.9
+Data: 06/07/2025
+Autor: Wanjo Christopher
+Descrição: Adicionando novos monstros e itens 
 
 */
 -- ===============================================
@@ -511,6 +516,10 @@ também criamos os itens, os quais retornam um id, que é usado nas instâncias 
 também criamos as batalhas com base no nome do personagem
 */
 
+-- -----------------------------------------------
+--          Criação de Monstros e Itens (Base Inicial)
+-- -----------------------------------------------
+
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Abominável Horror'::public.nome,
     p_descricao             := 'Criatura grotesca que se esconde nas sombras...'::public.descricao,
@@ -553,19 +562,205 @@ SELECT public.sp_criar_arma(
     p_dano                  := 4::public.dano
 );
 
-INSERT INTO public.instancias_de_itens (durabilidade, durabilidade_total, id_item, id_local, id_local_de_spawn)
-VALUES 
-  (80, 80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), 
-  (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'),
-  (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'));
+-- -----------------------------------------------
+--          Criação de Novos Monstros 
+-- -----------------------------------------------
 
--- Inserindo a instância do monstro com a instância do item
+-- Monstro Físico: Sombra Rastejante
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Sombra Rastejante'::public.nome,
+    p_descricao             := 'Uma massa de escuridão disforme com múltiplos apêndices afiados. Move-se com uma velocidade sobrenatural, atacando sem aviso.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 12::SMALLINT,
+    p_agressivo_vida        := 40::SMALLINT,
+    p_agressivo_vida_total  := 40::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 0::SMALLINT,
+    p_agressivo_tipo        := 'fisico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 12::SMALLINT, -- Muito rápido
+    p_agressivo_loucura     := 5::SMALLINT,  -- Ver uma criatura dessas abala a mente
+    p_agressivo_pm          := 0::SMALLINT,
+    p_agressivo_dano        := 15::public.dano
+);
+
+-- Monstro Psíquico: Sussurrante Insano
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Sussurrante Insano'::public.nome,
+    p_descricao             := 'Não possui forma física visível, mas sua presença é sentida como um zumbido na mente que se transforma em sussurros de verdades cósmicas terríveis.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 5::SMALLINT,
+    p_agressivo_vida        := 60::SMALLINT,
+    p_agressivo_vida_total  := 60::SMALLINT,
+    p_agressivo_catalisador := 'alvo_especifico'::public.gatilho_agressividade, -- Ataca a mente mais fraca
+    p_agressivo_poder       := 18::SMALLINT,
+    p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 0::SMALLINT,
+    p_agressivo_loucura     := 35::SMALLINT, -- Ataque principal é na sanidade
+    p_agressivo_pm          := 20::SMALLINT,
+    p_agressivo_dano        := 5::public.dano -- Dano físico baixo
+);
+
+-- Monstro Mágico: Cultista Abissal
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Cultista Abissal'::public.nome,
+    p_descricao             := 'Um humanoide envolto em mantos rasgados, entoando cânticos em uma língua gutural. Seus olhos brilham com uma luz maligna de outro mundo.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 8::SMALLINT,
+    p_agressivo_vida        := 35::SMALLINT,
+    p_agressivo_vida_total  := 35::SMALLINT,
+    p_agressivo_catalisador := 'ataque_direto'::public.gatilho_agressividade,
+    p_agressivo_poder       := 16::SMALLINT,
+    p_agressivo_tipo        := 'magico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 6::SMALLINT,
+    p_agressivo_loucura     := 10::SMALLINT,
+    p_agressivo_pm          := 25::SMALLINT,
+    p_agressivo_dano        := 20::public.dano -- Dano mágico
+);
+
+-- Monstro Físico Fraco: Verme Cadavérico
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Verme Cadavérico'::public.nome,
+    p_descricao             := 'Uma larva pálida e segmentada do tamanho de um braço humano. Reage a qualquer movimento, atacando com suas mandíbulas quitinosas.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 4::SMALLINT,
+    p_agressivo_vida        := 15::SMALLINT,
+    p_agressivo_vida_total  := 15::SMALLINT,
+    p_agressivo_catalisador := 'barulho_alto'::public.gatilho_agressividade,
+    p_agressivo_poder       := 0::SMALLINT,
+    p_agressivo_tipo        := 'fisico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 4::SMALLINT,
+    p_agressivo_loucura     := 2::SMALLINT,
+    p_agressivo_pm          := 0::SMALLINT,
+    p_agressivo_dano        := 8::public.dano
+);
+
+-- -----------------------------------------------
+--            Criação de Novos Itens 
+-- -----------------------------------------------
+
+-- Item/Arma dropado pela Sombra Rastejante
+SELECT public.sp_criar_arma(
+    p_nome                  := 'Fragmento de Obsidiana'::public.nome,
+    p_descricao             := 'Uma lasca de rocha negra e vítrea, anormalmente fria ao toque. Sua aresta é mais afiada que qualquer aço.'::public.descricao,
+    p_valor                 := 25::SMALLINT,
+    p_atributo_necessario   := 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario := 9::SMALLINT,
+    p_durabilidade          := 60::SMALLINT,
+    p_funcao                := 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               := 1::SMALLINT,
+    p_tipo_municao          := NULL,
+    p_tipo_dano             := 'unico'::public.tipo_dano,
+    p_dano                  := 8::public.dano
+);
+
+-- Item/Arma dropado pelo Cultista Abissal
+SELECT public.sp_criar_arma(
+    p_nome                  := 'Tomo Proibido'::public.nome,
+    p_descricao             := 'Um livro pesado, encadernado no que parece ser pele humana. As páginas contêm diagramas insanos e escrituras que ferem os olhos.'::public.descricao,
+    p_valor                 := 150::SMALLINT,
+    p_atributo_necessario   := 'inteligencia'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario := 12::SMALLINT,
+    p_durabilidade          := 100::SMALLINT, -- Não é uma arma convencional
+    p_funcao                := 'corpo_a_corpo_pesada'::public.funcao_arma, -- Usado para golpear
+    p_alcance               := 1::SMALLINT,
+    p_tipo_municao          := NULL,
+    p_tipo_dano             := 'unico'::public.tipo_dano,
+    p_dano                  := 6::public.dano -- Dano de contusão
+);
+
+-- Item/Arma dropado pelo Sussurrante Insano
+SELECT public.sp_criar_arma(
+    p_nome                  := 'Ídolo Grotesco'::public.nome,
+    p_descricao             := 'Uma estatueta de pedra-sabão representando uma entidade cefalópode. Segurá-la causa tontura e sussurros na mente.'::public.descricao,
+    p_valor                 := 80::SMALLINT,
+    p_atributo_necessario   := 'poder'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario := 10::SMALLINT,
+    p_durabilidade          := 120::SMALLINT,
+    p_funcao                := 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               := 1::SMALLINT,
+    p_tipo_municao          := NULL,
+    p_tipo_dano             := 'unico'::public.tipo_dano,
+    p_dano                  := 3::public.dano
+);
+
+-- ===============================================
+--    CRIAÇÃO DE INSTÂNCIAS DE ITENS E MONSTROS
+-- ===============================================
+/*
+Aqui, criamos as instâncias dos itens que serão o "loot" dos monstros.
+Em seguida, criamos as instâncias dos monstros, associando cada um ao seu
+respectivo loot e definindo sua localização inicial e de respawn.
+*/
+
+-- -----------------------------------------------
+--       Criação de Instâncias de Itens
+-- -----------------------------------------------
+
+INSERT INTO public.instancias_de_itens (durabilidade, durabilidade_total, id_item, id_local, id_local_de_spawn)
+VALUES
+  (80, 80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%')),
+  (60, 60, (SELECT id FROM public.itens WHERE nome = 'Fragmento de Obsidiana'), NULL, (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares retorcidos%')),
+  (100, 100, (SELECT id FROM public.itens WHERE nome = 'Tomo Proibido'), NULL, (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular com um altar de obsidiana%')),
+  (120, 120, (SELECT id FROM public.itens WHERE nome = 'Ídolo Grotesco'), NULL, (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação, com uma grande janela arqueada%'));
+
+-- -----------------------------------------------
+--       Criação de Instâncias de Monstros
+-- -----------------------------------------------
+
+-- Inserindo de Abominável Horror na sala 0 (Inicial)
 INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
     (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
+
+-- Instância da Sombra Rastejante na sala 3 (Labirinto de Pilares)
+INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Sombra Rastejante'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares retorcidos%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares retorcidos%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Fragmento de Obsidiana'));
+
+-- Instância do Cultista Abissal na sala 4 (Câmara Triangular com Altar)
+INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Cultista Abissal'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular com um altar de obsidiana%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular com um altar de obsidiana%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Tomo Proibido'));
+
+-- Instância do Sussurrante Insano na sala 5 (Sala de Observação)
+INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Sussurrante Insano'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação, com uma grande janela arqueada%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação, com uma grande janela arqueada%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Ídolo Grotesco'));
+
+-- Instância de Verme 1 na sala 1 (Câmara com Poço)
+INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Verme Cadavérico'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
+
+-- Instância de Verme 2 na sala 6 (Biblioteca Submersa)
+INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Verme Cadavérico'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde estantes de coral e algas%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde estantes de coral e algas%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
+
+
+-- ===============================================
+
+-- ADIÇÃO NA TABELA DE BATALHAS
+
+-- ===============================================
 
 -- Inserindo a batalha
 INSERT INTO public.batalhas (id_jogador, id_monstro)

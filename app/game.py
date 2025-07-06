@@ -229,7 +229,7 @@ class Game:
             return self.start()
 
         print(f"\n--- Comeca a aventura de {self.player.nome}! ---")
-
+        self.start_monster_movement_scheduler()
         while True:
 
             current_time = time.time()
@@ -266,7 +266,7 @@ class Game:
 
             for i, saida in enumerate(saidas):
                 # Usa tipo_destino para dizer se vai para uma Sala ou Corredor
-                print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']}): {saida['desc_saida']}")
+                print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']})")
 
             # 3. Pede a acao do jogador
             print("\nO que voce deseja fazer? (Abrir Ficha [f], Abrir Inventário [i], Vasculhar [v], Procurar Monstros [p], Sair [s])")
@@ -381,7 +381,6 @@ class Game:
 if __name__ == '__main__':
     display_cthulhu_intro()
     game = Game()
-    game.start_monster_movement_scheduler()
     game.start()
     if game.db:
         game.db.close()
