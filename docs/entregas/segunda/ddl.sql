@@ -116,12 +116,11 @@ Data: 05/07/2025
 Descrição: Adições nas tabelas para permitir o respawn de itens e monstros
 Autores: Luiz Guilherme
 
-*/
 
-Versão: 1.6
-Data: 05/07/2025
+Versão: 1.7
+Data: 06/07/2025
 Descrição: Adição de inventário nos npcs e do atributo ouro no personagem_jogavel
-Autores: João Marcos, Luiz Guilherme
+Autores: Ígor
 */
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
@@ -1528,7 +1527,7 @@ ADD CONSTRAINT fk_pj_inventario_instancia_arma
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_inventario_instancia_armadura 
     FOREIGN KEY (id_armadura) 
-    REFERENCES public.public.instancias_de_itens(id) (id);
+    REFERENCES public.instancias_de_itens(id);
 
 /*
 

@@ -246,6 +246,42 @@ class Game:
                 print(f"Pontos de Magia: {details['ponto_magia']}")
         
         print("-------------------------\n")
+    
+    def display_detalhes_item(self, item: dict):
+        """
+        Recebe um dicionário de item e exibe seus detalhes de forma organizada.
+        """
+        print("\n--- Detalhes do Item ---")
+        print(f"Nome: ................. {item.get('item_nome', 'N/A').strip()}")
+        print(f"Tipo: ................. {item.get('item_tipo', 'N/A').strip()}")
+        print(f"Descrição: ............ {item.get('item_descricao', 'N/A').strip()}")
+        print(f"Valor: ................ {item.get('item_valor', 0)}")
+
+        if item.get('durabilidade_total') is not None:
+            print(f"Durabilidade: ......... {item.get('durabilidade_atual', 0)} / {item.get('durabilidade_total', 0)}")
+
+        if item.get('dano') is not None:
+            print("\n* Atributos de Arma:")
+            print(f"  Dano: ............... {item.get('dano')}")
+            print(f"  Alcance: ............ {item.get('alcance', 1)}")
+
+        if item.get('qtd_dano_mitigado') is not None:
+            print("\n* Atributos de Armadura:")
+            print(f"  Dano Mitigado: ..... {item.get('qtd_dano_mitigado')}")
+
+        if item.get('qts_usos') is not None:
+            print("\n* Atributos de Consumível:")
+            print(f"  Usos Restantes: .... {item.get('qts_usos')}")
+
+        # --- LINHA CORRIGIDA ---
+        # Usamos 'or 0' para garantir que, se o valor for None, ele se torne 0 antes da comparação.
+        if (item.get('qtd_pontos_vida_recupera') or 0) > 0:
+            print(f"  Recupera Vida: ..... +{item.get('qtd_pontos_vida_recupera')}")
+
+        if item.get('custo_sanidade') is not None:
+            print(f"  Custo de Sanidade: . {item.get('custo_sanidade')}")
+
+        print("------------------------")
 
 
     def _handle_explore_actions(self):
@@ -254,6 +290,7 @@ class Game:
             print("\n--- Explorar Ambiente ---")
             print("1. Procurar por Itens")
             print("2. Procurar por Ameaças")
+            print("3. Comprar itens")
             print("0. Voltar")
             
             choice = input("> ").strip()
@@ -325,11 +362,91 @@ class Game:
                     print("O local parece estar livre de ameacas... por enquanto.")
                 input("\nPressione Enter para continuar...")
 
+            elif choice == '3': # Comprar Itens / Interagir com Vendedor
+                vendedores_no_local = self.db.get_vendedor_in_location(self.player.id_local)
+
+                if vendedores_no_local:
+                    vendedor = vendedores_no_local[0]
+                    print(f"\nVocê avista {vendedor['nome'].strip()}.")
+
+                    if vendedor.get('script_dialogo'):
+                        print(f"\n{vendedor['nome'].strip()}: \"{vendedor['script_dialogo'].strip()}\"")
+
+                    while True:
+                        action = input("\nO que deseja fazer? [1] Ver Loja, [0] Sair: ").strip()
+
+                        if action == '1':
+                            itens_do_vendedor = self.db.get_item_vendedor(vendedor.get('id_personagem_npc'))
+
+                            if not itens_do_vendedor:
+                                print("Este vendedor não tem itens para vender no momento.")
+                                input("Pressione Enter para continuar...")
+                                break 
+
+                            while True:
+                                print(f"\n--- Itens de {vendedor['nome'].strip()} ---")
+                                for i, item in enumerate(itens_do_vendedor, 1):
+                                    nome_item = item.get('item_nome', 'N/A').strip()
+                                    valor_item = item.get('item_valor', 0)
+                                    print(f"[{i}] {nome_item} (Valor: {valor_item})")
+
+                                escolha_item = input("\nDigite o número para inspecionar (ou 'voltar'): ").strip().lower()
+
+                                if escolha_item == 'voltar':
+                                    break 
+                                
+                                try:
+                                    idx = int(escolha_item) - 1
+                                    if 0 <= idx < len(itens_do_vendedor):
+                                        item_escolhido = itens_do_vendedor[idx]
+                                        self.display_detalhes_item(item_escolhido)
+
+                                        # --- BLOCO DE COMPRA ADICIONADO ---
+                                        custo_item = item_escolhido.get('item_valor', 0)
+                                        ouro_jogador = self.player.ouro
+
+                                        print(f"Custo: {custo_item} Ouro | Você tem: {ouro_jogador} Ouro")
+
+                                        if ouro_jogador >= custo_item:
+                                            comprar = input("Deseja comprar este item? (s/n): ").lower()
+                                            if comprar == 's':
+                                                resultado = self.db.personagem_compra_item(
+                                                    id_jogador=self.player.id_jogador,
+                                                    npc_id=vendedor['id_personagem_npc'],
+                                                    id_instancia_item=item_escolhido['instancia_item_id'],
+                                                    valor_pago=custo_item
+                                                )
+                                                print(f"\n> {resultado}")
+
+                                                if "sucesso" in resultado.lower():
+                                                    # Atualiza o ouro do jogador em memória
+                                                    self.player.ouro -= custo_item
+                                                    print(f"Seu ouro restante: {self.player.ouro}")
+                                                    input("Pressione Enter para continuar...")
+                                                    break # Sai para a lista de itens da loja ser atualizada
+                                                
+                                        else:
+                                            print("Você não tem ouro suficiente.")
+                                            input("\nPressione Enter para voltar à lista...")
+                                            # --- FIM DO BLOCO DE COMPRA ---
+                                    else:
+                                        print("Número de item inválido.")
+                                except ValueError:
+                                    print("Entrada inválida. Digite um número.")
+
+                        elif action == '0':
+                            print(f"Você se despede de {vendedor['nome'].strip()}.")
+                            break
+                        else:
+                            print("Opção inválida.")
+                else:
+                    print("\nNão há vendedores neste local.")
+
             elif choice == '0':
                 break
             else:
                 print("Opção de exploração inválida.")
-
+                
     def gameplay(self):
         if not self.player:
             print("Erro: Nenhum jogador carregado.")

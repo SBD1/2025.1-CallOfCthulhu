@@ -101,7 +101,7 @@ class DataBase:
         """
         query = """
         SELECT
-            pj.id, pj.nome, pj.ocupacao, pj.residencia, pj.local_nascimento, pj.idade, pj.sexo,
+            pj.id, pj.nome, pj.ocupacao, pj.residencia, pj.local_nascimento, pj.idade, pj.sexo, pj.ouro,
             pj.forca, pj.constituicao, pj.poder, pj.destreza, pj.aparencia, pj.tamanho, pj.inteligencia, pj.educacao,
             pj.movimento, pj.sanidade_atual, pj.insanidade_temporaria, pj.insanidade_indefinida,
             pj.pm_base, pj.pm_max, pj.pontos_de_vida_atual,
@@ -126,6 +126,7 @@ class DataBase:
                 residencia=personagem_data['residencia'],
                 local_nascimento=personagem_data['local_nascimento'],
                 idade=personagem_data['idade'],
+                ouro=personagem_data['ouro'],
                 sexo=personagem_data['sexo'],
                 forca=personagem_data['forca'],
                 constituicao=personagem_data['constituicao'],
@@ -259,6 +260,7 @@ class DataBase:
             print(f"  Insanidade Temporaria: .......... {'Sim' if ficha_data['insanidade_temporaria'] else 'Nao'}")
             print(f"  Insanidade Indefinida: .......... {'Sim' if ficha_data['insanidade_indefinida'] else 'Nao'}")
             print(f"  Pontos de Magia: ................ {ficha_data['pm_base']} / {ficha_data['pm_max']}\n")
+            print(f"  Ouro: ........................... {ficha_data['ouro']}\n")
 
             # --- NOVA SEÇÃO DE EQUIPAMENTO ---
             print("* EQUIPAMENTO")
@@ -458,6 +460,45 @@ class DataBase:
         """
         query = "SELECT * FROM public.sp_inspecionar_monstro(%s);"
         return self._execute_query(query, (id_instancia_monstro,), fetch_one=True)
+    
+    def get_vendedor_in_location(self, local_id: int):
+        """
+        Chama a stored procedure sp_encontrar_vendedor_no_local para buscar e retornar
+        todos os vendedores presentes em um local específico.
+        """
+        query = "SELECT * FROM public.sp_encontrar_vendedor_no_local(%s);"
+        return self._execute_query(query, (local_id,), fetch_all=True)
+    
+    def get_item_vendedor(self, npc_id: int):
+        """
+        Chama a stored procedure sp_ver_inventario_npc que mostra todos os itens do inventario do npc
+        """
+        query = "SELECT * FROM public.sp_ver_inventario_npc(%s);"
+        params = (npc_id,)
+        
+        return self._execute_query(query, params, fetch_all=True)    
+    
+    def personagem_compra_item(self, id_jogador: int, npc_id: int, id_instancia_item: int, valor_pago: int):
+       """
+       Chama a stored procedure public.sp_comprar_item_do_npc para realizar a transação.
+       """
+       # A query agora aceita 4 parâmetros
+       query = """
+        SELECT public.sp_comprar_item_do_npc(
+            %s::public.id_personagem_jogavel, 
+            %s::public.id_personagem_npc, 
+            %s::public.id_instancia_de_item, 
+            %s::smallint
+        );
+        """
+
+       # Passa todos os 4 parâmetros na ordem correta
+       params = (id_jogador, npc_id, id_instancia_item, valor_pago)
+
+       result = self._execute_query(query, params, fetch_one=True)
+       if result:
+           return result['sp_comprar_item_do_npc']
+       return "Erro ao tentar comprar item."
 
 # --- Bloco de Teste para o Modelo Básico ---
 if __name__ == "__main__":

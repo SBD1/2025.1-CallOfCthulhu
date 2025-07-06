@@ -450,18 +450,106 @@ VALUES
 SELECT public.sp_criar_npc('Velho Sábio'::public.nome, 'Guardião do Templo'::public.ocupacao, 'Templo das Sombras'::public.residencia, 'Arkham'::public.local_nascimento, 70::public.idade, 'masculino'::public.sexo);
 SELECT public.sp_criar_npc('Guarda do Templo'::public.nome, 'Protetor das Relíquias'::public.ocupacao, 'Templo das Sombras'::public.residencia, 'Arkham'::public.local_nascimento, 45::public.idade, 'masculino'::public.sexo);
 SELECT public.sp_criar_npc('Sacerdotisa Sombria'::public.nome, 'Mestre dos Rituais'::public.ocupacao, 'Templo das Sombras'::public.residencia, 'Arkham'::public.local_nascimento, 50::public.idade, 'feminino'::public.sexo);
+-- Cria o NPC 'Gambireiro' no corredor 1
+SELECT public.sp_criar_npc(
+    'Gambireiro'::public.nome, 
+    'Vendedor ambulante'::public.ocupacao, 
+    'Templo das Sombras'::public.residencia, 
+    'Arkham'::public.local_nascimento, 
+    40::public.idade, 
+    'masculino'::public.sexo,
+    (SELECT id FROM public.local WHERE descricao LIKE 'O corredor estreito serpenteia adiante,%' AND tipo_local = 'Corredor')
+);
+
+-- Cria o NPC 'Negociadora' no corredor 2
+SELECT public.sp_criar_npc(
+    'Negociadora'::public.nome, 
+    'Vendedor sofisticado'::public.ocupacao, 
+    'Templo das Sombras'::public.residencia, 
+    'Arkham'::public.local_nascimento, 
+    19::public.idade, 
+    'feminino'::public.sexo,
+    (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é estreito e serpenteia por uma série de arcos baixos%' AND tipo_local = 'Corredor')
+);
+
+-- Cria o NPC 'Tradder' no corredor 5
+SELECT public.sp_criar_npc(
+    'Tradder'::public.nome, 
+    'Vendedor ambulante'::public.ocupacao, 
+    'Templo das Sombras'::public.residencia, 
+    'Arkham'::public.local_nascimento, 
+    24::public.idade, 
+    'masculino'::public.sexo,
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor que se estende em linha reta%' AND tipo_local = 'Corredor')
+);
+
+-- Cria o NPC 'Pracista' no corredor 6
+SELECT public.sp_criar_npc(
+    'Pracista'::public.nome, 
+    'Vendedor ambulante'::public.ocupacao, 
+    'Templo das Sombras'::public.residencia, 
+    'Arkham'::public.local_nascimento, 
+    80::public.idade, 
+    'feminino'::public.sexo,
+    (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é irregular e parece descer em espiral%' AND tipo_local = 'Corredor')
+);
+
+-- Cria o NPC 'Refugiado' no corredor 10
+SELECT public.sp_criar_npc(
+    'Refugiado'::public.nome, 
+    'Vendedor ambulante'::public.ocupacao, 
+    'Templo das Sombras'::public.residencia, 
+    'Arkham'::public.local_nascimento, 
+    25::public.idade, 
+    'masculino'::public.sexo,
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor espaçoso com colunas maciças%' AND tipo_local = 'Corredor')
+);
+
+-- Cria o NPC 'Refugiada' no corredor 9
+SELECT public.sp_criar_npc(
+    'Refugiada'::public.nome, 
+    'Vendedor ambulante'::public.ocupacao, 
+    'Templo das Sombras'::public.residencia, 
+    'Arkham'::public.local_nascimento, 
+    20::public.idade, 
+    'feminino'::public.sexo,
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado com água salgada até a altura do joelho.%' AND tipo_local = 'Corredor')
+);
+
+-- Cria o NPC 'Mauricio o vendedor' no corredor 11
+SELECT public.sp_criar_npc(
+    'Mauricio o vendedor'::public.nome, 
+    'Vendedor sofisticado'::public.ocupacao, 
+    'Templo das Sombras'::public.residencia, 
+    'Arkham'::public.local_nascimento, 
+    30::public.idade, 
+    'masculino'::public.sexo,
+    (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor leva a uma área de transição, com uma porta maciça%' AND tipo_local = 'Corredor')
+);
 
 -- Inserção de diálogos (depende do nome do NPC)
 INSERT INTO public.dialogos (script_dialogo, npc_id)
 VALUES
     ('Viajante, cuidado com as sombras do templo!', (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio')),
-    ('As paredes deste lugar sussurram segredos antigos.', (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio'));
+    ('As paredes deste lugar sussurram segredos antigos.', (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio')),
+    ('Ho ho ho! Venha ver o que eu tenho em minha loja para te ajudar em sua jornada!', (SELECT id FROM public.npcs WHERE nome = 'Gambireiro')),
+    ('Bom dia caro cliente! Veja o que tenho a oferecer em minha loja, quem sabe não te salve em alguma ocasião!', (SELECT id FROM public.npcs WHERE nome = 'Negociadora')),
+    ('Olá caro amigo! Veja estes lindos produtos no precinho que tenho na minha loja e aproveite antes que acabe!', (SELECT id FROM public.npcs WHERE nome = 'Tradder')),
+    ('Olá querido, você por acaso encontrou um golpista chamado Tradder? Espero que não, este patífe roubou alguns itens meus e estava vendendo pelo dobro do preço, veja na minha loja os itens por um preço justo!', (SELECT id FROM public.npcs WHERE nome = 'Pracista')),
+    ('Bom dia viajante, será que você poderia comprar alguns dos meus itens? Estou morrendo de fome e os vendedores não aceitam troca-los por comida.', (SELECT id FROM public.npcs WHERE nome = 'Refugiado')),
+    ('Olá viajante, estou morrendo de fome e os vendedores não aceitam meus itens por comida, você poderia compra-los?', (SELECT id FROM public.npcs WHERE nome = 'Refugiada')),
+    ('Olá viajante, você já chegou muito longe e sinto que os caminhos estão começando a ficar intensos e perigosos, veja em minha loja itens mais fortes e que podem te ajudar!', (SELECT id FROM public.npcs WHERE nome = 'Mauricio o vendedor'))
+    ;
+    
 
 -- Criação de missões usando a Stored Procedure
 SELECT public.sp_criar_missao('A Súplica do Ancião'::public.nome, 'Recupere um artefato roubado das profundezas do templo.'::CHARACTER(512), 'principal'::public.tipo_missao, 'Encontre o artefato na sala triangular.'::CHARACTER(128), (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio'));
 SELECT public.sp_criar_missao('Relíquias Perdidas'::public.nome, 'Ajude a localizar relíquias dispersas pelo corredor.'::CHARACTER(512), 'coleta'::public.tipo_missao, 'Procure por 3 fragmentos.'::CHARACTER(128), (SELECT id FROM public.npcs WHERE nome = 'Guarda do Templo'));
 SELECT public.sp_criar_missao('Purificação do Santuário'::public.nome, 'Extermine uma criatura maligna.'::CHARACTER(512), 'eliminacao'::public.tipo_missao, 'Derrote o Abominável Horror.'::CHARACTER(128), (SELECT id FROM public.npcs WHERE nome = 'Sacerdotisa Sombria'));
 
+-- =================================================================================
+  --         2. SELEÇÃO E CATEGORIZAÇÃO DE ITENS POR VALOR (TIERS)
+  -- =================================================================================
 
 -- ===============================================
 
@@ -650,4 +738,110 @@ SELECT
     (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
     (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'));
 
-    -- COMMIT; -- Finaliza a transação
+-- COMMIT; -- Finaliza a transação
+
+-- Itens para testar os vendedores
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Cajado de Batalha'::public.nome,
+    p_descricao             => 'Um cajado de carvalho reforçado com anéis de ferro, pesado e resistente.'::public.descricao,
+    p_valor                 => 45::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 9::SMALLINT,
+    p_durabilidade          => 150::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 2::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 8::public.dano
+);
+
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Manto do Ocultista'::public.nome,
+    p_descricao             => 'Um manto pesado e escuro que parece absorver a luz e os golpes.'::public.descricao,
+    p_valor                 => 110::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 120::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'poder'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 2::SMALLINT
+);
+
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Sais de Cheiro Arcanos'::public.nome,
+    p_descricao                  => 'Um pequeno frasco com sais que, ao inalados, restauram a clareza mental.'::public.descricao,
+    p_valor                      => 30::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 3::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 5::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 2::SMALLINT
+);
+
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Amuleto do Ancião'::public.nome,
+    p_descricao      => 'Um amuleto de pedra que emana uma coragem sobrenatural quando ativado.'::public.descricao,
+    p_valor          => 200::SMALLINT,
+    p_funcao         => 'encantar_arma'::public.funcao_magica,
+    p_qts_usos       => 2::SMALLINT,
+    p_custo_sanidade => 4::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Bênção da Coragem')
+);
+
+
+-- =================================================================================
+--         PASSO 2: CRIAR INSTÂNCIAS E DISTRIBUIR DIRETAMENTE AOS VENDEDORES
+-- =================================================================================
+-- Este bloco cria uma instância de cada item criado acima e a insere diretamente
+-- no inventário do vendedor correspondente.
+
+WITH
+  -- Adiciona o Cajado de Batalha ao inventário do Gambireiro
+  instancia_cajado AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, (SELECT id_local FROM public.npcs WHERE nome = 'Gambireiro'), NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Cajado de Batalha'
+      RETURNING id
+  ),
+  link_cajado AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Gambireiro'), id FROM instancia_cajado
+  ),
+
+  -- Adiciona o Manto do Ocultista ao inventário da Negociadora
+  instancia_manto AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, (SELECT id_local FROM public.npcs WHERE nome = 'Negociadora'), NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Manto do Ocultista'
+      RETURNING id
+  ),
+  link_manto AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora'), id FROM instancia_manto
+  ),
+
+  -- Adiciona os Sais de Cheiro Arcanos ao inventário da Pracista
+  instancia_sais AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, (SELECT id_local FROM public.npcs WHERE nome = 'Pracista'), NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Sais de Cheiro Arcanos'
+      RETURNING id
+  ),
+  link_sais AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Pracista'), id FROM instancia_sais
+  ),
+
+  -- Adiciona o Amuleto do Ancião ao inventário do Mauricio
+  instancia_amuleto AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+      SELECT i.id, m.qts_usos, m.qts_usos, (SELECT id_local FROM public.npcs WHERE nome = 'Mauricio o vendedor'), NULL
+      FROM public.itens i JOIN public.magicos m ON i.id = m.id WHERE i.nome = 'Amuleto do Ancião'
+      RETURNING id
+  ),
+  link_amuleto AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor'), id FROM instancia_amuleto
+  )
+
+SELECT 'Distribuição direta de itens concluída com sucesso.' AS resultado;

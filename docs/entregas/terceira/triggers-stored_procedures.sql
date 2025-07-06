@@ -401,19 +401,22 @@ CREATE OR REPLACE FUNCTION public.sp_criar_npc(
     p_residencia public.residencia,
     p_local_nascimento public.local_nascimento,
     p_idade public.idade,
-    p_sexo public.sexo
+    p_sexo public.sexo,
+    p_id_local public.id_local DEFAULT 40300003
 )
 RETURNS public.id_personagem_npc AS $$
 DECLARE
+    v_novo_inventario_id public.id_inventario;
     v_novo_npc_id public.id_personagem_npc;
 BEGIN
+    INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id INTO v_novo_inventario_id;
     -- Insere os dados do NPC. A validação será feita pela trigger 'trigger_validar_atributos_npc'.
     INSERT INTO public.npcs (
-        nome, ocupacao, residencia, local_nascimento, idade, sexo,
+        nome, ocupacao, residencia, local_nascimento, idade, sexo, id_inventario,
         id_local -- Localização inicial
     ) VALUES (
-        p_nome, p_ocupacao, p_residencia, p_local_nascimento, p_idade, p_sexo,
-        40300003 -- Sala inicial padrão para NPCs (exemplo, pode ser alterado ou passado como parâmetro)
+        p_nome, p_ocupacao, p_residencia, p_local_nascimento, p_idade, p_sexo, v_novo_inventario_id,
+        p_id_local -- Sala inicial padrão para NPCs (exemplo, pode ser alterado ou passado como parâmetro)
     ) RETURNING id INTO v_novo_npc_id;
 
     RETURN v_novo_npc_id;
@@ -1081,83 +1084,7 @@ CREATE TRIGGER trigger_bloqueia_insert_magicos
     BEFORE INSERT ON public.magicos 
     FOR EACH ROW 
     EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
-/*
-=================================================================================
-        6. FUNÇÕES DE TRANSAÇÃO (COMPRA/TRANSFERÊNCIA)
-=================================================================================
-*/
-
 -- =================================================================================
---         6.1.  STORED PROCEDURE PARA TRANSFERIR ITEM DO NPC PARA O PJ
--- =================================================================================
-
-CREATE OR REPLACE FUNCTION public.sp_comprar_item_do_npc(
-    p_id_personagem_jogavel public.id_personagem_jogavel,
-    p_id_npc public.id_personagem_npc,
-    p_id_instancia_item public.id_instancia_de_item
-    -- O parâmetro p_valor_pago foi removido
-)
-RETURNS TEXT
-LANGUAGE plpgsql AS $$
-DECLARE
-    v_id_inventario_npc public.id_inventario;
-    v_id_inventario_pj public.id_inventario;
-    v_valor_item SMALLINT;
-    v_ouro_jogador INTEGER;
-BEGIN
-    -- ... (as validações iniciais de existência de PJ, NPC e item continuam as mesmas) ...
-    
-    -- Valida se o PJ e o NPC existem
-    IF NOT EXISTS (SELECT 1 FROM public.personagens_jogaveis WHERE id = p_id_personagem_jogavel) THEN
-        RAISE EXCEPTION 'COMPRA FALHOU: Personagem com ID % não encontrado.', p_id_personagem_jogavel;
-    END IF;
-    IF NOT EXISTS (SELECT 1 FROM public.npcs WHERE id = p_id_npc) THEN
-        RAISE EXCEPTION 'COMPRA FALHOU: NPC com ID % não encontrado.', p_id_npc;
-    END IF;
-
-    -- Obtém o valor do item
-    SELECT i.valor INTO v_valor_item
-    FROM public.itens i
-    JOIN public.instancias_de_itens ii ON i.id = ii.id_item
-    WHERE ii.id = p_id_instancia_item;
-    IF NOT FOUND THEN
-        RAISE EXCEPTION 'COMPRA FALHOU: Item com instância ID % não encontrado.', p_id_instancia_item;
-    END IF;
-
-    -- =================== NOVA LÓGICA DE PAGAMENTO ===================
-    -- Verifica se o jogador tem ouro suficiente
-    SELECT ouro INTO v_ouro_jogador FROM public.personagens_jogaveis WHERE id = p_id_personagem_jogavel;
-    
-    IF v_ouro_jogador < v_valor_item THEN
-        RAISE EXCEPTION 'COMPRA FALHOU: Ouro insuficiente. Você tem %, mas o item custa %.', v_ouro_jogador, v_valor_item;
-    END IF;
-
-    -- ... (a validação de espaço no inventário continua a mesma) ...
-
-    -- =================== EXECUÇÃO DA TRANSFERÊNCIA ===================
-
-    -- 1. Remove o item do inventário do NPC
-    DELETE FROM public.inventarios_possuem_instancias_item
-    WHERE id_inventario = (SELECT inventario FROM public.npcs WHERE id = p_id_npc)
-      AND id_instancias_de_item = p_id_instancia_item;
-
-    -- 2. Adiciona o item ao inventário do PJ
-    INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
-    VALUES ((SELECT id_inventario FROM public.personagens_jogaveis WHERE id = p_id_personagem_jogavel), p_id_instancia_item);
-
-    -- 3. Transfere o ouro
-    -- Tira ouro do jogador
-    UPDATE public.personagens_jogaveis SET ouro = ouro - v_valor_item WHERE id = p_id_personagem_jogavel;
-    -- Dá ouro para o NPC
-    UPDATE public.npcs SET ouro = ouro + v_valor_item WHERE id = p_id_npc;
-
-    RETURN 'Compra realizada com sucesso! ' || v_valor_item || ' de ouro foram pagos.';
-
-EXCEPTION
-    WHEN OTHERS THEN
-        RAISE; -- Re-lança a exceção para que a transação seja desfeita e a mensagem de erro apareça
-END;
-$$;-- =================================================================================
 --    6. STORED PROCEDURE PARA RESPAWN DE MONSTROS E ITENS (LUA DE SANGUE)
 --=================================================================================
 
@@ -1310,22 +1237,22 @@ $$;
 --        9. STORED PROCEDURE PARA VER O INVENTÁRIO
 --===============================================================================
 
-CREATE OR REPLACE FUNCTION public.sp_ver_inventario(
-    p_jogador_id public.id_personagem
-)
-RETURNS TABLE (
-    instancia_item_id public.id_instancia_de_item,
-    item_nome public.nome,
-    item_descricao public.descricao,
-    durabilidade SMALLINT,
-    durabilidade_total SMALLINT,
-    item_tipo public.tipo_item,
-    item_valor SMALLINT,
-    dano public.dano,
-    qtd_dano_mitigado SMALLINT,
-    qtd_atributo_recebe SMALLINT,
-    tipo_atributo_recebe public.tipo_atributo_personagem,
-    esta_equipado BOOLEAN 
+    CREATE OR REPLACE FUNCTION public.sp_ver_inventario(
+        p_jogador_id public.id_personagem
+    )
+    RETURNS TABLE (
+        instancia_item_id public.id_instancia_de_item,
+        item_nome public.nome,
+        item_descricao public.descricao,
+        durabilidade SMALLINT,
+        durabilidade_total SMALLINT,
+        item_tipo public.tipo_item,
+        item_valor SMALLINT,
+        dano public.dano,
+        qtd_dano_mitigado SMALLINT,
+        qtd_atributo_recebe SMALLINT,
+        tipo_atributo_recebe public.tipo_atributo_personagem,
+        esta_equipado BOOLEAN 
 )
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -1905,3 +1832,195 @@ CREATE TRIGGER trigger_checar_usos_cura
     FOR EACH ROW
     WHEN (OLD.qts_usos IS DISTINCT FROM NEW.qts_usos)
     EXECUTE FUNCTION public.func_gerenciar_durabilidade_item(); -- Reutilizando a lógica para usos
+
+/*
+=================================================================================
+        15. FUNÇÕES DE TRANSAÇÃO (COMPRA/TRANSFERÊNCIA)
+=================================================================================
+*/
+
+-- =================================================================================
+--         15.1.  STORED PROCEDURE PARA TRANSFERIR ITEM DO NPC PARA O PJ
+-- =================================================================================
+
+-- Cole isso no seu arquivo de Triggers/Procedures e execute no banco
+CREATE OR REPLACE FUNCTION public.sp_comprar_item_do_npc(
+    p_id_personagem_jogavel public.id_personagem_jogavel,
+    p_id_npc public.id_personagem_npc,
+    p_id_instancia_item public.id_instancia_de_item,
+    p_valor_pago SMALLINT
+)
+RETURNS TEXT
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_id_inventario_npc public.id_inventario;
+    v_id_inventario_pj public.id_inventario;
+    v_valor_item SMALLINT;
+    v_ouro_jogador INTEGER;
+BEGIN
+    -- Validações (Jogador, NPC, Inventários)
+    SELECT id_inventario, ouro INTO v_id_inventario_pj, v_ouro_jogador FROM public.personagens_jogaveis WHERE id = p_id_personagem_jogavel;
+    IF NOT FOUND THEN RAISE EXCEPTION 'COMPRA FALHOU: Personagem Jogável com ID % não encontrado.', p_id_personagem_jogavel; END IF;
+
+    SELECT id_inventario INTO v_id_inventario_npc FROM public.npcs WHERE id = p_id_npc;
+    IF NOT FOUND THEN RAISE EXCEPTION 'COMPRA FALHOU: NPC com ID % não encontrado.', p_id_npc; END IF;
+    IF v_id_inventario_npc IS NULL THEN RAISE EXCEPTION 'COMPRA FALHOU: O NPC não possui um inventário.'; END IF;
+
+    -- Validações do Item
+    IF NOT EXISTS (SELECT 1 FROM public.inventarios_possuem_instancias_item WHERE id_inventario = v_id_inventario_npc AND id_instancias_de_item = p_id_instancia_item) THEN
+        RAISE EXCEPTION 'COMPRA FALHOU: O NPC não possui o item especificado.';
+    END IF;
+
+    SELECT i.valor INTO v_valor_item FROM public.itens i JOIN public.instancias_de_itens ii ON i.id = ii.id_item WHERE ii.id = p_id_instancia_item;
+    
+    -- Validações de Negócio (Ouro e Espaço)
+    IF v_ouro_jogador < v_valor_item THEN RAISE EXCEPTION 'COMPRA FALHOU: Ouro insuficiente. Você tem %, mas o item custa %.', v_ouro_jogador, v_valor_item; END IF;
+    -- (Adicionar verificação de espaço no inventário se necessário)
+
+    -- === Execução da Transação ===
+    -- 1. Remove o item do inventário do NPC
+    DELETE FROM public.inventarios_possuem_instancias_item WHERE id_inventario = v_id_inventario_npc AND id_instancias_de_item = p_id_instancia_item;
+
+    -- 2. Adiciona o item ao inventário do PJ
+    INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item) VALUES (v_id_inventario_pj, p_id_instancia_item);
+
+    -- 3. Deduz o ouro do jogador (NOVO)
+    UPDATE public.personagens_jogaveis SET ouro = ouro - v_valor_item WHERE id = p_id_personagem_jogavel;
+
+    RETURN 'Item comprado com sucesso!';
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN SQLERRM; -- Retorna a mensagem de erro do banco
+END;
+$$;
+--===============================================================================
+--        10. STORED PROCEDURE PARA ENCONTRAR VENDEDOR NO LOCAL
+--===============================================================================
+
+CREATE OR REPLACE FUNCTION public.sp_encontrar_vendedor_no_local(p_id_local public.id_local)
+RETURNS TABLE (
+    id_personagem_npc public.id_personagem_npc,
+    nome public.nome,
+    ocupacao public.ocupacao,
+    idade public.idade,
+    sexo public.sexo,
+    residencia public.residencia,
+    local_nascimento public.local_nascimento,
+    id_local public.id_local,
+    id_inventario public.id_inventario,
+    script_dialogo public.script_dialogo
+)
+LANGUAGE plpgsql AS $$
+BEGIN
+    -- Retorna todos os Vendedores que estão atualmente no local especificado, incluindo um de seus diálogos.
+    RETURN QUERY
+    SELECT
+        n.id,
+        n.nome,
+        n.ocupacao,
+        n.idade,
+        n.sexo,
+        n.residencia,
+        n.local_nascimento,
+        n.id_local,
+        n.id_inventario,
+        (SELECT d.script_dialogo FROM public.dialogos d WHERE d.npc_id = n.id LIMIT 1)
+    FROM
+        public.npcs AS n
+    WHERE
+        -- Filtra para buscar apenas NPCs no local especificado que sejam vendedores.
+        n.id_local = p_id_local AND n.ocupacao LIKE 'Vendedor%';
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.sp_ver_inventario_npc(
+        p_npc_id public.id_personagem_npc
+    )
+    RETURNS TABLE (
+        -- Colunas da Instância
+        instancia_item_id public.id_instancia_de_item,
+        durabilidade_atual SMALLINT,
+        
+        -- Colunas Gerais do Item Base (tabela itens)
+        item_nome public.nome,
+        item_descricao public.descricao,
+        item_tipo public.tipo_item,
+        item_valor SMALLINT,
+        durabilidade_total SMALLINT,
+
+        -- Colunas de Equipamentos (armas e armaduras)
+        dano public.dano,
+        alcance SMALLINT,
+        tipo_municao public.tipo_municao,
+        qtd_dano_mitigado SMALLINT,
+        atributo_necessario public.tipo_atributo_personagem,
+        qtd_atributo_necessario SMALLINT,
+        
+        -- Colunas de Itens Consumíveis (cura e magicos)
+        qts_usos SMALLINT,
+        qtd_pontos_vida_recupera SMALLINT,
+        qtd_pontos_sanidade_recupera SMALLINT,
+        custo_sanidade SMALLINT
+)
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_id_inventario public.id_inventario;
+BEGIN
+    -- Busca o ID do inventário do NPC especificado
+    SELECT id_inventario INTO v_id_inventario
+    FROM public.npcs
+    WHERE id = p_npc_id;
+
+    IF v_id_inventario IS NULL THEN
+        RAISE NOTICE 'NPC com ID % nao encontrado ou nao possui um inventario associado.', p_npc_id;
+        RETURN;
+    END IF;
+
+    -- Retorna a consulta com os dados do inventário do NPC
+    RETURN QUERY
+    SELECT
+        -- Dados da Instância
+        iii.id,
+        iii.durabilidade,
+        
+        -- Dados Gerais do Item
+        it.nome,
+        it.descricao,
+        it.tipo,
+        it.valor,
+        COALESCE(a.durabilidade, ar.durabilidade),
+        
+        -- Atributos Específicos (serão NULL se o item não for do tipo correspondente)
+        a.dano,
+        a.alcance,
+        a.tipo_municao,
+        ar.qtd_dano_mitigado,
+        COALESCE(a.atributo_necessario, ar.atributo_necessario),
+        COALESCE(a.qtd_atributo_necessario, ar.qtd_atributo_necessario),
+        COALESCE(c.qts_usos, m.qts_usos),
+        c.qtd_pontos_vida_recupera,
+        c.qtd_pontos_sanidade_recupera,
+        m.custo_sanidade
+    FROM
+        public.inventarios_possuem_instancias_item ipii
+    JOIN
+        public.instancias_de_itens iii ON ipii.id_instancias_de_item = iii.id
+    JOIN
+        public.itens it ON iii.id_item = it.id
+    LEFT JOIN
+        public.armas a ON it.id = a.id
+    LEFT JOIN
+        public.armaduras ar ON it.id = ar.id
+    LEFT JOIN
+        public.curas c ON it.id = c.id
+    LEFT JOIN
+        public.magicos m ON it.id = m.id
+    WHERE
+        ipii.id_inventario = v_id_inventario;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao verificar o inventario do NPC %: %', p_npc_id, SQLERRM;
+        RETURN;
+END;
+$$;
