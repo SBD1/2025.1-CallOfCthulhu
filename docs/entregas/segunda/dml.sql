@@ -104,6 +104,11 @@ Data: 06/07/2025
 Autor: Wanjo Christopher
 Descrição: Adicionando novos monstros e itens 
 
+Versão: 1.10
+Data: 06/07/2025
+Autor: Luiz Guilherme
+Descrição: Adicionando novos monstros pacíficos e agressivos 
+
 */
 -- ===============================================
 
@@ -708,49 +713,55 @@ VALUES
 -- -----------------------------------------------
 
 -- Inserindo de Abominável Horror na sala 0 (Inicial)
-INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
     (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Abominável Horror'),
     (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'),
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
 
 -- Instância da Sombra Rastejante na sala 3 (Labirinto de Pilares)
-INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
     (SELECT id FROM public.agressivos WHERE nome = 'Sombra Rastejante'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Sombra Rastejante'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares retorcidos%'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares retorcidos%'),
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Fragmento de Obsidiana'));
 
 -- Instância do Cultista Abissal na sala 4 (Câmara Triangular com Altar)
-INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
     (SELECT id FROM public.agressivos WHERE nome = 'Cultista Abissal'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Cultista Abissal'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular com um altar de obsidiana%'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular com um altar de obsidiana%'),
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Tomo Proibido'));
 
 -- Instância do Sussurrante Insano na sala 5 (Sala de Observação)
-INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
     (SELECT id FROM public.agressivos WHERE nome = 'Sussurrante Insano'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Sussurrante Insano'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação, com uma grande janela arqueada%'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação, com uma grande janela arqueada%'),
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Ídolo Grotesco'));
 
 -- Instância de Verme 1 na sala 1 (Câmara com Poço)
-INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
     (SELECT id FROM public.agressivos WHERE nome = 'Verme Cadavérico'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Verme Cadavérico'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada cavernosa%'),
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
 
 -- Instância de Verme 2 na sala 6 (Biblioteca Submersa)
-INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
     (SELECT id FROM public.agressivos WHERE nome = 'Verme Cadavérico'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Verme Cadavérico'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde estantes de coral e algas%'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde estantes de coral e algas%'),
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
@@ -769,3 +780,475 @@ SELECT
     (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'));
 
 -- COMMIT; -- Finaliza a transação
+
+-- -----------------------------------------------
+--          Criação de Novos Monstros 
+-- -----------------------------------------------
+
+-- Monstro Psíquico: Cthulhu
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Cthulhu'::public.nome,
+    p_descricao             := 'Uma forma montanhosa e grotesca que sonha em sua cidade morta, espalhando loucura. Seu despertar significaria o fim.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 150::SMALLINT,
+    p_agressivo_vida        := 1000::SMALLINT,
+    p_agressivo_vida_total  := 1000::SMALLINT,
+    p_agressivo_catalisador := 'despertar'::public.gatilho_agressividade,
+    p_agressivo_poder       := 200::SMALLINT,
+    p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 50::SMALLINT,
+    p_agressivo_loucura     := 500::SMALLINT,
+    p_agressivo_pm          := 300::SMALLINT,
+    p_agressivo_dano        := 250::public.dano
+);
+
+-- Monstro Físico: Shoggoth
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Shoggoth'::public.nome,
+    p_descricao             := 'Massa protoplásmica de terror absoluto, imitando e zombando de seus antigos mestres. Esmaga, devora e absorve. Seu grito soa como "Tekeli-li!".'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 40::SMALLINT,
+    p_agressivo_vida        := 500::SMALLINT,
+    p_agressivo_vida_total  := 500::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 50::SMALLINT,
+    p_agressivo_tipo        := 'fisico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 25::SMALLINT,
+    p_agressivo_loucura     := 100::SMALLINT,
+    p_agressivo_pm          := 0::SMALLINT,
+    p_agressivo_dano        := 120::public.dano
+);
+
+-- Monstro Mágico: Nyarlathotep
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Nyarlathotep'::public.nome,
+    p_descricao             := 'O Caos Rastejante. Mestre da manipulação e da loucura, ele caminha entre os homens em mil disfarces, semeando a discórdia e o desespero.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 80::SMALLINT,
+    p_agressivo_vida        := 400::SMALLINT,
+    p_agressivo_vida_total  := 400::SMALLINT,
+    p_agressivo_catalisador := 'alvo_especifico'::public.gatilho_agressividade,
+    p_agressivo_poder       := 150::SMALLINT,
+    p_agressivo_tipo        := 'magico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 60::SMALLINT,
+    p_agressivo_loucura     := 300::SMALLINT,
+    p_agressivo_pm          := 500::SMALLINT,
+    p_agressivo_dano        := 80::public.dano
+);
+
+-- Monstro Mágico: Yog-Sothoth
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Yog-Sothoth'::public.nome,
+    p_descricao             := 'Uma conglomeração de globos iridescentes. Ele é o portão para outros mundos. Conhecê-lo é conhecer o fim de toda a lógica.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 200::SMALLINT,
+    p_agressivo_vida        := 2000::SMALLINT,
+    p_agressivo_vida_total  := 2000::SMALLINT,
+    p_agressivo_catalisador := 'ataque_direto'::public.gatilho_agressividade,
+    p_agressivo_poder       := 400::SMALLINT,
+    p_agressivo_tipo        := 'magico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 1::SMALLINT, -- Ele está em todos os lugares
+    p_agressivo_loucura     := 800::SMALLINT,
+    p_agressivo_pm          := 1000::SMALLINT,
+    p_agressivo_dano        := 150::public.dano
+);
+
+-- Monstro Psíquico: Mi-Go
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Mi-Go'::public.nome,
+    p_descricao             := 'Fungos de Yuggoth. Estes seres alados viajam pelo éter, extraindo cérebros humanos para mantê-los em cilindros e levá-los a outros mundos.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 35::SMALLINT,
+    p_agressivo_vida        := 120::SMALLINT,
+    p_agressivo_vida_total  := 120::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 40::SMALLINT,
+    p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 70::SMALLINT,
+    p_agressivo_loucura     := 60::SMALLINT,
+    p_agressivo_pm          := 30::SMALLINT,
+    p_agressivo_dano        := 45::public.dano
+);
+
+-- Monstro Físico: Povo do Abismo
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Povo do Abismo'::public.nome,
+    p_descricao             := 'Humanoides anfíbios com traços de peixe. Imortais, eles arrastam suas vítimas para cidades submarinas para se tornarem um deles.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 20::SMALLINT,
+    p_agressivo_vida        := 80::SMALLINT,
+    p_agressivo_vida_total  := 80::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 10::SMALLINT,
+    p_agressivo_tipo        := 'fisico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 30::SMALLINT,
+    p_agressivo_loucura     := 20::SMALLINT,
+    p_agressivo_pm          := 0::SMALLINT,
+    p_agressivo_dano        := 35::public.dano
+);
+
+-- Monstro Físico: Carniçal
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Carniçal'::public.nome,
+    p_descricao             := 'Uma paródia da forma humana com garras para cavar e um apetite profano por carne morta. Movem-se rapidamente nas sombras.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 15::SMALLINT,
+    p_agressivo_vida        := 70::SMALLINT,
+    p_agressivo_vida_total  := 70::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 5::SMALLINT,
+    p_agressivo_tipo        := 'fisico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 45::SMALLINT,
+    p_agressivo_loucura     := 15::SMALLINT,
+    p_agressivo_pm          := 0::SMALLINT,
+    p_agressivo_dano        := 30::public.dano
+);
+
+-- Monstro Mágico: Cão de Tindalos
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Cão de Tindalos'::public.nome,
+    p_descricao             := 'Caçadores que habitam os ângulos do tempo. Perseguem suas presas implacavelmente através do tempo e espaço, materializando-se em cantos.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 50::SMALLINT,
+    p_agressivo_vida        := 180::SMALLINT,
+    p_agressivo_vida_total  := 180::SMALLINT,
+    p_agressivo_catalisador := 'ataque_direto'::public.gatilho_agressividade,
+    p_agressivo_poder       := 80::SMALLINT,
+    p_agressivo_tipo        := 'magico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 90::SMALLINT,
+    p_agressivo_loucura     := 150::SMALLINT,
+    p_agressivo_pm          := 120::SMALLINT,
+    p_agressivo_dano        := 70::public.dano
+);
+
+-- Monstro Físico: Byakhee
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Byakhee'::public.nome,
+    p_descricao             := 'Um corcel interestelar que pode ser invocado para viajar pelo vácuo. Uma visão de terror cósmico em decomposição.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 25::SMALLINT,
+    p_agressivo_vida        := 100::SMALLINT,
+    p_agressivo_vida_total  := 100::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 20::SMALLINT,
+    p_agressivo_tipo        := 'fisico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 80::SMALLINT,
+    p_agressivo_loucura     := 30::SMALLINT,
+    p_agressivo_pm          := 0::SMALLINT,
+    p_agressivo_dano        := 40::public.dano
+);
+
+-- Monstro Físico: Coisa Antiga
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Coisa Antiga'::public.nome,
+    p_descricao             := 'Os primeiros colonizadores da Terra. Cientistas e arquitetos de vastas cidades geladas. Indiferentes e alienígenas à vida humana.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 60::SMALLINT,
+    p_agressivo_vida        := 250::SMALLINT,
+    p_agressivo_vida_total  := 250::SMALLINT,
+    p_agressivo_catalisador := 'ataque_direto'::public.gatilho_agressividade,
+    p_agressivo_poder       := 70::SMALLINT,
+    p_agressivo_tipo        := 'fisico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 50::SMALLINT,
+    p_agressivo_loucura     := 80::SMALLINT,
+    p_agressivo_pm          := 40::SMALLINT,
+    p_agressivo_dano        := 60::public.dano
+);
+
+-- Monstro Físico: Gug
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Gug'::public.nome,
+    p_descricao             := 'Um gigante de pesadelo com uma cabeça que se abre verticalmente em uma bocarra imensa e braços peludos separados nas articulações.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 70::SMALLINT,
+    p_agressivo_vida        := 800::SMALLINT,
+    p_agressivo_vida_total  := 800::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 30::SMALLINT,
+    p_agressivo_tipo        := 'fisico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 40::SMALLINT,
+    p_agressivo_loucura     := 90::SMALLINT,
+    p_agressivo_pm          := 0::SMALLINT,
+    p_agressivo_dano        := 150::public.dano
+);
+
+-- Monstro Mágico: Pólipo Voador
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Pólipo Voador'::public.nome,
+    p_descricao             := 'Seres parcialmente invisíveis que manipulam o vento. Sua presença é anunciada por um som de assobio sinistro e pegadas colossais.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 90::SMALLINT,
+    p_agressivo_vida        := 400::SMALLINT,
+    p_agressivo_vida_total  := 400::SMALLINT,
+    p_agressivo_catalisador := 'ataque_direto'::public.gatilho_agressividade,
+    p_agressivo_poder       := 100::SMALLINT,
+    p_agressivo_tipo        := 'magico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 100::SMALLINT,
+    p_agressivo_loucura     := 180::SMALLINT,
+    p_agressivo_pm          := 200::SMALLINT,
+    p_agressivo_dano        := 90::public.dano
+);
+
+-- Monstro Mágico: Azathoth
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Azathoth'::public.nome,
+    p_descricao             := 'O horror supremo, um caos borbulhante no centro do universo. Não é agressivo por vontade, mas sua existência é aniquilação. Se acordar, tudo cessa.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 500::SMALLINT,
+    p_agressivo_vida        := 5000::SMALLINT,
+    p_agressivo_vida_total  := 5000::SMALLINT,
+    p_agressivo_catalisador := 'ataque_direto'::public.gatilho_agressividade,
+    p_agressivo_poder       := 1000::SMALLINT,
+    p_agressivo_tipo        := 'magico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 0::SMALLINT,
+    p_agressivo_loucura     := 2000::SMALLINT,
+    p_agressivo_pm          := 5000::SMALLINT,
+    p_agressivo_dano        := 500::public.dano
+);
+
+-- Monstro Psíquico: Cria Estelar de Cthulhu
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Cria Estelar de Cthulhu'::public.nome,
+    p_descricao             := 'Uma versão menor do próprio Grande Cthulhu. Compartilha a mesma malevolência e forma alienígena, um terror cósmico para qualquer mortal.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 90::SMALLINT,
+    p_agressivo_vida        := 700::SMALLINT,
+    p_agressivo_vida_total  := 700::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 120::SMALLINT,
+    p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 40::SMALLINT,
+    p_agressivo_loucura     := 250::SMALLINT,
+    p_agressivo_pm          := 150::SMALLINT,
+    p_agressivo_dano        := 100::public.dano
+);
+
+-- Monstro Físico: Magro Noturno
+SELECT public.sp_criar_monstro(
+    p_nome                  := 'Magro Noturno'::public.nome,
+    p_descricao             := 'Silenciosos e sem rosto, eles caçam nos céus das Terras dos Sonhos. Submetem suas vítimas com cócegas enlouquecedoras antes de carregá-las.'::public.descricao,
+    p_tipo                  := 'agressivo'::public.tipo_monstro,
+    p_agressivo_defesa      := 30::SMALLINT,
+    p_agressivo_vida        := 90::SMALLINT,
+    p_agressivo_vida_total  := 90::SMALLINT,
+    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
+    p_agressivo_poder       := 15::SMALLINT,
+    p_agressivo_tipo        := 'fisico'::public.tipo_monstro_agressivo,
+    p_agressivo_velocidade  := 75::SMALLINT,
+    p_agressivo_loucura     := 50::SMALLINT,
+    p_agressivo_pm          := 0::SMALLINT,
+    p_agressivo_dano        := 15::public.dano
+);
+
+-- Monstro Sobrenatural: Grande Raça de Yith
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Grande Raça de Yith'::public.nome,
+    p_descricao                         := 'Uma mente ancestral que viaja pelo tempo. Busca apenas conhecimento, projetando sua consciência em outras espécies.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 80::SMALLINT,
+    p_pacifico_vida                     := 300::SMALLINT,
+    p_pacifico_vida_total               := 300::SMALLINT,
+    p_pacifico_motivo                   := 'observador'::public.comportamento_pacifico,
+    p_pacifico_tipo            := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo  := 'Biblioteca de Pnakotus'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Segredos da história da Terra e do futuro'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: Nodens
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Nodens, Senhor do Grande Abismo'::public.nome,
+    p_descricao                         := 'Um deus ancião que cavalga os céus em uma carruagem de conchas. Um caçador benevolente que protege a humanidade.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 120::SMALLINT,
+    p_pacifico_vida                     := 800::SMALLINT,
+    p_pacifico_vida_total               := 800::SMALLINT,
+    p_pacifico_motivo                   := 'amigavel'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'Terras do Sonho e céus noturnos'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Fraquezas de Nyarlathotep'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: Gatos de Ulthar
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Gatos de Ulthar'::public.nome,
+    p_descricao                         := 'Os gatos de Ulthar guardam segredos antigos e viajam para as Terras do Sonho. São pacíficos, mas vingativos se ameaçados.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 20::SMALLINT,
+    p_pacifico_vida                     := 50::SMALLINT,
+    p_pacifico_vida_total               := 50::SMALLINT,
+    p_pacifico_motivo                   := 'medroso'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'Telhados de Ulthar e caminhos oníricos'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Ritual de invocação contra inimigos dos gatos'::CHARACTER(128)
+);
+
+-- Monstro Humanoide: Povo-serpente Sábio
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Povo-serpente Sábio'::public.nome,
+    p_descricao                         := 'Membros da antiga raça que se retiraram para bibliotecas secretas, buscando preservar a sabedoria perdida.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 60::SMALLINT,
+    p_pacifico_vida                     := 200::SMALLINT,
+    p_pacifico_vida_total               := 200::SMALLINT,
+    p_pacifico_motivo                   := 'observador'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'humanoide'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'Cidades subterrâneas da Valúsia'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Magias da era Hiboriana'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: Shantak
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Shantak'::public.nome,
+    p_descricao                         := 'Enormes pássaros escamosos que servem de montaria no espaço. Não são malignos, apenas bestas leais aos seus cavaleiros.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 40::SMALLINT,
+    p_pacifico_vida                     := 250::SMALLINT,
+    p_pacifico_vida_total               := 250::SMALLINT,
+    p_pacifico_motivo                   := 'amigavel'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'Espaços entre as estrelas e Terras do Sonho'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Nenhum'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: Bastet
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Bastet'::public.nome,
+    p_descricao                         := 'A deusa dos gatos, que reside nas Terras do Sonho. Oferece sua bênção àqueles que respeitam seus filhos felinos.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 100::SMALLINT,
+    p_pacifico_vida                     := 700::SMALLINT,
+    p_pacifico_vida_total               := 700::SMALLINT,
+    p_pacifico_motivo                   := 'amigavel'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'Templos de Bubástis nas Terras do Sonho'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'A linguagem secreta dos gatos'::CHARACTER(128)
+);
+
+-- Monstro Humanoide: Zoog
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Zoog'::public.nome,
+    p_descricao                         := 'Pequenas criaturas furtivas que habitam florestas encantadas. Conhecem muitos segredos, mas são medrosos e desconfiados.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 15::SMALLINT,
+    p_pacifico_vida                     := 40::SMALLINT,
+    p_pacifico_vida_total               := 40::SMALLINT,
+    p_pacifico_motivo                   := 'curioso'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'humanoide'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'Floresta Encantada das Terras do Sonho'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Onde encontrar a raiz lunar'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: Hypnos
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Hypnos, Senhor do Sono'::public.nome,
+    p_descricao                         := 'Um deus antigo que guarda os portões do sono. Pode conceder visões ou aprisionar a mente de um sonhador para sempre.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 90::SMALLINT,
+    p_pacifico_vida                     := 600::SMALLINT,
+    p_pacifico_vida_total               := 600::SMALLINT,
+    p_pacifico_motivo                   := 'adormecido'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'A fronteira entre o mundo desperto e o sonho'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Como moldar a realidade de um sonho'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: A Cor que Caiu do Espaço
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'A Cor que Caiu do Espaço'::public.nome,
+    p_descricao                         := 'Uma entidade de cor indescritível que envenena a terra e drena a vida. Não age por malícia, mas por instinto.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 50::SMALLINT,
+    p_pacifico_vida                     := 150::SMALLINT,
+    p_pacifico_vida_total               := 150::SMALLINT,
+    p_pacifico_motivo                   := 'indiferente'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'Lugar do impacto do meteorito (Arkham)'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'A natureza da vida extra-dimensional'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: Dhole
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Dhole'::public.nome,
+    p_descricao                         := 'Vermes colossais que habitam as profundezas das Terras do Sonho. Sua passagem é destrutiva, mas sem maldade.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 70::SMALLINT,
+    p_pacifico_vida                     := 1500::SMALLINT,
+    p_pacifico_vida_total               := 1500::SMALLINT,
+    p_pacifico_motivo                   := 'indiferente'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'O Vale de Pnath'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Nenhum'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: Habitante da Areia
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Habitante da Areia'::public.nome,
+    p_descricao                         := 'Seres solitários que habitam os grandes desertos. Dizem guardar a sabedoria das areias e das estrelas.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 55::SMALLINT,
+    p_pacifico_vida                     := 220::SMALLINT,
+    p_pacifico_vida_total               := 220::SMALLINT,
+    p_pacifico_motivo                   := 'medroso'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'O Grande Deserto Arábico'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'História da Terra antes do homem'::CHARACTER(128)
+);
+
+-- Monstro Humanoide: Gnoph-Keh Solitário
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Gnoph-Keh Solitário'::public.nome,
+    p_descricao                         := 'Um membro da raça peluda que escolheu o isolamento. Observa os viajantes das neves à distância com melancolia.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 65::SMALLINT,
+    p_pacifico_vida                     := 350::SMALLINT,
+    p_pacifico_vida_total               := 350::SMALLINT,
+    p_pacifico_motivo                   := 'observador'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'humanoide'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'Planalto de Leng e regiões polares'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Rituais para sobreviver ao frio eterno'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: Tulzscha
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Tulzscha'::public.nome,
+    p_descricao                         := 'A Chama Verdejante. Um pilar de fogo cósmico que dança no centro da corte de Azathoth. Sua presença é letal, mas desprovida de intenção.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 200::SMALLINT,
+    p_pacifico_vida                     := 1000::SMALLINT,
+    p_pacifico_vida_total               := 1000::SMALLINT,
+    p_pacifico_motivo                   := 'indiferente'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'O centro do universo, na corte de Azathoth'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'As canções que mantém Azathoth adormecido'::CHARACTER(128)
+);
+
+-- Monstro Humanoide: Homem de Leng Eremita
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Homem de Leng Eremita'::public.nome,
+    p_descricao                         := 'Um exilado do Planalto de Leng que agora medita nas montanhas. Trocou sua flauta de osso por silêncio e observação.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 45::SMALLINT,
+    p_pacifico_vida                     := 150::SMALLINT,
+    p_pacifico_vida_total               := 150::SMALLINT,
+    p_pacifico_motivo                   := 'observador'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'humanoide'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'As Montanhas da Loucura'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Como negociar com os Magros Noturnos'::CHARACTER(128)
+);
+
+-- Monstro Sobrenatural: Gato de Saturno
+SELECT public.sp_criar_monstro(
+    p_nome                              := 'Gato de Saturno'::public.nome,
+    p_descricao                         := 'Grandes gatos falantes de Saturno, com listras e sem orelhas. São aliados dos gatos terrenos e hostis aos inimigos de Bastet.'::public.descricao,
+    p_tipo                              := 'pacífico'::public.tipo_monstro,
+    p_pacifico_defesa                   := 30::SMALLINT,
+    p_pacifico_vida                     := 100::SMALLINT,
+    p_pacifico_vida_total               := 100::SMALLINT,
+    p_pacifico_motivo                   := 'amigavel'::public.comportamento_pacifico,
+    p_pacifico_tipo                     := 'sobrenatural'::public.tipo_monstro_pacifico,
+    p_pacifico_conhecimento_geo         := 'Luas de Saturno e Terras do Sonho'::CHARACTER(128),
+    p_pacifico_conhecimento_proibido    := 'Caminhos seguros entre os planetas'::CHARACTER(128)
+);
+
+
+
