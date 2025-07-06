@@ -623,17 +623,17 @@ SELECT public.sp_criar_armadura(
 
 INSERT INTO public.instancias_de_itens (durabilidade, durabilidade_total, id_item, id_local, id_local_de_spawn) VALUES 
   -- Faca de Sacrifício na Câmara Triangular (Altar)
-  (70, 70, (SELECT id FROM public.itens WHERE nome = 'Faca de Sacrifício'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular%'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular%')),
+  (70, 70, (SELECT id FROM public.itens WHERE nome = 'Faca de Sacrifício'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular%')),
   -- Revólver Amaldiçoado na Cripta Úmida (Sarcófago)
-  (50, 50, (SELECT id FROM public.itens WHERE nome = 'Revólver Amaldiçoado'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%')),
+  (50, 50, (SELECT id FROM public.itens WHERE nome = 'Revólver Amaldiçoado'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%')),
   -- Cajado de Ossos no Salão Circular (Trono de Coral)
-  (90, 90, (SELECT id FROM public.itens WHERE nome = 'Cajado de Ossos Retorcidos'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%')),
+  (90, 90, (SELECT id FROM public.itens WHERE nome = 'Cajado de Ossos Retorcidos'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%')),
   -- Traje de Explorador na Sala Inicial
   (60, 60, (SELECT id FROM public.itens WHERE nome = 'Traje de Explorador Esfarrapado'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%')),
   -- Amuleto na Biblioteca Submersa
-  (40, 40, (SELECT id FROM public.itens WHERE nome = 'Amuleto de Proteção Inquietante'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa%'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa%')),
+  (40, 40, (SELECT id FROM public.itens WHERE nome = 'Amuleto de Proteção Inquietante'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa%')),
   -- Máscara Ritualística no Anfiteatro
-  (75, 75, (SELECT id FROM public.itens WHERE nome = 'Máscara Ritualística Medonha'), (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular%'), (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular%'));
+  (75, 75, (SELECT id FROM public.itens WHERE nome = 'Máscara Ritualística Medonha'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'), (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular%'));
 
 
 -- Inserindo a instância do monstro com a instância do item

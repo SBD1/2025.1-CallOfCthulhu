@@ -424,6 +424,7 @@ class Game:
                 print("Você tenta encontrar uma brecha para escapar...")
                 time.sleep(1)
                 if self.db.perform_skill_check(self.player.id_jogador, 'Furtividade'):
+                    print("Você tenta usar sua Furtividade para recuar para as sombras...")
                     print("SUCESSO! Você conseguiu escapar das garras da criatura!")
                     return 'fuga'
                 else:
