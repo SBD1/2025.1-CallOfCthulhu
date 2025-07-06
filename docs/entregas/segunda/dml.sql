@@ -431,15 +431,17 @@ SELECT public.sp_criar_personagem_jogavel('Sarah Thompson'::public.nome, 'Arque�
 
 -- ===============================================
 
--- NOTA: Esta inserção depende dos nomes dos personagens serem únicos.
--- Em uma aplicação real, o ID retornado pela SP seria usado.
+-- NOTA: Usando INSERT ... ON CONFLICT para garantir que as perícias chave tenham os valores definidos,
+--       substituindo qualquer valor que tenha sido atribuído aleatoriamente na criação do personagem.
+
 INSERT INTO public.personagens_possuem_pericias (id_personagem, id_pericia, valor_atual)
 VALUES
     ((SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'), (SELECT id FROM public.pericias WHERE nome = 'Medicina'), 75),
     ((SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'), (SELECT id FROM public.pericias WHERE nome = 'Ciência'), 50),
     ((SELECT id FROM public.personagens_jogaveis WHERE nome = 'Sarah Thompson'), (SELECT id FROM public.pericias WHERE nome = 'Arqueologia'), 70),
-    ((SELECT id FROM public.personagens_jogaveis WHERE nome = 'Sarah Thompson'), (SELECT id FROM public.pericias WHERE nome = 'História'), 60);
-
+    ((SELECT id FROM public.personagens_jogaveis WHERE nome = 'Sarah Thompson'), (SELECT id FROM public.pericias WHERE nome = 'História'), 60)
+ON CONFLICT (id_personagem, id_pericia) DO UPDATE
+SET valor_atual = EXCLUDED.valor_atual;
 -- ===============================================
 
 -- ADIÇÃO NA TABELA DE NPCS, DIÁLOGOS E MISSÕES

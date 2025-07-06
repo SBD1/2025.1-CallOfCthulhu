@@ -430,6 +430,16 @@ class Game:
                     print("FALHA! O monstro bloqueia sua rota de fuga e ataca!")
                     resultado_ataque = self.db.execute_monster_attack_only(self.player.id_jogador, monstro['instancia_monstro_id'])
                     if resultado_ataque: print(f"\n{resultado_ataque['log_turno']}")
+            elif escolha == 'kill': 
+                print("\nVoce decide usar forca letal para limpar o local de qualquer ameaca...")
+                monstros_mortos_count = self.db.kill_monsters_in_location(self.player.id_local)
+                if monstros_mortos_count > 0:
+                    print(f"Voce aniquilou {monstros_mortos_count} monstros neste local!")
+                elif monstros_mortos_count == 0:
+                    print("Nao havia monstros para matar neste local.")
+                else:
+                    print("Ocorreu um erro ao tentar matar os monstros.")
+                input("\nPressione Enter para continuar...")
             else:
                 print("Ação inválida. Em meio ao pânico, você hesita.")
                 resultado_ataque = self.db.execute_monster_attack_only(self.player.id_jogador, monstro['instancia_monstro_id'])
@@ -496,7 +506,7 @@ class Game:
 
             # LÓGICA DO TURNO (Lua de Sangue, Descrição do Local, etc.)
             current_time = time.time()
-            if current_time - self.last_lua_de_sangue_time >= 60:
+            if current_time - self.last_lua_de_sangue_time >= 30:
                 self.db.trigger_lua_de_sangue() 
                 self.last_lua_de_sangue_time = current_time 
 

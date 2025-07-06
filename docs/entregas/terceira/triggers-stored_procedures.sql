@@ -108,6 +108,11 @@ VERSÃO: 0.21
 DATA: 06/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria procedure para LÓGICA DE BATALHA (NOVO - POR TURNO) E UTILITÁRIOS e STORED PROCEDURE: Realizar um teste de perícia
+
+VERSÃO: 0.22
+DATA: 06/07/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Cria procedure para distribuição de pontos de perícia iniciais ao criar personagem jogável.
 */
 
 
@@ -176,6 +181,7 @@ DROP FUNCTION IF EXISTS public.func_ajustar_atributos_personagem() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_personagem_jogavel(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
 DROP FUNCTION IF EXISTS public.func_validar_atributos_npc() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_npc(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_atribuir_pericias_iniciais(public.id_personagem_jogavel, public.ocupacao) CASCADE;
 
 -- Monstros
 DROP FUNCTION IF EXISTS public.sp_criar_monstro(public.nome, public.descricao, public.tipo_monstro, SMALLINT, SMALLINT, SMALLINT, public.gatilho_agressividade, SMALLINT, public.tipo_monstro_agressivo, SMALLINT, SMALLINT, SMALLINT, public.dano, SMALLINT, SMALLINT, SMALLINT, public.comportamento_pacifico, public.tipo_monstro_pacifico, CHARACTER, CHARACTER) CASCADE;
@@ -364,7 +370,10 @@ BEGIN
         v_novo_inventario_id, (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala' LIMIT 1) -- Define uma sala inicial padrão
     ) RETURNING id INTO v_novo_personagem_id;
 
-    -- 3. Retorna o ID do personagem recém-criado.
+    -- 3. ADICIONE ESTA LINHA PARA ATRIBUIR AS PERÍCIAS
+    PERFORM public.sp_atribuir_pericias_iniciais(v_novo_personagem_id, p_ocupacao);
+
+    -- 4. Retorna o ID do personagem recém-criado.
     RETURN v_novo_personagem_id;
 END;
 $$ LANGUAGE plpgsql;
@@ -423,6 +432,111 @@ BEGIN
     ) RETURNING id INTO v_novo_npc_id;
 
     RETURN v_novo_npc_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- =================================================================================
+--         1.4. STORED PROCEDURE PARA ATRIBUIR PERÍCIAS INICIAIS
+--         Esta procedure é chamada pela sp_criar_personagem_jogavel
+-- =================================================================================
+
+CREATE OR REPLACE FUNCTION public.sp_atribuir_pericias_iniciais(p_id_jogador public.id_personagem_jogavel, p_ocupacao public.ocupacao) RETURNS VOID AS $$
+DECLARE
+    -- Variáveis para os pontos de perícia
+    v_pontos_ocupacao INT;
+    v_pontos_pessoais INT;
+    v_educacao INT;
+    v_inteligencia INT;
+
+    -- Variáveis para a lógica de distribuição
+    v_pericias_ocupacao_ids INT[];
+    v_pericia_escolhida_id INT;
+    v_pontos_a_gastar INT;
+    v_pericia_rec RECORD;
+    v_base_valor INT;
+BEGIN
+    -- 1. Obter os atributos do jogador para calcular os pontos de perícia
+    SELECT educacao, inteligencia INTO v_educacao, v_inteligencia
+    FROM public.personagens_jogaveis WHERE id = p_id_jogador;
+
+    -- 2. Calcular os pontos de perícia baseados nas regras do Call of Cthulhu (EDU*4 para ocupação, INT*2 para pessoais)
+    v_pontos_ocupacao := v_educacao * 4;
+    v_pontos_pessoais := v_inteligencia * 2;
+
+    -- 3. Mapear a Ocupação para uma lista de IDs de perícias
+    CASE p_ocupacao
+        WHEN 'Medico' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Primeiros Socorros', 'Medicina', 'Biologia', 'Farmácia', 'Ciência', 'Psicanálise', 'Língua, Outra', 'Lábia'));
+        WHEN 'Doutor' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Medicina', 'Ciência', 'Usar Bibliotecas', 'Língua, Outra', 'Psicologia', 'Farmácia', 'Persuasão', 'Direito'));
+        WHEN 'Arqueologo' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Arqueologia', 'História', 'Encontrar', 'Usar Bibliotecas', 'Língua, Outra', 'Arte e Ofício', 'Avaliação', 'Mundo Natural'));
+        WHEN 'Detetive' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Psicologia', 'Encontrar', 'Fotografia', 'Usar Bibliotecas', 'Lábia', 'Intimidação', 'Disfarce', 'Briga'));
+        WHEN 'Jornalista' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Psicologia', 'Lábia', 'Fotografia', 'Usar Bibliotecas', 'História', 'Charme', 'Furtividade', 'Língua (Nativa)'));
+        WHEN 'Professor' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Psicologia', 'Usar Bibliotecas', 'Nível de Crédito', 'Língua, Outra', 'História', 'Ciência', 'Persuasão', 'Charme'));
+        WHEN 'Engenheiro' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Engenharia', 'Ciência', 'Consertos Elétricos', 'Consertos Mecânicos', 'Usar Bibliotecas', 'Geologia', 'Física', 'Matemática'));
+        WHEN 'Artista' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Arte e Ofício', 'Belas Artes', 'Fotografia', 'Psicologia', 'Charme', 'Persuasão', 'Encontrar', 'Furtividade'));
+        WHEN 'Soldado' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Esquivar', 'Briga', 'Furtividade', 'Primeiros Socorros', 'Sobrevivencia', 'Rifles', 'Metralhadoras', 'Intimidação'));
+        WHEN 'Explorador' THEN
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE nome IN ('Antropologia', 'Arqueologia', 'Mundo Natural', 'Escalar', 'Navegação', 'Sobrevivencia', 'Rastrear', 'Armas de Fogo'));
+        ELSE
+            v_pericias_ocupacao_ids := ARRAY(SELECT id FROM public.pericias WHERE eh_de_ocupacao = TRUE ORDER BY random() LIMIT 8);
+    END CASE;
+
+    -- 4. Distribuir os pontos de Ocupação
+    WHILE v_pontos_ocupacao > 0 LOOP
+        v_pericia_escolhida_id := v_pericias_ocupacao_ids[1 + floor(random() * array_length(v_pericias_ocupacao_ids, 1))];
+        v_pontos_a_gastar := LEAST(v_pontos_ocupacao, 5 + floor(random() * 11));
+
+        INSERT INTO public.personagens_possuem_pericias (id_personagem, id_pericia, valor_atual)
+        VALUES (p_id_jogador, v_pericia_escolhida_id, v_pontos_a_gastar)
+        ON CONFLICT (id_personagem, id_pericia) DO UPDATE
+        SET valor_atual = personagens_possuem_pericias.valor_atual + v_pontos_a_gastar;
+
+        v_pontos_ocupacao := v_pontos_ocupacao - v_pontos_a_gastar;
+    END LOOP;
+
+    -- 5. Distribuir os pontos Pessoais
+    WHILE v_pontos_pessoais > 0 LOOP
+        SELECT id INTO v_pericia_escolhida_id FROM public.pericias
+        WHERE id <> ALL(v_pericias_ocupacao_ids) AND nome <> 'Mythos de Cthulhu'
+        ORDER BY random() LIMIT 1;
+
+        v_pontos_a_gastar := LEAST(v_pontos_pessoais, 5 + floor(random() * 11));
+
+        INSERT INTO public.personagens_possuem_pericias (id_personagem, id_pericia, valor_atual)
+        VALUES (p_id_jogador, v_pericia_escolhida_id, v_pontos_a_gastar)
+        ON CONFLICT (id_personagem, id_pericia) DO UPDATE
+        SET valor_atual = personagens_possuem_pericias.valor_atual + v_pontos_a_gastar;
+
+        v_pontos_pessoais := v_pontos_pessoais - v_pontos_a_gastar;
+    END LOOP;
+
+    -- 6. Adicionar os valores base a todas as perícias atribuídas
+    FOR v_pericia_rec IN SELECT id_pericia, valor_atual FROM public.personagens_possuem_pericias WHERE id_personagem = p_id_jogador LOOP
+        SELECT valor INTO v_base_valor FROM public.pericias WHERE id = v_pericia_rec.id_pericia;
+        UPDATE public.personagens_possuem_pericias
+        SET valor_atual = v_pericia_rec.valor_atual + v_base_valor
+        WHERE id_personagem = p_id_jogador AND id_pericia = v_pericia_rec.id_pericia;
+    END LOOP;
+
+    -- 7. Adicionar/Atualizar perícias essenciais que todos devem ter
+    -- CORREÇÃO: Usando ON CONFLICT para evitar erro se 'Língua (Nativa)' já foi adicionada como perícia de ocupação.
+    INSERT INTO public.personagens_possuem_pericias(id_personagem, id_pericia, valor_atual)
+    VALUES (p_id_jogador, (SELECT id FROM pericias WHERE nome = 'Língua (Nativa)'), v_educacao)
+    ON CONFLICT (id_personagem, id_pericia) DO UPDATE SET valor_atual = personagens_possuem_pericias.valor_atual + v_educacao;
+
+    -- Mythos de Cthulhu sempre começa em 0
+    INSERT INTO public.personagens_possuem_pericias(id_personagem, id_pericia, valor_atual)
+    VALUES (p_id_jogador, (SELECT id FROM pericias WHERE nome = 'Mythos de Cthulhu'), 0)
+    ON CONFLICT (id_personagem, id_pericia) DO NOTHING;
+
 END;
 $$ LANGUAGE plpgsql;
 
