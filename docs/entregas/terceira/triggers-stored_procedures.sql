@@ -2024,3 +2024,55 @@ EXCEPTION
         RETURN;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION public.sp_jogador_vende_item(
+    p_id_jogador public.id_personagem_jogavel,
+    p_id_npc public.id_personagem_npc,
+    p_id_instancia_item public.id_instancia_de_item
+)
+RETURNS TEXT
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_id_inventario_pj public.id_inventario;
+    v_id_inventario_npc public.id_inventario;
+    v_valor_item SMALLINT;
+BEGIN
+    -- === VALIDAÇÕES ===
+    -- 1. Verifica se o jogador existe e tem o item no inventário
+    SELECT id_inventario INTO v_id_inventario_pj FROM public.personagens_jogaveis WHERE id = p_id_jogador;
+    IF NOT FOUND THEN RAISE EXCEPTION 'VENDA FALHOU: Jogador com ID % não encontrado.', p_id_jogador; END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM public.inventarios_possuem_instancias_item WHERE id_inventario = v_id_inventario_pj AND id_instancias_de_item = p_id_instancia_item) THEN
+        RAISE EXCEPTION 'VENDA FALHOU: Você não possui este item em seu inventário.';
+    END IF;
+
+    -- 2. Verifica se o NPC existe e tem um inventário para receber o item
+    SELECT id_inventario INTO v_id_inventario_npc FROM public.npcs WHERE id = p_id_npc;
+    IF NOT FOUND THEN RAISE EXCEPTION 'VENDA FALHOU: NPC com ID % não encontrado.', p_id_npc; END IF;
+    IF v_id_inventario_npc IS NULL THEN RAISE EXCEPTION 'VENDA FALHOU: Este NPC não pode comprar itens (não tem inventário).'; END IF;
+
+    -- 3. Impede a venda de itens equipados
+    IF EXISTS (SELECT 1 FROM public.personagens_jogaveis WHERE id = p_id_jogador AND (id_arma = p_id_instancia_item OR id_armadura = p_id_instancia_item)) THEN
+        RAISE EXCEPTION 'VENDA FALHOU: Você não pode vender um item que está equipado. Desequipe-o primeiro.';
+    END IF;
+
+    -- Pega o valor do item
+    SELECT i.valor INTO v_valor_item FROM public.itens i JOIN public.instancias_de_itens ii ON i.id = ii.id_item WHERE ii.id = p_id_instancia_item;
+    IF v_valor_item IS NULL THEN v_valor_item := 0; END IF;
+
+    -- === TRANSAÇÃO ===
+    -- 1. Remove o item do inventário do jogador
+    DELETE FROM public.inventarios_possuem_instancias_item WHERE id_inventario = v_id_inventario_pj AND id_instancias_de_item = p_id_instancia_item;
+
+    -- 2. Adiciona o item ao inventário do NPC
+    INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item) VALUES (v_id_inventario_npc, p_id_instancia_item);
+
+    -- 3. Adiciona o ouro ao jogador
+    UPDATE public.personagens_jogaveis SET ouro = ouro + v_valor_item WHERE id = p_id_jogador;
+
+    RETURN 'Item vendido com sucesso por ' || v_valor_item || ' de ouro!';
+EXCEPTION
+    WHEN OTHERS THEN
+        RETURN SQLERRM; -- Retorna a mensagem de erro do banco
+END;
+$$;

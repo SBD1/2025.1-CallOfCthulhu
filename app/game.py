@@ -166,7 +166,7 @@ class Game:
                 input('Opcao invalida! Digite 1, 2, ou 3. Pressione Enter para tentar novamente.')
 
     def _handle_inventory_actions(self):
-        """Gerencia as ações dentro do inventário (equipar/desequipar)."""
+        """Gerencia as ações dentro do inventário (equipar/desequipar/vender)."""
         while True:
             itens_inventario = self.db.get_inventario_do_jogador(self.player.id_jogador)
             
@@ -194,7 +194,7 @@ class Game:
 
                 print(f"[{i + 1}] {nome_item} {stats_str} {equipado_str}")
 
-            action = input("\nO que deseja fazer? (equipar, desequipar, sair): ").strip().lower()
+            action = input("\nO que deseja fazer? (equipar, desequipar, vender, sair): ").strip().lower()
 
             if action == 'equipar':
                 item_idx_str = input("Digite o número do item para equipar: ").strip()
@@ -217,6 +217,37 @@ class Game:
                     print(result_msg)
                 else:
                     print("Slot inválido. Escolha 'arma' ou 'armadura'.")
+                input("Pressione Enter para continuar...")
+            elif action == 'vender':
+                item_idx_str = input("Digite o número do item para vender: ").strip()
+                try:
+                    item_idx = int(item_idx_str) - 1
+                    if 0 <= item_idx < len(itens_inventario):
+                        item_a_vender = itens_inventario[item_idx]
+
+                        # Procura por um vendedor no local atual
+                        vendedores_aqui = self.db.get_vendedor_in_location(self.player.id_local)
+                        if not vendedores_aqui:
+                            print("Não há ninguém para comprar seus itens aqui.")
+                        else:
+                            vendedor_alvo = vendedores_aqui[0] # Vende para o primeiro vendedor encontrado
+                            print(f"Você está vendendo para {vendedor_alvo['nome'].strip()}.")
+
+                            # Chama o método do banco de dados para efetuar a venda
+                            resultado = self.db.personagem_vende_item(
+                                id_jogador=self.player.id_jogador,
+                                npc_id=vendedor_alvo['id_personagem_npc'],
+                                id_instancia_item=item_a_vender['instancia_item_id']
+                            )
+                            print(f"\n> {resultado}")
+
+                            # Atualiza o ouro do jogador em memória se a venda deu certo
+                            if "sucesso" in resultado.lower():
+                                self.player.ouro += item_a_vender['item_valor']
+                    else:
+                        print("Número de item inválido.")
+                except ValueError:
+                    print("Entrada inválida.")
                 input("Pressione Enter para continuar...")
             
             elif action == 'sair':
@@ -446,7 +477,7 @@ class Game:
                 break
             else:
                 print("Opção de exploração inválida.")
-                
+
     def gameplay(self):
         if not self.player:
             print("Erro: Nenhum jogador carregado.")

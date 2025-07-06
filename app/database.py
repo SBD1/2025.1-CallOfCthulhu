@@ -499,6 +499,23 @@ class DataBase:
        if result:
            return result['sp_comprar_item_do_npc']
        return "Erro ao tentar comprar item."
+    
+    def personagem_vende_item(self, id_jogador: int, npc_id: int, id_instancia_item: int):
+       """
+       Chama a stored procedure public.sp_jogador_vende_item para realizar a venda.
+       """
+       query = """
+           SELECT public.sp_jogador_vende_item(
+               %s::public.id_personagem_jogavel,
+               %s::public.id_personagem_npc,
+               %s::public.id_instancia_de_item
+           );
+       """
+       params = (id_jogador, npc_id, id_instancia_item)
+       result = self._execute_query(query, params, fetch_one=True)
+       if result:
+           return result['sp_jogador_vende_item']
+       return "Erro ao tentar vender o item."
 
 # --- Bloco de Teste para o Modelo Básico ---
 if __name__ == "__main__":
