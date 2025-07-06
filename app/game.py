@@ -6,6 +6,8 @@ from database import DataBase
 # import time # Importa o módulo time para usar time.sleep()
 # import time # Importa o módulo time para usar time.sleep()
 import time # para a lua de sangue
+import schedule # para a movimentação programada dos monstros
+import threading # usa uma thread somente para a movimentação dos monstros
 
 def clear():
     """Limpa a tela do terminal."""
@@ -43,6 +45,7 @@ class Game:
         self.db = DataBase()
         self.player = None
         self.last_lua_de_sangue_time = time.time()
+        self.scheduler_thread = None 
 
     def create_new_character_flow(self):
         # clear()
@@ -192,6 +195,32 @@ class Game:
                 sys.exit()
             else:
                 input('Opcao invalida! Digite 1, 2, 3 ou 4. Pressione Enter para tentar novamente.')
+
+    def _run_monster_movement_task(self):
+        """
+        Tarefa interna para ser executada pelo agendador.
+        Chama a stored procedure sp_movimentar_monstros.
+        """
+        print("Os monstros estão mudando de sala, perigos se aproximam...")
+        self.db.movimentar_todos_os_monstros() 
+        print("Cuidado, os monstros já estão em novas salas.")
+
+    def _scheduler_loop(self):
+        """Loop que executa as tarefas agendadas."""
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+
+    def start_monster_movement_scheduler(self):
+        """Inicia o agendador de movimento de monstros em uma thread separada."""
+        # Agendar a execução da função a cada 30 segundos (para teste) ou 5 minutos (para jogo real)
+        schedule.every(30).seconds.do(self._run_monster_movement_task) # Alterado para 30 segundos para facilitar o teste
+
+        # Inicia a thread do agendador
+        self.scheduler_thread = threading.Thread(target=self._scheduler_loop, daemon=True)
+        self.scheduler_thread.start()
+        print("Agendador de movimento de monstros iniciado em segundo plano.")
+
 
 
     def gameplay(self):
@@ -352,6 +381,7 @@ class Game:
 if __name__ == '__main__':
     display_cthulhu_intro()
     game = Game()
+    game.start_monster_movement_scheduler()
     game.start()
     if game.db:
         game.db.close()
