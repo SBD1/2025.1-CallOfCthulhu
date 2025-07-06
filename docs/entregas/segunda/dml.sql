@@ -549,7 +549,7 @@ WITH
       RETURNING id
   ),
   link_inv_c1 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
       SELECT (SELECT id FROM inv_vendedor_C1), id FROM instancias_vendedor_c1
   ),
 
@@ -562,7 +562,7 @@ WITH
       RETURNING id
   ),
   link_inv_c2 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
       SELECT (SELECT id FROM inv_vendedor_C2), id FROM instancias_vendedor_c2
   ),
 
@@ -575,7 +575,7 @@ WITH
       RETURNING id
   ),
   link_inv_c5 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
       SELECT (SELECT id FROM inv_vendedor_C5), id FROM instancias_vendedor_c5
   ),
 
@@ -590,7 +590,7 @@ WITH
       RETURNING id
   ),
   link_inv_c6 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
       SELECT (SELECT id FROM inv_vendedor_C6), id FROM instancias_vendedor_c6
   ),
 
@@ -601,7 +601,7 @@ WITH
       RETURNING id
   ),
   link_inv_c10 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
       SELECT (SELECT id FROM inv_vendedor_C10), id FROM instancias_vendedor_c10
   ),
 
@@ -614,7 +614,7 @@ WITH
       RETURNING id
   ),
   link_inv_c9 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
       SELECT (SELECT id FROM inv_vendedor_C9), id FROM instancias_vendedor_c9
   ),
 
@@ -629,7 +629,7 @@ WITH
       RETURNING id
   ),
   link_inv_c11 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
       SELECT (SELECT id FROM inv_vendedor_C11), id FROM instancias_vendedor_c11
   )
 
@@ -713,9 +713,9 @@ SELECT
     (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
 
 -- Inserindo a batalha
-INSERT INTO public.batalhas (id_jogador, id_monstro)
-SELECT
-    (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
-    (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'));
-
+--INSERT INTO public.batalhas (id_jogador, id_monstro)
+--SELECT
+--    (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
+--    (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'));
+--
 -- COMMIT; -- Finaliza a transação

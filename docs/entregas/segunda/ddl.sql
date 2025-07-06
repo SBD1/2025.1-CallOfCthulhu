@@ -1193,7 +1193,7 @@ CREATE TABLE public.npcs(
 
     -- FOREIGN KEYS
     id_local public.id_local,
-    inventario public.id_inventario DEFAULT null
+    id_inventario public.id_inventario DEFAULT null
     -- id_tipo_personagem public.id NOT NULL
 );
 
@@ -1561,7 +1561,7 @@ ADD CONSTRAINT fk_npcs_salas
 
 ALTER TABLE public.npcs 
 ADD CONSTRAINT fk_npcs_inventario 
-    FOREIGN KEY (inventario) 
+    FOREIGN KEY (id_inventario) 
     REFERENCES public.inventarios (id);
 
 /*
