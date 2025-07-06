@@ -93,6 +93,21 @@ VERSÃO: 0.18
 DATA: 05/07/2025
 AUTOR: Wanjo Chritopher
 DESCRIÇÃO: Cria procedure de insperior monstro e melhora a de checar inventário
+
+VERSÃO: 0.19
+DATA: 05/07/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Cria procedure de Sanidade e pericias.
+
+VERSÃO: 0.20
+DATA: 05/07/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Cria procedure para executar turno batalha, que calcula dano e atualiza vida de personagens e monstros.
+
+VERSÃO: 0.21
+DATA: 06/07/2025
+AUTOR: João Marcos
+DESCRIÇÃO: Cria procedure para LÓGICA DE BATALHA (NOVO - POR TURNO) E UTILITÁRIOS e STORED PROCEDURE: Realizar um teste de perícia
 */
 
 
@@ -127,97 +142,88 @@ DESCRIÇÃO: Cria procedure de insperior monstro e melhora a de checar inventár
 -- =================================================================================
 
 -- ======== DROP DE TRIGGERS ========
--- Triggers de personagens e NPCs
 DROP TRIGGER IF EXISTS trigger_valida_unicidade_personagem_jogavel ON public.personagens_jogaveis CASCADE;
 DROP TRIGGER IF EXISTS trigger_valida_unicidade_npc ON public.npcs CASCADE;
 DROP TRIGGER IF EXISTS trigger_validar_atributos_personagem ON public.personagens_jogaveis CASCADE;
 DROP TRIGGER IF EXISTS trigger_ajustar_atributos_personagem ON public.personagens_jogaveis CASCADE;
 DROP TRIGGER IF EXISTS trigger_validar_atributos_npc ON public.npcs CASCADE;
-
--- Triggers de monstros agressivos e pacíficos
-DROP TRIGGER IF EXISTS trigger_valida_exclusividade_agressivo ON public.agressivos CASCADE;
-DROP TRIGGER IF EXISTS trigger_valida_exclusividade_pacifico ON public.pacificos CASCADE;
-DROP TRIGGER IF EXISTS trigger_valida_atributos_agressivo ON public.agressivos CASCADE;
-DROP TRIGGER IF EXISTS trigger_valida_atributos_pacifico ON public.pacificos CASCADE;
 DROP TRIGGER IF EXISTS trigger_bloqueia_insert_monstros ON public.tipos_monstro CASCADE;
 DROP TRIGGER IF EXISTS trigger_bloqueia_insert_agressivos ON public.agressivos CASCADE;
 DROP TRIGGER IF EXISTS trigger_bloqueia_insert_pacificos ON public.pacificos CASCADE;
-
--- Triggers de missões
 DROP TRIGGER IF EXISTS trigger_validar_dados_missao ON public.missoes CASCADE;
-
--- Triggers de itens
+DROP TRIGGER IF EXISTS trigger_valida_atributos_item ON public.itens CASCADE;
 DROP TRIGGER IF EXISTS trigger_bloqueia_insert_itens ON public.itens CASCADE;
-
--- Triggers de feitiços
-DROP TRIGGER IF EXISTS trigger_bloqueia_insert_feiticos ON public.tipos_feitico CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_armas ON public.armas CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_armaduras ON public.armaduras CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_itens_curas ON public.curas CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_itens_magicos ON public.magicos CASCADE;
+DROP TRIGGER IF EXISTS trigger_valida_exclusividade_id_arma ON public.armas CASCADE;
+DROP TRIGGER IF EXISTS trigger_valida_exclusividade_id_armadura ON public.armaduras CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_tipos_feitico ON public.tipos_feitico CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_feiticos_status ON public.feiticos_status CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_feiticos_dano ON public.feiticos_dano CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_insanidade_personagem ON public.personagens_jogaveis CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_durabilidade_arma ON public.armas CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_durabilidade_armadura ON public.armaduras CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_usos_cura ON public.curas CASCADE;
 
 -- ======== DROP DE FUNÇÕES ========
--- Funções de Generalização/Especialização
+-- Personagens e NPCs
 DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_pj() CASCADE;
 DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_npc() CASCADE;
-DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_agressivo() CASCADE;
-DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_pacifico() CASCADE;
-
--- Funções de Personagem Jogável
-DROP FUNCTION IF EXISTS public.sp_criar_personagem_jogavel(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
 DROP FUNCTION IF EXISTS public.func_validar_atributos_personagem() CASCADE;
 DROP FUNCTION IF EXISTS public.func_ajustar_atributos_personagem() CASCADE;
-
--- Funções de NPC
-DROP FUNCTION IF EXISTS public.sp_criar_npc(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_personagem_jogavel(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
 DROP FUNCTION IF EXISTS public.func_validar_atributos_npc() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_npc(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
 
--- Funções de monstros agressivos e pacíficos
-DROP FUNCTION IF EXISTS public.sp_criar_monstro(public.nome, public.descricao, public.tipo_monstro, SMALLINT, SMALLINT, public.gatilho_agressividade, SMALLINT, public.tipo_monstro_agressivo, SMALLINT, SMALLINT, SMALLINT, public.dano, SMALLINT, SMALLINT, public.comportamento_pacifico, public.tipo_monstro_pacifico, CHARACTER(128), CHARACTER(128)) CASCADE;
-DROP FUNCTION IF EXISTS public.func_valida_atributos_monstro_agressivo() CASCADE;
-DROP FUNCTION IF EXISTS public.func_valida_atributos_monstro_pacifico() CASCADE;
+-- Monstros
+DROP FUNCTION IF EXISTS public.sp_criar_monstro(public.nome, public.descricao, public.tipo_monstro, SMALLINT, SMALLINT, SMALLINT, public.gatilho_agressividade, SMALLINT, public.tipo_monstro_agressivo, SMALLINT, SMALLINT, SMALLINT, public.dano, SMALLINT, SMALLINT, SMALLINT, public.comportamento_pacifico, public.tipo_monstro_pacifico, CHARACTER, CHARACTER) CASCADE;
 DROP FUNCTION IF EXISTS public.func_bloquear_insert_direto_monstro() CASCADE;
 
--- Funções de missões
-DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER(512), public.tipo_missao, CHARACTER(128), public.id_personagem_npc) CASCADE;
+-- Missões
+DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER, public.tipo_missao, CHARACTER, public.id_personagem_npc) CASCADE;
 DROP FUNCTION IF EXISTS public.func_validar_dados_missao() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_entregar_missao(public.id_personagem_jogavel, public.id_missao) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_verificar_e_entregar_missao(public.id_personagem_jogavel, public.id_missao) CASCADE;
 
--- Funções de itens
-DROP FUNCTION IF EXISTS public.sp_criar_item(public.nome, public.descricao, public.tipo_item, SMALLINT, public.id_inventario) CASCADE;
+-- Itens
+DROP FUNCTION IF EXISTS public.func_valida_atributos_item() CASCADE;
+DROP FUNCTION IF EXISTS public.func_bloquear_insert_direto_itens() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_arma(public.nome, public.descricao, SMALLINT, public.tipo_atributo_personagem, SMALLINT, SMALLINT, public.funcao_arma, SMALLINT, public.tipo_municao, public.tipo_dano, public.dano) CASCADE;
-DROP FUNCTION IF EXISTS public.sp_criar_armadura(public.nome, public.descricao, SMALLINT, public.tipo_atributo_personagem, SMALLINT, funcao_armadura, SMALLINT, SMALLINT, public.tipo_atributo_personagem, SMALLINT) CASCADE;
+DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_arma() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_armadura(public.nome, public.descricao, SMALLINT, public.tipo_atributo_personagem, SMALLINT, public.funcao_armadura, SMALLINT, public.tipo_atributo_personagem, SMALLINT, SMALLINT) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_armadura(p_nome public.nome, p_descricao public.descricao, p_valor smallint, p_atributo_necessario public.tipo_atributo_personagem, p_durabilidade smallint, p_funcao public.funcao_armadura, p_qtd_atributo_recebe smallint, p_qtd_atributo_necessario smallint, p_tipo_atributo_recebe public.tipo_atributo_personagem, p_qtd_dano_mitigado smallint) CASCADE;
+DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_armadura() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_item_cura(public.nome, public.descricao, SMALLINT, public.funcao_cura, SMALLINT, SMALLINT, SMALLINT) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_criar_item_magico(public.nome, public.descricao, SMALLINT, public.funcao_magica, SMALLINT, SMALLINT, public.id_feitico) CASCADE;
-DROP FUNCTION IF EXISTS func_valida_atributos_item() CASCADE;
-DROP FUNCTION IF EXISTS func_bloquear_insert_direto_itens() CASCADE;
-DROP FUNCTION IF EXISTS func_valida_exclusividade_id_item() CASCADE;
-DROP FUNCTION IF EXISTS func_valida_exclusividade_id_arma() CASCADE;
-DROP FUNCTION IF EXISTS func_valida_exclusividade_id_armadura() CASCADE;
 
--- Funções de respawn
+-- Feitiços
+DROP FUNCTION IF EXISTS public.sp_criar_feitico(public.nome, public.descricao, SMALLINT, public.funcao_feitico, BOOLEAN, SMALLINT, public.tipo_de_status, public.tipo_dano, public.dano) CASCADE;
+DROP FUNCTION IF EXISTS public.func_bloquear_insert_direto_feitico() CASCADE;
+
+-- Interação e Jogo
 DROP FUNCTION IF EXISTS public.lua_de_sangue() CASCADE;
 DROP FUNCTION IF EXISTS public.sp_vasculhar_local(public.id_local) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_adicionar_item_ao_inventario(public.id_personagem, public.id_instancia_de_item) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_ver_inventario(public.id_personagem) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_encontrar_monstros_no_local(public.id_local) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_matar_monstros_no_local(public.id_local) CASCADE;
-
--- Função de Batalha
 DROP FUNCTION IF EXISTS public.sp_executar_batalha(public.id_personagem_jogavel, public.id_instancia_de_monstro) CASCADE;
-
--- Mover o jogador para um novo local
 DROP FUNCTION IF EXISTS public.sp_mover_jogador(public.id_personagem_jogavel, public.id_local) CASCADE;
-
--- Equipar uma arma ou armadura
 DROP FUNCTION IF EXISTS public.sp_equipar_item(public.id_personagem_jogavel, public.id_instancia_de_item) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_desequipar_item(public.id_personagem_jogavel, TEXT) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_desequipar_item(public.id_personagem_jogavel, public.tipo_item) CASCADE;
-
-
--- Função Usar um item de cura
 DROP FUNCTION IF EXISTS public.sp_usar_item_cura(public.id_personagem_jogavel, public.id_instancia_de_item) CASCADE;
-
--- Função para gerenciar durabilidade de itens
 DROP FUNCTION IF EXISTS public.func_gerenciar_durabilidade_item() CASCADE;
-DROP TRIGGER IF EXISTS trigger_checar_durabilidade_arma ON public.armas CASCADE;
-DROP TRIGGER IF EXISTS trigger_checar_durabilidade_armadura ON public.armaduras CASCADE;
-DROP TRIGGER IF EXISTS trigger_checar_usos_cura ON public.curas CASCADE;
+
+-- Mecânicas Avançadas
+DROP FUNCTION IF EXISTS public.func_verificar_insanidade() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_aplicar_dano_sanidade(public.id_personagem_jogavel, SMALLINT) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_realizar_teste_pericia(public.id_personagem_jogavel, public.nome) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_inspecionar_monstro(public.id_instancia_de_monstro) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_dialogar_com_npc(public.id_personagem_npc) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_executar_turno_batalha(public.id_personagem_jogavel, public.id_instancia_de_monstro) CASCADE;
 
 -- =================================================================================
 --         1. REGRAS GERAIS DE PERSONAGENS
@@ -520,31 +526,21 @@ EXCEPTION
         RAISE;
 END;
 $$;
--- --------------------------------------------------------------------
---        2.2 Inspecionar detalhes de um monstro
--- --------------------------------------------------------------------
+-- =================================================================================
+--         2.2 STORED PROCEDURE: Inspecionar detalhes de um monstro (Versão Única e Corrigida)
+-- =================================================================================
 CREATE OR REPLACE FUNCTION public.sp_inspecionar_monstro(
     p_id_instancia_monstro public.id_instancia_de_monstro
 )
 RETURNS TABLE (
-    nome public.nome,
-    descricao public.descricao,
+    monstro_nome public.nome,
+    monstro_descricao public.descricao,
     tipo_monstro public.tipo_monstro,
     vida_atual SMALLINT,
     vida_total SMALLINT,
     defesa SMALLINT,
-    -- Atributos de Monstro Agressivo
     dano public.dano,
-    tipo_agressivo public.tipo_monstro_agressivo,
-    catalisador_agressividade public.gatilho_agressividade,
-    loucura_induzida SMALLINT,
-    ponto_magia SMALLINT,
-    velocidade_ataque SMALLINT,
-    -- Atributos de Monstro Pacífico
-    motivo_passividade public.comportamento_pacifico,
-    tipo_pacifico public.tipo_monstro_pacifico,
-    conhecimento_geografico CHARACTER(128),
-    conhecimento_proibido CHARACTER(128)
+    detalhes_especificos JSON
 )
 LANGUAGE plpgsql AS $$
 BEGIN
@@ -554,52 +550,32 @@ BEGIN
         COALESCE(a.descricao, p.descricao),
         tm.tipo,
         im.vida,
-        COALESCE(a.vida_total, p.vida_total),
-        COALESCE(a.defesa, p.defesa),
+        COALESCE(a.vida_total, p.vida_total) AS vida_total,
+        COALESCE(a.defesa, p.defesa) AS defesa,
         a.dano,
-        a.tipo_agressivo,
-        a.catalisador_agressividade,
-        a.loucura_induzida,
-        a.ponto_magia,
-        a.velocidade_ataque,
-        p.motivo_passividade,
-        p.tipo_pacifico,
-        p.conhecimento_geografico,
-        p.conhecimento_proibido
+        CASE
+            WHEN tm.tipo = 'agressivo' THEN json_build_object(
+                'tipo_agressivo', a.tipo_agressivo,
+                'catalisador', a.catalisador_agressividade,
+                'poder', a.poder,
+                'velocidade_ataque', a.velocidade_ataque,
+                'loucura_induzida', a.loucura_induzida,
+                'ponto_magia', a.ponto_magia
+            )
+            WHEN tm.tipo = 'pacífico' THEN json_build_object(
+                'tipo_pacifico', p.tipo_pacifico,
+                'motivo_passividade', p.motivo_passividade,
+                'conhecimento_geografico', p.conhecimento_geografico,
+                'conhecimento_proibido', p.conhecimento_proibido
+            )
+        END AS detalhes_especificos
     FROM public.instancias_monstros im
     JOIN public.tipos_monstro tm ON im.id_monstro = tm.id
-    LEFT JOIN public.agressivos a ON tm.id = a.id AND tm.tipo = 'agressivo'
-    LEFT JOIN public.pacificos p ON tm.id = p.id AND tm.tipo = 'pacífico'
+    LEFT JOIN public.agressivos a ON tm.id = a.id
+    LEFT JOIN public.pacificos p ON tm.id = p.id
     WHERE im.id = p_id_instancia_monstro;
 END;
 $$;
-------------------------------------------------------------------------------------
---         2.2. FUNÇÕES E TRIGGERS PARA MONSTROS
--------------------------------------------------------------------------------------
-CREATE FUNCTION public.func_bloquear_insert_direto_monstro()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF current_setting('bd_cthulhu.inserir', true) IS DISTINCT FROM 'true' THEN
-        RAISE EXCEPTION 'Inserção direta não é permitida. Utilize o Stored Procedure "sp_criar_monstro" para criar monstros.';
-    END IF;
-    RETURN NEW; 
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger para bloquear inserção direta na tabela 'monstros'
-CREATE TRIGGER trigger_bloqueia_insert_monstros
-    BEFORE INSERT ON public.tipos_monstro
-    FOR EACH ROW EXECUTE FUNCTION public.func_bloquear_insert_direto_monstro();
-
--- Trigger para bloquear inserção direta na tabela 'agressivos'
-CREATE TRIGGER trigger_bloqueia_insert_agressivos
-    BEFORE INSERT ON public.agressivos
-    FOR EACH ROW EXECUTE FUNCTION public.func_bloquear_insert_direto_monstro();
-
--- Trigger para bloquear inserção direta na tabela 'pacificos'
-CREATE TRIGGER trigger_bloqueia_insert_pacificos
-    BEFORE INSERT ON public.pacificos
-    FOR EACH ROW EXECUTE FUNCTION public.func_bloquear_insert_direto_monstro();
 
 /*
 =================================================================================
@@ -1830,3 +1806,236 @@ CREATE TRIGGER trigger_checar_usos_cura
     FOR EACH ROW
     WHEN (OLD.qts_usos IS DISTINCT FROM NEW.qts_usos)
     EXECUTE FUNCTION public.func_gerenciar_durabilidade_item(); -- Reutilizando a lógica para usos
+
+/*
+=================================================================================
+        15. LÓGICA DE MECÂNICAS AVANÇADAS DE JOGO
+=================================================================================
+*/
+
+-- ---------------------------------------------------------------------------------
+--  15.1 FUNÇÃO E TRIGGER: Gerenciamento de Sanidade e Loucura
+-- ---------------------------------------------------------------------------------
+-- Função que é chamada por uma trigger sempre que a sanidade do jogador é alterada.
+CREATE OR REPLACE FUNCTION public.func_verificar_insanidade()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Se a sanidade chegar a zero, o personagem enlouquece permanentemente.
+    IF NEW.sanidade_atual <= 0 THEN
+        NEW.sanidade_atual := 0;
+        NEW.insanidade_indefinida := TRUE;
+        RAISE NOTICE 'ALERTA: O personagem % (ID: %) sucumbiu à loucura permanente!', NEW.nome, NEW.id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger que ativa a função acima sempre que a coluna 'sanidade_atual' é atualizada.
+CREATE TRIGGER trigger_checar_insanidade_personagem
+    BEFORE UPDATE ON public.personagens_jogaveis
+    FOR EACH ROW
+    WHEN (OLD.sanidade_atual IS DISTINCT FROM NEW.sanidade_atual)
+    EXECUTE FUNCTION public.func_verificar_insanidade();
+
+-- Procedure para aplicar dano à sanidade do jogador.
+CREATE OR REPLACE FUNCTION public.sp_aplicar_dano_sanidade(
+    p_id_jogador public.id_personagem_jogavel,
+    p_quantidade_dano SMALLINT
+)
+RETURNS TEXT
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_sanidade_restante SMALLINT;
+BEGIN
+    UPDATE public.personagens_jogaveis
+    SET sanidade_atual = sanidade_atual - p_quantidade_dano
+    WHERE id = p_id_jogador
+    RETURNING sanidade_atual INTO v_sanidade_restante;
+
+    RETURN 'Você perdeu ' || p_quantidade_dano || ' pontos de sanidade. Sanidade restante: ' || v_sanidade_restante;
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao aplicar dano de sanidade: %', SQLERRM;
+        RAISE;
+END;
+$$;
+
+-- ---------------------------------------------------------------------------------
+--  15.2 STORED PROCEDURE: Realizar um teste de perícia
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_realizar_teste_pericia(
+    p_id_jogador public.id_personagem_jogavel,
+    p_nome_pericia public.nome
+)
+RETURNS BOOLEAN -- Retorna TRUE para sucesso, FALSE para falha.
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_valor_pericia SMALLINT;
+    v_rolagem_d100 SMALLINT;
+BEGIN
+    -- 1. Busca o valor da perícia para o jogador.
+    SELECT ppp.valor_atual INTO v_valor_pericia
+    FROM public.personagens_possuem_pericias ppp
+    JOIN public.pericias p ON ppp.id_pericia = p.id
+    WHERE ppp.id_personagem = p_id_jogador AND p.nome = p_nome_pericia;
+
+    -- Se o jogador não tiver a perícia, assume um valor base ou falha.
+    IF NOT FOUND THEN
+        SELECT valor INTO v_valor_pericia FROM public.pericias WHERE nome = p_nome_pericia;
+        IF NOT FOUND THEN
+             RAISE EXCEPTION 'Perícia % não existe no sistema.', p_nome_pericia;
+        END IF;
+    END IF;
+
+    -- 2. Rola um dado de 100 lados (d100).
+    v_rolagem_d100 := floor(random() * 100 + 1);
+
+    RAISE NOTICE 'Teste de %: Valor da perícia: %, Rolagem (d100): %', p_nome_pericia, v_valor_pericia, v_rolagem_d100;
+
+    -- 3. Compara a rolagem com o valor da perícia.
+    IF v_rolagem_d100 <= v_valor_pericia THEN
+        RAISE NOTICE 'Sucesso!';
+        RETURN TRUE;
+    ELSE
+        RAISE NOTICE 'Falha.';
+        RETURN FALSE;
+    END IF;
+END;
+$$;
+
+/*
+=================================================================================
+        18. LÓGICA DE BATALHA (NOVO - POR TURNO) E UTILITÁRIOS
+=================================================================================
+*/
+
+-- ---------------------------------------------------------------------------------
+--  18.1 STORED PROCEDURE: Executa UM turno de batalha.
+--  Esta função calcula o dano do jogador no monstro e do monstro no jogador,
+--  atualiza a vida de ambos e retorna o resultado do turno.
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_executar_turno_batalha(
+    p_id_jogador public.id_personagem_jogavel,
+    p_id_instancia_monstro public.id_instancia_de_monstro
+)
+RETURNS TABLE (
+    log_turno TEXT,
+    vida_jogador_nova SMALLINT,
+    vida_monstro_nova SMALLINT
+)
+LANGUAGE plpgsql AS $$
+DECLARE
+    -- Variáveis do Jogador
+    v_jogador RECORD;
+    v_dano_jogador SMALLINT;
+
+    -- Variáveis do Monstro
+    v_monstro RECORD;
+    v_dano_monstro SMALLINT;
+
+    -- Lógica do Turno
+    v_dano_final_no_monstro SMALLINT;
+    v_dano_final_no_jogador SMALLINT;
+    v_log TEXT := '';
+BEGIN
+    -- 1. BUSCAR DADOS DO JOGADOR (incluindo força para dano desarmado)
+    SELECT
+        pj.nome,
+        pj.pontos_de_vida_atual,
+        pj.forca,
+        COALESCE(a.dano, 0) as dano_arma, -- Dano da arma, ou 0 se desarmado
+        COALESCE(ar.qtd_dano_mitigado, 0) as defesa_armadura
+    INTO v_jogador
+    FROM public.personagens_jogaveis pj
+    LEFT JOIN public.instancias_de_itens ii_arma ON pj.id_arma = ii_arma.id
+    LEFT JOIN public.armas a ON ii_arma.id_item = a.id
+    LEFT JOIN public.instancias_de_itens ii_armadura ON pj.id_armadura = ii_armadura.id
+    LEFT JOIN public.armaduras ar ON ii_armadura.id_item = ar.id
+    WHERE pj.id = p_id_jogador;
+
+    -- MELHORIA: Dano desarmado agora é baseado na Força. Se tiver arma, usa o dano da arma.
+    IF v_jogador.dano_arma > 0 THEN
+        v_dano_jogador := v_jogador.dano_arma;
+    ELSE
+        v_dano_jogador := floor(v_jogador.forca / 5) + 1; -- Ex: 10 de Força = 3 de dano
+    END IF;
+
+    -- 2. BUSCAR DADOS DO MONSTRO
+    SELECT im.vida, ag.nome, ag.dano, COALESCE(ag.defesa, 0) as defesa
+    INTO v_monstro
+    FROM public.instancias_monstros im
+    JOIN public.agressivos ag ON im.id_monstro = ag.id
+    WHERE im.id = p_id_instancia_monstro;
+
+    -- 3. CALCULAR DANO E ATUALIZAR VIDAS
+    v_dano_final_no_monstro := GREATEST(0, v_dano_jogador - v_monstro.defesa);
+    UPDATE public.instancias_monstros SET vida = vida - v_dano_final_no_monstro WHERE id = p_id_instancia_monstro RETURNING vida INTO vida_monstro_nova;
+    v_log := v_log || v_jogador.nome || ' ataca ' || v_monstro.nome || ' causando ' || v_dano_final_no_monstro || ' de dano.';
+
+    IF vida_monstro_nova > 0 THEN
+        v_dano_final_no_jogador := GREATEST(0, v_monstro.dano - v_jogador.defesa_armadura);
+        UPDATE public.personagens_jogaveis SET pontos_de_vida_atual = pontos_de_vida_atual - v_dano_final_no_jogador WHERE id = p_id_jogador RETURNING pontos_de_vida_atual INTO vida_jogador_nova;
+        v_log := v_log || ' ' || v_monstro.nome || ' revida, causando ' || v_dano_final_no_jogador || ' de dano.';
+    ELSE
+        vida_jogador_nova := v_jogador.pontos_de_vida_atual;
+    END IF;
+
+    -- 4. RETORNAR
+    log_turno := v_log;
+    RETURN NEXT;
+END;
+$$;
+
+-- ---------------------------------------------------------------------------------
+--  18.2 STORED PROCEDURE: Ataque somente do monstro (para quando o jogador falha em uma ação)
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_monstro_ataca_sozinho(
+    p_id_jogador public.id_personagem_jogavel,
+    p_id_instancia_monstro public.id_instancia_de_monstro
+)
+RETURNS TEXT
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_defesa_jogador SMALLINT;
+    v_dano_monstro SMALLINT;
+    v_nome_monstro public.nome;
+    v_dano_final_no_jogador SMALLINT;
+BEGIN
+    -- Busca dados do jogador e do monstro
+    SELECT COALESCE(ar.qtd_dano_mitigado, 0) INTO v_defesa_jogador FROM public.personagens_jogaveis pj LEFT JOIN public.instancias_de_itens ii_armadura ON pj.id_armadura = ii_armadura.id LEFT JOIN public.armaduras ar ON ii_armadura.id_item = ar.id WHERE pj.id = p_id_jogador;
+    SELECT COALESCE(ag.nome, pa.nome), ag.dano INTO v_nome_monstro, v_dano_monstro FROM public.instancias_monstros im JOIN public.tipos_monstro tm ON im.id_monstro = tm.id LEFT JOIN public.agressivos ag ON im.id_monstro = ag.id LEFT JOIN public.pacificos pa ON im.id_monstro = pa.id WHERE im.id = p_id_instancia_monstro;
+
+    -- Calcula e aplica o dano
+    v_dano_final_no_jogador := GREATEST(0, v_dano_monstro - v_defesa_jogador);
+    UPDATE public.personagens_jogaveis SET pontos_de_vida_atual = pontos_de_vida_atual - v_dano_final_no_jogador WHERE id = p_id_jogador;
+
+    RETURN v_nome_monstro || ' aproveita sua hesitação e ataca, causando ' || v_dano_final_no_jogador || ' de dano!';
+END;
+$$;
+
+-- ---------------------------------------------------------------------------------
+--  18.3 STORED PROCEDURE: Resetar o status do jogador após a morte
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_resetar_status_jogador(
+    p_id_jogador public.id_personagem_jogavel
+)
+RETURNS VOID
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_vida_max SMALLINT;
+    v_sanidade_max SMALLINT;
+BEGIN
+    -- Calcula a vida e sanidade máximas usando as funções existentes
+    SELECT public.calcular_pts_de_vida(constituicao, tamanho), public.calcular_sanidade(poder)
+    INTO v_vida_max, v_sanidade_max
+    FROM public.personagens_jogaveis
+    WHERE id = p_id_jogador;
+
+    -- Atualiza a vida e sanidade atuais para seus valores máximos
+    UPDATE public.personagens_jogaveis
+    SET
+        pontos_de_vida_atual = v_vida_max,
+        sanidade_atual = v_sanidade_max -- Opcional: resetar sanidade também
+    WHERE id = p_id_jogador;
+END;
+$$;

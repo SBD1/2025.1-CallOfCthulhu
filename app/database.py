@@ -459,6 +459,61 @@ class DataBase:
         query = "SELECT * FROM public.sp_inspecionar_monstro(%s);"
         return self._execute_query(query, (id_instancia_monstro,), fetch_one=True)
 
+    def apply_sanity_damage(self, id_jogador: int, dano: int):
+        """Chama a procedure para aplicar dano à sanidade do jogador."""
+        query = "SELECT public.sp_aplicar_dano_sanidade(%s, %s);"
+        result = self._execute_query(query, (id_jogador, dano), fetch_one=True)
+        return result['sp_aplicar_dano_sanidade'] if result else "Erro ao aplicar dano de sanidade."
+
+    def get_monster_drop(self, id_instancia_monstro: int):
+        # Simples query para pegar o item que o monstro dropa
+        return self._execute_query("SELECT id_instancia_de_item FROM public.instancias_monstros WHERE id = %s;", (id_instancia_monstro,), fetch_one=True)
+
+    def kill_monster_instance(self, id_instancia_monstro: int):
+        # Marca o monstro como derrotado (para a Lua de Sangue)
+        self._execute_query("UPDATE public.instancias_monstros SET id_local = NULL, vida = 0 WHERE id = %s;", (id_instancia_monstro,))
+
+    def perform_skill_check(self, id_jogador: int, nome_pericia: str):
+        query = "SELECT public.sp_realizar_teste_pericia(%s, %s);"
+        result = self._execute_query(query, (id_jogador, nome_pericia), fetch_one=True)
+        return result['sp_realizar_teste_pericia'] if result else False
+
+    # --- NOVOS MÉTODOS PARA BATALHA E MORTE ---
+
+    def execute_battle_turn(self, id_jogador: int, id_instancia_monstro: int):
+        """Chama a procedure que executa um único turno de batalha."""
+        query = "SELECT * FROM public.sp_executar_turno_batalha(%s, %s);"
+        return self._execute_query(query, (id_jogador, id_instancia_monstro), fetch_one=True)
+
+    def execute_monster_attack_only(self, id_jogador: int, id_instancia_monstro: int):
+        """Chama a procedure para o monstro atacar sozinho (quando o jogador falha em fugir)."""
+        query = "SELECT public.sp_monstro_ataca_sozinho(%s, %s) as log_turno;"
+        return self._execute_query(query, (id_jogador, id_instancia_monstro), fetch_one=True)
+
+    def reset_player_status(self, id_jogador: int):
+        """Chama a procedure para resetar a vida e sanidade do jogador."""
+        self._execute_query("SELECT public.sp_resetar_status_jogador(%s);", (id_jogador,))
+
+    def add_item_to_inventory(self, id_jogador: int, id_instancia_item: int):
+        query = "SELECT public.sp_adicionar_item_ao_inventario(%s, %s);"
+        result = self._execute_query(query, (id_jogador, id_instancia_item), fetch_one=True)
+        return result and result['sp_adicionar_item_ao_inventario']
+
+    def get_inventario_do_jogador(self, id_jogador: int):
+        return self._execute_query("SELECT * FROM public.sp_ver_inventario(%s);", (id_jogador,), fetch_all=True)
+    
+    def get_player_skills(self, player_id: int):
+        """Busca todas as perícias que um jogador possui."""
+        query = """
+            SELECT p.nome, ppp.valor_atual
+            FROM public.personagens_possuem_pericias ppp
+            JOIN public.pericias p ON ppp.id_pericia = p.id
+            WHERE ppp.id_personagem = %s
+            ORDER BY p.nome;
+        """
+        return self._execute_query(query, (player_id,), fetch_all=True)
+        
+
 # --- Bloco de Teste para o Modelo Básico ---
 if __name__ == "__main__":
     db = None 
