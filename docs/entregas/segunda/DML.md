@@ -43,32 +43,32 @@ Autor: Cayo, Igor
 Versão: 0.2
 Data: 10/06/2025
 Descrição: Criando inserts iniciais nas tabelas inventários, salas, tipo_personagem, personagens_jogaveis, corredores, corredores_salas_destino, perícias e personagens_possuem_pericias.
-Autor: Christopher, João Marcos
+AUTOR: Wanjo Christopher, João Marcos
 
 Versão: 0.3
 Data: 11/06/2025
 Descrição: Adicionando exemplos de NPCs e diálogos. Completando tabela de perícias.
-Autor: Christopher, João Marcos
+AUTOR: Wanjo Christopher, João Marcos
 
 Versão: 0.4
 Data: 11/06/2025
 Descrição: Adicionando exemplos de monstros, tanto agressivos quanto pacíficos, e suas respectivas tabelas.
-Autor: Christopher, João Marcos
+AUTOR: Wanjo Christopher, João Marcos
 
 Versão: 0.5
 Data: 11/06/2025
 Descrição: Adicionando exemplos de itens, e suas respectivas tabelas.
-Autor: Christopher, João Marcos
+AUTOR: Wanjo Christopher, João Marcos
 
 Versão: 0.6
 Data: 11/06/2025
 Descrição: Adicionando exemplos de instancias de monstros e itens, e suas respectivas tabelas.
-Autor: Christopher, João Marcos
+AUTOR: Wanjo Christopher, João Marcos
 
 Versão: 0.7
 Data: 11/06/2025
 Descrição: Adicionando exemplos de missões e batalhas, e suas respectivas tabelas.
-Autor: Christopher, João Marcos
+AUTOR: Wanjo Christopher, João Marcos
 
 Versão: 0.8
 Data: 12/06/2025

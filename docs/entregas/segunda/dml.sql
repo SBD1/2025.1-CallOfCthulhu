@@ -94,16 +94,36 @@ Data 05/07/2025
 Descrição: Adicionando itens com o procedure sp_criar_arma
 Autor: Luiz Guilherme
 
+Versão 1.8 
+Data 05/07/2025
+Descrição: Melhorias na inserção de instâncias de monstros e itens para permitir seu respawn
+Autor: Luiz Guilherme
+
+Versão 1.9
+Data: 05/07/2025
+Descrição: Adiciona novas armas e armaduras ao jogo usando as stored procedures correspondentes e as insere em locais específicos do mapa.
+Autor: Gemini
+
+Versão 2.0
+Data: 05/07/2025
+Descrição: Adiciona type casting explícito às chamadas de stored procedures de criação de itens para garantir a correta inferência de tipos.
+Autor: Gemini
+
+Versão 2.1
+Data: 05/07/2025
+Descrição: Substitui os itens por versões mais temáticas e sombrias, adequadas à estética de Cthulhu, e ajusta seus atributos e locais.
+Autor: Gemini
+
+Versão 2.2
+Data: 05/07/2025
+Descrição: Substitui as inserções diretas de personagens, NPCs e missões por chamadas aos seus respectivos stored procedures (sp_criar_personagem_jogavel, sp_criar_npc, sp_criar_missao).
+Autor: Gemini
 */
 -- ===============================================
 
 --          INSERT DE DADOS
 
 -- ===============================================
-
-INSERT INTO public.tipos_personagem (tipo) VALUES ('personagem jogavel'), ('NPC');
-INSERT INTO public.tipos_monstro (tipo) VALUES ('agressivo'), ('pacífico');
-INSERT INTO public.tipos_feitico (tipo) VALUES ('status'), ('dano');
 
 -- ===============================================
 
@@ -400,25 +420,10 @@ UPDATE public.local SET local_sul = (SELECT id FROM public.local WHERE descricao
 
 -- ===============================================
 
--- NOTA: A criação de PJs agora deve ser feita via Stored Procedure na aplicação para usar a lógica de geração de atributos.
--- Estes INSERTs diretos são mantidos para compatibilidade inicial, mas o ideal é removê-los e criar os personagens via aplicação.
-
-WITH
-  inv_samuel AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
-  samuel AS (
-    INSERT INTO public.personagens_jogaveis (nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, movimento, sanidade_atual, PM_base, PM_max, pontos_de_vida_atual, id_local, id_inventario)
-    VALUES ('Samuel Carter', 'Doutor em Medicina', 'Arkham, MA', 'Boston, MA', 42, 'masculino', 10, 12, 12, 8, 15, 17, 13, 12, 7, 60, 12, 12, 14, (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala'), (SELECT id FROM inv_samuel))
-    RETURNING id
-  ),
-  inv_sarah AS ( INSERT INTO public.inventarios (tamanho) VALUES (28) RETURNING id ),
-  sarah AS (
-    INSERT INTO public.personagens_jogaveis (nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, movimento, sanidade_atual, PM_base, PM_max, pontos_de_vida_atual, id_local, id_inventario)
-    VALUES ('Sarah Thompson', 'Arqueóloga', 'Boston, MA', 'Boston, MA', 35,
-    'feminino', 8, 10, 11, 14, 16, 15, 14, 13, 8, 55, 11, 11, 12, (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa como um véu úmido%' AND tipo_local = 'Sala'), (SELECT id FROM inv_sarah))
-    RETURNING id
-  )
-SELECT 1;
-
+-- Criação dos personagens jogáveis iniciais usando a Stored Procedure
+-- NOTA: Atributos como força, constituição, etc., são gerados aleatoriamente pela trigger no banco de dados.
+SELECT public.sp_criar_personagem_jogavel('Samuel Carter'::public.nome, 'Doutor em Medicina'::public.ocupacao, 'Arkham, MA'::public.residencia, 'Boston, MA'::public.local_nascimento, 42::public.idade, 'masculino'::public.sexo);
+SELECT public.sp_criar_personagem_jogavel('Sarah Thompson'::public.nome, 'Arqueóloga'::public.ocupacao, 'Boston, MA'::public.residencia, 'Boston, MA'::public.local_nascimento, 35::public.idade, 'feminino'::public.sexo);
 
 -- ===============================================
 
@@ -426,6 +431,8 @@ SELECT 1;
 
 -- ===============================================
 
+-- NOTA: Esta inserção depende dos nomes dos personagens serem únicos.
+-- Em uma aplicação real, o ID retornado pela SP seria usado.
 INSERT INTO public.personagens_possuem_pericias (id_personagem, id_pericia, valor_atual)
 VALUES
     ((SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'), (SELECT id FROM public.pericias WHERE nome = 'Medicina'), 75),
@@ -438,203 +445,22 @@ VALUES
 -- ADIÇÃO NA TABELA DE NPCS, DIÁLOGOS E MISSÕES
 
 -- ===============================================
-WITH
-  -- =================================================================================
-  --         1. CRIAÇÃO DE PERSONAGENS E INVENTÁRIOS (Estrutura do usuário)
-  -- =================================================================================
-  inv_samuel AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
-  samuel AS (
-    INSERT INTO public.personagens_jogaveis (nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, movimento, sanidade_atual, PM_base, PM_max, pontos_de_vida_atual, id_local, id_inventario)
-    VALUES ('Samuel Carter', 'Doutor em Medicina', 'Arkham, MA', 'Boston, MA', 42, 'masculino', 10, 12, 12, 8, 15, 17, 13, 12, 7, 60, 12, 12, 14, (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala'), (SELECT id FROM inv_samuel))
-    RETURNING id
-  ),
-  sabio AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Velho Sábio', 'Guardião do Templo', 70, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala')) RETURNING id
-  ),
-  guarda AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Guarda do Templo', 'Protetor das Relíquias', 45, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Esta câmara é uma abóbada%' AND tipo_local = 'Sala')) RETURNING id
-  ),
-  sacerdotisa AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Sacerdotisa Sombria', 'Mestre dos Rituais', 50, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%' AND tipo_local = 'Sala')) RETURNING id
-  ),
-  inv_vendedor_C1 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
-  vendedor_C1 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
-    VALUES ('Gambireiro', 'Vendedor ambulante', 40, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'O corredor estreito serpenteia adiante,%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C1)) RETURNING id
-  ),
-  inv_vendedor_C2 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
-  vendedor_C2 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
-    VALUES ('Negociadora', 'Vendedor sofisticado', 19, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é estreito e%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C2)) RETURNING id
-  ),
-  inv_vendedor_C5 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
-  vendedor_C5 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
-    VALUES ('Tradder', 'Vendedor ambulante', 24, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor que se estende em linha reta%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C5)) RETURNING id
-  ),
-  inv_vendedor_C6 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
-  vendedor_C6 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
-    VALUES ('Pracista', 'Vendedor ambulante', 80, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é irregular e parece descer em espiral%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C6)) RETURNING id
-  ),
-  inv_vendedor_C10 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
-  vendedor_C10 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
-    VALUES ('Refugiado', 'Vendedor ambulante', 25, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor espaçoso com colunas maciças que se assemelham a ossos gigantes.%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C10)) RETURNING id
-  ),
-  inv_vendedor_C9 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
-  vendedor_C9 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
-    VALUES ('Refugiada', 'Vendedor ambulante', 20, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado com água salgada até a altura do joelho.%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C9)) RETURNING id
-  ),
-  inv_vendedor_C11 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
-  vendedor_C11 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
-    VALUES ('Mauricio o vendedor', 'Vendedor sofisticado', 30, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor leva a uma área de transição, com uma porta maciça%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C11)) RETURNING id
-  ),
-  dialogos_inseridos AS (
-    INSERT INTO public.dialogos (script_dialogo, npc_id)
-    VALUES
-      ('Viajante, cuidado com as sombras do templo!', (SELECT id FROM sabio)),
-      ('As paredes deste lugar sussurram segredos antigos.', (SELECT id FROM sabio)),
-      ('Ho ho ho! Venha ver o que eu tenho em minha loja para te ajudar em sua jornada!', (SELECT id FROM vendedor_C1)),
-      ('Bom dia caro cliente! Veja o que tenho a oferecer em minha loja, quem sabe não te salve em alguma ocasião!', (SELECT id FROM vendedor_C2)),
-      ('Olá caro amigo! Veja estes lindos produtos no precinho que tenho na minha loja e aproveite antes que acabe!', (SELECT id FROM vendedor_C5)),
-      ('Olá querido, você por acaso encontrou um golpista chamado Tradder? Espero que não, este patífe roubou alguns itens meus e estava vendendo pelo dobro do preço, veja na minha loja os itens por um preço justo!', (SELECT id FROM vendedor_C6)),
-      ('Bom dia viajante, será que você poderia comprar alguns dos meus itens? Estou morrendo de fome e os vendedores não aceitam troca-los por comida.', (SELECT id FROM vendedor_C10)),
-      ('Olá viajante, estou morrendo de fome e os vendedores não aceitam meus itens por comida, você poderia compra-los?', (SELECT id FROM vendedor_C9)),
-      ('Olá viajante, você já chegou muito longe e sinto que os caminhos estão começando a ficar intensos e perigosos, veja em minha loja itens mais fortes e que podem te ajudar!', (SELECT id FROM vendedor_C11))
-    RETURNING npc_id
-  ),
-  missoes_inseridas AS (
-    INSERT INTO public.missoes (nome, descricao, tipo, ordem, id_npc)
-    VALUES
-        ('A Súplica do Ancião', 'Recupere um artefato roubado das profundezas do templo.', 'principal', 'Encontre o artefato na sala triangular.', (SELECT id FROM sabio)),
-        ('Relíquias Perdidas', 'Ajude a localizar relíquias dispersas pelo corredor.', 'coleta', 'Procure por 3 fragmentos.', (SELECT id FROM guarda)),
-        ('Purificação do Santuário', 'Extermine uma criatura maligna.', 'eliminacao', 'Derrote o Abominável Horror.', (SELECT id FROM sacerdotisa))
-    RETURNING id_npc
-  ),
 
-  -- =================================================================================
-  --         2. SELEÇÃO E CATEGORIZAÇÃO DE ITENS POR VALOR (TIERS)
-  -- =================================================================================
-  itens_base AS (
-    SELECT i.id, i.valor, a.durabilidade
-    FROM public.itens i
-    JOIN public.armas a ON i.id = a.id
-    WHERE i.tipo = 'arma'
-  ),
-  -- Tier 1: Itens muito baratos (valor < 30)
-  itens_tier_1 AS (SELECT id, durabilidade FROM itens_base WHERE valor < 30),
-  -- Tier 2: Itens de preço médio (30 <= valor < 100)
-  itens_tier_2 AS (SELECT id, durabilidade FROM itens_base WHERE valor >= 30 AND valor < 100),
-  -- Tier 3: Itens caros (100 <= valor < 250)
-  itens_tier_3 AS (SELECT id, durabilidade FROM itens_base WHERE valor >= 100 AND valor < 250),
-  -- Tier 4: Itens únicos e muito caros (valor >= 250)
-  itens_tier_4 AS (SELECT id, durabilidade FROM itens_base WHERE valor >= 250),
+-- Criação dos NPCs usando a Stored Procedure
+SELECT public.sp_criar_npc('Velho Sábio'::public.nome, 'Guardião do Templo'::public.ocupacao, 'Templo das Sombras'::public.residencia, 'Arkham'::public.local_nascimento, 70::public.idade, 'masculino'::public.sexo);
+SELECT public.sp_criar_npc('Guarda do Templo'::public.nome, 'Protetor das Relíquias'::public.ocupacao, 'Templo das Sombras'::public.residencia, 'Arkham'::public.local_nascimento, 45::public.idade, 'masculino'::public.sexo);
+SELECT public.sp_criar_npc('Sacerdotisa Sombria'::public.nome, 'Mestre dos Rituais'::public.ocupacao, 'Templo das Sombras'::public.residencia, 'Arkham'::public.local_nascimento, 50::public.idade, 'feminino'::public.sexo);
 
-  -- =================================================================================
-  --         3. CRIAÇÃO DE INSTÂNCIAS E DISTRIBUIÇÃO NOS INVENTÁRIOS
-  -- =================================================================================
-  
-  -- Vendedor C1 (Gambireiro): 4 itens baratos, 1 médio
-  instancias_vendedor_c1 AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
-      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 4)
-      UNION ALL
-      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 1)
-      RETURNING id
-  ),
-  link_inv_c1 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
-      SELECT (SELECT id FROM inv_vendedor_C1), id FROM instancias_vendedor_c1
-  ),
+-- Inserção de diálogos (depende do nome do NPC)
+INSERT INTO public.dialogos (script_dialogo, npc_id)
+VALUES
+    ('Viajante, cuidado com as sombras do templo!', (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio')),
+    ('As paredes deste lugar sussurram segredos antigos.', (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio'));
 
-  -- Vendedor C2 (Negociadora): 3 itens baratos, 2 médios
-  instancias_vendedor_c2 AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
-      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 3)
-      UNION ALL
-      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 2)
-      RETURNING id
-  ),
-  link_inv_c2 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
-      SELECT (SELECT id FROM inv_vendedor_C2), id FROM instancias_vendedor_c2
-  ),
-
-  -- Vendedor C5 (Tradder): 2 itens baratos, 3 médios
-  instancias_vendedor_c5 AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
-      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 2)
-      UNION ALL
-      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 3)
-      RETURNING id
-  ),
-  link_inv_c5 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
-      SELECT (SELECT id FROM inv_vendedor_C5), id FROM instancias_vendedor_c5
-  ),
-
-  -- Vendedor C6 (Pracista): 1 item barato, 3 médios, 1 caro
-  instancias_vendedor_c6 AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
-      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 1)
-      UNION ALL
-      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 3)
-      UNION ALL
-      (SELECT id, durabilidade FROM itens_tier_3 ORDER BY random() LIMIT 1)
-      RETURNING id
-  ),
-  link_inv_c6 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
-      SELECT (SELECT id FROM inv_vendedor_C6), id FROM instancias_vendedor_c6
-  ),
-
-  -- Vendedor C10 (Refugiado): 5 itens baratos (vendedor desesperado)
-  instancias_vendedor_c10 AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
-      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 5)
-      RETURNING id
-  ),
-  link_inv_c10 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
-      SELECT (SELECT id FROM inv_vendedor_C10), id FROM instancias_vendedor_c10
-  ),
-
-  -- Vendedor C9 (Refugiada): 2 médios, 2 caros
-  instancias_vendedor_c9 AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
-      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 2)
-      UNION ALL
-      (SELECT id, durabilidade FROM itens_tier_3 ORDER BY random() LIMIT 2)
-      RETURNING id
-  ),
-  link_inv_c9 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
-      SELECT (SELECT id FROM inv_vendedor_C9), id FROM instancias_vendedor_c9
-  ),
-
-  -- Vendedor C11 (Mauricio o vendedor): 1 médio, 3 caros, 1 único
-  instancias_vendedor_c11 AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
-      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 1)
-      UNION ALL
-      (SELECT id, durabilidade FROM itens_tier_3 ORDER BY random() LIMIT 3)
-      UNION ALL
-      (SELECT id, durabilidade FROM itens_tier_4 ORDER BY random() LIMIT 1)
-      RETURNING id
-  ),
-  link_inv_c11 AS (
-      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
-      SELECT (SELECT id FROM inv_vendedor_C11), id FROM instancias_vendedor_c11
-  )
-
--- A seleção final apenas confirma que o script foi executado.
-SELECT 'Criação de NPCs e distribuição de itens concluída com sucesso.' AS resultado;
+-- Criação de missões usando a Stored Procedure
+SELECT public.sp_criar_missao('A Súplica do Ancião'::public.nome, 'Recupere um artefato roubado das profundezas do templo.'::CHARACTER(512), 'principal'::public.tipo_missao, 'Encontre o artefato na sala triangular.'::CHARACTER(128), (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio'));
+SELECT public.sp_criar_missao('Relíquias Perdidas'::public.nome, 'Ajude a localizar relíquias dispersas pelo corredor.'::CHARACTER(512), 'coleta'::public.tipo_missao, 'Procure por 3 fragmentos.'::CHARACTER(128), (SELECT id FROM public.npcs WHERE nome = 'Guarda do Templo'));
+SELECT public.sp_criar_missao('Purificação do Santuário'::public.nome, 'Extermine uma criatura maligna.'::CHARACTER(512), 'eliminacao'::public.tipo_missao, 'Derrote o Abominável Horror.'::CHARACTER(128), (SELECT id FROM public.npcs WHERE nome = 'Sacerdotisa Sombria'));
 
 
 -- ===============================================
@@ -642,14 +468,29 @@ SELECT 'Criação de NPCs e distribuição de itens concluída com sucesso.' AS 
 --       ADIÇÃO NAS TABELAS DE FEITIÇOS
 
 -- ===============================================
+SELECT public.sp_criar_feitico(
+    p_nome                   := 'Bênção da Coragem'::public.nome,
+    p_descricao              := 'Inspira o alvo com bravura, aumentando sua força temporariamente.'::public.descricao,
+    p_qtd_pontos_de_magia    := 10::SMALLINT,
+    p_tipo_feitico           := 'status'::public.funcao_feitico,
+    p_status_buff_debuff     := TRUE,
+    p_status_qtd_buff_debuff := 5::SMALLINT,
+    p_status_afetado         := 'sanidade'::public.tipo_de_status,
+    p_dano_tipo              := NULL,
+    p_dano_qtd               := NULL
+);
 
--- Adicionando feitiços, agora referenciando o ID do tipo corretamente.
--- O ID do feitiço em si será gerado automaticamente (ex: 60100001)
-INSERT INTO public.feiticos_status (nome, descricao, qtd_pontos_de_magia, buff_debuff, qtd_buff_debuff, status_afetado, id_tipo_feitico)
-VALUES ('Bênção da Coragem', 'Aumenta temporariamente a sanidade do alvo.', 10, TRUE, 5, 'sanidade', 1); -- 1 = status
-
-INSERT INTO public.feiticos_dano (nome, descricao, qtd_pontos_de_magia, tipo_dano, qtd_dano, id_tipo_feitico)
-VALUES ('Toque da Agonia', 'Causa dano psíquico direto na mente do alvo.', 15, 'unico', 8, 2); -- 2 = dano
+SELECT public.sp_criar_feitico(
+    p_nome                    := 'Toque da Agonia'::public.nome,
+    p_descricao               := 'Causa dano psíquico direto na mente do alvo.'::public.descricao,
+    p_qtd_pontos_de_magia     := 15::SMALLINT,
+    p_tipo_feitico            := 'dano'::public.funcao_feitico,
+    p_status_buff_debuff      := NULL,
+    p_status_qtd_buff_debuff  := NULL,
+    p_status_afetado          := NULL,
+    p_dano_tipo               := 'unico'::public.tipo_dano,
+    p_dano_qtd                := 8::public.dano
+);
 
 -- ===============================================
 
@@ -666,15 +507,16 @@ SELECT public.sp_criar_monstro(
     p_nome                  := 'Abominável Horror'::public.nome,
     p_descricao             := 'Criatura grotesca que se esconde nas sombras...'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
-    p_agressivo_defesa      := 10::SMALLINT,
-    p_agressivo_vida        := 50::SMALLINT,
+    p_agressivo_defesa      := 3::SMALLINT,
+    p_agressivo_vida        := 5::SMALLINT,
+    p_agressivo_vida_total  := 5::SMALLINT,
     p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
-    p_agressivo_poder       := 15::SMALLINT,
+    p_agressivo_poder       := 2::SMALLINT,
     p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
-    p_agressivo_velocidade  := 5::SMALLINT,
-    p_agressivo_loucura     := 20::SMALLINT,
-    p_agressivo_pm          := 10::SMALLINT,
-    p_agressivo_dano        := 30::public.dano
+    p_agressivo_velocidade  := 2::SMALLINT,
+    p_agressivo_loucura     := 3::SMALLINT,
+    p_agressivo_pm          := 4::SMALLINT,
+    p_agressivo_dano        := 5::public.dano
 );
 
 SELECT public.sp_criar_monstro(
@@ -683,39 +525,129 @@ SELECT public.sp_criar_monstro(
     p_tipo                       := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa            := 5::SMALLINT,
     p_pacifico_vida              := 30::SMALLINT,
+    p_pacifico_vida_total        := 30::SMALLINT,
     p_pacifico_motivo            := 'indiferente'::public.comportamento_pacifico,
     p_pacifico_tipo              := 'sobrenatural'::public.tipo_monstro_pacifico,
     p_pacifico_conhecimento_proibido := 'Sabe sobre a fraqueza de uma entidade maior.'::CHARACTER(128)
 );
 
+-- ===============================================
+--       CRIAÇÃO DE NOVAS ARMAS E ARMADURAS TEMÁTICAS
+-- ===============================================
+
+-- Armas
 SELECT public.sp_criar_arma(
-    p_nome                  := 'Adaga Simples'::public.nome,
-    p_descricao             := 'Uma adaga enferrujada.'::public.descricao,
-    p_valor                 := 5::SMALLINT,
-    p_atributo_necessario   := 'destreza'::public.tipo_atributo_personagem,
-    p_qtd_atributo_necessario := 7::SMALLINT,
-    p_durabilidade          := 80::SMALLINT,
-    p_funcao                := 'corpo_a_corpo_leve'::public.funcao_arma,
-    p_alcance               := 1::SMALLINT,
-    p_tipo_municao          := NULL, -- Adagas geralmente não usam munição
-    p_tipo_dano             := 'unico'::public.tipo_dano,
-    p_dano                  := 4::public.dano
+    p_nome                    := 'Faca de Sacrifício'::public.nome,
+    p_descricao               := 'Uma lâmina de obsidiana, fria ao toque e gravada com símbolos que parecem se mover.'::public.descricao,
+    p_valor                   := 45::SMALLINT,
+    p_atributo_necessario     := 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario := 10::SMALLINT,
+    p_durabilidade            := 70::SMALLINT,
+    p_funcao                  := 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance                 := 1::SMALLINT,
+    p_tipo_municao            := NULL,
+    p_tipo_dano               := 'unico'::public.tipo_dano,
+    p_dano                    := 5::public.dano
+);
+SELECT public.sp_criar_arma(
+    p_nome                    := 'Revólver Amaldiçoado'::public.nome,
+    p_descricao               := 'Um revólver antigo que sussurra o nome de suas vítimas anteriores. Cada tiro custa um pouco de sanidade.'::public.descricao,
+    p_valor                   := 70::SMALLINT,
+    p_atributo_necessario     := 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario := 12::SMALLINT,
+    p_durabilidade            := 50::SMALLINT,
+    p_funcao                  := 'disparo_unico'::public.funcao_arma,
+    p_alcance                 := 12::SMALLINT,
+    p_tipo_municao            := 'medio-calibre'::public.tipo_municao,
+    p_tipo_dano               := 'unico'::public.tipo_dano,
+    p_dano                    := 10::public.dano
+);
+SELECT public.sp_criar_arma(
+    p_nome                    := 'Cajado de Ossos Retorcidos'::public.nome,
+    p_descricao               := 'Feito de ossos de criaturas desconhecidas, este cajado pulsa com uma energia profana.'::public.descricao,
+    p_valor                   := 60::SMALLINT,
+    p_atributo_necessario     := 'poder'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario := 14::SMALLINT,
+    p_durabilidade            := 90::SMALLINT,
+    p_funcao                  := 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance                 := 2::SMALLINT,
+    p_tipo_municao            := NULL,
+    p_tipo_dano               := 'unico'::public.tipo_dano,
+    p_dano                    := 7::public.dano
 );
 
-INSERT INTO public.instancias_de_itens (durabilidade, id_item, id_local)
-VALUES (80, (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'));
+-- Armaduras
+SELECT public.sp_criar_armadura(
+    p_nome                    := 'Traje de Explorador Esfarrapado'::public.nome,
+    p_descricao               := 'Roupas de couro e lona que viram horrores demais. Oferece proteção mínima, mas não atrapalha os movimentos.'::public.descricao,
+    p_valor                   := 15::SMALLINT,
+    p_atributo_necessario     := 'constituicao'::public.tipo_atributo_personagem,
+    p_durabilidade            := 60::SMALLINT,
+    p_funcao                  := 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe     := 1::SMALLINT,
+    p_qtd_atributo_necessario := 8::SMALLINT,
+    p_tipo_atributo_recebe    := 'constituicao'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado       := 1::SMALLINT
+);
+SELECT public.sp_criar_armadura(
+    p_nome                    := 'Amuleto de Proteção Inquietante'::public.nome,
+    p_descricao               := 'Um amuleto de prata com um olho que parece seguir você. Protege a mente, mas a um custo.'::public.descricao,
+    p_valor                   := 55::SMALLINT,
+    p_atributo_necessario     := 'poder'::public.tipo_atributo_personagem,
+    p_durabilidade            := 40::SMALLINT,
+    p_funcao                  := 'peitoral'::funcao_armadura, -- Usando peitoral como slot genérico para amuletos
+    p_qtd_atributo_recebe     := 2::SMALLINT,
+    p_qtd_atributo_necessario := 13::SMALLINT,
+    p_tipo_atributo_recebe    := 'poder'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado       := 2::SMALLINT
+);
+SELECT public.sp_criar_armadura(
+    p_nome                    := 'Máscara Ritualística Medonha'::public.nome,
+    p_descricao               := 'Uma máscara de madeira e ossos que esconde o rosto e a identidade, causando medo nos inimigos.'::public.descricao,
+    p_valor                   := 40::SMALLINT,
+    p_atributo_necessario     := 'aparencia'::public.tipo_atributo_personagem,
+    p_durabilidade            := 75::SMALLINT,
+    p_funcao                  := 'cabeca'::funcao_armadura,
+    p_qtd_atributo_recebe     := 2::SMALLINT,
+    p_qtd_atributo_necessario := 10::SMALLINT,
+    p_tipo_atributo_recebe    := 'aparencia'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado       := 2::SMALLINT
+);
+
+
+-- ===============================================
+--       INSTÂNCIAS DE ITENS NO MUNDO
+-- ===============================================
+
+INSERT INTO public.instancias_de_itens (durabilidade, durabilidade_total, id_item, id_local, id_local_de_spawn) VALUES 
+  -- Faca de Sacrifício na Câmara Triangular (Altar)
+  (70, 70, (SELECT id FROM public.itens WHERE nome = 'Faca de Sacrifício'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular%'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara triangular%')),
+  -- Revólver Amaldiçoado na Cripta Úmida (Sarcófago)
+  (50, 50, (SELECT id FROM public.itens WHERE nome = 'Revólver Amaldiçoado'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%')),
+  -- Cajado de Ossos no Salão Circular (Trono de Coral)
+  (90, 90, (SELECT id FROM public.itens WHERE nome = 'Cajado de Ossos Retorcidos'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'), (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%')),
+  -- Traje de Explorador na Sala Inicial
+  (60, 60, (SELECT id FROM public.itens WHERE nome = 'Traje de Explorador Esfarrapado'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%'), (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%')),
+  -- Amuleto na Biblioteca Submersa
+  (40, 40, (SELECT id FROM public.itens WHERE nome = 'Amuleto de Proteção Inquietante'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa%'), (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa%')),
+  -- Máscara Ritualística no Anfiteatro
+  (75, 75, (SELECT id FROM public.itens WHERE nome = 'Máscara Ritualística Medonha'), (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular%'), (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular%'));
+
 
 -- Inserindo a instância do monstro com a instância do item
-INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+-- CORREÇÃO: Adicionando a coluna 'vida' para inicializar a vida atual do monstro.
+INSERT INTO public.instancias_monstros (id_monstro, id_local, id_local_de_spawn, id_instancia_de_item, vida)
 SELECT
-    (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'),
+    (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Faca de Sacrifício')),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Abominável Horror');
 
 -- Inserindo a batalha
---INSERT INTO public.batalhas (id_jogador, id_monstro)
---SELECT
---    (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
---    (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.monstros WHERE nome = 'Abominável Horror'));
---
--- COMMIT; -- Finaliza a transação
+INSERT INTO public.batalhas (id_jogador, id_monstro)
+SELECT
+    (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
+    (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'));
+
+    -- COMMIT; -- Finaliza a transação

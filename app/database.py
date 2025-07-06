@@ -161,22 +161,15 @@ class DataBase:
         """
         Cria um novo personagem chamando a Stored Procedure no banco de dados.
         A aplicação apenas envia os dados básicos e recebe o ID de volta.
-        Utiliza da função 'public.sp_criar_personagem()' para criar o personagem.
+        Utiliza da função 'public.sp_criar_personagem_jogavel()' para criar o personagem.
         Retorna o ID do novo personagem ou None em caso de falha.
         """
         try:
             print(f"Solicitando ao banco de dados para criar o personagem '{nome}'...")
 
-            # Usamos SELECT para obter o valor de retorno da função 'public.sp_criar_personagem()'.
-            # Aqui especificamos qual o tipo de cada uma das strings ao invés de enviar somente uma string '%s'
-            #   Ex: %s::public.nome, indica que o parâmetro deve ser tratado como do domínio de tipo 'public.nome'
-            query = "SELECT public.sp_criar_personagem(" \
-            "%s::public.nome, " \
-            "%s::public.ocupacao, " \
-            "%s::public.residencia, " \
-            "%s::public.local_nascimento, " \
-            "%s::public.idade, " \
-            "%s::public.sexo);"
+            # CORREÇÃO: Chamando a stored procedure 'sp_criar_personagem_jogavel' que é a correta.
+            # A passagem de parâmetros foi simplificada para corresponder à forma como o psycopg2 lida com tipos.
+            query = "SELECT public.sp_criar_personagem_jogavel(%s, %s, %s, %s, %s, %s);"
 
             params = (
                 nome,
@@ -189,9 +182,10 @@ class DataBase:
 
             # Executa a query e espera receber o ID do novo personagem
             new_player_id_data = self._execute_query(query, params, fetch_one=True)
-
-            if new_player_id_data and new_player_id_data['sp_criar_personagem']:
-                novo_id_personagem = new_player_id_data['sp_criar_personagem']
+            
+            # O nome do campo retornado pela função será o nome da própria função.
+            if new_player_id_data and new_player_id_data['sp_criar_personagem_jogavel']:
+                novo_id_personagem = new_player_id_data['sp_criar_personagem_jogavel']
                 print(f"Personagem '{nome}' criado com sucesso pelo banco de dados com ID: {novo_id_personagem}")
                 return novo_id_personagem
             else:
@@ -225,15 +219,12 @@ class DataBase:
 
     def get_ficha_personagem(self, id_jogador: int):
         """
-        Obtém e exibe a ficha completa do personagem usando a view.
+        Obtém e exibe a ficha completa do personagem, incluindo itens equipados.
         """
 
         query = """
-            SELECT nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza,
-                   aparencia, tamanho, inteligencia, educacao, ideia, conhecimento, sorte, movimento, sanidade_maxima,
-                   sanidade_atual, insanidade_temporaria, insanidade_indefinida, PM_base, PM_max,
-                   pts_de_vida, pontos_de_vida_atual
-            FROM public.view_personagens_jogaveis_completos
+            SELECT *, v.pts_de_vida AS pts_de_vida_maximo
+            FROM public.view_personagens_jogaveis_completos v
             WHERE id = %s;
         """
 
@@ -263,11 +254,50 @@ class DataBase:
             print(f"  Ideia: {ficha_data['ideia']} | Conhecimento: {ficha_data['conhecimento']} | Sorte: {ficha_data['sorte']}%\n")
 
             print("* STATUS DO PERSONAGEM")
-            print(f"  Pontos de Vida: ................. {ficha_data['pontos_de_vida_atual']} / {ficha_data['pts_de_vida']}")
+            print(f"  Pontos de Vida: ................. {ficha_data['pontos_de_vida_atual']} / {ficha_data['pts_de_vida_maximo']}")
             print(f"  Sanidade: ....................... {ficha_data['sanidade_atual']} / {ficha_data['sanidade_maxima']}")
             print(f"  Insanidade Temporaria: .......... {'Sim' if ficha_data['insanidade_temporaria'] else 'Nao'}")
             print(f"  Insanidade Indefinida: .......... {'Sim' if ficha_data['insanidade_indefinida'] else 'Nao'}")
-            print(f"  Pontos de Magia: ................ {ficha_data['pm_base']} / {ficha_data['pm_max']}")
+            print(f"  Pontos de Magia: ................ {ficha_data['pm_base']} / {ficha_data['pm_max']}\n")
+
+            # --- NOVA SEÇÃO DE EQUIPAMENTO ---
+            print("* EQUIPAMENTO")
+            id_arma_instancia = ficha_data.get('id_arma')
+            id_armadura_instancia = ficha_data.get('id_armadura')
+
+            if id_arma_instancia:
+                arma_query = """
+                    SELECT i.nome, a.dano FROM public.itens i
+                    JOIN public.armas a ON i.id = a.id
+                    JOIN public.instancias_de_itens ii ON i.id = ii.id_item
+                    WHERE ii.id = %s
+                """
+                arma_detalhes = self._execute_query(arma_query, (id_arma_instancia,), fetch_one=True)
+                if arma_detalhes:
+                    print(f"  Arma Equipada: ................ {arma_detalhes['nome'].strip()} (Dano: {arma_detalhes['dano']})")
+                else:
+                    print("  Arma Equipada: ................ (Erro ao buscar detalhes da arma)")
+            else:
+                print("  Arma Equipada: ................ Nenhuma")
+
+            if id_armadura_instancia:
+                armadura_query = """
+                    SELECT i.nome, ar.qtd_dano_mitigado, ar.tipo_atributo_recebe, ar.qtd_atributo_recebe FROM public.itens i
+                    JOIN public.armaduras ar ON i.id = ar.id
+                    JOIN public.instancias_de_itens ii ON i.id = ii.id_item
+                    WHERE ii.id = %s
+                """
+                armadura_detalhes = self._execute_query(armadura_query, (id_armadura_instancia,), fetch_one=True)
+                if armadura_detalhes:
+                    bonus_str = ""
+                    if armadura_detalhes.get('tipo_atributo_recebe') and armadura_detalhes.get('qtd_atributo_recebe'):
+                        bonus_str = f" (Bonus: +{armadura_detalhes['qtd_atributo_recebe']} {armadura_detalhes['tipo_atributo_recebe'].strip()})"
+                    print(f"  Armadura Equipada: ............ {armadura_detalhes['nome'].strip()} (Defesa: {armadura_detalhes['qtd_dano_mitigado']}){bonus_str}")
+                else:
+                    print("  Armadura Equipada: ............ (Erro ao buscar detalhes da armadura)")
+            else:
+                print("  Armadura Equipada: ............ Nenhuma")
+
             print("\n===========================================")
 
         else:
@@ -302,26 +332,11 @@ class DataBase:
             return None
 
         saidas_raw = []
-        if local_data['id_sul']:
-            saidas_raw.append({'id_saida': local_data['id_sul'], 'direcao': 'Sul'})
-        if local_data['id_norte']:
-            saidas_raw.append({'id_saida': local_data['id_norte'], 'direcao': 'Norte'})
-        if local_data['id_leste']:
-            saidas_raw.append({'id_saida': local_data['id_leste'], 'direcao': 'Leste'})
-        if local_data['id_oeste']:
-            saidas_raw.append({'id_saida': local_data['id_oeste'], 'direcao': 'Oeste'})
-        if local_data['id_noroeste']:
-            saidas_raw.append({'id_saida': local_data['id_noroeste'], 'direcao': 'Noroeste'})
-        if local_data['id_nordeste']:
-            saidas_raw.append({'id_saida': local_data['id_nordeste'], 'direcao': 'Nordeste'})
-        if local_data['id_sudeste']:
-            saidas_raw.append({'id_saida': local_data['id_sudeste'], 'direcao': 'Sudeste'})
-        if local_data['id_sudoeste']:
-            saidas_raw.append({'id_saida': local_data['id_sudoeste'], 'direcao': 'Sudoeste'})
-        if local_data['id_cima']:
-            saidas_raw.append({'id_saida': local_data['id_cima'], 'direcao': 'Cima'})
-        if local_data['id_baixo']:
-            saidas_raw.append({'id_saida': local_data['id_baixo'], 'direcao': 'Baixo'})
+        direcoes = ['sul', 'norte', 'leste', 'oeste', 'noroeste', 'nordeste', 'sudeste', 'sudoeste', 'cima', 'baixo']
+        for direcao in direcoes:
+            id_col = f'id_{direcao}'
+            if local_data[id_col]:
+                saidas_raw.append({'id_saida': local_data[id_col], 'direcao': direcao.capitalize()})
         
         full_saidas = []
         for saida in saidas_raw:
@@ -344,69 +359,106 @@ class DataBase:
             'saidas': full_saidas
         }
     
-    def get_npcs_in_location(self, local_id: int):
+    def get_items_in_location(self, local_id: int):
         """
-        Retorna uma lista de NPCs que estão em um determinado local.
+        Chama a stored procedure sp_vasculhar_local para buscar e retornar
+        todos os itens presentes em um local específico.
         """
-        query = "SELECT id, nome, ocupacao FROM public.npcs WHERE id_local = %s;"
-        npcs = self._execute_query(query, (local_id,), fetch_all=True)
-        return npcs if npcs else []
+        query = "SELECT * FROM public.sp_vasculhar_local(%s);"
+        return self._execute_query(query, (local_id,), fetch_all=True)
 
-    def get_npc_inventory(self, id_npc: int):
+    def add_item_to_inventory(self, id_jogador: int, id_instancia_item: int):
         """
-        Retorna o inventário de um NPC específico.
-        A query é baseada na consulta de inventário do DQL.
+        Chama a stored procedure sp_adicionar_item_ao_inventario para adicionar
+        uma instância de item ao inventário do jogador e removê-la do local.
         """
-        # Esta query é uma adaptação da consulta de inventário do seu arquivo dql.sql
-        query = """
-        SELECT
-            ii.id AS id_instancia_item,
-            it.nome,
-            it.descricao,
-            it.valor,
-            ii.durabilidade
-        FROM
-            public.npcs n
-        JOIN
-            public.inventarios_possuem_instancias_item ipii ON n.inventario = ipii.id_inventario
-        JOIN
-            public.instancias_de_itens ii ON ipii.id_instancias_de_item = ii.id
-        JOIN
-            public.itens it ON ii.id_item = it.id
-        WHERE
-            n.id = %s;
-        """
-        inventory = self._execute_query(query, (id_npc,), fetch_all=True)
-        return inventory if inventory else []
-
-    # Em database.py
-def buy_item_from_npc(self, id_jogador: int, id_npc: int, id_instancia_item: int):
-    """
-    Chama a Stored Procedure para comprar um item de um NPC.
-    A procedure agora usa a coluna 'ouro' e não precisa mais do parâmetro de valor.
-    """
-    try:
-        query = "SELECT public.sp_comprar_item_do_npc(%s, %s, %s);" # Removido o 4º parâmetro
-        params = (id_jogador, id_npc, id_instancia_item)
-        
-        result = self._execute_query(query, params, fetch_one=True)
-
-        if result and 'sp_comprar_item_do_npc' in result:
-            return result['sp_comprar_item_do_npc']
-        else:
-            return "Falha ao executar a compra. A procedure não retornou uma mensagem."
-
-    except Exception as e:
-        print(f"Erro inesperado na camada de banco de dados: {e}")
-        # A mensagem de erro da procedure virá no corpo da exceção
-        # Extrair a mensagem de erro do objeto de exceção do psycopg2
-        error_message = str(e)
-        detail_prefix = "DETAIL:"
-        if detail_prefix in error_message:
-             # Retorna a mensagem de erro customizada da procedure
-            return error_message.split(detail_prefix)[0].replace("psycopg2.errors.RaiseException: ", "").strip()
-        return "Ocorreu um erro desconhecido durante a transação."
+        query = "SELECT public.sp_adicionar_item_ao_inventario(%s, %s);"
+        result = self._execute_query(query, (id_jogador, id_instancia_item), fetch_one=True)
+        return result and result['sp_adicionar_item_ao_inventario']
     
+
+    def get_inventario_do_jogador(self, id_jogador: int):
+        """
+        Chama a stored procedure sp_ver_inventario para obter todos os itens
+        no inventário de um jogador.
+        """
+        query = "SELECT * FROM public.sp_ver_inventario(%s);"
+        return self._execute_query(query, (id_jogador,), fetch_all=True)
+    
+    def trigger_lua_de_sangue(self):
+        """
+        Chama a stored procedure lua_de_sangue para realizar o respawn
+        de monstros e itens no jogo.
+        """
+        print("\nUma energia estranha paira no ar... A Lua de Sangue esta subindo!")
+        query = "SELECT public.lua_de_sangue();"
+        self._execute_query(query)
+        print("A Lua de Sangue passou. Novos perigos aguardam!")
+
+    
+    def get_monsters_in_location(self, local_id: int):
+        """
+        Chama a stored procedure sp_encontrar_monstros_no_local para buscar e retornar
+        todos os monstros presentes em um local específico.
+        """
+        query = "SELECT * FROM public.sp_encontrar_monstros_no_local(%s);"
+        return self._execute_query(query, (local_id,), fetch_all=True)
+    
+    def kill_monsters_in_location(self, local_id: int):
+        """
+        Chama a stored procedure sp_matar_monstros_no_local para "matar"
+        todos os monstros presentes em um local específico.
+        """
+        query = "SELECT public.sp_matar_monstros_no_local(%s);"
+        result = self._execute_query(query, (local_id,), fetch_one=True)
+        # A stored procedure retorna o número de monstros mortos (ou -1 em caso de erro)
+        if result and result['sp_matar_monstros_no_local'] is not None:
+            return result['sp_matar_monstros_no_local']
+        return -1 # Indica erro se nada for retornado ou se a procedure indicar erro
+    
+    def equip_item(self, id_jogador: int, id_instancia_item: int):
+        """
+        Chama a stored procedure para equipar um item do inventário.
+        Retorna a mensagem de sucesso ou falha do banco de dados.
+        """
+        query = "SELECT public.sp_equipar_item(%s, %s);"
+        result = self._execute_query(query, (id_jogador, id_instancia_item), fetch_one=True)
+        if result:
+            return result['sp_equipar_item']
+        return "Erro ao tentar equipar o item."
+
+    def unequip_item(self, id_jogador: int, tipo_slot: str):
+        """
+        Chama a stored procedure para desequipar um item de um slot ('arma' ou 'armadura').
+        Retorna a mensagem de sucesso ou falha do banco de dados.
+        """
+        query = "SELECT public.sp_desequipar_item(%s, %s);"
+        result = self._execute_query(query, (id_jogador, tipo_slot), fetch_one=True)
+        if result:
+            return result['sp_desequipar_item']
+        return "Erro ao tentar desequipar o item."
+
+    def execute_battle(self, id_jogador: int, id_instancia_monstro: int):
+        """
+        Chama a stored procedure que executa um loop de batalha completo.
+        Retorna o texto com o resultado final da batalha.
+        """
+        query = "SELECT public.sp_executar_batalha(%s, %s);"
+        result = self._execute_query(query, (id_jogador, id_instancia_monstro), fetch_one=True)
+        if result:
+            return result['sp_executar_batalha']
+        return "A batalha terminou de forma inconclusiva devido a um erro."
+
+    # Adicione este novo método à sua classe DataBase em database.py
+
+    def inspect_monster(self, id_instancia_monstro: int):
+        """
+        Chama a stored procedure para buscar os detalhes completos de uma instância de monstro.
+        Retorna um dicionário com os atributos do monstro ou None se não for encontrado.
+        """
+        query = "SELECT * FROM public.sp_inspecionar_monstro(%s);"
+        return self._execute_query(query, (id_instancia_monstro,), fetch_one=True)
+
 # --- Bloco de Teste para o Modelo Básico ---
 if __name__ == "__main__":
     db = None 
