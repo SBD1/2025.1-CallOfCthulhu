@@ -398,7 +398,7 @@ class Game:
                 print(f"\nVITÓRIA! Você derrotou o {monstro['monstro_nome'].strip()}!")
                 item_drop = self.db.get_monster_drop(monstro['instancia_monstro_id'])
                 if item_drop and item_drop.get('id_instancia_de_item'):
-                    print("O monstro deixou cair um item!")
+                    print("O monstro deixou cair um item! Você o pega.")
                     self.db.add_item_to_inventory(self.player.id_jogador, item_drop['id_instancia_de_item'])
                 self.db.kill_monster_instance(monstro['instancia_monstro_id'])
                 return 'vitoria'
