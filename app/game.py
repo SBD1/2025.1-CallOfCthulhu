@@ -26,12 +26,22 @@ def display_cthulhu_intro():
     print("                                       E SEU PESADELO COMEÇA.")
 # --- Fim da função de introdução ---
 
+def display_death_screen():
+    """Exibe a tela de morte."""
+    clear()
+    print("\n\n")
+    print("                           VOCÊ MORREU")
+    print("      Sua jornada termina aqui, nas garras da loucura e do desespero.")
+    print("      O cosmos é indiferente ao seu destino. A escuridão te consome.")
+    print("\n\n")
+
 class Game:
 
     def __init__(self):
         self.db = DataBase()
         self.player = None
         self.last_lua_de_sangue_time = time.time()
+        self.initial_local_id = None # Para guardar o local inicial do personagem
 
     def create_new_character_flow(self):
         # clear()
@@ -98,6 +108,7 @@ class Game:
             self.player = self.db.get_personagem(new_name)
             if self.player:
                 print(f"Bem-vindo(a) ao mundo, {self.player.nome}!")
+                self.initial_local_id = self.player.id_local # Salva o local inicial
                 self.gameplay()
             else:
                 print("Erro ao carregar o personagem recem-criado. Tente carregar manually pelo menu.")
@@ -121,6 +132,7 @@ class Game:
             self.player = player_obj
             print(f"\nPersonagem '{self.player.nome}' carregado com sucesso!")
             input("Pressione Enter para iniciar o jogo...")
+            self.initial_local_id = self.player.id_local # Salva o local inicial
             self.gameplay()
         else:
             print(f"Personagem '{nome}' nao encontrado. Voltando ao menu principal.")
@@ -165,7 +177,7 @@ class Game:
             else:
                 input('Opcao invalida! Digite 1, 2, ou 3. Pressione Enter para tentar novamente.')
 
-    def _handle_inventory_actions(self):
+    def _handle_inventory_actions(self, in_battle=False):
         """Gerencia as ações dentro do inventário (equipar/desequipar/vender)."""
         while True:
             itens_inventario = self.db.get_inventario_do_jogador(self.player.id_jogador)
@@ -174,6 +186,14 @@ class Game:
             if not itens_inventario:
                 print("Seu inventário está vazio.")
                 break
+            
+            # Filtra apenas itens de cura se estiver em batalha
+            if in_battle:
+                itens_inventario = [item for item in itens_inventario if item['item_tipo'].strip() == 'cura']
+                if not itens_inventario:
+                    print("Você não tem itens de cura para usar.")
+                    input("Pressione Enter para voltar à batalha...")
+                    break
 
             for i, item in enumerate(itens_inventario):
                 nome_item = item['item_nome'].strip()
@@ -194,7 +214,31 @@ class Game:
 
                 print(f"[{i + 1}] {nome_item} {stats_str} {equipado_str}")
 
-            action = input("\nO que deseja fazer? (equipar, desequipar, vender, sair): ").strip().lower()
+            action = input("\nO que deseja fazer? (equipar, desequipar, vender, sair): ").strip().lower() #AA
+
+            if in_battle:
+                action = input("\nDigite o número do item para USAR (ou 'sair'): ").strip().lower()
+                if action == 'sair': break
+                try:
+                    item_idx = int(action) - 1
+                    if 0 <= item_idx < len(itens_inventario):
+                        print(f"Usando {itens_inventario[item_idx]['item_nome'].strip()}...")
+                        # self.db.sp_usar_item_cura(...) # Adicionar a chamada da procedure aqui
+                        break # Sai do inventário após usar o item
+                except ValueError:
+                    print("Entrada inválida.")
+
+            if in_battle:
+                action = input("\nDigite o número do item para USAR (ou 'sair'): ").strip().lower()
+                if action == 'sair': break
+                try:
+                    item_idx = int(action) - 1
+                    if 0 <= item_idx < len(itens_inventario):
+                        print(f"Usando {itens_inventario[item_idx]['item_nome'].strip()}...")
+                        # self.db.sp_usar_item_cura(...) # Adicionar a chamada da procedure aqui
+                        break # Sai do inventário após usar o item
+                except ValueError:
+                    print("Entrada inválida.")
 
             if action == 'equipar':
                 item_idx_str = input("Digite o número do item para equipar: ").strip()
@@ -263,18 +307,21 @@ class Game:
             return
 
         print("\n--- Ficha da Criatura ---")
-        print(f"Nome: {details['nome'].strip()}")
-        print(f"Descrição: {details['descricao'].strip()}")
+        print(f"Nome: {details['monstro_nome'].strip()}")
+        print(f"Descrição: {details['monstro_descricao'].strip()}")
         print(f"Vida: {details['vida_atual']}/{details['vida_total']} | Defesa: {details['defesa']}")
 
         if details['tipo_monstro'].strip() == 'agressivo':
             print(f"Dano: {details.get('dano', 'N/A')}")
-            if details.get('velocidade_ataque'):
-                print(f"Velocidade de Ataque: {details['velocidade_ataque']}")
-            if details.get('loucura_induzida'):
-                print(f"Loucura Induzida: {details['loucura_induzida']}")
-            if details.get('ponto_magia'):
-                print(f"Pontos de Magia: {details['ponto_magia']}")
+
+            specifics = details.get('detalhes_especificos', {})
+            
+            if specifics.get('velocidade_ataque') is not None:
+                print(f"Velocidade de Ataque: {specifics['velocidade_ataque']}")
+            if specifics.get('loucura_induzida') is not None:
+                print(f"Loucura Induzida: {specifics['loucura_induzida']}")
+            if specifics.get('ponto_magia') is not None:
+                print(f"Pontos de Magia: {specifics['ponto_magia']}")
         
         print("-------------------------\n")
     
@@ -321,8 +368,12 @@ class Game:
             print("\n--- Explorar Ambiente ---")
             print("1. Procurar por Itens")
             print("2. Procurar por Ameaças")
-            print("3. Comprar itens")
+            print("3. Usar Perícia / Interagir")
+            print("4. Comprar itens")
             print("0. Voltar")
+            self.player = self.db.get_personagem(self.player.nome)
+            if self.player.pontos_de_vida_atual <= 0:
+                return # Se o jogador já estiver morto, sai do menu de explora
             
             choice = input("> ").strip()
 
@@ -373,27 +424,35 @@ class Game:
                             monstro_escolhido = monstros_no_local[num]
                             if command == 'a':
                                 print("\n--- A BATALHA COMEÇA! ---")
-                                resultado_batalha = self.db.execute_battle(self.player.id_jogador, monstro_escolhido['instancia_monstro_id'])
-                                print(resultado_batalha)
+                                self._handle_battle_loop(monstro_escolhido)
+                                #resultado_batalha = self.db.execute_battle(self.player.id_jogador, monstro_escolhido['instancia_monstro_id'])
+                                #print(resultado_batalha)
                                 print("--- A BATALHA TERMINOU! ---")
                             elif command == 'i':
                                 self._display_monster_details(monstro_escolhido['instancia_monstro_id'])
+                            elif command == 'r':
+                                print("Você tenta usar sua Furtividade para recuar para as sombras...")
+                                if self.db.perform_skill_check(self.player.id_jogador, 'Furtividade'):
+                                    print("Você conseguiu se afastar sem ser notado.")
+                                    continue # Volta para o menu de exploração
+                                else:
+                                    print("Sua tentativa de fuga falhou! Você é forçado a lutar!")
+                                    # Força a batalha contra o primeiro monstro da lista
+                                    self._handle_battle_loop(monstros_no_local[0])
+                                    continue # Depois da batalha, volta ao menu de exploração
                             else:
                                 print("Comando inválido. Use 'a' para atacar ou 'i' para inspecionar.")
                         else:
                             print("Número de monstro inválido.")
                     
                     except (ValueError, IndexError):
-                        if action == 'r':
-                             print("Voce recua para as sombras, evitando o confronto.")
-                        else:
-                            print("Comando inválido. Use o formato 'a1', 'i1', ou 'r'.")
+                        print("Comando inválido. Use o formato 'a1', 'i1', ou 'r'.")
 
                 else:
                     print("O local parece estar livre de ameacas... por enquanto.")
                 input("\nPressione Enter para continuar...")
 
-            elif choice == '3': # Comprar Itens / Interagir com Vendedor
+            elif choice == '4': # Comprar Itens / Interagir com Vendedo
                 vendedores_no_local = self.db.get_vendedor_in_location(self.player.id_local)
 
                 if vendedores_no_local:
@@ -473,10 +532,123 @@ class Game:
                 else:
                     print("\nNão há vendedores neste local.")
 
+            elif choice == '3': # USAR PERÍCIA
+                self._handle_skill_use()
             elif choice == '0':
                 break
             else:
                 print("Opção de exploração inválida.")
+
+    def _handle_player_death(self):
+        """Gerencia o que acontece quando o jogador morre."""
+        display_death_screen()
+        while True:
+            choice = input("O que deseja fazer? [1] Tentar Novamente | [2] Voltar ao Menu Principal\n> ").strip()
+            if choice == '1':
+                print("Recarregando seu último estado...")
+                self.db.reset_player_status(self.player.id_jogador)
+                return True # Sinaliza para o gameplay loop continuar
+            elif choice == '2':
+                return False # Sinaliza para o gameplay loop parar e voltar ao menu
+            print("Opção inválida.")
+    
+    def _handle_battle_loop(self, monstro):
+        """Gerencia um loop de batalha turno a turno."""
+        clear()
+        print(f"Um(a) {monstro['monstro_nome'].strip()} horrendo surge das sombras!")
+
+        while True:
+            self.player = self.db.get_personagem(self.player.nome)
+            monstro_atual = self.db.inspect_monster(monstro['instancia_monstro_id'])
+
+            if not monstro_atual or monstro_atual['vida_atual'] <= 0:
+                print(f"\nVITÓRIA! Você derrotou o {monstro['monstro_nome'].strip()}!")
+                item_drop = self.db.get_monster_drop(monstro['instancia_monstro_id'])
+                if item_drop and item_drop.get('id_instancia_de_item'):
+                    print("O monstro deixou cair um item! Você o pega.")
+                    self.db.add_item_to_inventory(self.player.id_jogador, item_drop['id_instancia_de_item'])
+                self.db.kill_monster_instance(monstro['instancia_monstro_id'])
+                return 'vitoria'
+
+            if self.player.pontos_de_vida_atual <= 0:
+                return 'derrota'
+
+            print("\n-------------------------------------------")
+            print(f"Sua Vida: {self.player.pontos_de_vida_atual}/{self.player.pts_de_vida_maximo} | Vida do {monstro_atual['monstro_nome'].strip()}: {monstro_atual['vida_atual']}/{monstro_atual['vida_total']}")
+            print("-------------------------------------------")
+            print("Opções de Batalha:\n[1] Atacar\n[2] Ver Inventário\n[3] Tentar Recuar")
+
+            escolha = input("> ").strip()
+
+            if escolha == '1':
+                resultado_turno = self.db.execute_battle_turn(self.player.id_jogador, monstro['instancia_monstro_id'])
+                if resultado_turno: print(f"\n{resultado_turno['log_turno']}")
+            elif escolha == '2':
+                # (Lógica para usar item de cura pode ser adicionada aqui)
+                print("Você abre sua mochila em busca de ajuda...")
+                self._handle_inventory_actions(in_battle=True)
+            elif escolha == '3':
+                print("Você tenta encontrar uma brecha para escapar...")
+                time.sleep(1)
+                if self.db.perform_skill_check(self.player.id_jogador, 'Furtividade'):
+                    print("Você tenta usar sua Furtividade para recuar para as sombras...")
+                    print("SUCESSO! Você conseguiu escapar das garras da criatura!")
+                    return 'fuga'
+                else:
+                    print("FALHA! O monstro bloqueia sua rota de fuga e ataca!")
+                    resultado_ataque = self.db.execute_monster_attack_only(self.player.id_jogador, monstro['instancia_monstro_id'])
+                    if resultado_ataque: print(f"\n{resultado_ataque['log_turno']}")
+            elif escolha == 'kill': 
+                print("\nVoce decide usar forca letal para limpar o local de qualquer ameaca...")
+                monstros_mortos_count = self.db.kill_monsters_in_location(self.player.id_local)
+                if monstros_mortos_count > 0:
+                    print(f"Voce aniquilou {monstros_mortos_count} monstros neste local!")
+                elif monstros_mortos_count == 0:
+                    print("Nao havia monstros para matar neste local.")
+                else:
+                    print("Ocorreu um erro ao tentar matar os monstros.")
+                input("\nPressione Enter para continuar...")
+            else:
+                print("Ação inválida. Em meio ao pânico, você hesita.")
+                resultado_ataque = self.db.execute_monster_attack_only(self.player.id_jogador, monstro['instancia_monstro_id'])
+                if resultado_ataque: print(f"\n{resultado_ataque['log_turno']}")
+
+            input("\nPressione Enter para continuar o combate...")
+            clear()
+
+    def _handle_skill_use(self):
+        """NOVO: Gerencia o uso de perícias com um menu."""
+        player_skills = self.db.get_player_skills(self.player.id_jogador)
+        if not player_skills:
+            print("Você não possui nenhuma perícia específica.")
+            input("Pressione Enter para continuar...")
+            return
+
+        print("\n--- Usar Perícia ---")
+        for i, skill in enumerate(player_skills):
+            print(f"[{i + 1}] {skill['nome'].strip()} (Valor: {skill['valor_atual']})")
+        print("[0] Voltar")
+
+        choice = input("> ").strip()
+        try:
+            choice_num = int(choice)
+            if choice_num == 0:
+                return
+            if 1 <= choice_num <= len(player_skills):
+                chosen_skill = player_skills[choice_num - 1]
+                pericia = chosen_skill['nome'].strip()
+                print(f"\nVocê tenta usar sua perícia em '{pericia}'...")
+                time.sleep(1)
+                sucesso = self.db.perform_skill_check(self.player.id_jogador, pericia)
+                if sucesso:
+                    print(f"SUCESSO! Sua habilidade em {pericia} se provou útil.")
+                else:
+                    print(f"FALHA. Seu conhecimento em {pericia} não foi suficiente desta vez.")
+            else:
+                print("Escolha inválida.")
+        except ValueError:
+            print("Entrada inválida.")
+        input("Pressione Enter para continuar...")
 
     def gameplay(self):
         if not self.player:
@@ -486,8 +658,23 @@ class Game:
         print(f"\n--- Comeca a aventura de {self.player.nome}! ---")
 
         while True:
+            # --- VERIFICAÇÃO DE MORTE ---
+            # A cada turno, recarregamos os dados do jogador e verificamos sua vida
+            self.player = self.db.get_personagem(self.player.nome)
+            if not self.player:
+                print("Erro crítico: Os dados do seu personagem se corromperam na escuridão.")
+                return self.start()
+
+            # Verifica se o jogador está morto
+            if self.player.pontos_de_vida_atual <= 0:
+                should_continue = self._handle_player_death()
+                if not should_continue:
+                    return self.start() # Volta para o menu principal
+            # --- FIM DA VERIFICAÇÃO DE MORTE ---
+
+            # LÓGICA DO TURNO (Lua de Sangue, Descrição do Local, etc.)
             current_time = time.time()
-            if current_time - self.last_lua_de_sangue_time >= 60:
+            if current_time - self.last_lua_de_sangue_time >= 30:
                 self.db.trigger_lua_de_sangue() 
                 self.last_lua_de_sangue_time = current_time 
 
