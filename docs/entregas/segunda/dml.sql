@@ -438,8 +438,16 @@ VALUES
 -- ADIÇÃO NA TABELA DE NPCS, DIÁLOGOS E MISSÕES
 
 -- ===============================================
-
 WITH
+  -- =================================================================================
+  --         1. CRIAÇÃO DE PERSONAGENS E INVENTÁRIOS (Estrutura do usuário)
+  -- =================================================================================
+  inv_samuel AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
+  samuel AS (
+    INSERT INTO public.personagens_jogaveis (nome, ocupacao, residencia, local_nascimento, idade, sexo, forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, movimento, sanidade_atual, PM_base, PM_max, pontos_de_vida_atual, id_local, id_inventario)
+    VALUES ('Samuel Carter', 'Doutor em Medicina', 'Arkham, MA', 'Boston, MA', 42, 'masculino', 10, 12, 12, 8, 15, 17, 13, 12, 7, 60, 12, 12, 14, (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala'), (SELECT id FROM inv_samuel))
+    RETURNING id
+  ),
   sabio AS (
     INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
     VALUES ('Velho Sábio', 'Guardião do Templo', 70, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'O ar pesa%' AND tipo_local = 'Sala')) RETURNING id
@@ -452,39 +460,53 @@ WITH
     INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
     VALUES ('Sacerdotisa Sombria', 'Mestre dos Rituais', 50, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um salão circular%' AND tipo_local = 'Sala')) RETURNING id
   ),
+  inv_vendedor_C1 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
   vendedor_C1 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Gambireiro', 'Vendedor ambulante', 40, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'O corredor estreito serpenteia adiante,%' AND tipo_local = 'Sala')) RETURNING id
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
+    VALUES ('Gambireiro', 'Vendedor ambulante', 40, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'O corredor estreito serpenteia adiante,%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C1)) RETURNING id
   ),
+  inv_vendedor_C2 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
   vendedor_C2 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Negociadora', 'Vendedor sofisticado', 19, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é estreito e%' AND tipo_local = 'Sala')) RETURNING id
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
+    VALUES ('Negociadora', 'Vendedor sofisticado', 19, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é estreito e%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C2)) RETURNING id
   ),
+  inv_vendedor_C5 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
   vendedor_C5 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Tradder', 'Vendedor ambulante', 24, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor que se estende em linha reta%' AND tipo_local = 'Sala')) RETURNING id
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
+    VALUES ('Tradder', 'Vendedor ambulante', 24, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor que se estende em linha reta%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C5)) RETURNING id
   ),
+  inv_vendedor_C6 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
   vendedor_C6 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Pracista', 'Vendedor ambulante', 80, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é irregular e parece descer em espiral%' AND tipo_local = 'Sala')) RETURNING id
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
+    VALUES ('Pracista', 'Vendedor ambulante', 80, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor é irregular e parece descer em espiral%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C6)) RETURNING id
   ),
+  inv_vendedor_C10 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
   vendedor_C10 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Refugiado', 'Vendedor ambulante', 25, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor espaçoso com colunas maciças que se assemelham a ossos gigantes.%' AND tipo_local = 'Sala')) RETURNING id
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
+    VALUES ('Refugiado', 'Vendedor ambulante', 25, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um corredor espaçoso com colunas maciças que se assemelham a ossos gigantes.%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C10)) RETURNING id
   ),
+  inv_vendedor_C9 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
   vendedor_C9 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Refugiada', 'Vendedor ambulante', 20, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado com água salgada até a altura do joelho.%' AND tipo_local = 'Sala')) RETURNING id
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
+    VALUES ('Refugiada', 'Vendedor ambulante', 20, 'feminino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado com água salgada até a altura do joelho.%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C9)) RETURNING id
   ),
+  inv_vendedor_C11 AS ( INSERT INTO public.inventarios (tamanho) VALUES (32) RETURNING id ),
   vendedor_C11 AS (
-    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local)
-    VALUES ('Mauricio o vendedor', 'Vendedor sofisticado', 30, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor leva a uma área de transição, com uma porta maciça%' AND tipo_local = 'Sala')) RETURNING id
+    INSERT INTO public.npcs (nome, ocupacao, idade, sexo, residencia, local_nascimento, id_local, id_inventario)
+    VALUES ('Mauricio o vendedor', 'Vendedor sofisticado', 30, 'masculino', 'Templo das Sombras', 'Arkham', (SELECT id FROM public.local WHERE descricao LIKE 'Este corredor leva a uma área de transição, com uma porta maciça%' AND tipo_local = 'Sala'),(SELECT id FROM inv_vendedor_C11)) RETURNING id
   ),
   dialogos_inseridos AS (
     INSERT INTO public.dialogos (script_dialogo, npc_id)
     VALUES
       ('Viajante, cuidado com as sombras do templo!', (SELECT id FROM sabio)),
-      ('As paredes deste lugar sussurram segredos antigos.', (SELECT id FROM sabio))
+      ('As paredes deste lugar sussurram segredos antigos.', (SELECT id FROM sabio)),
+      ('Ho ho ho! Venha ver o que eu tenho em minha loja para te ajudar em sua jornada!', (SELECT id FROM vendedor_C1)),
+      ('Bom dia caro cliente! Veja o que tenho a oferecer em minha loja, quem sabe não te salve em alguma ocasião!', (SELECT id FROM vendedor_C2)),
+      ('Olá caro amigo! Veja estes lindos produtos no precinho que tenho na minha loja e aproveite antes que acabe!', (SELECT id FROM vendedor_C5)),
+      ('Olá querido, você por acaso encontrou um golpista chamado Tradder? Espero que não, este patífe roubou alguns itens meus e estava vendendo pelo dobro do preço, veja na minha loja os itens por um preço justo!', (SELECT id FROM vendedor_C6)),
+      ('Bom dia viajante, será que você poderia comprar alguns dos meus itens? Estou morrendo de fome e os vendedores não aceitam troca-los por comida.', (SELECT id FROM vendedor_C10)),
+      ('Olá viajante, estou morrendo de fome e os vendedores não aceitam meus itens por comida, você poderia compra-los?', (SELECT id FROM vendedor_C9)),
+      ('Olá viajante, você já chegou muito longe e sinto que os caminhos estão começando a ficar intensos e perigosos, veja em minha loja itens mais fortes e que podem te ajudar!', (SELECT id FROM vendedor_C11))
     RETURNING npc_id
   ),
   missoes_inseridas AS (
@@ -494,8 +516,125 @@ WITH
         ('Relíquias Perdidas', 'Ajude a localizar relíquias dispersas pelo corredor.', 'coleta', 'Procure por 3 fragmentos.', (SELECT id FROM guarda)),
         ('Purificação do Santuário', 'Extermine uma criatura maligna.', 'eliminacao', 'Derrote o Abominável Horror.', (SELECT id FROM sacerdotisa))
     RETURNING id_npc
+  ),
+
+  -- =================================================================================
+  --         2. SELEÇÃO E CATEGORIZAÇÃO DE ITENS POR VALOR (TIERS)
+  -- =================================================================================
+  itens_base AS (
+    SELECT i.id, i.valor, a.durabilidade
+    FROM public.itens i
+    JOIN public.armas a ON i.id = a.id
+    WHERE i.tipo = 'arma'
+  ),
+  -- Tier 1: Itens muito baratos (valor < 30)
+  itens_tier_1 AS (SELECT id, durabilidade FROM itens_base WHERE valor < 30),
+  -- Tier 2: Itens de preço médio (30 <= valor < 100)
+  itens_tier_2 AS (SELECT id, durabilidade FROM itens_base WHERE valor >= 30 AND valor < 100),
+  -- Tier 3: Itens caros (100 <= valor < 250)
+  itens_tier_3 AS (SELECT id, durabilidade FROM itens_base WHERE valor >= 100 AND valor < 250),
+  -- Tier 4: Itens únicos e muito caros (valor >= 250)
+  itens_tier_4 AS (SELECT id, durabilidade FROM itens_base WHERE valor >= 250),
+
+  -- =================================================================================
+  --         3. CRIAÇÃO DE INSTÂNCIAS E DISTRIBUIÇÃO NOS INVENTÁRIOS
+  -- =================================================================================
+  
+  -- Vendedor C1 (Gambireiro): 4 itens baratos, 1 médio
+  instancias_vendedor_c1 AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
+      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 4)
+      UNION ALL
+      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 1)
+      RETURNING id
+  ),
+  link_inv_c1 AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      SELECT (SELECT id FROM inv_vendedor_C1), id FROM instancias_vendedor_c1
+  ),
+
+  -- Vendedor C2 (Negociadora): 3 itens baratos, 2 médios
+  instancias_vendedor_c2 AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
+      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 3)
+      UNION ALL
+      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 2)
+      RETURNING id
+  ),
+  link_inv_c2 AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      SELECT (SELECT id FROM inv_vendedor_C2), id FROM instancias_vendedor_c2
+  ),
+
+  -- Vendedor C5 (Tradder): 2 itens baratos, 3 médios
+  instancias_vendedor_c5 AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
+      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 2)
+      UNION ALL
+      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 3)
+      RETURNING id
+  ),
+  link_inv_c5 AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      SELECT (SELECT id FROM inv_vendedor_C5), id FROM instancias_vendedor_c5
+  ),
+
+  -- Vendedor C6 (Pracista): 1 item barato, 3 médios, 1 caro
+  instancias_vendedor_c6 AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
+      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 1)
+      UNION ALL
+      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 3)
+      UNION ALL
+      (SELECT id, durabilidade FROM itens_tier_3 ORDER BY random() LIMIT 1)
+      RETURNING id
+  ),
+  link_inv_c6 AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      SELECT (SELECT id FROM inv_vendedor_C6), id FROM instancias_vendedor_c6
+  ),
+
+  -- Vendedor C10 (Refugiado): 5 itens baratos (vendedor desesperado)
+  instancias_vendedor_c10 AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
+      (SELECT id, durabilidade FROM itens_tier_1 ORDER BY random() LIMIT 5)
+      RETURNING id
+  ),
+  link_inv_c10 AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      SELECT (SELECT id FROM inv_vendedor_C10), id FROM instancias_vendedor_c10
+  ),
+
+  -- Vendedor C9 (Refugiada): 2 médios, 2 caros
+  instancias_vendedor_c9 AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
+      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 2)
+      UNION ALL
+      (SELECT id, durabilidade FROM itens_tier_3 ORDER BY random() LIMIT 2)
+      RETURNING id
+  ),
+  link_inv_c9 AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      SELECT (SELECT id FROM inv_vendedor_C9), id FROM instancias_vendedor_c9
+  ),
+
+  -- Vendedor C11 (Mauricio o vendedor): 1 médio, 3 caros, 1 único
+  instancias_vendedor_c11 AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade)
+      (SELECT id, durabilidade FROM itens_tier_2 ORDER BY random() LIMIT 1)
+      UNION ALL
+      (SELECT id, durabilidade FROM itens_tier_3 ORDER BY random() LIMIT 3)
+      UNION ALL
+      (SELECT id, durabilidade FROM itens_tier_4 ORDER BY random() LIMIT 1)
+      RETURNING id
+  ),
+  link_inv_c11 AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancia_de_item)
+      SELECT (SELECT id FROM inv_vendedor_C11), id FROM instancias_vendedor_c11
   )
-SELECT 1;
+
+-- A seleção final apenas confirma que o script foi executado.
+SELECT 'Criação de NPCs e distribuição de itens concluída com sucesso.' AS resultado;
 
 
 -- ===============================================

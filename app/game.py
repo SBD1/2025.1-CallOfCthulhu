@@ -4,7 +4,6 @@ import sys
 from classes import Player # Agora importamos apenas Player
 from database import DataBase
 # import time # Importa o módulo time para usar time.sleep()
-# import time # Importa o módulo time para usar time.sleep()
 
 def clear():
     """Limpa a tela do terminal."""
@@ -42,6 +41,82 @@ class Game:
         self.db = DataBase()
         self.player = None
 
+    def buy_item_flow(self):
+        """
+        Gerencia o fluxo de interação para comprar um item de um NPC.
+        Esta função só será chamada se o jogador estiver em um corredor.
+        """
+        clear()
+        print("--- Comprar Itens ---")
+
+        # 1. Encontrar NPCs no local
+        npcs_no_local = self.db.get_npcs_in_location(self.player.id_local)
+        if not npcs_no_local:
+            print("Não há ninguém com quem negociar aqui.")
+            return
+
+        print("Com quem você gostaria de negociar?")
+        for i, npc in enumerate(npcs_no_local):
+            print(f"  [{i + 1}] {npc['nome'].strip()} ({npc['ocupacao'].strip()})")
+        print("  [0] Voltar")
+
+        # 2. Escolher o NPC
+        try:
+            escolha_npc = int(input("> ").strip())
+            if escolha_npc == 0:
+                return
+            if not (1 <= escolha_npc <= len(npcs_no_local)):
+                print("Escolha inválida.")
+                return
+
+            npc_selecionado = npcs_no_local[escolha_npc - 1]
+            id_npc = npc_selecionado['id']
+            clear()
+
+        except ValueError:
+            print("Entrada inválida.")
+            return
+
+        # 3. Listar itens do NPC
+        inventario_npc = self.db.get_npc_inventory(id_npc)
+        if not inventario_npc:
+            print(f"{npc_selecionado['nome'].strip()} não tem nada para vender.")
+            return
+
+        print(f"--- Itens à venda por {npc_selecionado['nome'].strip()} ---")
+        for i, item in enumerate(inventario_npc):
+            print(f"  [{i + 1}] {item['nome'].strip()} - Preço: {item['valor']} - (Durabilidade: {item['durabilidade']})")
+        print("  [0] Voltar")
+
+        # 4. Escolher o item
+        try:
+            escolha_item = int(input("> ").strip())
+            if escolha_item == 0:
+                return
+            if not (1 <= escolha_item <= len(inventario_npc)):
+                print("Escolha inválida.")
+                return
+
+            item_a_comprar = inventario_npc[escolha_item - 1]
+
+            # Confirmação da compra
+            confirm = input(f"Comprar {item_a_comprar['nome'].strip()} por {item_a_comprar['valor']}? (s/n): ").lower()
+            if confirm != 's':
+                print("Compra cancelada.")
+                return
+
+            # 5. Executar a compra
+            id_instancia_item = item_a_comprar['id_instancia_item']
+            valor_pago = item_a_comprar['valor'] 
+
+            resultado = self.db.buy_item_from_npc(self.player.id_jogador, id_npc, id_instancia_item, valor_pago)
+
+            print(f"\n{resultado}")
+
+        except ValueError:
+            print("Entrada inválida.")
+            return
+
     def create_new_character_flow(self):
         # clear()
         print("--- Criação de Novo Personagem ---")
@@ -52,17 +127,8 @@ class Game:
             return
 
         ocupacoes = [
-            "Medico",
-            "Doutor",
-            "Arqueologo",
-            "Detetive",
-            "Jornalista",
-            "Professor",
-            "Engenheiro",
-            "Artista",
-            "Soldado",
-            "Explorador"
-            # demais ocupacoes podem ser adicionadas aqui
+            "Medico", "Doutor", "Arqueologo", "Detetive", "Jornalista",
+            "Professor", "Engenheiro", "Artista", "Soldado", "Explorador"
         ]
         print("\nEscolha a ocupacao do seu personagem:")
         for index, ocupacao in enumerate(ocupacoes, 1):
@@ -85,7 +151,6 @@ class Game:
         new_local_nascimento = input('Digite o local de nascimento do seu personagem: ').strip()
         if not new_local_nascimento: print('Local de nascimento invalido!'); return
 
-        # --- Loop para Idade ---
         new_idade = None
         while new_idade is None:
             idade_input = input('Digite a idade do seu personagem: ').strip()
@@ -98,7 +163,6 @@ class Game:
             except ValueError:
                 print(f"Entrada invalida: '{idade_input}'. Por favor, digite um numero para a idade.")
 
-        # --- Loop para Sexo ---
         new_sexo = None
         while new_sexo is None:
             sexo_input = input('Digite o sexo do seu personagem (masculino/feminino): ').strip().lower()
@@ -107,14 +171,9 @@ class Game:
             else:
                 print(f"Sexo invalido: '{sexo_input}'. Por favor, digite 'masculino' ou 'feminino'.")
 
-        # Tenta criar o personagem no banco de dados
         new_player_id = self.db.create_new_character(
-            nome=new_name,
-            ocupacao=new_ocupacao,
-            residencia=new_residencia,
-            local_nascimento=new_local_nascimento,
-            idade=new_idade,
-            sexo=new_sexo
+            nome=new_name, ocupacao=new_ocupacao, residencia=new_residencia,
+            local_nascimento=new_local_nascimento, idade=new_idade, sexo=new_sexo
         )
 
         if new_player_id:
@@ -125,7 +184,7 @@ class Game:
                 print(f"Bem-vindo(a) ao mundo, {self.player.nome}!")
                 self.gameplay()
             else:
-                print("Erro ao carregar o personagem recem-criado. Tente carregar manualmente pelo menu.")
+                print("Erro ao carregar o personagem recem-criado. Tente carregar manually pelo menu.")
                 self.start()
         else:
             print("Falha na criacao do personagem. Verifique se o nome ja existe ou outros erros.")
@@ -168,7 +227,7 @@ class Game:
     def start(self):
         """Exibe o menu inicial e gerencia as opcoes do usuario."""
         while True:
-            # clear() # Limpa a tela a cada exibição do menu
+            # clear() 
             print('\n--- Chamado de Cthulhu ---')
             print('Bem-vindo ao jogo! \n')
             print('1 - Criar Personagem')
@@ -207,17 +266,14 @@ class Game:
             detalhes_local = self.db.get_local_details_and_exits(self.player.id_local)
 
             if not detalhes_local:
-                # Agora, o ID é simplesmente self.player.id_local, não id_sala ou id_corredor
                 print(f"Erro: Nao foi possivel carregar os detalhes do local ID: {self.player.id_local}")
-                return self.start() # Volta ao menu inicial se o local nao for encontrado
+                return self.start() 
 
             # 2. Mostra o status atual
             # clear()
             print("==================================================")
-            # Usa o tipo_local diretamente do BD (ex: 'Sala' ou 'Corredor')
             print(f"Voce esta em um(a) {detalhes_local['tipo_local']}: {detalhes_local['descricao']}")
             
-            # Se for um corredor, pode mostrar o status dele
             if detalhes_local['tipo_local'].lower() == 'corredor' and detalhes_local['status'] is not None:
                 print(f"Status do Corredor: {'Ativo' if detalhes_local['status'] else 'Inativo'}")
             
@@ -231,22 +287,39 @@ class Game:
                 continue
 
             for i, saida in enumerate(saidas):
-                # Usa tipo_destino para dizer se vai para uma Sala ou Corredor
                 print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']}): {saida['desc_saida']}")
 
-            # 3. Pede a acao do jogador
-            print("\nO que voce deseja fazer? ('ficha', 'inventario', 'sair')")
+            # 3. Pede a acao do jogador com base no local
+            acoes_disponiveis = ['ficha', 'inventario']
+            
+            # REGRA: A opção 'comprar' só aparece se o jogador estiver em um corredor.
+            if detalhes_local['tipo_local'].lower() == 'corredor':
+                acoes_disponiveis.append('comprar')
+            
+            acoes_disponiveis.append('sair')
+            
+            print(f"\nO que voce deseja fazer? ({', '.join(acoes_disponiveis)})")
             escolha = input("> ").strip().lower()
 
+            if escolha not in acoes_disponiveis:
+                # Se o jogador digitar um número para se mover, o código mais abaixo cuidará disso.
+                # Se for um comando inválido (nem número, nem ação da lista), ele será pego no final.
+                pass
+            
             if escolha == 'sair':
                 break
             elif escolha == 'ficha':
-                # id_jogador eh o nome correto do atributo no objeto Player
                 self.db.get_ficha_personagem(self.player.id_jogador) 
                 input("\nPressione Enter para continuar...")
                 continue
             elif escolha == 'inventario':
                 print("Nao implementado ainda")
+                input("\nPressione Enter para continuar...")
+                continue
+            elif escolha == 'comprar':
+                # Esta opção só será escolhida se o jogador estiver em um corredor,
+                # pois só então ela é adicionada à lista de `acoes_disponiveis`.
+                self.buy_item_flow()
                 input("\nPressione Enter para continuar...")
                 continue
             
@@ -257,9 +330,7 @@ class Game:
                     saida_escolhida = saidas[escolha_num]
                     novo_local_id = saida_escolhida['id_saida']
 
-                    # Apenas atualiza o id_local do jogador no banco de dados
                     self.db.update_localizacao_jogador(self.player.id_jogador, novo_local_id)
-                    # Atualiza o id_local do jogador no objeto Player em memoria
                     self.player.id_local = novo_local_id 
 
                 else:

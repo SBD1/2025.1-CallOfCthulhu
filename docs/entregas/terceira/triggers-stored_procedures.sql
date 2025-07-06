@@ -870,5 +870,80 @@ CREATE TRIGGER trigger_bloqueia_insert_magicos
     BEFORE INSERT ON public.magicos 
     FOR EACH ROW 
     EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
+/*
+=================================================================================
+        6. FUNÇÕES DE TRANSAÇÃO (COMPRA/TRANSFERÊNCIA)
+=================================================================================
+*/
 
+-- =================================================================================
+--         6.1.  STORED PROCEDURE PARA TRANSFERIR ITEM DO NPC PARA O PJ
+-- =================================================================================
 
+CREATE OR REPLACE FUNCTION public.sp_comprar_item_do_npc(
+    p_id_personagem_jogavel public.id_personagem_jogavel,
+    p_id_npc public.id_personagem_npc,
+    p_id_instancia_item public.id_instancia_de_item
+    -- O parâmetro p_valor_pago foi removido
+)
+RETURNS TEXT
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_id_inventario_npc public.id_inventario;
+    v_id_inventario_pj public.id_inventario;
+    v_valor_item SMALLINT;
+    v_ouro_jogador INTEGER;
+BEGIN
+    -- ... (as validações iniciais de existência de PJ, NPC e item continuam as mesmas) ...
+    
+    -- Valida se o PJ e o NPC existem
+    IF NOT EXISTS (SELECT 1 FROM public.personagens_jogaveis WHERE id = p_id_personagem_jogavel) THEN
+        RAISE EXCEPTION 'COMPRA FALHOU: Personagem com ID % não encontrado.', p_id_personagem_jogavel;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM public.npcs WHERE id = p_id_npc) THEN
+        RAISE EXCEPTION 'COMPRA FALHOU: NPC com ID % não encontrado.', p_id_npc;
+    END IF;
+
+    -- Obtém o valor do item
+    SELECT i.valor INTO v_valor_item
+    FROM public.itens i
+    JOIN public.instancias_de_itens ii ON i.id = ii.id_item
+    WHERE ii.id = p_id_instancia_item;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'COMPRA FALHOU: Item com instância ID % não encontrado.', p_id_instancia_item;
+    END IF;
+
+    -- =================== NOVA LÓGICA DE PAGAMENTO ===================
+    -- Verifica se o jogador tem ouro suficiente
+    SELECT ouro INTO v_ouro_jogador FROM public.personagens_jogaveis WHERE id = p_id_personagem_jogavel;
+    
+    IF v_ouro_jogador < v_valor_item THEN
+        RAISE EXCEPTION 'COMPRA FALHOU: Ouro insuficiente. Você tem %, mas o item custa %.', v_ouro_jogador, v_valor_item;
+    END IF;
+
+    -- ... (a validação de espaço no inventário continua a mesma) ...
+
+    -- =================== EXECUÇÃO DA TRANSFERÊNCIA ===================
+
+    -- 1. Remove o item do inventário do NPC
+    DELETE FROM public.inventarios_possuem_instancias_item
+    WHERE id_inventario = (SELECT inventario FROM public.npcs WHERE id = p_id_npc)
+      AND id_instancias_de_item = p_id_instancia_item;
+
+    -- 2. Adiciona o item ao inventário do PJ
+    INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+    VALUES ((SELECT id_inventario FROM public.personagens_jogaveis WHERE id = p_id_personagem_jogavel), p_id_instancia_item);
+
+    -- 3. Transfere o ouro
+    -- Tira ouro do jogador
+    UPDATE public.personagens_jogaveis SET ouro = ouro - v_valor_item WHERE id = p_id_personagem_jogavel;
+    -- Dá ouro para o NPC
+    UPDATE public.npcs SET ouro = ouro + v_valor_item WHERE id = p_id_npc;
+
+    RETURN 'Compra realizada com sucesso! ' || v_valor_item || ' de ouro foram pagos.';
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE; -- Re-lança a exceção para que a transação seja desfeita e a mensagem de erro apareça
+END;
+$$;

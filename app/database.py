@@ -343,7 +343,70 @@ class DataBase:
             'status': local_data['status'], 
             'saidas': full_saidas
         }
+    
+    def get_npcs_in_location(self, local_id: int):
+        """
+        Retorna uma lista de NPCs que estão em um determinado local.
+        """
+        query = "SELECT id, nome, ocupacao FROM public.npcs WHERE id_local = %s;"
+        npcs = self._execute_query(query, (local_id,), fetch_all=True)
+        return npcs if npcs else []
 
+    def get_npc_inventory(self, id_npc: int):
+        """
+        Retorna o inventário de um NPC específico.
+        A query é baseada na consulta de inventário do DQL.
+        """
+        # Esta query é uma adaptação da consulta de inventário do seu arquivo dql.sql
+        query = """
+        SELECT
+            ii.id AS id_instancia_item,
+            it.nome,
+            it.descricao,
+            it.valor,
+            ii.durabilidade
+        FROM
+            public.npcs n
+        JOIN
+            public.inventarios_possuem_instancias_item ipii ON n.inventario = ipii.id_inventario
+        JOIN
+            public.instancias_de_itens ii ON ipii.id_instancias_de_item = ii.id
+        JOIN
+            public.itens it ON ii.id_item = it.id
+        WHERE
+            n.id = %s;
+        """
+        inventory = self._execute_query(query, (id_npc,), fetch_all=True)
+        return inventory if inventory else []
+
+    # Em database.py
+def buy_item_from_npc(self, id_jogador: int, id_npc: int, id_instancia_item: int):
+    """
+    Chama a Stored Procedure para comprar um item de um NPC.
+    A procedure agora usa a coluna 'ouro' e não precisa mais do parâmetro de valor.
+    """
+    try:
+        query = "SELECT public.sp_comprar_item_do_npc(%s, %s, %s);" # Removido o 4º parâmetro
+        params = (id_jogador, id_npc, id_instancia_item)
+        
+        result = self._execute_query(query, params, fetch_one=True)
+
+        if result and 'sp_comprar_item_do_npc' in result:
+            return result['sp_comprar_item_do_npc']
+        else:
+            return "Falha ao executar a compra. A procedure não retornou uma mensagem."
+
+    except Exception as e:
+        print(f"Erro inesperado na camada de banco de dados: {e}")
+        # A mensagem de erro da procedure virá no corpo da exceção
+        # Extrair a mensagem de erro do objeto de exceção do psycopg2
+        error_message = str(e)
+        detail_prefix = "DETAIL:"
+        if detail_prefix in error_message:
+             # Retorna a mensagem de erro customizada da procedure
+            return error_message.split(detail_prefix)[0].replace("psycopg2.errors.RaiseException: ", "").strip()
+        return "Ocorreu um erro desconhecido durante a transação."
+    
 # --- Bloco de Teste para o Modelo Básico ---
 if __name__ == "__main__":
     db = None 

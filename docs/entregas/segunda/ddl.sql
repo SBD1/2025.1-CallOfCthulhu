@@ -110,8 +110,12 @@ Descrição: Refatoração completa do modelo de herança de itens e correção 
 - Adição do valor 'magico' ao domínio 'tipo_item' para suportar itens mágicos.
 - Remoção da chave estrangeira incorreta da tabela 'magicos' que apontava para 'tipos_feitico'.
 Autores: João Marcos, Luiz Guilherme
-*/
 
+Versão: 1.6
+Data: 05/07/2025
+Descrição: Adição de inventário nos npcs e do atributo ouro no personagem_jogavel
+Autores: João Marcos, Luiz Guilherme
+*/
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public;
 
@@ -1122,6 +1126,7 @@ CREATE TABLE public.personagens_jogaveis(
     ocupacao public.ocupacao NOT NULL,
     residencia public.residencia NOT NULL,
     local_nascimento public.local_nascimento NOT NULL,
+    ouro INTEGER NOT NULL DEFAULT 100,
 
     idade public.idade DEFAULT 18 NOT NULL,
     sexo public.sexo NOT NULL,
@@ -1187,7 +1192,8 @@ CREATE TABLE public.npcs(
     local_nascimento public.local_nascimento DEFAULT 'arkham' NOT NULL,
 
     -- FOREIGN KEYS
-    id_local public.id_local
+    id_local public.id_local,
+    inventario public.id_inventario DEFAULT null
     -- id_tipo_personagem public.id NOT NULL
 );
 
@@ -1552,6 +1558,11 @@ ALTER TABLE public.npcs
 ADD CONSTRAINT fk_npcs_salas 
     FOREIGN KEY (id_local) 
     REFERENCES public.local (id);
+
+ALTER TABLE public.npcs 
+ADD CONSTRAINT fk_npcs_inventario 
+    FOREIGN KEY (inventario) 
+    REFERENCES public.inventarios (id);
 
 /*
 
