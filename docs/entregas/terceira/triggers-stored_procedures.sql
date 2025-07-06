@@ -67,6 +67,11 @@ DATA: 05/07/2025
 AUTOR: Wanjo Christopher
 DESCRIÇÃO: Cria triggers, stored procedures e functions para itens consumíveis (cura e mágicos) e feitiços.
 
+VERSÃO: 0.14
+DATA: 06/07/2025
+AUTOR: Luiz Guilherme
+DESCRIÇÃO: Cria o stored procedure para movimentar os monstros de local.
+
 
 */
 -- -- ===============================================================================
@@ -1078,7 +1083,7 @@ $$;
 --        8. STORED PROCEDURE PARA ADICIONAR ITEM EM INVENTÁRIO
 --===============================================================================
 
-CREATE OR REPLACE FUNCTION public.sp_adicionar_item_ao_inventario(
+CREATE FUNCTION public.sp_adicionar_item_ao_inventario(
     p_jogador_id public.id_personagem,
     p_instancia_item_id public.id_instancia_de_item
 )
@@ -1136,7 +1141,7 @@ $$;
 --        9. STORED PROCEDURE PARA VER O INVENTÁRIO
 --===============================================================================
 
-CREATE OR REPLACE FUNCTION public.sp_ver_inventario(
+CREATE FUNCTION public.sp_ver_inventario(
     p_jogador_id public.id_personagem
 )
 RETURNS TABLE (
@@ -1194,7 +1199,7 @@ $$;
 --        10. STORED PROCEDURE PARA ENCONTRAR MONSTROS NO LOCAL
 --===============================================================================
 
-CREATE OR REPLACE FUNCTION public.sp_encontrar_monstros_no_local(
+CREATE FUNCTION public.sp_encontrar_monstros_no_local(
     p_local_id public.id_local
 )
 RETURNS TABLE (
@@ -1245,7 +1250,7 @@ $$;
 
 -- Somente para testes do banco
 
-CREATE OR REPLACE FUNCTION public.sp_matar_monstros_no_local(
+CREATE FUNCTION public.sp_matar_monstros_no_local(
     p_local_id public.id_local
 )
 RETURNS INTEGER -- Retorna o número de monstros "mortos"
@@ -1278,3 +1283,42 @@ EXCEPTION
 END;
 $$;
 
+--===============================================================================
+--        12. STORED PROCEDURE PARA MOVIMENTAR OS MONSTROS AUTOMATICAMENTE
+--===============================================================================
+
+/*
+A stored procedure sp_movimentar_monstros seleciona um vetor com todos os locais do tipo sala
+e itera sobre cada instância de monstro mudando o seu local para um dos locais do 
+vetor de salas
+*/
+
+CREATE FUNCTION public.sp_movimentar_monstros()
+RETURNS VOID AS $$
+DECLARE
+    r_monster RECORD;
+    v_new_local_id public.id_local;
+    v_sala_ids public.id_local[];
+BEGIN
+    -- Obter todos os IDs de locais que são 'Sala'
+    SELECT ARRAY(SELECT id FROM public.local WHERE tipo_local = 'Sala') INTO v_sala_ids;
+
+    IF v_sala_ids IS NULL OR array_length(v_sala_ids, 1) = 0 THEN
+        RAISE NOTICE 'Nenhuma sala encontrada para movimentar monstros.';
+        RETURN;
+    END IF;
+
+    -- Iterar sobre cada instância de monstro
+    FOR r_monster IN SELECT id FROM public.instancias_monstros LOOP
+        -- Selecionar um ID de sala aleatoriamente
+        v_new_local_id := v_sala_ids[floor(random() * array_length(v_sala_ids, 1)) + 1];
+
+        -- Atualizar a localização do monstro
+        UPDATE public.instancias_monstros
+        SET id_local = v_new_local_id
+        WHERE id = r_monster.id;
+    END LOOP;
+
+    RAISE NOTICE 'Monstros movimentados para novas salas.';
+END;
+$$ LANGUAGE plpgsql;
