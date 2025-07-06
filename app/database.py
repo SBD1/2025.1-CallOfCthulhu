@@ -26,7 +26,7 @@ class DataBase:
         try:
             conn = psycopg2.connect(
                 host="localhost",
-                database="call_of_chtulhu",  # Verifique o nome do seu banco de dados
+                database="call_of_cthulhu",  # Verifique o nome do seu banco de dados
                 user="postgres",
                 password="postgres",
                 port=5431  # Verifique a porta. O padrão é 5432.
@@ -169,7 +169,16 @@ class DataBase:
 
             # CORREÇÃO: Chamando a stored procedure 'sp_criar_personagem_jogavel' que é a correta.
             # A passagem de parâmetros foi simplificada para corresponder à forma como o psycopg2 lida com tipos.
-            query = "SELECT public.sp_criar_personagem_jogavel(%s, %s, %s, %s, %s, %s);"
+            query = """
+                SELECT public.sp_criar_personagem_jogavel(
+                    %s::public.nome, 
+                    %s::public.ocupacao, 
+                    %s::public.residencia, 
+                    %s::public.local_nascimento, 
+                    %s::public.idade, 
+                    %s::public.sexo
+                );
+            """
 
             params = (
                 nome,
