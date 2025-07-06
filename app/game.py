@@ -213,15 +213,13 @@ class Game:
 
     def start_monster_movement_scheduler(self):
         """Inicia o agendador de movimento de monstros em uma thread separada."""
-        # Agendar a execução da função a cada 30 segundos (para teste) ou 5 minutos (para jogo real)
-        schedule.every(30).seconds.do(self._run_monster_movement_task) # Alterado para 30 segundos para facilitar o teste
+        # Agendar a execução da função a cada 60 segundos (para teste) ou 5 minutos (para jogo real)
+        schedule.every(60).seconds.do(self._run_monster_movement_task) # Alterado para 60 segundos para facilitar o teste
 
         # Inicia a thread do agendador
         self.scheduler_thread = threading.Thread(target=self._scheduler_loop, daemon=True)
         self.scheduler_thread.start()
         print("Agendador de movimento de monstros iniciado em segundo plano.")
-
-
 
     def gameplay(self):
         if not self.player:

@@ -72,6 +72,10 @@ DATA: 06/07/2025
 AUTOR: Luiz Guilherme
 DESCRIÇÃO: Cria o stored procedure para movimentar os monstros de local.
 
+VERSÃO: 0.15
+DATA: 06/07/2025
+AUTOR: Luiz Guilherme
+DESCRIÇÃO: Corrige bugs da função encontrar monstros.
 
 */
 -- -- ===============================================================================
@@ -175,7 +179,6 @@ DROP FUNCTION IF EXISTS public.sp_adicionar_item_ao_inventario(public.id_persona
 DROP FUNCTION IF EXISTS public.sp_ver_inventario(public.id_personagem) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_encontrar_monstros_no_local(public.id_local) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_matar_monstros_no_local(public.id_local) CASCADE;
-
 
 -- =================================================================================
 --         1. REGRAS GERAIS DE PERSONAGENS
@@ -1199,7 +1202,7 @@ $$;
 --        10. STORED PROCEDURE PARA ENCONTRAR MONSTROS NO LOCAL
 --===============================================================================
 
-CREATE FUNCTION public.sp_encontrar_monstros_no_local(
+CREATE OR REPLACE FUNCTION public.sp_encontrar_monstros_no_local(
     p_local_id public.id_local
 )
 RETURNS TABLE (
@@ -1211,36 +1214,53 @@ RETURNS TABLE (
     vida_atual SMALLINT,
     vida_total SMALLINT,
     defesa SMALLINT
-    -- Mais atributos do monstro podem ser adicionados caso necessario
 )
 LANGUAGE plpgsql AS $$
 BEGIN
-    -- Retorna todas as instâncias de monstros que estão atualmente no local especificado com uma consulta
     RETURN QUERY
+    -- Primeiro, busca todos os monstros AGRESSIVOS no local
     SELECT
         im.id AS instancia_monstro_id,
-        m.id AS monstro_base_id,
-        m.nome AS monstro_nome,
-        m.descricao AS monstro_descricao,
-        m.tipo AS monstro_tipo,
-        im.vida AS vida_atual, -- <--- Coluna 'vida' da instância do monstro
-        COALESCE(a.vida_total, p.vida_total) AS vida_total, -- Vida total base do tipo de monstro
-        COALESCE(a.defesa, p.defesa) AS defesa
+        im.id_monstro AS monstro_base_id,
+        a.nome AS monstro_nome,
+        a.descricao AS monstro_descricao,
+        'agressivo'::public.tipo_monstro,
+        im.vida AS vida_atual,
+        a.vida_total,
+        a.defesa
     FROM
         public.instancias_monstros im
+    -- Usa INNER JOIN para garantir para pegar apenas os monstros que existem na tabela de agressivos
     JOIN
-        public.monstros m ON im.id_monstro = m.id
-    LEFT JOIN
-        public.agressivos a ON m.id = a.id AND m.tipo = 'agressivo'
-    LEFT JOIN
-        public.pacificos p ON m.id = p.id AND m.tipo = 'pacifico'
+        public.agressivos a ON im.id_monstro = a.id
+    WHERE
+        im.id_local = p_local_id
+
+    UNION ALL
+
+    -- Depois, busca todos os monstros PACÍFICOS no local
+    SELECT
+        im.id AS instancia_monstro_id,
+        im.id_monstro AS monstro_base_id,
+        p.nome AS monstro_nome,
+        p.descricao AS monstro_descricao,
+        'pacífico'::public.tipo_monstro,
+        im.vida AS vida_atual,
+        p.vida_total,
+        p.defesa
+    FROM
+        public.instancias_monstros im
+    -- Usa INNER JOIN para garantir para pegar os monstros que existem na tabela de pacíficos
+    JOIN
+        public.pacificos p ON im.id_monstro = p.id
     WHERE
         im.id_local = p_local_id;
 
 EXCEPTION
     WHEN OTHERS THEN
+        -- Este bloco ajuda a capturar erros inesperados durante a execução
         RAISE NOTICE 'Ocorreu um erro ao encontrar monstros no local %: %', p_local_id, SQLERRM;
-        RETURN; -- Retorna um conjunto vazio em caso de erro
+        RETURN;
 END;
 $$;
 

@@ -578,13 +578,13 @@ CREATE DOMAIN public.funcao_magica AS CHARACTER(32)
 -- Pode ser alterado a qualquer momento para garantir que mais tuplas se comportem no dml
 CREATE DOMAIN public.gatilho_agressividade AS CHARACTER(32)
     CONSTRAINT gatilho_agressividade_check CHECK (
-        VALUE IN ('proximidade', 'ataque_direto', 'barulho_alto', 'alvo_especifico', 'horario_noturno', 'ver_item_sagrado')
+        VALUE IN ('proximidade', 'ataque_direto', 'barulho_alto', 'alvo_especifico', 'horario_noturno', 'ver_item_sagrado', 'despertar')
     );
 
 -- Pode ser alterado a qualquer momento para garantir que mais tuplas se comportem no dml
 CREATE DOMAIN public.comportamento_pacifico AS CHARACTER(32)
     CONSTRAINT comportamento_pacifico_check CHECK (
-        VALUE IN ('indiferente', 'medroso', 'amigavel', 'sob_controle_mental', 'adormecido', 'curioso')
+        VALUE IN ('indiferente', 'medroso', 'amigavel', 'sob_controle_mental', 'adormecido', 'curioso', 'observador')
     );
 
 
