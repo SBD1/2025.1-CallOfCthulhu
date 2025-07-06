@@ -40,7 +40,7 @@ Autor: Luiz Guilherme
 Versão: 0.8
 Data: 11/06/2025
 Descrição: Ajustando as tabelas CREATE DOMAIN public.tipo_personagem AS CHARACTER e CREATE DOMAIN public.sexo AS CHARACTER para varying e comentando a ultima chave estrangeira que e tipo personagem pois estava dando erro verificar depois.
-Autor: Christopher e João Marcos
+AUTOR: Wanjo Christopher e João Marcos
 
 Versão: 0.9
 Data: 12/06/2025
@@ -1165,8 +1165,8 @@ CREATE TABLE public.personagens_jogaveis(
     -- FOREIGN KEYS
     id_local public.id_local,  
     id_inventario public.id_inventario NOT NULL, 
-    id_armadura public.id_item_de_armadura, 
-    id_arma public.id_item_arma
+    id_armadura public.id_instancia_de_item, 
+    id_arma public.id_instancia_de_item
     -- id_tipo_personagem public.id NOT NULL
 
     /*
@@ -1521,7 +1521,7 @@ ADD CONSTRAINT fk_pj_inventario_instancia_arma
 ALTER TABLE public.personagens_jogaveis 
 ADD CONSTRAINT fk_pj_inventario_instancia_armadura 
     FOREIGN KEY (id_armadura) 
-    REFERENCES public.instancias_de_itens (id);
+    REFERENCES public.public.instancias_de_itens(id) (id);
 
 /*
 
