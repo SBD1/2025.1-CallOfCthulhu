@@ -946,8 +946,7 @@ SELECT
     (SELECT vida_total FROM public.agressivos WHERE nome = 'Verme Cadavérico'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde estantes de coral e algas%'),
     (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde estantes de coral e algas%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
-
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples')); 
 
 -- ===============================================
 
@@ -956,10 +955,12 @@ SELECT
 -- ===============================================
 
 -- Inserindo a batalha
+/*
 INSERT INTO public.batalhas (id_jogador, id_monstro)
 SELECT
     (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Samuel Carter'),
     (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.agressivos WHERE nome = 'Abominável Horror'));
+*/
 
 -- COMMIT; -- Finaliza a transação
 
@@ -1432,8 +1433,6 @@ SELECT public.sp_criar_monstro(
     p_pacifico_conhecimento_proibido    := 'Caminhos seguros entre os planetas'::CHARACTER(128)
 );
 
-
-
 -- Itens para testar os vendedores
 SELECT public.sp_criar_arma(
     p_nome                  => 'Cajado de Batalha'::public.nome,
@@ -1539,3 +1538,1434 @@ WITH
   )
 
 SELECT 'Distribuição direta de itens concluída com sucesso.' AS resultado;
+
+
+
+-- Criação de armas
+
+-- Arma 1: Bisturi Enferrujado
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Bisturi Enferrujado'::public.nome,
+    p_descricao             => 'Um instrumento cirúrgico preciso, agora manchado com ferrugem e algo mais sinistro. Perfeito para ataques rápidos e silenciosos.'::public.descricao,
+    p_valor                 => 15::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 8::SMALLINT,
+    p_durabilidade          => 40::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 4::public.dano
+);
+
+-- Arma 2: Pé de Cabra
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Pé de Cabra'::public.nome,
+    p_descricao             => 'Ferramenta robusta, ideal para forçar portas e, em uma emergência, crânios. O peso do ferro oferece um impacto considerável.'::public.descricao,
+    p_valor                 => 10::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 10::SMALLINT,
+    p_durabilidade          => 200::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 6::public.dano
+);
+
+-- Arma 3: Garrucha de Bolso
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Garrucha de Bolso'::public.nome,
+    p_descricao             => 'Uma pequena pistola de dois canos, fácil de esconder, mas lenta para recarregar. Seu poder de parada a curta distância é surpreendente.'::public.descricao,
+    p_valor                 => 35::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 9::SMALLINT,
+    p_durabilidade          => 60::SMALLINT,
+    p_funcao                => 'disparo_unico'::public.funcao_arma,
+    p_alcance               => 8::SMALLINT,
+    p_tipo_municao          => 'baixo-calibre'::public.tipo_municao,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 8::public.dano
+);
+
+-- Arma 4: Estilete Ritualístico
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Estilete Ritualístico'::public.nome,
+    p_descricao             => 'Uma adaga ornamentada com símbolos profanos. A lâmina parece vibrar com uma energia maligna, causando feridas que demoram a cicatrizar.'::public.descricao,
+    p_valor                 => 80::SMALLINT,
+    p_atributo_necessario   => 'poder'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 12::SMALLINT,
+    p_durabilidade          => 55::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 5::public.dano
+);
+
+-- Arma 5: Lança Improvisada
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Lança Improvisada'::public.nome,
+    p_descricao             => 'Um cano de ferro afiado em uma das pontas. Rústica, mas eficaz para manter os horrores a uma distância segura.'::public.descricao,
+    p_valor                 => 5::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 9::SMALLINT,
+    p_durabilidade          => 120::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 3::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 7::public.dano
+);
+
+-- Arma 6: Frasco de Ácido
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Frasco de Ácido'::public.nome,
+    p_descricao             => 'Um frasco de vidro contendo um líquido corrosivo. Deve ser arremessado com cuidado para não se tornar a vítima.'::public.descricao,
+    p_valor                 => 25::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 7::SMALLINT,
+    p_durabilidade          => 1::SMALLINT,
+    p_funcao                => 'arremesso'::public.funcao_arma,
+    p_alcance               => 6::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'area'::public.tipo_dano,
+    p_dano                  => 10::public.dano
+);
+
+-- Arma 7: Espingarda de Caça
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Espingarda de Caça'::public.nome,
+    p_descricao             => 'Uma espingarda de cano duplo, confiável e devastadora a curta distância. O som de seu disparo ecoa como um trovão.'::public.descricao,
+    p_valor                 => 60::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 11::SMALLINT,
+    p_durabilidade          => 100::SMALLINT,
+    p_funcao                => 'disparo_unico'::public.funcao_arma,
+    p_alcance               => 10::SMALLINT,
+    p_tipo_municao          => 'alto-calibre'::public.tipo_municao,
+    p_tipo_dano             => 'area'::public.tipo_dano,
+    p_dano                  => 12::public.dano
+);
+
+-- Arma 8: Soco Inglês
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Soco Inglês'::public.nome,
+    p_descricao             => 'Anéis de metal que transformam um soco fraco em uma fratura exposta. Discreto e brutal.'::public.descricao,
+    p_valor                 => 8::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_durabilidade          => 250::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 3::public.dano
+);
+
+-- Arma 9: Machado de Incêndio
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Machado de Incêndio'::public.nome,
+    p_descricao             => 'Pesado e desajeitado para um combate rápido, mas cada golpe é capaz de quebrar ossos e madeira com a mesma facilidade.'::public.descricao,
+    p_valor                 => 20::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 12::SMALLINT,
+    p_durabilidade          => 180::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 9::public.dano
+);
+
+-- Arma 10: Thompson M1928 (Tommy Gun)
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Thompson M1928'::public.nome,
+    p_descricao             => 'Uma submetralhadora icônica, famosa por seu tambor característico e sua impressionante cadência de tiro. Controlá-la exige força e perícia.'::public.descricao,
+    p_valor                 => 250::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 13::SMALLINT,
+    p_durabilidade          => 150::SMALLINT,
+    p_funcao                => 'disparo_rajada'::public.funcao_arma,
+    p_alcance               => 15::SMALLINT,
+    p_tipo_municao          => 'medio-calibre'::public.tipo_municao,
+    p_tipo_dano             => 'area'::public.tipo_dano,
+    p_dano                  => 15::public.dano
+);
+
+-- Arma 11: Chave Inglesa Pesada
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Chave Inglesa Pesada'::public.nome,
+    p_descricao             => 'Uma ferramenta de metal maciço, útil para consertos e para esmagar o que quer que se esconda nas sombras.'::public.descricao,
+    p_valor                 => 12::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 8::SMALLINT,
+    p_durabilidade          => 220::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 6::public.dano
+);
+
+-- Arma 12: Besta de Caça
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Besta de Caça'::public.nome,
+    p_descricao             => 'Uma arma silenciosa e letal, que dispara virotes de aço capazes de perfurar couro grosso. A recarga, no entanto, é um processo lento e tenso.'::public.descricao,
+    p_valor                 => 75::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 11::SMALLINT,
+    p_durabilidade          => 90::SMALLINT,
+    p_funcao                => 'disparo_unico'::public.funcao_arma,
+    p_alcance               => 20::SMALLINT,
+    p_tipo_municao          => 'virote'::public.tipo_municao,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 10::public.dano
+);
+
+-- Arma 13: Coquetel Molotov
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Coquetel Molotov'::public.nome,
+    p_descricao             => 'Uma garrafa de vidro cheia de líquido inflamável, com um pano servindo de pavio. Uma arma de desespero que incendeia uma área, perigosa para o alvo e para o usuário.'::public.descricao,
+    p_valor                 => 10::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 6::SMALLINT,
+    p_durabilidade          => 1::SMALLINT,
+    p_funcao                => 'arremesso'::public.funcao_arma,
+    p_alcance               => 5::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'area'::public.tipo_dano,
+    p_dano                  => 9::public.dano
+);
+
+-- Arma 14: Faca de Açougueiro
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Faca de Açougueiro'::public.nome,
+    p_descricao             => 'Larga, pesada e afiada. Projetada para cortar carne e ossos, sua aparência por si só é capaz de intimidar.'::public.descricao,
+    p_valor                 => 9::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 7::SMALLINT,
+    p_durabilidade          => 130::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 5::public.dano
+);
+
+-- Arma 15: Revólver .38 Special
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Revólver .38 Special'::public.nome,
+    p_descricao             => 'Um revólver de seis tiros, confiável e comum entre detetives e policiais. Um companheiro fiel nas vielas escuras da cidade.'::public.descricao,
+    p_valor                 => 50::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 8::SMALLINT,
+    p_durabilidade          => 110::SMALLINT,
+    p_funcao                => 'disparo_unico'::public.funcao_arma,
+    p_alcance               => 12::SMALLINT,
+    p_tipo_municao          => 'baixo-calibre'::public.tipo_municao,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 7::public.dano
+);
+
+-- Arma 16: Cassetete de Policial
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Cassetete de Policial'::public.nome,
+    p_descricao             => 'Um bastão de madeira de lei, pesado e resistente. Eficaz para subjugar ameaças... ou para quebrar-lhes os joelhos.'::public.descricao,
+    p_valor                 => 7::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_durabilidade          => 300::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 4::public.dano
+);
+
+-- Arma 17: Corrente de Ferro
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Corrente de Ferro'::public.nome,
+    p_descricao             => 'Um pedaço de corrente pesada e enferrujada. Pode ser usada para golpear à distância ou para enredar um adversário.'::public.descricao,
+    p_valor                 => 6::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 9::SMALLINT,
+    p_durabilidade          => 400::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 2::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 5::public.dano
+);
+
+-- Arma 18: Seringa com Sedativo
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Seringa com Sedativo'::public.nome,
+    p_descricao             => 'Uma dose potente de tranquilizante. Pode neutralizar um alvo humanoide sem matá-lo, mas a dosagem exata para criaturas profanas é desconhecida.'::public.descricao,
+    p_valor                 => 40::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 9::SMALLINT,
+    p_durabilidade          => 1::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'especial'::public.tipo_dano,
+    p_dano                  => 1::public.dano
+);
+
+-- Arma 19: Bastão de Dinamite
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Bastão de Dinamite'::public.nome,
+    p_descricao             => 'Instável e poderoso. Ideal para demolições ou para eliminar ameaças agrupadas. Acender o pavio curto é um ato de fé... ou de loucura.'::public.descricao,
+    p_valor                 => 100::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 7::SMALLINT,
+    p_durabilidade          => 1::SMALLINT,
+    p_funcao                => 'arremesso'::public.funcao_arma,
+    p_alcance               => 4::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'area'::public.tipo_dano,
+    p_dano                  => 20::public.dano
+);
+
+-- Arma 20: Rifle de Caça .30-06
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Rifle de Caça .30-06'::public.nome,
+    p_descricao             => 'Um rifle de ferrolho preciso e com grande poder de parada. Perfeito para abater alvos a longa distância, sejam eles cervos ou horrores indescritíveis.'::public.descricao,
+    p_valor                 => 120::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 12::SMALLINT,
+    p_durabilidade          => 130::SMALLINT,
+    p_funcao                => 'disparo_unico'::public.funcao_arma,
+    p_alcance               => 40::SMALLINT,
+    p_tipo_municao          => 'alto-calibre'::public.tipo_municao,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 14::public.dano
+);
+
+-- Arma 21: Florete de Esgrima
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Florete de Esgrima'::public.nome,
+    p_descricao             => 'Uma lâmina fina e flexível, projetada para estocadas rápidas e precisas. Requer mais técnica do que força bruta.'::public.descricao,
+    p_valor                 => 40::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 13::SMALLINT,
+    p_durabilidade          => 70::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 2::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 6::public.dano
+);
+
+-- Arma 22: Sinalizador Marítimo
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Sinalizador Marítimo'::public.nome,
+    p_descricao             => 'Uma pistola que dispara um cartucho luminoso. Usada para sinalização, mas em uma emergência, o projétil incandescente pode causar queimaduras terríveis.'::public.descricao,
+    p_valor                 => 30::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 6::SMALLINT,
+    p_durabilidade          => 25::SMALLINT,
+    p_funcao                => 'disparo_unico'::public.funcao_arma,
+    p_alcance               => 10::SMALLINT,
+    p_tipo_municao          => 'sinalizador'::public.tipo_municao,
+    p_tipo_dano             => 'especial'::public.tipo_dano,
+    p_dano                  => 5::public.dano
+);
+
+-- Arma 23: Arpão de Caça à Baleia
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Arpão de Caça à Baleia'::public.nome,
+    p_descricao             => 'Uma lança pesada com uma ponta farpada, projetada para penetrar a gordura espessa de leviatãs marinhos. Desajeitada, mas devastadora.'::public.descricao,
+    p_valor                 => 55::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 14::SMALLINT,
+    p_durabilidade          => 160::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 3::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 11::public.dano
+);
+
+-- Arma 24: Garrafa Quebrada
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Garrafa Quebrada'::public.nome,
+    p_descricao             => 'O recurso final de uma briga de bar. Seus cacos de vidro podem rasgar a carne de forma cruel. Se estilhaça facilmente.'::public.descricao,
+    p_valor                 => 1::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_durabilidade          => 5::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 4::public.dano
+);
+
+-- Arma 25: Pistola Luger P08
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Pistola Luger P08'::public.nome,
+    p_descricao             => 'Uma pistola semiautomática alemã, conhecida por sua precisão e design único. Uma arma de status e eficiência.'::public.descricao,
+    p_valor                 => 90::SMALLINT,
+    p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 10::SMALLINT,
+    p_durabilidade          => 120::SMALLINT,
+    p_funcao                => 'disparo_unico'::public.funcao_arma,
+    p_alcance               => 14::SMALLINT,
+    p_tipo_municao          => 'baixo-calibre'::public.tipo_municao,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 8::public.dano
+);
+
+-- Arma 26: Machadinha
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Machadinha'::public.nome,
+    p_descricao             => 'Uma ferramenta de lenhador, pequena o suficiente para ser usada com uma mão. Útil para quebrar portas ou ossos.'::public.descricao,
+    p_valor                 => 15::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 8::SMALLINT,
+    p_durabilidade          => 150::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 6::public.dano
+);
+
+-- Arma 27: Foice de Fazendeiro
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Foice de Fazendeiro'::public.nome,
+    p_descricao             => 'Uma longa lâmina curvada, feita para a colheita. Nas mãos erradas, torna-se uma arma assustadora com um alcance surpreendente.'::public.descricao,
+    p_valor                 => 10::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 10::SMALLINT,
+    p_durabilidade          => 100::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 2::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 7::public.dano
+);
+
+-- Arma 28: Picareta de Mineração
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Picareta de Mineração'::public.nome,
+    p_descricao             => 'Pesada e robusta, com uma ponta afiada projetada para quebrar rochas. Um golpe bem colocado pode perfurar quase qualquer coisa.'::public.descricao,
+    p_valor                 => 18::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 11::SMALLINT,
+    p_durabilidade          => 200::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 8::public.dano
+);
+
+-- Arma 29: Maça com Corrente (Mangual)
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Maça com Corrente (Mangual)'::public.nome,
+    p_descricao             => 'Uma relíquia brutal de tempos passados. Uma cabeça de metal com cravos, ligada a um cabo por uma corrente. Difícil de manusear, mas terrivelmente eficaz.'::public.descricao,
+    p_valor                 => 65::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_qtd_atributo_necessario => 13::SMALLINT,
+    p_durabilidade          => 140::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_pesada'::public.funcao_arma,
+    p_alcance               => 2::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 10::public.dano
+);
+
+-- Arma 30: Livro Pesado
+SELECT public.sp_criar_arma(
+    p_nome                  => 'Livro Pesado'::public.nome,
+    p_descricao             => 'Um tomo pesado, com capa de couro e possivelmente reforçado com metal. Inesperadamente eficaz como uma arma de contusão nas mãos de um estudioso desesperado.'::public.descricao,
+    p_valor                 => 5::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_durabilidade          => 50::SMALLINT,
+    p_funcao                => 'corpo_a_corpo_leve'::public.funcao_arma,
+    p_alcance               => 1::SMALLINT,
+    p_tipo_municao          => NULL,
+    p_tipo_dano             => 'unico'::public.tipo_dano,
+    p_dano                  => 3::public.dano
+);
+
+-- Criação de armaduras
+
+-- Armadura 1: Sobretudo de Detetive
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Sobretudo de Detetive'::public.nome,
+    p_descricao             => 'Um sobretudo pesado de lã, gasto pelo tempo e pela chuva. Oferece alguma proteção contra os elementos e golpes fortuitos.'::public.descricao,
+    p_valor                 => 40::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 100::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'constituicao'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 2: Chapéu Fedora
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Chapéu Fedora'::public.nome,
+    p_descricao             => 'Um chapéu de feltro elegante, mas manchado. Mais um item de estilo do que proteção, mas ajuda a manter a compostura.'::public.descricao,
+    p_valor                 => 15::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 40::SMALLINT,
+    p_funcao                => 'cabeca'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'aparencia'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Armadura 3: Botas de Trabalho Reforçadas
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Botas de Trabalho Reforçadas'::public.nome,
+    p_descricao             => 'Botas de couro com biqueira de aço, feitas para aguentar o trabalho pesado e longas caminhadas em terrenos hostis.'::public.descricao,
+    p_valor                 => 25::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_durabilidade          => 150::SMALLINT,
+    p_funcao                => 'pes'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 6::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 4: Vestes Cerimoniais
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Vestes Cerimoniais'::public.nome,
+    p_descricao             => 'Roupas de linho grosso, bordadas com símbolos que causam desconforto. Parecem canalizar energias profanas.'::public.descricao,
+    p_valor                 => 90::SMALLINT,
+    p_atributo_necessario   => 'poder'::public.tipo_atributo_personagem,
+    p_durabilidade          => 80::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 2::SMALLINT,
+    p_qtd_atributo_necessario => 10::SMALLINT,
+    p_tipo_atributo_recebe  => 'poder'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 5: Máscara Ritualística de Madeira
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Máscara Ritualística de Madeira'::public.nome,
+    p_descricao             => 'Uma máscara grotesca, esculpida em madeira escura. Esconde o rosto e inspira medo, mas sua rigidez oferece alguma proteção.'::public.descricao,
+    p_valor                 => 75::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 70::SMALLINT,
+    p_funcao                => 'cabeca'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'poder'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 6: Luvas de Couro de Motorista
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Luvas de Couro de Motorista'::public.nome,
+    p_descricao             => 'Luvas de couro fino que melhoram a aderência. Não oferecem muita proteção, mas são essenciais para um trabalho preciso.'::public.descricao,
+    p_valor                 => 20::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 50::SMALLINT,
+    p_funcao                => 'bracos'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Armadura 7: Perneiras de Couro Batido
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Perneiras de Couro Batido'::public.nome,
+    p_descricao             => 'Proteções de couro endurecido que cobrem as canelas. Usadas por trabalhadores rurais e aventureiros.'::public.descricao,
+    p_valor                 => 35::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 110::SMALLINT,
+    p_funcao                => 'pernas'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 8: Colete Acolchoado
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Colete Acolchoado'::public.nome,
+    p_descricao             => 'Um colete grosso, preenchido com algodão e couro, usado por baixo das roupas. Limita os movimentos, mas absorve bem o impacto.'::public.descricao,
+    p_valor                 => 60::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_durabilidade          => 130::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 8::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 2::SMALLINT
+);
+
+-- Armadura 9: Braceletes de Osso Amarelado
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Braceletes de Osso Amarelado'::public.nome,
+    p_descricao             => 'Braceletes feitos com ossos de animais desconhecidos, unidos por tiras de couro. Parecem sussurrar segredos arcanos.'::public.descricao,
+    p_valor                 => 85::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 60::SMALLINT,
+    p_funcao                => 'bracos'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'poder'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 10: Traje de Paciente de Sanatório
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Traje de Paciente de Sanatório'::public.nome,
+    p_descricao             => 'Roupas simples de algodão branco. Não oferece proteção física, mas o trauma associado a ele fortaleceu a mente contra horrores maiores.'::public.descricao,
+    p_valor                 => 5::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 20::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 2::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'sanidade'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Armadura 11: Jaqueta de Couro de Aviador
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Jaqueta de Couro de Aviador'::public.nome,
+    p_descricao             => 'Uma jaqueta de couro grossa, forrada com lã de ovelha. Oferece excelente proteção contra o frio e impactos moderados.'::public.descricao,
+    p_valor                 => 70::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 140::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 2::SMALLINT
+);
+
+-- Armadura 12: Ataduras de Múmia
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Ataduras de Múmia'::public.nome,
+    p_descricao             => 'Faixas de linho antigo, retiradas de um túmulo esquecido. Estão impregnadas com a poeira do tempo e sussurros do além.'::public.descricao,
+    p_valor                 => 150::SMALLINT,
+    p_atributo_necessario   => 'poder'::public.tipo_atributo_personagem,
+    p_durabilidade          => 75::SMALLINT,
+    p_funcao                => 'bracos'::funcao_armadura,
+    p_qtd_atributo_recebe   => 2::SMALLINT,
+    p_qtd_atributo_necessario => 12::SMALLINT,
+    p_tipo_atributo_recebe  => 'poder'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 13: Capacete de Aço da Grande Guerra
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Capacete de Aço da Grande Guerra'::public.nome,
+    p_descricao             => 'Um capacete de aço pesado, marcado por estilhaços e pelo tempo. Um lembrete sombrio dos horrores da guerra... e uma proteção confiável para a cabeça.'::public.descricao,
+    p_valor                 => 50::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_durabilidade          => 180::SMALLINT,
+    p_funcao                => 'cabeca'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 9::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 2::SMALLINT
+);
+
+-- Armadura 14: Avental de Açougueiro Ensanguentado
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Avental de Açougueiro Ensanguentado'::public.nome,
+    p_descricao             => 'Um avental de couro grosso, coberto por manchas escuras e endurecidas que contam uma história macabra.'::public.descricao,
+    p_valor                 => 30::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 110::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'constituicao'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 15: Sapatos Sociais Polidos
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Sapatos Sociais Polidos'::public.nome,
+    p_descricao             => 'Sapatos de couro caros, impecavelmente polidos. Essenciais para se misturar em eventos da alta sociedade e causar uma boa impressão.'::public.descricao,
+    p_valor                 => 22::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 45::SMALLINT,
+    p_funcao                => 'pes'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'aparencia'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Armadura 16: Grevas de Couro de Réptil
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Grevas de Couro de Réptil'::public.nome,
+    p_descricao             => 'Proteções para as pernas feitas de um couro escamoso e estranhamente resistente, de uma criatura que não pertence a este mundo.'::public.descricao,
+    p_valor                 => 120::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 130::SMALLINT,
+    p_funcao                => 'pernas'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'poder'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 17: Relógio de Bolso Antigo
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Relógio de Bolso Antigo'::public.nome,
+    p_descricao             => 'Um relógio de prata ornamentado que não marca mais as horas. Trazê-lo no pulso parece aguçar os reflexos para o que está por vir.'::public.descricao,
+    p_valor                 => 65::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 30::SMALLINT,
+    p_funcao                => 'bracos'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'destreza'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Armadura 18: Óculos de Lentes Grossas
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Óculos de Lentes Grossas'::public.nome,
+    p_descricao             => 'Usados por um estudioso que leu demais à luz de velas. As lentes distorcem o mundo, mas ajudam a focar nos detalhes ocultos.'::public.descricao,
+    p_valor                 => 45::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 35::SMALLINT,
+    p_funcao                => 'cabeca'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'inteligencia'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Armadura 19: Calças de Lona Encerada
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Calças de Lona Encerada'::public.nome,
+    p_descricao             => 'Calças de trabalho resistentes, cobertas com cera para repelir a água. Ideais para explorar esgotos ou docas enevoadas.'::public.descricao,
+    p_valor                 => 18::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 90::SMALLINT,
+    p_funcao                => 'pernas'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 20: Amuleto de Proteção Falsa
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Amuleto de Proteção Falsa'::public.nome,
+    p_descricao             => 'Um amuleto barato vendido como um talismã de proteção. Não possui poder real, mas a crença do usuário nele pode, por vezes, fortalecer sua vontade.'::public.descricao,
+    p_valor                 => 10::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 15::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'sanidade'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Armadura 21: Gabardine de Lã
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Gabardine de Lã'::public.nome,
+    p_descricao             => 'Um casaco longo e pesado, excelente para noites frias e chuvosas. Seu tecido grosso oferece uma proteção surpreendente contra garras e pancadas.'::public.descricao,
+    p_valor                 => 45::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 120::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'constituicao'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 2::SMALLINT
+);
+
+-- Armadura 22: Elmo de Mergulhador de Escafandro
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Elmo de Mergulhador de Escafandro'::public.nome,
+    p_descricao             => 'Um elmo de bronze pesado e claustrofóbico, projetado para as profundezas. Protege a cabeça de forma excepcional, mas a visão e a audição são severamente limitadas.'::public.descricao,
+    p_valor                 => 100::SMALLINT,
+    p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
+    p_durabilidade          => 250::SMALLINT,
+    p_funcao                => 'cabeca'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 13::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 3::SMALLINT
+);
+
+-- Armadura 23: Tatuagens Arcanas no Braço
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Tatuagens Arcanas no Braço'::public.nome,
+    p_descricao             => 'Símbolos complexos tatuados na pele, que parecem se contorcer sob a luz fraca. Não oferecem proteção física, mas fortalecem a conexão do portador com o oculto.'::public.descricao,
+    p_valor                 => 200::SMALLINT,
+    p_atributo_necessario   => 'poder'::public.tipo_atributo_personagem,
+    p_durabilidade          => 999::SMALLINT,
+    p_funcao                => 'bracos'::funcao_armadura,
+    p_qtd_atributo_recebe   => 2::SMALLINT,
+    p_qtd_atributo_necessario => 14::SMALLINT,
+    p_tipo_atributo_recebe  => 'poder'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Armadura 24: Calças de Tweed de Professor
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Calças de Tweed de Professor'::public.nome,
+    p_descricao             => 'Calças confortáveis, com cotoveleiras gastas, mais adequadas para uma biblioteca do que para um combate. Carregam o peso do conhecimento.'::public.descricao,
+    p_valor                 => 12::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 35::SMALLINT,
+    p_funcao                => 'pernas'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'inteligencia'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Armadura 25: Botas de Explorador com Polainas
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Botas de Explorador com Polainas'::public.nome,
+    p_descricao             => 'Botas robustas de couro, acompanhadas de polainas que protegem contra lama e picadas de cobra. Feitas para longas jornadas em lugares selvagens.'::public.descricao,
+    p_valor                 => 30::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 160::SMALLINT,
+    p_funcao                => 'pes'::funcao_armadura,
+    p_qtd_atributo_recebe   => 1::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'constituicao'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 26: Colete de Força (Camisa de Força)
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Colete de Força'::public.nome,
+    p_descricao             => 'Uma camisa de lona resistente com tiras de couro, projetada para conter os loucos. Abraçar a própria insanidade pode ser uma forma de proteção.'::public.descricao,
+    p_valor                 => 75::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 100::SMALLINT,
+    p_funcao                => 'peitoral'::funcao_armadura,
+    p_qtd_atributo_recebe   => 3::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => 'sanidade'::public.tipo_atributo_personagem,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 27: Máscara de Gás da Guerra
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Máscara de Gás da Guerra'::public.nome,
+    p_descricao             => 'Uma máscara de borracha com um filtro de metal, um resquício da Grande Guerra. A respiração é difícil e a visão é limitada, mas protege o rosto e os pulmões.'::public.descricao,
+    p_valor                 => 60::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 80::SMALLINT,
+    p_funcao                => 'cabeca'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 28: Braceletes de Couro com Taxas
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Braceletes de Couro com Taxas'::public.nome,
+    p_descricao             => 'Braceletes de couro grosso, adornados com taxas de metal pontiagudas. Um acessório intimidador que pode aparar um golpe ou dois.'::public.descricao,
+    p_valor                 => 28::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 90::SMALLINT,
+    p_funcao                => 'bracos'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 29: Perneiras de Motociclista
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Perneiras de Motociclista'::public.nome,
+    p_descricao             => 'Perneiras de couro endurecido, projetadas para proteger contra o cascalho da estrada. Igualmente eficazes contra outras formas de abrasão.'::public.descricao,
+    p_valor                 => 40::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 125::SMALLINT,
+    p_funcao                => 'pernas'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 1::SMALLINT
+);
+
+-- Armadura 30: Galochas de Borracha
+SELECT public.sp_criar_armadura(
+    p_nome                  => 'Galochas de Borracha'::public.nome,
+    p_descricao             => 'Botas altas de borracha, perfeitas para vadear por esgotos, pântanos e outros lugares insalubres, mantendo os pés secos.'::public.descricao,
+    p_valor                 => 10::SMALLINT,
+    p_atributo_necessario   => NULL,
+    p_durabilidade          => 70::SMALLINT,
+    p_funcao                => 'pes'::funcao_armadura,
+    p_qtd_atributo_recebe   => 0::SMALLINT,
+    p_qtd_atributo_necessario => 0::SMALLINT,
+    p_tipo_atributo_recebe  => NULL,
+    p_qtd_dano_mitigado     => 0::SMALLINT
+);
+
+-- Criação de itens de cura
+
+-- Item de Cura 1: Bandagens Limpas
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Bandagens Limpas'::public.nome,
+    p_descricao                  => 'Um rolo de gaze e esparadrapo. Essencial para tratar ferimentos e evitar infecções.'::public.descricao,
+    p_valor                      => 15::SMALLINT,
+    p_funcao                     => 'restaurar_vida'::public.funcao_cura,
+    p_qts_usos                   => 3::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 1::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 8::SMALLINT
+);
+
+-- Item de Cura 2: Láudano
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Láudano'::public.nome,
+    p_descricao                  => 'Uma tintura de ópio. Poderoso analgésico que acalma a dor, mas seu uso excessivo pode turvar a mente e viciar.'::public.descricao,
+    p_valor                      => 40::SMALLINT,
+    p_funcao                     => 'restaurar_vida'::public.funcao_cura,
+    p_qts_usos                   => 4::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 1::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 10::SMALLINT
+);
+
+-- Item de Cura 3: Cantil de Uísque Barato
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Cantil de Uísque Barato'::public.nome,
+    p_descricao                  => 'Um gole de coragem líquida. Aquece o peito e acalma os nervos, mas não cura feridas.'::public.descricao,
+    p_valor                      => 10::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 5::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 4::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Item de Cura 4: Tônico Milagroso do Dr. Elias
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Tônico Milagroso do Dr. Elias'::public.nome,
+    p_descricao                  => 'Um elixir de procedência duvidosa que promete curar corpo e alma. O gosto é terrível, mas parece fazer algum efeito.'::public.descricao,
+    p_valor                      => 25::SMALLINT,
+    p_funcao                     => 'ambos'::public.funcao_cura,
+    p_qts_usos                   => 2::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 3::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 3::SMALLINT
+);
+
+-- Item de Cura 5: Seringa de Morfina
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Seringa de Morfina'::public.nome,
+    p_descricao                  => 'Uma dose única de potente analgésico. Capaz de ignorar a dor dos ferimentos mais graves por um tempo.'::public.descricao,
+    p_valor                      => 60::SMALLINT,
+    p_funcao                     => 'restaurar_vida'::public.funcao_cura,
+    p_qts_usos                   => 1::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 1::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 10::SMALLINT
+);
+
+-- Item de Cura 6: Kit de Sutura
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Kit de Sutura'::public.nome,
+    p_descricao                  => 'Agulha, fio e antisséptico. Para fechar cortes profundos de forma dolorosa, mas eficaz.'::public.descricao,
+    p_valor                      => 35::SMALLINT,
+    p_funcao                     => 'restaurar_vida'::public.funcao_cura,
+    p_qts_usos                   => 2::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 1::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 10::SMALLINT
+);
+
+-- Item de Cura 7: Ervas Calmantes
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Ervas Calmantes'::public.nome,
+    p_descricao                  => 'Um saquinho com uma mistura de ervas secas. Quando mastigadas, produzem um efeito relaxante que ajuda a afastar as sombras da mente.'::public.descricao,
+    p_valor                      => 20::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 4::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 6::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Item de Cura 8: Incenso Purificador
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Incenso Purificador'::public.nome,
+    p_descricao                  => 'Um bastão de incenso com um aroma peculiar. Sua fumaça densa parece limpar o ar e a mente de influências malignas.'::public.descricao,
+    p_valor                      => 50::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 1::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 8::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Item de Cura 9: Adrenalina (Injetável)
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Adrenalina (Injetável)'::public.nome,
+    p_descricao                  => 'Uma injeção que estimula o coração e o corpo. Não cura feridas, mas pode trazer alguém de volta da beira da inconsciência.'::public.descricao,
+    p_valor                      => 45::SMALLINT,
+    p_funcao                     => 'ambos'::public.funcao_cura,
+    p_qts_usos                   => 1::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 2::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 5::SMALLINT
+);
+
+-- Item de Cura 10: Kit de Primeiro Socorros Completo
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Kit de Primeiro Socorros Completo'::public.nome,
+    p_descricao                  => 'Uma maleta contendo bandagens, antissépticos, analgésicos e outros suprimentos médicos. Suficiente para vários tratamentos.'::public.descricao,
+    p_valor                      => 100::SMALLINT,
+    p_funcao                     => 'restaurar_vida'::public.funcao_cura,
+    p_qts_usos                   => 5::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 1::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 10::SMALLINT
+);
+
+-- Item de Cura 11: Chocolate Amargo
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Chocolate Amargo'::public.nome,
+    p_descricao                  => 'Uma barra de chocolate com alta concentração de cacau. Um pequeno luxo que ajuda a afastar o desespero.'::public.descricao,
+    p_valor                      => 8::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 2::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 3::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Item de Cura 12: Cataplasma de Ervas
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Cataplasma de Ervas'::public.nome,
+    p_descricao                  => 'Uma pasta de ervas medicinais que é aplicada sobre ferimentos para reduzir o inchaço e acelerar a cicatrização. Cheira a terra úmida.'::public.descricao,
+    p_valor                      => 22::SMALLINT,
+    p_funcao                     => 'restaurar_vida'::public.funcao_cura,
+    p_qts_usos                   => 2::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 1::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 9::SMALLINT
+);
+
+-- Item de Cura 13: Absinto
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Absinto'::public.nome,
+    p_descricao                  => 'Uma dose da "Fada Verde". Este destilado potente é famoso por suas propriedades alucinógenas, mas pode conceder um perigoso alívio à mente atormentada.'::public.descricao,
+    p_valor                      => 30::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 3::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 8::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Item de Cura 14: Sanguessugas Medicinais
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Sanguessugas Medicinais'::public.nome,
+    p_descricao                  => 'Um frasco de vidro contendo várias sanguessugas. Uma prática médica arcaica para "purificar" o sangue. Repulsivo, mas estranhamente revigorante.'::public.descricao,
+    p_valor                      => 18::SMALLINT,
+    p_funcao                     => 'ambos'::public.funcao_cura,
+    p_qts_usos                   => 1::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 1::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 10::SMALLINT
+);
+
+-- Item de Cura 15: Pó de Osso de Santo
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Pó de Osso de Santo'::public.nome,
+    p_descricao                  => 'Um pequeno envelope contendo um pó fino, supostamente dos restos mortais de um mártir. A fé em seu poder pode realizar pequenos milagres pela mente.'::public.descricao,
+    p_valor                      => 70::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 1::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 8::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Item de Cura 16: Remédio para Tosse com Heroína
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Remédio para Tosse com Heroína'::public.nome,
+    p_descricao                  => 'Um xarope comum na época, vendido livremente. Eficaz contra a tosse e a dor, com um efeito colateral de euforia e entorpecimento.'::public.descricao,
+    p_valor                      => 25::SMALLINT,
+    p_funcao                     => 'ambos'::public.funcao_cura,
+    p_qts_usos                   => 4::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 2::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 4::SMALLINT
+);
+
+-- Item de Cura 17: Diário Pessoal
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Diário Pessoal'::public.nome,
+    p_descricao                  => 'Um momento de introspecção, escrevendo ou relendo suas próprias experiências. Ajuda a organizar os pensamentos e a processar os horrores vividos.'::public.descricao,
+    p_valor                      => 5::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 5::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 5::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Item de Cura 18: Fragmento de Meteorito
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Fragmento de Meteorito'::public.nome,
+    p_descricao                  => 'Uma pedra lisa e escura, anormalmente quente ao toque. Segurá-la transmite uma calma неестественная, silenciando os medos... e talvez outras coisas também.'::public.descricao,
+    p_valor                      => 120::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 3::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 7::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Item de Cura 19: Pastilhas de Hortelã
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Pastilhas de Hortelã'::public.nome,
+    p_descricao                  => 'Uma latinha de pastilhas fortes. O sabor refrescante ajuda a focar a mente e a ignorar odores desagradáveis.'::public.descricao,
+    p_valor                      => 7::SMALLINT,
+    p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
+    p_qts_usos                   => 6::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 2::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Item de Cura 20: Água Benta
+SELECT public.sp_criar_item_cura(
+    p_nome                       => 'Água Benta'::public.nome,
+    p_descricao                  => 'Um frasco contendo água abençoada por um padre. Sua eficácia contra as criaturas da noite é incerta, mas fortalece a fé e a determinação de quem a usa.'::public.descricao,
+    p_valor                      => 35::SMALLINT,
+    p_funcao                     => 'ambos'::public.funcao_cura,
+    p_qts_usos                   => 1::SMALLINT,
+    p_qtd_pontos_sanidade_recupera => 4::SMALLINT,
+    p_qtd_pontos_vida_recupera   => 1::SMALLINT
+);
+
+-- Criação de Feitiços
+
+-- Feitiços de Status
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Vislumbre do Oculto'::public.nome,
+    p_descricao => 'Permite ao conjurador ver além do véu da realidade, revelando objetos e símbolos invisíveis.'::public.descricao,
+    p_qtd_pontos_de_magia => 15::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => TRUE::BOOLEAN,
+    p_status_qtd_buff_debuff => 10::SMALLINT,
+    p_status_afetado => 'vida'::public.tipo_de_status
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Sentir o Imaterial'::public.nome,
+    p_descricao => 'Concede a habilidade de sentir a presença de energias sobrenaturais ou entidades etéreas próximas.'::public.descricao,
+    p_qtd_pontos_de_magia => 8::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => TRUE::BOOLEAN,
+    p_status_qtd_buff_debuff => 5::SMALLINT,
+    p_status_afetado => 'vida'::public.tipo_de_status
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Toque da Dor'::public.nome,
+    p_descricao => 'Encanta uma arma para que seu dano seja imbuído de pura agonia, afetando criaturas resistentes a dano convencional.'::public.descricao,
+    p_qtd_pontos_de_magia => 20::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => TRUE::BOOLEAN,
+    p_status_qtd_buff_debuff => 4::SMALLINT,
+    p_status_afetado => 'vida'::public.tipo_de_status
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Melodia da Serenidade'::public.nome,
+    p_descricao => 'Uma canção mental que acalma a mente, restaurando a compostura e aliviando o pânico.'::public.descricao,
+    p_qtd_pontos_de_magia => 12::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => TRUE::BOOLEAN,
+    p_status_qtd_buff_debuff => 10::SMALLINT,
+    p_status_afetado => 'sanidade'::public.tipo_de_status
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Manto de Névoa'::public.nome,
+    p_descricao => 'Cobre o conjurador em uma névoa sombria que o esconde de olhares curiosos, tanto mortais quanto sobrenaturais.'::public.descricao,
+    p_qtd_pontos_de_magia => 10::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => TRUE::BOOLEAN,
+    p_status_qtd_buff_debuff => 8::SMALLINT,
+    p_status_afetado => 'vida'::public.tipo_de_status
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Visão do Amanhã Sombrio'::public.nome,
+    p_descricao => 'Mostra um fragmento perturbador de um futuro provável, ao custo de um grande abalo mental.'::public.descricao,
+    p_qtd_pontos_de_magia => 25::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => TRUE::BOOLEAN,
+    p_status_qtd_buff_debuff => 1::SMALLINT,
+    p_status_afetado => 'vida'::public.tipo_de_status
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Pele de Pedra'::public.nome,
+    p_descricao => 'A pele do alvo se torna dura e resistente como rocha, absorvendo parte do dano físico.'::public.descricao,
+    p_qtd_pontos_de_magia => 18::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => TRUE::BOOLEAN,
+    p_status_qtd_buff_debuff => 3::SMALLINT,
+    p_status_afetado => 'vida'::public.tipo_de_status
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Sussurro da Verdade Cruel'::public.nome,
+    p_descricao => 'Força o alvo a confrontar uma verdade terrível sobre si mesmo ou o universo, abalando sua sanidade.'::public.descricao,
+    p_qtd_pontos_de_magia => 15::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => FALSE::BOOLEAN,
+    p_status_qtd_buff_debuff => -10::SMALLINT,
+    p_status_afetado => 'sanidade'::public.tipo_de_status
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Prisão das Sombras'::public.nome,
+    p_descricao => 'Anima as sombras próximas para que se agarrem a um alvo, imobilizando-o temporariamente.'::public.descricao,
+    p_qtd_pontos_de_magia => 22::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => FALSE::BOOLEAN,
+    p_status_qtd_buff_debuff => -15::SMALLINT,
+    p_status_afetado => 'vida'::public.tipo_de_status
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Círculo de Proteção contra os Mortos'::public.nome,
+    p_descricao => 'Cria uma barreira mística que entidades espectrais e mortos-vivos menores não conseguem atravessar.'::public.descricao,
+    p_qtd_pontos_de_magia => 15::SMALLINT,
+    p_tipo_feitico => 'status'::public.funcao_feitico,
+    p_status_buff_debuff => TRUE::BOOLEAN,
+    p_status_qtd_buff_debuff => 100::SMALLINT,
+    p_status_afetado => 'vida'::public.tipo_de_status
+);
+
+-- Feitiços de Dano
+SELECT public.sp_criar_feitico(
+    p_nome => 'Seta de Energia Negra'::public.nome,
+    p_descricao => 'Dispara um raio de energia profana que queima o corpo e a alma do alvo.'::public.descricao,
+    p_qtd_pontos_de_magia => 10::SMALLINT,
+    p_tipo_feitico => 'dano'::public.funcao_feitico,
+    p_dano_tipo => 'unico'::public.tipo_dano,
+    p_dano_qtd => 8::public.dano
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Toque Congelante do Vazio'::public.nome,
+    p_descricao => 'O toque do conjurador drena o calor vital, causando dano de frio e fadiga.'::public.descricao,
+    p_qtd_pontos_de_magia => 12::SMALLINT,
+    p_tipo_feitico => 'dano'::public.funcao_feitico,
+    p_dano_tipo => 'unico'::public.tipo_dano,
+    p_dano_qtd => 6::public.dano
+);
+
+SELECT public.sp_criar_feitico(
+    p_nome => 'Explosão Psíquica'::public.nome,
+    p_descricao => 'Uma onda de força mental que atinge todos em uma área, causando dor de cabeça severa e dano.'::public.descricao,
+    p_dano_tipo => 'area'::public.tipo_dano,
+    p_dano_qtd => 10::public.dano,
+    p_qtd_pontos_de_magia => 20::SMALLINT,
+    p_tipo_feitico => 'dano'::public.funcao_feitico
+);
+
+-- Criação de itens mágicos
+
+-- Item Mágico 1: Lente de Vidro Incolor
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Lente de Vidro Incolor'::public.nome,
+    p_descricao      => 'Uma lente polida que, quando olhada através, revela verdades ocultas e símbolos invisíveis a olho nu.'::public.descricao,
+    p_valor          => 350::SMALLINT,
+    p_funcao         => 'revelar_invisivel'::public.funcao_magica,
+    p_qts_usos       => 5::SMALLINT,
+    p_custo_sanidade => 6::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Vislumbre do Oculto')
+);
+
+-- Item Mágico 2: Bússola Quebrada
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Bússola Quebrada'::public.nome,
+    p_descricao      => 'A agulha desta bússola não aponta para o norte, mas treme na direção de perturbações sobrenaturais próximas.'::public.descricao,
+    p_valor          => 180::SMALLINT,
+    p_funcao         => 'revelar_invisivel'::public.funcao_magica,
+    p_qts_usos       => 10::SMALLINT,
+    p_custo_sanidade => 2::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Sentir o Imaterial')
+);
+
+-- Item Mágico 3: Adaga de Obsidiana Lascada
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Adaga de Obsidiana Lascada'::public.nome,
+    p_descricao      => 'Uma lâmina de vidro vulcânico que pode ser imbuída com a dor do usuário para ferir criaturas que são imunes a armas normais.'::public.descricao,
+    p_valor          => 250::SMALLINT,
+    p_funcao         => 'encantar_arma'::public.funcao_magica,
+    p_qts_usos       => 3::SMALLINT,
+    p_custo_sanidade => 8::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Toque da Dor')
+);
+
+-- Item Mágico 4: Caixa de Música Silenciosa
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Caixa de Música Silenciosa'::public.nome,
+    p_descricao      => 'Quando aberta, esta caixa de música não emite som audível, mas uma melodia mental que acalma o medo e a histeria.'::public.descricao,
+    p_valor          => 220::SMALLINT,
+    p_funcao         => 'invocar_efeito'::public.funcao_magica,
+    p_qts_usos       => 4::SMALLINT,
+    p_custo_sanidade => 5::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Melodia da Serenidade')
+);
+
+-- Item Mágico 5: Pena de uma Criatura Desconhecida
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Pena de uma Criatura Desconhecida'::public.nome,
+    p_descricao      => 'Uma pena iridescente que, quando queimada, cria uma fumaça que obscurece a presença do usuário de olhos e mentes sobrenaturais.'::public.descricao,
+    p_valor          => 150::SMALLINT,
+    p_funcao         => 'invocar_efeito'::public.funcao_magica,
+    p_qts_usos       => 3::SMALLINT,
+    p_custo_sanidade => 3::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Manto de Névoa')
+);
+
+-- Item Mágico 6: Espelho de Bolso Turvo
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Espelho de Bolso Turvo'::public.nome,
+    p_descricao      => 'Um pequeno espelho cuja superfície reflete não o presente, mas um vislumbre fugaz e perturbador de um futuro possível.'::public.descricao,
+    p_valor          => 400::SMALLINT,
+    p_funcao         => 'revelar_invisivel'::public.funcao_magica,
+    p_qts_usos       => 2::SMALLINT,
+    p_custo_sanidade => 10::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Visão do Amanhã Sombrio')
+);
+
+-- Item Mágico 7: Anel de Chumbo Pesado
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Anel de Chumbo Pesado'::public.nome,
+    p_descricao      => 'Usar este anel torna o corpo estranhamente resistente a danos físicos, como se a própria carne se tornasse mais densa.'::public.descricao,
+    p_valor          => 300::SMALLINT,
+    p_funcao         => 'invocar_efeito'::public.funcao_magica,
+    p_qts_usos       => 5::SMALLINT,
+    p_custo_sanidade => 4::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Pele de Pedra')
+);
+
+-- Item Mágico 8: Dente de Criança Petrificado
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Dente de Criança Petrificado'::public.nome,
+    p_descricao      => 'Sussurrar um segredo a este dente o imbui com o poder de forçar uma criatura a ouvir uma verdade dolorosa.'::public.descricao,
+    p_valor          => 190::SMALLINT,
+    p_funcao         => 'invocar_efeito'::public.funcao_magica,
+    p_qts_usos       => 3::SMALLINT,
+    p_custo_sanidade => 6::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Sussurro da Verdade Cruel')
+);
+
+-- Item Mágico 9: Vela de Sebo Humano
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Vela de Sebo Humano'::public.nome,
+    p_descricao      => 'A luz desta vela não ilumina, mas aprofunda as sombras, tornando-as tangíveis e capazes de prender aqueles que as tocam.'::public.descricao,
+    p_valor          => 280::SMALLINT,
+    p_funcao         => 'invocar_efeito'::public.funcao_magica,
+    p_qts_usos       => 1::SMALLINT,
+    p_custo_sanidade => 9::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Prisão das Sombras')
+);
+
+-- Item Mágico 10: Pó de Giz Feito de Lápides
+SELECT public.sp_criar_item_magico(
+    p_nome           => 'Pó de Giz Feito de Lápides'::public.nome,
+    p_descricao      => 'Um pó fino que, quando usado para desenhar um círculo, cria uma barreira temporária que espíritos e entidades menores não conseguem cruzar.'::public.descricao,
+    p_valor          => 160::SMALLINT,
+    p_funcao         => 'invocar_efeito'::public.funcao_magica,
+    p_qts_usos       => 4::SMALLINT,
+    p_custo_sanidade => 3::SMALLINT,
+    p_id_feitico     => (SELECT id FROM public.feiticos_status WHERE nome = 'Círculo de Proteção contra os Mortos')
+);
+
+-- Criação de instâncias de item
+
+INSERT INTO public.instancias_de_itens (durabilidade, durabilidade_total, id_item, id_local, id_local_de_spawn)
+VALUES
+  (90, 90, (SELECT id FROM public.itens WHERE nome = 'Besta de Caça'), NULL, NULL),
+  (1, 1, (SELECT id FROM public.itens WHERE nome = 'Coquetel Molotov'), NULL, NULL),
+  (130, 130, (SELECT id FROM public.itens WHERE nome = 'Faca de Açougueiro'), NULL, NULL),
+  (110, 110, (SELECT id FROM public.itens WHERE nome = 'Revólver .38 Special'), NULL, NULL),
+  (150, 150, (SELECT id FROM public.itens WHERE nome = 'Botas de Trabalho Reforçadas'), NULL, NULL),
+  (80, 80, (SELECT id FROM public.itens WHERE nome = 'Vestes Cerimoniais'), NULL, NULL),
+  (1, 1, (SELECT id FROM public.itens WHERE nome = 'Sanguessugas Medicinais'), NULL, NULL),
+  (5, 5, (SELECT id FROM public.itens WHERE nome = 'Diário Pessoal'), NULL, NULL);
+
+-- Criação de instancias de monstro
+
+-- Instância de Cthulhu 1 na sala x (Labirinto de pilares)
+/*
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Cthulhu'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Cthulhu'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Vestes Cerimoniais')); 
+*/   
+
+-- Instância de Shoggoth 1 na sala x (Sala de observação)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Shoggoth'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Shoggoth'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Botas de Trabalho Reforçadas'));  
+
+-- Instância de Carniçal 1 na sala x (Cripta úmida)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Carniçal'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Carniçal'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Revólver .38 Special'));  
+
+-- Instância de Nodens 1 na sala x (Cripta úmida)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
+    (SELECT vida_total FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Faca de Açougueiro'));  
+
+-- Instância de Grande Raça de Yith 1 na sala x (Biblioteca submersa)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
+    (SELECT vida_total FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Coquetel Molotov'));     
+
+-- Instância de Gnoph-Keh Solitário 1 na sala x (anfiteatro circular)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
+    (SELECT vida_total FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Besta de Caça'));     
+
+-- Instância de Shantak 1 na sala x (sala de tesouros)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.pacificos WHERE nome = 'Shantak'),
+    (SELECT vida_total FROM public.pacificos WHERE nome = 'Shantak'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesourosa%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Sanguessugas Medicinais'));     
+
+-- Instância de Cor que Caiu do Espaço 1 na sala x (sala de tesouros)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
+    (SELECT vida_total FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Diário Pessoal'));    

@@ -509,7 +509,8 @@ CREATE DOMAIN public.tipo_personagem AS CHARACTER VARYING(18)
         (VALUE)::text = ANY (ARRAY[
             ('baixo-calibre'::character VARYING)::text, 
             ('medio-calibre'::character VARYING)::text,
-            ('alto-calibre'::character VARYING)::text
+            ('alto-calibre'::character VARYING)::text,
+            NULL
         ])
     );  
     
@@ -525,11 +526,12 @@ CREATE DOMAIN public.tipo_personagem AS CHARACTER VARYING(18)
         ])
     );    
 
- CREATE DOMAIN public.tipo_dano AS CHARACTER VARYING(5)
+ CREATE DOMAIN public.tipo_dano AS CHARACTER VARYING(8)
     CONSTRAINT tipo_dano_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('area'::character VARYING)::text, 
-            ('unico'::character VARYING)::text
+            ('unico'::character VARYING)::text,
+            ('especial'::character VARYING)::text
         ])
     );     
 
@@ -545,13 +547,14 @@ CREATE DOMAIN public.funcao_feitico AS CHARACTER VARYING(6)
     CONSTRAINT tipo_de_status_check CHECK (
         (VALUE)::text = ANY (ARRAY[
             ('vida'::character VARYING)::text, 
-            ('sanidade'::character VARYING)::text
+            ('sanidade'::character VARYING)::text,
+            ('ambos'::character VARYING)::text
         ])
     );  
 
 CREATE DOMAIN public.tipo_atributo_personagem AS CHARACTER(12)
     CONSTRAINT tipo_atributo_personagem_check CHECK (
-        VALUE IN ('forca', 'constituicao', 'poder', 'destreza', 'aparencia', 'tamanho', 'inteligencia', 'educacao')
+        VALUE IN ('forca', 'constituicao', 'poder', 'destreza', 'aparencia', 'tamanho', 'inteligencia', 'educacao', NULL)
     ); 
 
 
@@ -570,13 +573,13 @@ CREATE DOMAIN public.funcao_arma AS CHARACTER(32)
 -- Pode ser alterado a qualquer momento para garantir que mais tuplas se comportem no dml
 CREATE DOMAIN public.funcao_cura AS CHARACTER(32)
     CONSTRAINT funcao_cura_check CHECK (
-        VALUE IN ('restaurar_vida', 'restaurar_sanidade', 'remover_veneno', 'remover_maldicao', 'antidoto_insanidade')
+        VALUE IN ('restaurar_vida', 'restaurar_sanidade', 'remover_veneno', 'remover_maldicao', 'antidoto_insanidade', 'ambos')
     );
 
 -- Pode ser alterado a qualquer momento para garantir que mais tuplas se comportem no dml
 CREATE DOMAIN public.funcao_magica AS CHARACTER(32)
     CONSTRAINT funcao_magica_check CHECK (
-        VALUE IN ('revelar_invisivel', 'abrir_fechadura', 'encantar_arma', 'invocar_criatura', 'teleporte', 'protecao_elemental')
+        VALUE IN ('revelar_invisivel', 'abrir_fechadura', 'encantar_arma', 'invocar_criatura', 'teleporte', 'protecao_elemental', 'invocar_efeito')
     );
 
 -- Pode ser alterado a qualquer momento para garantir que mais tuplas se comportem no dml
@@ -1400,7 +1403,7 @@ CREATE TABLE public.instancias_de_itens(
 
     -- FOREIGN KEYS
     id_local public.id_local, -- Se o item foi coletado, seu local é null
-    id_local_de_spawn public.id_local NOT NULL,
+    id_local_de_spawn public.id_local, -- É NULL se o item só é obtido através de monstro
     id_missao_requer public.id_missao,
     id_missao_recompensa public.id_missao,
     id_item public.id_item NOT NULL
