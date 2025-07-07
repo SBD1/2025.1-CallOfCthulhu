@@ -19,6 +19,8 @@ Até o momento, foram elaborados e entregues os seguintes artefatos de modelagem
 - **DDL (Data Definition Language)**: Scripts SQL para criação e alteração da estrutura das tabelas e restrições — Triggers e Stored Procedures —, do banco de dados.
 - **DML (Data Manipulation Language)**: Scripts SQL para inserção, atualização e remoção de dados nas tabelas do banco.
 - **DQL (Data Query Language)**: Scripts SQL para consulta e recuperação de informações armazenadas no banco de dados.
+- **Triggers e Stored Procedure**: Scripts SQL para permitir a execução automática de uma ação definida (como uma instrução `INSERT`, `UPDATE` ou `DELETE`) quando um evento específico ocorre em uma tabela ou visão.
+- **View**: Scripts SQL para permitir acessar dados de forma simplificada, sem armazená-los fisicamente.
 
 # Apresentações
 ## Módulo 1
@@ -28,8 +30,18 @@ Até o momento, foram elaborados e entregues os seguintes artefatos de modelagem
 
 <p style="text-align: center"><a href="https://youtu.be/3iIDdbY61Yo" target="_blank">Clique aqui para assistir no YouTube</a></p>
 
+---
+
 ## Módulo 2
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/y3V--2PIbYU" title="Entrega módulo 2 de SBD1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 <p style="text-align: center"><a href="https://www.youtube.com/embed/y3V--2PIbYU" target="_blank">Clique aqui para assistir no YouTube</a></p>
+
+---
+
+## Módulo 3
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/LINK-DO-VIDEO" title="Entrega módulo 2 de SBD1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+<p style="text-align: center"><a href="https://www.youtube.com/embed/LINK-DO-VIDEO" target="_blank">Clique aqui para assistir no YouTube</a></p>
