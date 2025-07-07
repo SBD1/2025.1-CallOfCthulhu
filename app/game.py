@@ -7,14 +7,19 @@ from database import DataBase
 import time # para a lua de sangue
 import schedule # para a movimentação programada dos monstros
 import threading # usa uma thread somente para a movimentação dos monstros
+import shutil
+import textwrap
 
 def clear():
     """Limpa a tela do terminal."""
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def move_cursor_to(x, y):
+    print(f"\033[{y};{x}H", end='')
+
 # --- Função para a introdução do Call of Cthulhu ---
 def display_cthulhu_intro():
-    # clear()
+    clear()
     print(" _____   ___   _      _       ___________   _____ _____ _   _ _   _ _      _   _ _   _ ")
     print("/  __ \\ / _ \\ | |    | |     |  _  |  ___| /  __ \\_   _| | | | | | | |    | | | | | | |")
     print("| /  \\/ /_\\ \\| |    | |     | | | | |_    | /  \\/ | | | |_| | | | | |    | |_| | | | |")
@@ -32,7 +37,7 @@ def display_cthulhu_intro():
 
 def display_death_screen():
     """Exibe a tela de morte."""
-    clear()
+    #clear()
     print("\n\n")
     print("                           VOCÊ MORREU")
     print("      Sua jornada termina aqui, nas garras da loucura e do desespero.")
@@ -40,6 +45,105 @@ def display_death_screen():
     print("\n\n")
 
 class Game:
+    
+    def clear(self):
+        """Limpa a tela do terminal."""
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print("\033[8;40;168t", end='')  # força 168 colunas x 40 linhas
+        self.desenhar_divisoria_vertical()
+        self.exibir_status()
+        self.limpar_area_interativa()
+    
+    def desenhar_divisoria_vertical(self, coluna=109, altura=100):
+        for linha in range(1, altura + 1):
+            move_cursor_to(coluna, linha)
+            print("\033[35m││\033[0m", end='')
+
+    def limpar_area_interativa(self):
+        for y in range(1, 41):
+            move_cursor_to(1, y)
+            print(" " * 108, end='')
+
+    def desenhar_box(self, x, y, titulo, linhas):
+        largura = 50
+        separador = "=" * largura
+
+        move_cursor_to(x, y)
+        print(f"\033[35m{separador}\033[0m")
+        move_cursor_to(x, y+1)
+        print(f"\033[32m{titulo:^{largura}}\033[0m")
+        move_cursor_to(x, y+2)
+        print(f"\033[35m{separador}\033[0m")
+
+        for i, linha in enumerate(linhas):
+            move_cursor_to(x, y+3+i)
+            print(f"\033[0m{linha[:largura]}")
+
+        return y + 3 + len(linhas) + 1
+
+    def exibir_status(self):
+        x = 111
+        y = 1
+        id_jogador = self.player.id_jogador
+
+        # --- Ficha do Personagem ---
+        ficha_db = self.db._execute_query("""
+            SELECT nome, pontos_de_vida_atual, sanidade_atual, pm_base, 
+                forca, destreza, poder, inteligencia, educacao, movimento, ouro
+            FROM view_personagens_jogaveis_completos
+            WHERE id = %s
+        """, (id_jogador,), fetch_one=True)
+
+        ficha = []
+        if ficha_db:
+            ficha = [
+                f"NOME: {ficha_db['nome'].strip()} | VIDA: {ficha_db['pontos_de_vida_atual']} HP",
+                f"PM: {ficha_db['pm_base']}/4 | SAN: {ficha_db['sanidade_atual']}",
+                f"FOR: {ficha_db['forca']} | DES: {ficha_db['destreza']} | POD: {ficha_db['poder']}",
+                f"INT: {ficha_db['inteligencia']} | EDU: {ficha_db['educacao']} | MOV: {ficha_db['movimento']}",
+                f"OURO: {ficha_db['ouro']}"
+            ]
+
+        y = self.desenhar_box(x, y, "FICHA DO PERSONAGEM", ficha)
+
+        # --- Inventário ---
+        inventario = []
+        try:
+            inventario_db = self.db.get_inventario_do_jogador(id_jogador)
+            for item in inventario_db:
+                linha = f"- {item['item_nome'].strip()} ({item['item_tipo'].strip()})"
+                if item.get('esta_equipado'):
+                    linha += " [EQUIPADO]"
+                inventario.append(linha)
+        except Exception as e:
+            inventario = ["[ERRO ao buscar inventário]"]
+
+        y = self.desenhar_box(x, y, "INVENTÁRIO", inventario)
+
+        # --- Missão (fachada) ---
+        missao = ["Sem missão atual"]
+        y = self.desenhar_box(x, y, "MISSÃO", missao)
+
+        # --- Eventos Recentes (fachada) ---
+        eventos = self.eventos_recentes if self.eventos_recentes else ["Nenhum evento."]
+        y = self.desenhar_box(x, y, "EVENTOS RECENTES", eventos)
+
+    def desenhar_box(self, x, y, titulo, linhas):
+        largura = 50
+        separador = "=" * largura
+
+        move_cursor_to(x, y)
+        print(f"\033[35m{separador}\033[0m")
+        move_cursor_to(x, y+1)
+        print(f"\033[32m{titulo:^{largura}}\033[0m")
+        move_cursor_to(x, y+2)
+        print(f"\033[35m{separador}\033[0m")
+
+        for i, linha in enumerate(linhas):
+            move_cursor_to(x, y+3+i)
+            print(f"\033[0m{linha[:largura]}")
+
+        return y + 3 + len(linhas) + 1  # Nova posição Y para o próximo box
 
     def __init__(self):
         self.db = DataBase()
@@ -47,6 +151,7 @@ class Game:
         self.last_lua_de_sangue_time = time.time()
         self.initial_local_id = None # Para guardar o local inicial do personagem
         self.scheduler_thread = None 
+        self.eventos_recentes = []
 
     def create_new_character_flow(self):
         # clear()
@@ -309,9 +414,18 @@ class Game:
         Tarefa interna para ser executada pelo agendador.
         Chama a stored procedure sp_movimentar_monstros.
         """
-        print("Os monstros estão mudando de sala, perigos se aproximam...")
-        self.db.movimentar_todos_os_monstros() 
-        print("Cuidado, os monstros já estão em novas salas.")
+        # print("Os monstros estão mudando de sala, perigos se aproximam...")
+        # self.db.movimentar_todos_os_monstros() 
+        # print("Cuidado, os monstros já estão em novas salas.")
+        eventos = [
+            "Os monstros estão mudando de sala, perigos se aproximam...",
+            "Cuidado, os monstros já estão em novas salas."
+        ]
+        self.db.movimentar_todos_os_monstros()
+
+        # Insere eventos no topo da lista
+        self.eventos_recentes = eventos + self.eventos_recentes
+        self.eventos_recentes = self.eventos_recentes[:2]  # Limita a 2 eventos
 
     def _scheduler_loop(self):
         """Loop que executa as tarefas agendadas."""
@@ -584,7 +698,7 @@ class Game:
     
     def _handle_battle_loop(self, monstro):
         """Gerencia um loop de batalha turno a turno."""
-        clear()
+        #clear()
         print(f"Um(a) {monstro['monstro_nome'].strip()} horrendo surge das sombras!")
 
         while True:
@@ -644,7 +758,7 @@ class Game:
                 if resultado_ataque: print(f"\n{resultado_ataque['log_turno']}")
 
             input("\nPressione Enter para continuar o combate...")
-            clear()
+            #clear()
 
     def _handle_skill_use(self):
         """NOVO: Gerencia o uso de perícias com um menu."""
@@ -684,7 +798,12 @@ class Game:
         if not self.player:
             print("Erro: Nenhum jogador carregado.")
             return self.start()
+        
+        #clear()
+        self.clear()
+
         self.start_monster_movement_scheduler()
+        move_cursor_to(1, 1)
         print(f"\n--- Comeca a aventura de {self.player.nome}! ---")
 
         while True:
@@ -715,14 +834,21 @@ class Game:
                 return self.start()
 
             # clear()
-            print("==================================================")
-            print(f"Voce esta em um(a) {detalhes_local['tipo_local']}: {detalhes_local['descricao']}")
+            self.clear()
+            move_cursor_to(1, 1)
+            print("\033[35m============================================================================================================\033[0m")
+            texto = f"Voce esta em um(a) {detalhes_local['tipo_local']}: {detalhes_local['descricao']}"
+            for linha in textwrap.wrap(texto, width=108):
+                print(linha)
             
-            if detalhes_local['tipo_local'].lower() == 'corredor' and detalhes_local['status'] is not None:
-                print(f"Status do Corredor: {'Ativo' if detalhes_local['status'] else 'Inativo'}")
+            #if detalhes_local['tipo_local'].lower() == 'corredor' and detalhes_local['status'] is not None:
+                # status = f"Status do Corredor: {'Ativo' if detalhes_local['status'] else 'Inativo'}"
+                #for linha in textwrap.wrap(status, width=108):
+                #    print(linha)
             
-            print("==================================================")
-            print("\nSAIDAS DISPONIVEIS:")
+            print("\033[35m============================================================================================================\033[0m")
+            print("\033[32m============================================================================================================\033[0m")
+            print("SAIDAS DISPONIVEIS:")
             
             saidas = detalhes_local['saidas']
             if not saidas:
@@ -730,8 +856,9 @@ class Game:
             else:
                 for i, saida in enumerate(saidas):
                     print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']})")
-
-            print("\nO que voce deseja fazer? (Ficha [f], Inventário [i], Explorar [e], Sair [s])")
+            
+            print("\033[32m============================================================================================================\033[0m")
+            print("O que voce deseja fazer? (Ficha [f], Inventário [i], Explorar [e], Sair [s])")
             escolha = input("> ").strip().lower()
 
             if escolha == 's':
