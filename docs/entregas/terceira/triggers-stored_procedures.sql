@@ -1449,9 +1449,23 @@ END $$;
         5. FUNÇÕES DE FEITIÇO (GERAL)
 =================================================================================
 */
--- =========================================================================
---        5.1. FUNÇÕES, TRIGGERS E STORED PROCEDURES PARA FEITIÇOS
--- =========================================================================
+-- =================================================================================
+--    5.1 STORED PROCEDURE: Criação de Feitiços
+-- =================================================================================
+
+/*
+A procedure `sp_criar_feitico` realiza a criação de um feitiço do tipo `status` ou `dano`,
+com base nos parâmetros fornecidos.
+
+Ela garante:
+
+- Inserção controlada nas tabelas `feiticos_status` ou `feiticos_dano`.
+- Registro do tipo no relacionamento `tipos_feitico`.
+- Validação completa dos campos obrigatórios conforme o tipo de feitiço.
+
+Essa procedure é a única forma permitida de inserir feitiços no sistema, pois
+a inserção direta nas tabelas está bloqueada por trigger.
+*/
 CREATE OR REPLACE FUNCTION public.sp_criar_feitico(
     -- Parâmetros comuns
     p_nome public.nome,
@@ -1509,9 +1523,17 @@ EXCEPTION
 END;
 $$;
 
--- ----------------------------------------------------------------
--- Função/Trigger: Bloqueia inserções diretas nas tabelas de feitiços
--- ----------------------------------------------------------------
+-- =================================================================================
+--    5.2 TRIGGER: Bloqueia Inserções Diretas nas Tabelas de Feitiços
+-- =================================================================================
+
+/*
+A função `func_bloquear_insert_direto_feitico` impede qualquer tentativa de inserção
+direta nas tabelas relacionadas a feitiços (`tipos_feitico`), exigindo o uso
+da procedure oficial `sp_criar_feitico`.
+
+A verificação é feita via variável de sessão `bd_cthulhu.inserir_feitico`.
+*/
 CREATE OR REPLACE FUNCTION public.func_bloquear_insert_direto_feitico()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -1928,7 +1950,9 @@ BEGIN
 
     RAISE NOTICE 'Monstros movimentados para novas salas.';
 END;
-$$ LANGUAGE plpgsql;/*
+$$ LANGUAGE plpgsql;
+
+/*
 =================================================================================
         12. LÓGICA PARA BATALHAS
 =================================================================================
@@ -2510,13 +2534,17 @@ EXCEPTION
         RETURN SQLERRM; -- Retorna a mensagem de erro do banco
 END;
 $$;
+
 --===============================================================================
---        10. STORED PROCEDURE PARA ENCONTRAR VENDEDOR NO LOCAL
+--        16. STORED PROCEDURE PARA ENCONTRAR VENDEDOR NO LOCAL
 --===============================================================================
 
 /*
-O stored procedure sp_encontrar_vendedor_no_local é utilizado para encontrar os NPCs que estão no mesmo local do jogador. Em seguida,
-ele mostra os itens do inventário do NPC para o jogador.
+A procedure `sp_encontrar_vendedor_no_local` localiza os NPCs do tipo "Vendedor" que estejam
+no mesmo local que o jogador. Para cada NPC encontrado, a função retorna informações 
+pessoais e um de seus diálogos (se houver).
+
+Essa função é utilizada para detectar a possibilidade de interação comercial.
 */
 
 CREATE OR REPLACE FUNCTION public.sp_encontrar_vendedor_no_local(p_id_local public.id_local)
@@ -2554,6 +2582,18 @@ BEGIN
         n.id_local = p_id_local AND n.ocupacao LIKE 'Vendedor%';
 END;
 $$;
+
+-- =================================================================================
+--   16.2 STORED PROCEDURE: Ver Inventário do NPC
+-- =================================================================================
+
+/*
+A procedure `sp_ver_inventario_npc` retorna todos os itens que estão no inventário de um NPC específico.
+Ela detalha não apenas o nome e tipo dos itens, mas também suas propriedades específicas conforme o tipo:
+- armas, armaduras, itens mágicos ou de cura.
+
+É usada quando o jogador deseja visualizar o que um NPC vendedor tem a oferecer.
+*/
 
 CREATE OR REPLACE FUNCTION public.sp_ver_inventario_npc(
         p_npc_id public.id_personagem_npc
@@ -2647,6 +2687,24 @@ EXCEPTION
 END;
 $$;
 
+-- =================================================================================
+--   16.3 STORED PROCEDURE: Jogador Vende Item para NPC
+-- =================================================================================
+ /*
+A procedure `sp_jogador_vende_item` permite que um jogador venda um item de seu inventário
+para um NPC vendedor.
+
+Validações incluídas:
+- Verifica se o jogador possui o item
+- Impede venda de itens equipados
+- Verifica se o NPC tem inventário
+
+A transação:
+1. Remove o item do inventário do jogador
+2. Adiciona o item ao inventário do NPC
+3. Credita o valor do item ao ouro do jogador
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_jogador_vende_item(
     p_id_jogador public.id_personagem_jogavel,
     p_id_npc public.id_personagem_npc,
@@ -2701,14 +2759,20 @@ $$;
 
 /*
 =================================================================================
-        15. LÓGICA DE MECÂNICAS AVANÇADAS DE JOGO
+        17. LÓGICA DE MECÂNICAS AVANÇADAS DE JOGO
 =================================================================================
 */
 
--- ---------------------------------------------------------------------------------
---  15.1 FUNÇÃO E TRIGGER: Gerenciamento de Sanidade e Loucura
--- ---------------------------------------------------------------------------------
--- Função que é chamada por uma trigger sempre que a sanidade do jogador é alterada.
+-- =================================================================================
+--   17.1 TRIGGER + FUNÇÃO: Verificação de Insanidade
+-- =================================================================================
+ /*
+A função `func_verificar_insanidade` é chamada automaticamente por uma trigger
+sempre que a sanidade de um personagem jogável for atualizada.
+
+Se a sanidade chegar a 0 ou menos, o personagem entra em "insanidade indefinida",
+representando perda permanente de estabilidade mental.
+*/
 CREATE OR REPLACE FUNCTION public.func_verificar_insanidade()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -2729,7 +2793,14 @@ CREATE TRIGGER trigger_checar_insanidade_personagem
     WHEN (OLD.sanidade_atual IS DISTINCT FROM NEW.sanidade_atual)
     EXECUTE FUNCTION public.func_verificar_insanidade();
 
--- Procedure para aplicar dano à sanidade do jogador.
+-- =================================================================================
+--   17.2 STORED PROCEDURE: Aplicar Dano à Sanidade
+-- =================================================================================
+ /*
+A procedure `sp_aplicar_dano_sanidade` aplica dano à sanidade do personagem jogável.
+Ela atualiza a sanidade atual, acionando a trigger de verificação de loucura (se necessário),
+e retorna uma mensagem ao jogador com o novo valor de sanidade.
+*/
 CREATE OR REPLACE FUNCTION public.sp_aplicar_dano_sanidade(
     p_id_jogador public.id_personagem_jogavel,
     p_quantidade_dano SMALLINT
@@ -2752,9 +2823,19 @@ EXCEPTION
 END;
 $$;
 
--- ---------------------------------------------------------------------------------
---  15.2 STORED PROCEDURE: Realizar um teste de perícia
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--   17.3 STORED PROCEDURE: Teste de Perícia
+-- =================================================================================
+ /*
+A procedure `sp_realizar_teste_pericia` simula a rolagem de um teste de perícia para o personagem jogável.
+Ela obtém o valor da perícia, realiza uma rolagem d100 e compara com o valor.
+
+Retorna:
+- TRUE se a rolagem for menor ou igual ao valor da perícia
+- FALSE em caso contrário
+
+Mensagens são exibidas para debug ou feedback ao jogador.
+*/
 CREATE OR REPLACE FUNCTION public.sp_realizar_teste_pericia(
     p_id_jogador public.id_personagem_jogavel,
     p_nome_pericia public.nome
@@ -2800,12 +2881,16 @@ $$;
         18. LÓGICA DE BATALHA (NOVO - POR TURNO) E UTILITÁRIOS
 =================================================================================
 */
+-- =================================================================================
+--        18.1 STORED PROCEDURE: Executar um Turno de Batalha
+-- =================================================================================
+ /*
+A procedure `sp_executar_turno_batalha` executa a lógica de um turno completo de combate entre
+um personagem jogável e um monstro agressivo.
 
--- ---------------------------------------------------------------------------------
---  18.1 STORED PROCEDURE: Executa UM turno de batalha.
---  Esta função calcula o dano do jogador no monstro e do monstro no jogador,
---  atualiza a vida de ambos e retorna o resultado do turno.
--- ---------------------------------------------------------------------------------
+Ela calcula o dano com base em atributos e equipamentos, aplica os danos correspondentes
+e retorna um log textual com os eventos do turno, junto com a vida restante de ambos.
+*/
 CREATE OR REPLACE FUNCTION public.sp_executar_turno_batalha(
     p_id_jogador public.id_personagem_jogavel,
     p_id_instancia_monstro public.id_instancia_de_monstro
@@ -2878,9 +2963,15 @@ BEGIN
 END;
 $$;
 
--- ---------------------------------------------------------------------------------
---  18.2 STORED PROCEDURE: Ataque somente do monstro (para quando o jogador falha em uma ação)
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--        18.2 STORED PROCEDURE: Ataque somente do monstro
+-- =================================================================================
+ /*
+A procedure `sp_monstro_ataca_sozinho` simula uma situação em que o monstro ataca o jogador
+sem ser atacado, geralmente em casos de falha do jogador.
+
+Ela calcula e aplica o dano levando em conta a defesa atual do jogador e retorna uma mensagem de combate.
+*/
 CREATE OR REPLACE FUNCTION public.sp_monstro_ataca_sozinho(
     p_id_jogador public.id_personagem_jogavel,
     p_id_instancia_monstro public.id_instancia_de_monstro
@@ -2905,9 +2996,15 @@ BEGIN
 END;
 $$;
 
--- ---------------------------------------------------------------------------------
---  18.3 STORED PROCEDURE: Resetar o status do jogador após a morte
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--        18.3 STORED PROCEDURE: Resetar status do jogador após morte
+-- =================================================================================
+ /*
+A procedure `sp_resetar_status_jogador` redefine os pontos de vida e sanidade do jogador
+para seus valores máximos, com base nas funções auxiliares de cálculo.
+
+Ela é útil após eventos como "morte" ou retorno à base.
+*/
 CREATE OR REPLACE FUNCTION public.sp_resetar_status_jogador(
     p_id_jogador public.id_personagem_jogavel
 )
