@@ -150,7 +150,7 @@ class Game:
 
     def desenhar_box(self, x, y, titulo, linhas):
         largura = 50
-        separador = "=" * largura
+        separador = "═" * largura
 
         move_cursor_to(x, y)
         print(f"\033[35m{separador}\033[0m")
@@ -734,6 +734,7 @@ class Game:
                             print("Opção inválida.")
                 else:
                     print("\nNão há vendedores neste local.")
+                input("\nPressione Enter para continuar...")
 
             elif choice == '3': # USAR PERÍCIA
                 self._handle_skill_use()
