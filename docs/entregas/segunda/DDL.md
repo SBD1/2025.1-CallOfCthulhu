@@ -65,7 +65,7 @@ Autor: Luiz Guilherme
 Versão: 0.8
 Data: 11/06/2025
 Descrição: Ajustando as tabelas CREATE DOMAIN public.tipo_personagem AS CHARACTER e CREATE DOMAIN public.sexo AS CHARACTER para varying e comentando a ultima chave estrangeira que e tipo personagem pois estava dando erro verificar depois.
-Autor: Christopher e João Marcos
+AUTOR: Wanjo Christopher e João Marcos
 
 Versão: 0.9
 Data: 12/06/2025
