@@ -426,7 +426,15 @@ class DataBase:
         if result and result['sp_matar_monstros_no_local'] is not None:
             return result['sp_matar_monstros_no_local']
         return -1 # Indica erro se nada for retornado ou se a procedure indicar erro
-    
+        
+    def movimentar_todos_os_monstros(self):
+        """
+        Chama a storede procedure sp_movimentar_monstros que movimenta
+        todos os monstros do jogo para uma sala aleatória 
+        """
+        query = "SELECT public.sp_movimentar_monstros();"
+        return self._execute_query(query, fetch_all=True)
+
     def equip_item(self, id_jogador: int, id_instancia_item: int):
         """
         Chama a stored procedure para equipar um item do inventário.

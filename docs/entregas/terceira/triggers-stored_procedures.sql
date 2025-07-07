@@ -70,46 +70,56 @@ AUTOR: Wanjo Christopher
 DESCRIÇÃO: Cria triggers, stored procedures e functions para itens consumíveis (cura e mágicos) e feitiços.
 
 VERSÃO: 0.14
+DATA: 06/07/2025
+AUTOR: Luiz Guilherme
+DESCRIÇÃO: Cria o stored procedure para movimentar os monstros de local.
+
+VERSÃO: 0.15
+DATA: 06/07/2025
+AUTOR: Luiz Guilherme
+DESCRIÇÃO: Corrige bugs da função encontrar monstros.
+
+VERSÃO: 0.16
 DATA: 05/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria triggers, stored procedures e functions para Batalha e conclusão de missões.
 
-VERSÃO: 0.15
+VERSÃO: 0.17
 DATA: 05/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria triggers, stored procedures e functions para movimentação de jogadores, equipar itens e gerenciar durabilidade de itens.
 
-VERSÃO: 0.16
+VERSÃO: 0.18
 DATA: 05/07/2025
 AUTOR: Wanjo Chritopher
 DESCRIÇÃO: Adiciona as procedures sp_desequipar_item e atualiza sp_equipar_item para gerenciar os atributos do personagem ao equipar e desequipar itens.
 
-VERSÃO: 0.17
+VERSÃO: 0.19
 DATA: 05/07/2025
 AUTOR: Wanjo Chritopher
 DESCRIÇÃO: Corrige sp_executar_batalha para buscar vida da instância. Melhora sp_ver_inventario para retornar os bônus dos itens.
 
-VERSÃO: 0.18
+VERSÃO: 0.20
 DATA: 05/07/2025
 AUTOR: Wanjo Chritopher
 DESCRIÇÃO: Cria procedure de insperior monstro e melhora a de checar inventário
 
-VERSÃO: 0.19
+VERSÃO: 0.21
 DATA: 05/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria procedure de Sanidade e pericias.
 
-VERSÃO: 0.20
+VERSÃO: 0.22
 DATA: 05/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria procedure para executar turno batalha, que calcula dano e atualiza vida de personagens e monstros.
 
-VERSÃO: 0.21
+VERSÃO: 0.23
 DATA: 06/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria procedure para LÓGICA DE BATALHA (NOVO - POR TURNO) E UTILITÁRIOS e STORED PROCEDURE: Realizar um teste de perícia
 
-VERSÃO: 0.22
+VERSÃO: 0.24
 DATA: 06/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria procedure para distribuição de pontos de perícia iniciais ao criar personagem jogável.
@@ -1269,7 +1279,7 @@ $$;
 --        8. STORED PROCEDURE PARA ADICIONAR ITEM EM INVENTÁRIO
 --===============================================================================
 
-CREATE OR REPLACE FUNCTION public.sp_adicionar_item_ao_inventario(
+CREATE FUNCTION public.sp_adicionar_item_ao_inventario(
     p_jogador_id public.id_personagem,
     p_instancia_item_id public.id_instancia_de_item
 )
@@ -1413,12 +1423,11 @@ RETURNS TABLE (
     vida_atual SMALLINT,
     vida_total SMALLINT,
     defesa SMALLINT
-    -- Mais atributos do monstro podem ser adicionados caso necessario
 )
 LANGUAGE plpgsql AS $$
 BEGIN
-    -- Retorna todas as instâncias de monstros que estão atualmente no local especificado com uma consulta
     RETURN QUERY
+    -- Primeiro, busca todos os monstros AGRESSIVOS no local
     SELECT
         im.id AS instancia_monstro_id,
         im.id_monstro AS monstro_base_id,
@@ -1441,8 +1450,9 @@ BEGIN
 
 EXCEPTION
     WHEN OTHERS THEN
+        -- Este bloco ajuda a capturar erros inesperados durante a execução
         RAISE NOTICE 'Ocorreu um erro ao encontrar monstros no local %: %', p_local_id, SQLERRM;
-        RETURN; -- Retorna um conjunto vazio em caso de erro
+        RETURN;
 END;
 $$;
 
@@ -1452,7 +1462,7 @@ $$;
 
 -- Somente para testes do banco
 
-CREATE OR REPLACE FUNCTION public.sp_matar_monstros_no_local(
+CREATE FUNCTION public.sp_matar_monstros_no_local(
     p_local_id public.id_local
 )
 RETURNS INTEGER -- Retorna o número de monstros "mortos"
@@ -1482,7 +1492,45 @@ EXCEPTION
 END;
 $$;
 
+--===============================================================================
+--        12. STORED PROCEDURE PARA MOVIMENTAR OS MONSTROS AUTOMATICAMENTE
+--===============================================================================
+
 /*
+A stored procedure sp_movimentar_monstros seleciona um vetor com todos os locais do tipo sala
+e itera sobre cada instância de monstro mudando o seu local para um dos locais do 
+vetor de salas
+*/
+
+CREATE FUNCTION public.sp_movimentar_monstros()
+RETURNS VOID AS $$
+DECLARE
+    r_monster RECORD;
+    v_new_local_id public.id_local;
+    v_sala_ids public.id_local[];
+BEGIN
+    -- Obter todos os IDs de locais que são 'Sala'
+    SELECT ARRAY(SELECT id FROM public.local WHERE tipo_local = 'Sala') INTO v_sala_ids;
+
+    IF v_sala_ids IS NULL OR array_length(v_sala_ids, 1) = 0 THEN
+        RAISE NOTICE 'Nenhuma sala encontrada para movimentar monstros.';
+        RETURN;
+    END IF;
+
+    -- Iterar sobre cada instância de monstro
+    FOR r_monster IN SELECT id FROM public.instancias_monstros LOOP
+        -- Selecionar um ID de sala aleatoriamente
+        v_new_local_id := v_sala_ids[floor(random() * array_length(v_sala_ids, 1)) + 1];
+
+        -- Atualizar a localização do monstro
+        UPDATE public.instancias_monstros
+        SET id_local = v_new_local_id
+        WHERE id = r_monster.id;
+    END LOOP;
+
+    RAISE NOTICE 'Monstros movimentados para novas salas.';
+END;
+$$ LANGUAGE plpgsql;/*
 =================================================================================
         12. LÓGICA PARA BATALHAS
 =================================================================================

@@ -2,7 +2,11 @@ import os
 import sys
 from classes import Player 
 from database import DataBase
-import time 
+# import time # Importa o módulo time para usar time.sleep()
+# import time # Importa o módulo time para usar time.sleep()
+import time # para a lua de sangue
+import schedule # para a movimentação programada dos monstros
+import threading # usa uma thread somente para a movimentação dos monstros
 
 def clear():
     """Limpa a tela do terminal."""
@@ -42,6 +46,7 @@ class Game:
         self.player = None
         self.last_lua_de_sangue_time = time.time()
         self.initial_local_id = None # Para guardar o local inicial do personagem
+        self.scheduler_thread = None 
 
     def create_new_character_flow(self):
         # clear()
@@ -184,7 +189,7 @@ class Game:
             
             print("\n--- Seu Inventário ---")
             if not itens_inventario:
-                print("Seu inventário está vazio.")
+                print("Seu inventário está vazio.")    
                 break
             
             # Filtra apenas itens de cura se estiver em batalha
@@ -298,6 +303,31 @@ class Game:
                 break
             else:
                 print("Ação inválida.")
+
+    def _run_monster_movement_task(self):
+        """
+        Tarefa interna para ser executada pelo agendador.
+        Chama a stored procedure sp_movimentar_monstros.
+        """
+        print("Os monstros estão mudando de sala, perigos se aproximam...")
+        self.db.movimentar_todos_os_monstros() 
+        print("Cuidado, os monstros já estão em novas salas.")
+
+    def _scheduler_loop(self):
+        """Loop que executa as tarefas agendadas."""
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+
+    def start_monster_movement_scheduler(self):
+        """Inicia o agendador de movimento de monstros em uma thread separada."""
+        # Agendar a execução da função a cada 60 segundos (para teste) ou 5 minutos (para jogo real)
+        schedule.every(60).seconds.do(self._run_monster_movement_task) # Alterado para 60 segundos para facilitar o teste
+
+        # Inicia a thread do agendador
+        self.scheduler_thread = threading.Thread(target=self._scheduler_loop, daemon=True)
+        self.scheduler_thread.start()
+        print("Agendador de movimento de monstros iniciado em segundo plano.")
     
     def _display_monster_details(self, monster_id):
         """Busca e exibe a ficha de um monstro."""
@@ -654,7 +684,7 @@ class Game:
         if not self.player:
             print("Erro: Nenhum jogador carregado.")
             return self.start()
-
+        self.start_monster_movement_scheduler()
         print(f"\n--- Comeca a aventura de {self.player.nome}! ---")
 
         while True:
