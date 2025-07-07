@@ -26,7 +26,7 @@ class DataBase:
         try:
             conn = psycopg2.connect(
                 host="localhost",
-                database="call_of_cthulhu",  # Verifique o nome do seu banco de dados
+                database="call_of_chtulhu",  # Verifique o nome do seu banco de dados
                 user="postgres",
                 password="postgres",
                 port=5431  # Verifique a porta. O padrão é 5432.

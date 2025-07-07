@@ -263,7 +263,7 @@ class Game:
     def start(self):
         """Exibe o menu inicial e gerencia as opcoes do usuario."""
         while True:
-            # clear() 
+            clear() 
             print('\n--- Chamado de Cthulhu ---')
             print('Bem-vindo ao jogo! \n')
             print('1 - Criar Personagem')
@@ -585,7 +585,13 @@ class Game:
                                 self._handle_battle_loop(monstro_escolhido)
                                 #resultado_batalha = self.db.execute_battle(self.player.id_jogador, monstro_escolhido['instancia_monstro_id'])
                                 #print(resultado_batalha)
-                                print("--- A BATALHA TERMINOU! ---")
+                                self.clear()
+                                move_cursor_to(1, 1)
+                                print("\033[35m" + "=" * 108 + "\033[0m")
+                                print("\033[32m" + " " * 108 + "\033[0m")
+                                print("\033[35m------------------------------------------- A BATALHA TERMINA! ----------------------------------------------\033[0m")
+                                print("\033[32m" + " " * 108 + "\033[0m")
+                                print("\033[35m" + "=" * 108 + "\033[0m")
                             elif command == 'i':
                                 self._display_monster_details(monstro_escolhido['instancia_monstro_id'])
                             elif command == 'r':
@@ -696,6 +702,10 @@ class Game:
                 break
             else:
                 print("Opção de exploração inválida.")
+
+            self.player = self.db.get_personagem(self.player.nome)
+            if self.player.pontos_de_vida_atual <= 0:
+                return    
 
     def _handle_player_death(self):
         """Gerencia o que acontece quando o jogador morre."""
