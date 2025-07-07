@@ -77,7 +77,7 @@ class Game:
     def desenhar_divisoria_vertical(self, coluna=109, altura=100):
         for linha in range(1, altura + 1):
             move_cursor_to(coluna, linha)
-            print("\033[35m││\033[0m", end='')
+            print("\033[35m║\033[0m", end='')
 
     def limpar_area_interativa(self):
         for y in range(1, 41):
@@ -86,7 +86,7 @@ class Game:
 
     def desenhar_box(self, x, y, titulo, linhas):
         largura = 50
-        separador = "=" * largura
+        separador = "═" * largura
 
         move_cursor_to(x, y)
         print(f"\033[35m{separador}\033[0m")
@@ -270,13 +270,13 @@ class Game:
 
     def list_characters(self):
         # clear()
-        print("========== Personagens Salvos ==========")
+        print("═══════════════ \033[91mPersonagens Salvos\033[0m ═══════════════")
         personagens = self.db._execute_query("SELECT id, nome, ocupacao FROM public.personagens_jogaveis ORDER BY id;", fetch_all=True)
 
         if personagens:
             for p in personagens:
                 print(f"|ID: {p['id']}, Nome: {p['nome'].strip()}, Ocupacao: {p['ocupacao'].strip()}")
-            print("==========================================\n")
+            print("\033[35m═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m\n")
         else:
             print("Nenhum personagem encontrado no banco de dados.")
     
@@ -297,7 +297,7 @@ class Game:
             print("░ ░            ░  ░    ░  ░    ░  ░       ░ ░             ░ ░                ░  ░  ░   ░         ░  ░ ░  ░  ░   ░     ")
             print("░                                                         ░                                                           ")
             print("\033[0m")
-            print("\033[35m===============================================================================================================================================\033[0m")
+            print("\033[35m═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
             print("\033[32m")
             print('Bem-vindo ao jogo!\n')
             print('Escolha uma das opcoes abaixo:')
@@ -305,7 +305,7 @@ class Game:
             print('2 - Listar Personagens') 
             print('3 - Sair do Jogo')
             print("\033[0m")
-            print("\033[35m===============================================================================================================================================\033[0m")
+            print("\033[35m═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
 
             opcao = input('Digite a opcao desejada: ').strip()
 
@@ -548,11 +548,11 @@ class Game:
         while True:
             self.clear()
             move_cursor_to(1, 1)
-            print("\033[35m" + "=" * 108 + "\033[0m")
+            print("\033[35m" + "═" * 108 + "\033[0m")
             print("\033[32m" + " " * 108 + "\033[0m")
             print("\033[32m------------------------------------------- Explorar Ambiente ----------------------------------------------\033[0m")
             print("\033[32m" + " " * 108 + "\033[0m")
-            print("\033[35m" + "=" * 108 + "\033[0m")
+            print("\033[35m" + "═" * 108 + "\033[0m")
             print("1. Procurar por Itens")
             print("2. Procurar por Ameaças")
             print("3. Usar Perícia / Interagir")
@@ -595,7 +595,8 @@ class Game:
             elif choice == '2': # Procurar Ameaças
                 self.clear()
                 move_cursor_to(1, 1)
-                print("\nVoce se prepara para procurar por sinais de vida... nao-humana.")
+                print("\033[35m════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
+                print("Voce se prepara para procurar por sinais de vida... nao-humana.")
                 monstros_no_local = self.db.get_monsters_in_location(self.player.id_local)
 
                 if monstros_no_local:
@@ -614,21 +615,21 @@ class Game:
                             if command == 'a':
                                 self.clear()
                                 move_cursor_to(1, 1)
-                                print("\033[35m" + "=" * 108 + "\033[0m")
+                                print("\033[35m" + "═" * 108 + "\033[0m")
                                 print("\033[32m" + " " * 108 + "\033[0m")
                                 print("\033[35m------------------------------------------- A BATALHA COMEÇA! ----------------------------------------------\033[0m")
                                 print("\033[32m" + " " * 108 + "\033[0m")
-                                print("\033[35m" + "=" * 108 + "\033[0m")
+                                print("\033[35m" + "═" * 108 + "\033[0m")
                                 self._handle_battle_loop(monstro_escolhido)
                                 #resultado_batalha = self.db.execute_battle(self.player.id_jogador, monstro_escolhido['instancia_monstro_id'])
                                 #print(resultado_batalha)
                                 self.clear()
                                 move_cursor_to(1, 1)
-                                print("\033[35m" + "=" * 108 + "\033[0m")
+                                print("\033[35m" + "═" * 108 + "\033[0m")
                                 print("\033[32m" + " " * 108 + "\033[0m")
                                 print("\033[35m------------------------------------------- A BATALHA TERMINA! ----------------------------------------------\033[0m")
                                 print("\033[32m" + " " * 108 + "\033[0m")
-                                print("\033[35m" + "=" * 108 + "\033[0m")
+                                print("\033[35m" + "═" * 108 + "\033[0m")
                             elif command == 'i':
                                 self._display_monster_details(monstro_escolhido['instancia_monstro_id'])
                             elif command == 'r':
@@ -651,6 +652,7 @@ class Game:
 
                 else:
                     print("O local parece estar livre de ameacas... por enquanto.")
+                    print("\033[35m════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
                 input("\nPressione Enter para continuar...")
 
             elif choice == '4': # Comprar Itens / Interagir com Vendedo
@@ -829,7 +831,7 @@ class Game:
             input("Pressione Enter para continuar...")
             return
 
-        print("\n--- Usar Perícia ---")
+        print("\033[35m------------------------------------------- Usar Perícia ---------------------------------------------------\033[0m")
         for i, skill in enumerate(player_skills):
             print(f"[{i + 1}] {skill['nome'].strip()} (Valor: {skill['valor_atual']})")
         print("[0] Voltar")
@@ -897,7 +899,7 @@ class Game:
             # clear()
             self.clear()
             move_cursor_to(1, 1)
-            print("\033[35m============================================================================================================\033[0m")
+            print("\033[35m════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
             texto = f"Voce esta em um(a) {detalhes_local['tipo_local']}: {detalhes_local['descricao']}"
             for linha in textwrap.wrap(texto, width=108):
                 print(linha)
@@ -907,8 +909,8 @@ class Game:
                 #for linha in textwrap.wrap(status, width=108):
                 #    print(linha)
             
-            print("\033[35m============================================================================================================\033[0m")
-            print("\033[32m============================================================================================================\033[0m")
+            print("\033[35m════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
+            print("\033[35m════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
             print("SAIDAS DISPONIVEIS:")
             
             saidas = detalhes_local['saidas']
@@ -918,7 +920,7 @@ class Game:
                 for i, saida in enumerate(saidas):
                     print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']})")
             
-            print("\033[32m============================================================================================================\033[0m")
+            print("\033[35m════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
             print("O que voce deseja fazer? (Ficha [f], Inventário [i], Explorar [e], Sair [s])")
             escolha = input("> ").strip().lower()
 
