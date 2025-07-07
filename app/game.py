@@ -556,6 +556,8 @@ class Game:
                 input("\nPressione Enter para continuar...")
 
             elif choice == '2': # Procurar Ameaças
+                self.clear()
+                move_cursor_to(1, 1)
                 print("\nVoce se prepara para procurar por sinais de vida... nao-humana.")
                 monstros_no_local = self.db.get_monsters_in_location(self.player.id_local)
 
@@ -573,7 +575,13 @@ class Game:
                         if 0 <= num < len(monstros_no_local):
                             monstro_escolhido = monstros_no_local[num]
                             if command == 'a':
-                                print("\n--- A BATALHA COMEÇA! ---")
+                                self.clear()
+                                move_cursor_to(1, 1)
+                                print("\033[35m" + "=" * 108 + "\033[0m")
+                                print("\033[32m" + " " * 108 + "\033[0m")
+                                print("\033[35m------------------------------------------- A BATALHA COMEÇA! ----------------------------------------------\033[0m")
+                                print("\033[32m" + " " * 108 + "\033[0m")
+                                print("\033[35m" + "=" * 108 + "\033[0m")
                                 self._handle_battle_loop(monstro_escolhido)
                                 #resultado_batalha = self.db.execute_battle(self.player.id_jogador, monstro_escolhido['instancia_monstro_id'])
                                 #print(resultado_batalha)
