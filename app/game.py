@@ -509,7 +509,13 @@ class Game:
     def _handle_explore_actions(self):
         """Gerencia as ações de exploração (itens e monstros)."""
         while True:
-            print("\n--- Explorar Ambiente ---")
+            self.clear()
+            move_cursor_to(1, 1)
+            print("\033[35m" + "=" * 108 + "\033[0m")
+            print("\033[32m" + " " * 108 + "\033[0m")
+            print("\033[35m------------------------------------------- Explorar Ambiente ----------------------------------------------\033[0m")
+            print("\033[32m" + " " * 108 + "\033[0m")
+            print("\033[35m" + "=" * 108 + "\033[0m")
             print("1. Procurar por Itens")
             print("2. Procurar por Ameaças")
             print("3. Usar Perícia / Interagir")
