@@ -1594,10 +1594,10 @@ VALUES ('Uma passagem recém-revelada, o ar aqui é mais frio e antigo. O caminh
 -- Usamos a SP padrão e depois atualizamos com os campos específicos da história.
 -- O NPC é um placeholder, já que a missão será iniciada pelo menu.
 SELECT public.sp_criar_missao(
-    'O Guardião da Cripta'::public.nome,
-    'Você despertou em uma cripta úmida e selada. Uma presença colossal bloqueia a única saída aparente. Derrote o guardião para encontrar uma rota de fuga.'::CHARACTER(512),
+    'O Guardião da Cripta'::public.nome, -- Nome da Missão
+    'O ar gelado e salgado queima seus pulmões. Você acorda sobre uma laje de pedra fria, no centro de uma cripta úmida cujas paredes parecem vivas, cobertas por um musgo bioluminescente que pulsa em um ritmo doentio. A única saída, um arco de pedra maciça, está bloqueada por uma forma montanhosa e blasfema. É Cthulhu, o Grande Antigo, sonhando em sua cidade morta. Sua presença esmaga sua sanidade, e você sabe, com uma certeza aterrorizante, que a única chance de escapar deste pesadelo é atacar a entidade adormecida e forçar uma passagem.'::CHARACTER(512), -- Descrição Imersiva
     'principal'::public.tipo_missao,
-    'Derrote a entidade na cripta.'::CHARACTER(128),
+    'Ataque o Grande Cthulhu e liberte seu caminho para fora da cripta.'::CHARACTER(128), -- Objetivo
     (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio')
 );
 
@@ -1625,70 +1625,6 @@ SELECT
     FALSE;
 
 SELECT 'Configuração do Modo História concluída com sucesso.' AS resultado;
-
--- =================================================================================
---         CONFIGURAÇÃO DA SEGUNDA MISSÃO DA HISTÓRIA
--- =================================================================================
-
--- PASSO 1: Criar o guardião da segunda missão.
-SELECT public.sp_criar_monstro(
-    p_nome                  := 'Guardião do Eco'::public.nome,
-    p_descricao             := 'Uma criatura feita de som solidificado e escuridão. Seus ataques ressoam na alma.'::public.descricao,
-    p_tipo                  := 'agressivo'::public.tipo_monstro,
-    p_agressivo_defesa      := 50::SMALLINT,
-    p_agressivo_vida        := 300::SMALLINT,
-    p_agressivo_vida_total  := 300::SMALLINT,
-    p_agressivo_catalisador := 'proximidade'::public.gatilho_agressividade,
-    p_agressivo_poder       := 80::SMALLINT,
-    p_agressivo_tipo        := 'psiquico'::public.tipo_monstro_agressivo,
-    p_agressivo_velocidade  := 20::SMALLINT,
-    p_agressivo_loucura     := 80::SMALLINT,
-    p_agressivo_pm          := 100::SMALLINT,
-    p_agressivo_dano        := 60::public.dano
-);
-
--- PASSO 2: Criar o local que será desbloqueado pela segunda missão.
-WITH andar_id_cte AS (
-    SELECT andar AS id FROM public.local LIMIT 1
-)
-INSERT INTO public.local (descricao, tipo_local, status, andar)
-VALUES ('Uma câmara vasta onde o silêncio é tão profundo que se torna audível. No centro, um cristal negro pulsa lentamente, ecoando os segredos do cosmos.', 'Sala', NULL, (SELECT id FROM andar_id_cte));
-
--- PASSO 3: Criar a segunda missão e seus requisitos.
-SELECT public.sp_criar_missao(
-    'O Eco do Abismo'::public.nome,
-    'A passagem revelada leva a um corredor frio. Uma nova barreira, guardada por um eco sombrio, impede seu progresso. Silencie o guardião para avançar.'::CHARACTER(512),
-    'principal'::public.tipo_missao,
-    'Derrote a entidade que guarda a câmara do eco.'::CHARACTER(128),
-    (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio')
-);
-
-UPDATE public.missoes
-SET
-    id_local_alvo = (SELECT id FROM public.local WHERE descricao LIKE 'Uma passagem recém-revelada%'),
-    id_local_desbloqueado = (SELECT id FROM public.local WHERE descricao LIKE 'Uma câmara vasta onde o silêncio%'),
-    direcao_desbloqueada = 'norte',
-    missao_sequencia_proxima = NULL -- É a última missão por enquanto
-WHERE nome = 'O Eco do Abismo';
-
--- PASSO 4: Criar a instância do novo guardião e seu requisito.
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item, is_essencial_historia, id_missao_vinculada)
-SELECT
-    (SELECT id FROM public.agressivos WHERE nome = 'Guardião do Eco'),
-    (SELECT vida_total FROM public.agressivos WHERE nome = 'Guardião do Eco'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma passagem recém-revelada%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma passagem recém-revelada%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Ídolo Grotesco')),
-    TRUE, -- Essencial para a história, não se move
-    (SELECT id FROM public.missoes WHERE nome = 'O Eco do Abismo'); -- Vinculado à segunda missão
-
-INSERT INTO public.requisitos_missao (id_missao, tipo_requisito, id_alvo_instancia)
-VALUES ((SELECT id FROM public.missoes WHERE nome = 'O Eco do Abismo'), 'ELIMINAR_MONSTRO', (SELECT id FROM public.instancias_monstros WHERE id_monstro = (SELECT id FROM public.agressivos WHERE nome = 'Guardião do Eco')));
-
--- PASSO 5: Ligar a primeira missão à segunda.
-UPDATE public.missoes SET missao_sequencia_proxima = (SELECT id FROM public.missoes WHERE nome = 'O Eco do Abismo') WHERE nome = 'O Guardião da Cripta';
-
-SELECT 'Segunda missão da campanha configurada com sucesso.' AS resultado;
 
 -- =================================================================================
 --         CRIAÇÃO DE PERSONAGEM DE TESTE (SUPER PERSONAGEM)

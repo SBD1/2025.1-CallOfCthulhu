@@ -2472,10 +2472,11 @@ LANGUAGE plpgsql AS $$
 DECLARE
     v_missao_info RECORD;
 BEGIN
-    -- 1. Encontrar a missão inicial e seu local de início
+    -- 1. Encontrar a missão inicial, seu local e sua descrição
     SELECT
         m.id,
-        m.id_local_alvo
+        m.id_local_alvo,
+        m.descricao -- Adicionado para buscar a descrição
     INTO v_missao_info
     FROM public.missoes m
     WHERE m.nome = p_nome_missao_inicial AND m.tipo = 'principal';
@@ -2500,8 +2501,8 @@ BEGIN
         id_local = v_missao_info.id_local_alvo
     WHERE id = p_id_jogador;
 
-    -- 4. Retornar mensagem de sucesso
-    RETURN 'Modo História iniciado. Você despertou em um local estranho... Boa sorte.';
+    -- 4. Retornar a descrição da missão
+    RETURN v_missao_info.descricao;
 
 EXCEPTION
     WHEN OTHERS THEN
