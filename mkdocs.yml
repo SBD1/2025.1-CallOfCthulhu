@@ -1,7 +1,7 @@
 site_name: Call of Cthulhu
 site_description: Documentação Oficial do Projeto Call of Cthulhu da Disciplina Bancos de Dados da Universidade de Brasília
 site_url: https://github.com/SBD1/2025.1-CallOfCthulhu
-site_author: Grupo 01 - Engenharia de Requisitos - UnB
+site_author: Grupo 01 - Sistema de Bancos de Dados 1 - UnB
 repo_name: CallofCthulhu
 repo_url: https://github.com/SBD1/2025.1-CallOfCthulhu
 edit_uri: edit/docs/docs/
@@ -63,27 +63,26 @@ nav:
   - Início: index.md
   - Apresentação: entregas/apresentacao/apresentacao.md
   - Módulo 1:
-      - DER: entregas/primeira/DER.md
-      - MER: entregas/primeira/MER.md
-      - ML: entregas/primeira/ML.md
-      - DD: entregas/primeira/DD.md
+      - Diagrama Entidade Relacionamento: entregas/primeira/DER.md
+      - Modelo Entidade Relacionamento: entregas/primeira/MER.md
+      - Modelo Lógico: entregas/primeira/ML.md
+      - Dicionário de Dados: entregas/primeira/DD.md
   - Módulo 2:
-      - MER: entregas/segunda/MER.md
-      - ML: entregas/segunda/ML.md
-      - DD: entregas/segunda/DD.md
-      - DDL: entregas/segunda/DDL.md
-      - DML: entregas/segunda/DML.md
-      - DQL: entregas/segunda/DQL.md
-  - Módulo 3:
-      - DER: entregas/terceira/DER.md
-      - MER: entregas/terceira/MER.md
-      - ML: entregas/terceira/ML.md
-      - DD: entregas/terceira/DD.md
-  - Trabalho Final:
-      - DER: entregas/final/DER.md
-      - MER: entregas/final/MER.md
-      - ML: entregas/final/ML.md
-      - DD: entregas/final/DD.md
+      - Modelo Entidade Relacionamento: entregas/segunda/MER.md
+      - Modelo Lógico: entregas/segunda/ML.md
+      - Dicionário de Dados: entregas/segunda/DD.md
+      - Data Definition Language: entregas/segunda/DDL.md
+      - Data Modeling Language: entregas/segunda/DML.md
+      - Data Query Language: entregas/segunda/DQL.md
+  - Módulo Final:
+      - Diagrama Entidade Relacionamento: entregas/terceira/DER.md
+      - Modelo Entidade Relacionamento: entregas/terceira/MER.md
+      - Modelo Lógico: entregas/terceira/ML.md
+      - Dicionário de Dados: entregas/terceira/DD.md
+      - Data Definition Language: entregas/terceira/DDL.md
+      - Data Modeling Language: entregas/terceira/DML.md
+      - Data Query Language: entregas/terceira/DQL.md
+      - Triggers e Stored Procedures: entregas/terceira/TSP.md
   - Referências: referencias/referencias.md 
 
 

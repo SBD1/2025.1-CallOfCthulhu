@@ -119,7 +119,7 @@ DATA: 06/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria procedure para LÓGICA DE BATALHA (NOVO - POR TURNO) E UTILITÁRIOS e STORED PROCEDURE: Realizar um teste de perícia
 
-VERSÃO: 0.24
+VERSÃO: 1.0
 DATA: 06/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria procedure para distribuição de pontos de perícia iniciais ao criar personagem jogável.

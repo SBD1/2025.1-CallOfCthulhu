@@ -18,10 +18,10 @@ Com base no universo criado por HP Lovecraft, Call of Cthulhu busca contar a his
 
 ### Módulo 2
 
-- [Diagrama entidade relacionamento](./docs/entregas/segunda/DER.md)
-- [Modelo entidade relacionamento](./docs/entregas/segunda/MER.md)
-- [Modelo lógico](./docs/entregas/segunda/ML.md)
-- [Dicionário de Dados](./docs/entregas/segunda/DD.md)
+- [Diagrama entidade relacionamento](./src/sql-segunda/DER.md)
+- [Modelo entidade relacionamento](./src/sql-segunda/MER.md)
+- [Modelo lógico](./src/sql-segunda/ML.md)
+- [Dicionário de Dados](./src/sql-segunda/DD.md)
 - 
 
 ### Módulo 3
