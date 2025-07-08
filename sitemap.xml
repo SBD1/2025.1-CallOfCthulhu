@@ -2,90 +2,106 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/backlog/backlog/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/apresentacao/apresentacao/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/final/DD/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/final/DER/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/final/MER/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/final/ML/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/primeira/DD/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/primeira/DER/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/primeira/MER/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/primeira/ML/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/segunda/DD/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/segunda/DDL/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/segunda/DML/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/segunda/DQL/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/segunda/MER/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/segunda/ML/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/DD/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/DDL/</loc>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/DER/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/DML/</loc>
+         <lastmod>2025-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/DQL/</loc>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/MER/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/ML/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
+    </url>
+    <url>
+         <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/TSP/</loc>
+         <lastmod>2025-07-08</lastmod>
     </url>
     <url>
          <loc>https://github.com/SBD1/2025.1-CallOfCthulhu/referencias/referencias/</loc>
-         <lastmod>2025-06-17</lastmod>
+         <lastmod>2025-07-08</lastmod>
     </url>
 </urlset>

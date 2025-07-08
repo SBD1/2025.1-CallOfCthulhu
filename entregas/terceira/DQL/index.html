@@ -12,13 +12,13 @@
         <meta name="author" content="Grupo 01 - Sistema de Bancos de Dados 1 - UnB">
       
       
-        <link rel="canonical" href="https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/DER/">
+        <link rel="canonical" href="https://github.com/SBD1/2025.1-CallOfCthulhu/entregas/terceira/DQL/">
       
       
-        <link rel="prev" href="../../segunda/DQL/">
+        <link rel="prev" href="../DML/">
       
       
-        <link rel="next" href="../MER/">
+        <link rel="next" href="../TSP/">
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
@@ -26,7 +26,7 @@
     
     
       
-        <title>Diagrama Entidade Relacionamento - Call of Cthulhu</title>
+        <title>Data Query Language - Call of Cthulhu</title>
       
     
     
@@ -89,7 +89,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#entrega-3" class="md-skip">
+        <a href="#linguagem-de-consulta-de-dados-dql" class="md-skip">
           Pular para conteúdo
         </a>
       
@@ -124,7 +124,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Diagrama Entidade Relacionamento
+              Data Query Language
             
           </span>
         </div>
@@ -630,32 +630,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Diagrama Entidade Relacionamento
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../DER/" class="md-nav__link">
         
   
   
@@ -666,35 +644,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Índice">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Índice
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#historico-de-versoes" class="md-nav__link">
-    <span class="md-ellipsis">
-      📑 Histórico de versões
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -819,10 +768,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../DQL/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Data Query Language
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -833,6 +804,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introducao" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introdução
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metodologia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metodologia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dql-linguagem-de-consulta-de-dados" class="md-nav__link">
+    <span class="md-ellipsis">
+      DQL - Linguagem de Consulta de Dados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codigo-dqlsql" class="md-nav__link">
+    <span class="md-ellipsis">
+      Código dql.sql
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bibliografia" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Bibliografia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico-de-versoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      📑 Histórico de Versões
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -917,9 +962,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#introducao" class="md-nav__link">
+    <span class="md-ellipsis">
+      Introdução
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metodologia" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metodologia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dql-linguagem-de-consulta-de-dados" class="md-nav__link">
+    <span class="md-ellipsis">
+      DQL - Linguagem de Consulta de Dados
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codigo-dqlsql" class="md-nav__link">
+    <span class="md-ellipsis">
+      Código dql.sql
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bibliografia" class="md-nav__link">
+    <span class="md-ellipsis">
+      📚 Bibliografia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#historico-de-versoes" class="md-nav__link">
     <span class="md-ellipsis">
-      📑 Histórico de versões
+      📑 Histórico de Versões
     </span>
   </a>
   
@@ -944,47 +1034,541 @@
   
 
 
-<h1 id="entrega-3">Entrega 3</h1>
-<p>O Modelo Entidade Relacionamento para bancos de dados é um modelo que descreve os objetos (entidades) envolvidos em um negócio, com suas características (atributos) e como elas se relacionam entre si (relacionamentos).</p>
-<p align="center">
-  <a class="glightbox" href="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/main/docs/assets/DER_Total.png" data-type="image" data-width="100%" data-height="auto" data-desc-position="bottom"><img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/main/docs/assets/DER_Total.png" width="600"></a>
-</p>
+<h1 id="linguagem-de-consulta-de-dados-dql">Linguagem de Consulta de Dados (DQL)</h1>
+<h2 id="introducao">Introdução</h2>
+<p>A <strong>Linguagem de Consulta de Dados (DQL - <em>Data Query Language</em>)</strong> é um dos principais subconjuntos da linguagem SQL, dedicada exclusivamente à <strong>consulta e recuperação de informações</strong> em um banco de dados. Enquanto a DDL cria a estrutura e a DML manipula os dados, a DQL tem como objetivo extrair informações específicas que auxiliam na tomada de decisão e na geração de relatórios.</p>
+<p>O principal comando da DQL é o <code>SELECT</code>, que permite consultar dados de tabelas, realizar junções, aplicar filtros e efetuar ordenações. De acordo com Elmasri e Navathe, "o comando <code>SELECT</code> é a base para a recuperação eficiente de dados em sistemas de banco de dados" <a id="FRM1" href="#REF1">[1]</a>.</p>
+<p>Dominar a DQL é essencial para profissionais que trabalham com dados, como desenvolvedores, DBAs, analistas e cientistas de dados, pois possibilita acessar e analisar os dados armazenados de forma precisa e eficiente.</p>
+<h2 id="metodologia">Metodologia</h2>
+<p>A construção das consultas deste trabalho seguiu as seguintes etapas:</p>
+<ul>
+<li><strong>Análise do Modelo Relacional:</strong> Estudo das tabelas e seus relacionamentos para identificar as melhores formas de consulta.</li>
+<li><strong>Elaboração de Consultas:</strong> Criação de instruções SQL utilizando o comando <code>SELECT</code> com diferentes níveis de complexidade.</li>
+<li><strong>Execução no PostgreSQL:</strong> Testes e validação das consultas no ambiente PostgreSQL para garantir a integridade e o retorno esperado dos dados.</li>
+<li><strong>Ajustes e Otimizações:</strong> Refinamento das consultas para melhorar a eficiência e a clareza dos resultados.</li>
+</ul>
+<hr />
+<h2 id="dql-linguagem-de-consulta-de-dados">DQL - Linguagem de Consulta de Dados</h2>
+<p>Para acessar o script completo, clique no link a seguir: <a href="https://github.com/SBD1/2025.1-CallOfCthulhu/blob/main/src/sql-terceira/dql.sql">Visualizar DQL no GitHub</a></p>
+<h2 id="codigo-dqlsql">Código dql.sql</h2>
+<details>
+<div class="highlight"><pre><span></span><code>/*
 
-<h2 id="historico-de-versoes">📑 Histórico de versões</h2>
+HISTÓRICO DE VERSÕES
+
+Versão: 0.1
+Data: 12/06/2025
+Descrição: Criando a versão inicial do DQL com consultas básicas que envolvem somente uma tabela.
+Autor: Luiz Guilherme
+
+Versão: 0.2
+Data: 28/06/2025
+Descrição: Atualizando DQL para refletir a unificação de &#39;salas&#39; e &#39;corredores&#39; na tabela &#39;public.local&#39;.
+           Correção de erros de sintaxe em consultas de item e feitiço.
+Autor: Luiz Guilherme
+
+*/
+
+-- ===============================================
+
+--          CONSULTAS DE PERSONAGEM
+
+-- ===============================================
+
+-- MOSTRAR OS ATRIBUTOS DE UM PERSONAGEM JOGÁVEL
+SELECT
+    forca,
+    constituicao,
+    poder,
+    destreza,
+    aparencia,
+    tamanho,
+    inteligencia,
+    educacao,
+    ideia,
+    conhecimento,
+    sorte
+FROM 
+    public.view_personagens_jogaveis_completos
+WHERE 
+    id = %s;
+
+-- MOSTRAR A VIDA ATUAL E MÁXIMA DO PERSONAGEM JOGÁVEL
+SELECT 
+    pts_de_vida,
+    pontos_de_vida_atual
+FROM 
+    public.view_personagens_jogaveis_completos
+WHERE 
+    id = %s;
+
+-- MOSTRAR A SANIDADE ATUAL E MÁXIMA DO PERSONAGEM JOGÁVEL
+SELECT 
+    sanidade_maxima AS sanidade, -- A view retorna &#39;sanidade_maxima&#39;, renomeado para &#39;sanidade&#39; para consistência
+    sanidade_atual
+FROM 
+    public.view_personagens_jogaveis_completos
+WHERE 
+    id = %s;
+
+-- MOSTRAR SE O PERSONAGEM ESTÁ EM UMA SALA OU CORREDOR (AGORA USANDO A TABELA &#39;LOCAL&#39;)
+SELECT
+    pj.id AS id_personagem,
+    pj.nome AS nome_personagem,
+    pj.ocupacao,
+    l.tipo_local, -- Diretamente da tabela &#39;local&#39;
+    l.descricao AS descricao_do_local
+FROM
+    public.personagens_jogaveis pj
+JOIN -- Usamos JOIN porque id_local não pode ser NULL (assumindo que todo personagem está em um local)
+    public.local l ON pj.id_local = l.id
+WHERE
+    pj.id = %s; -- Adicionado WHERE para buscar um personagem específico, %s para ID do personagem
+
+-- ===============================================
+
+--          CONSULTAS DE NPC
+
+-- ===============================================
+
+-- MOSTRAR TODAS AS INFORMAÇÕES DE UM NPC
+SELECT
+    nome,
+    ocupacao,
+    idade,
+    sexo,
+    residencia,
+    local_nascimento
+FROM 
+    public.npcs
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--          CONSULTAS DE DIÁLOGOS
+
+-- ===============================================
+
+-- MOSTRAR OS DIÁLOGOS DE UM NPC
+SELECT 
+    script_dialogo
+FROM 
+    public.dialogos
+WHERE 
+    npc_id = %s;
+
+-- ===============================================
+
+--          CONSULTAS DE INVENTÁRIOS
+
+-- ===============================================
+
+-- MOSTRAR O INVENTÁRIO DE UM PERSONAGEM JOGÁVEL
+SELECT
+    i.id AS id_inventario,
+    i.tamanho,
+    ii.id AS id_instancia_item,
+    it.nome AS nome_item,
+    it.descricao AS descricao_item,
+    ii.durabilidade
+FROM
+    public.inventarios inv
+JOIN
+    public.personagens_jogaveis pj ON pj.id_inventario = inv.id
+LEFT JOIN
+    public.inventarios_possuem_instancias_item ipii ON inv.id = ipii.id_inventario
+LEFT JOIN
+    public.instancias_de_itens ii ON ipii.id_instancias_de_item = ii.id
+LEFT JOIN
+    public.itens it ON ii.id_item = it.id
+WHERE
+    pj.id = %s; -- ID do personagem jogável
+
+-- ===============================================
+
+--          CONSULTAS DE TEMPLOS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM TEMPLO
+SELECT 
+    nome,
+    descricao
+FROM 
+    public.templos
+WHERE
+    id = %s;
+
+-- ===============================================
+
+--          CONSULTAS DE ANDARES
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM ANDAR
+SELECT 
+    a.descricao,
+    t.nome AS nome_templo,
+    l.descricao AS descricao_local_inicial,
+    l.tipo_local AS tipo_local_inicial
+FROM 
+    public.andares a
+JOIN
+    public.templos t ON a.id_templo = t.id
+JOIN
+    public.local l ON a.sala_inicial = l.id
+WHERE
+    a.id = %s;
+
+-- ===============================================
+
+--          CONSULTAS DE LOCAIS (Antigas Salas e Corredores)
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM LOCAL (SALA OU CORREDOR)
+SELECT 
+    descricao,
+    tipo_local,
+    status, -- Será NULL para Salas, FALSE/TRUE para Corredores
+    sul,
+    norte,
+    leste,
+    oeste,
+    cima,
+    baixo
+FROM 
+    public.local
+WHERE
+    id = %s;
+
+-- ===============================================
+
+--          CONSULTAS DE PERÍCIAS
+
+-- ===============================================
+
+-- MOSTRAR PERÍCIAS DE UM PERSONAGEM JOGÁVEL
+SELECT
+    p.nome AS nome_pericia,
+    ppp.valor_atual,
+    p.eh_de_ocupacao
+FROM
+    public.personagens_possuem_pericias ppp
+JOIN
+    public.pericias p ON ppp.id_pericia = p.id
+WHERE
+    ppp.id_personagem = %s; -- ID do personagem jogável
+
+-- ===============================================
+
+--          CONSULTAS MONSTROS AGRESSIVOS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM MONSTRO AGRESSIVO
+SELECT 
+    nome,
+    descricao,
+    defesa,
+    vida,
+    catalisador_agressividade,
+    poder,
+    tipo_agressivo,
+    velocidade_ataque,
+    loucura_induzida,
+    dano
+FROM 
+    public.agressivos
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--          CONSULTAS MONSTROS PACÍFICOS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM MONSTRO PACÍFICO
+SELECT 
+    nome,
+    descricao,
+    defesa,
+    vida,
+    motivo_passividade,
+    tipo_pacifico,
+    conhecimento_geografico,
+    conhecimento_proibido
+FROM 
+    public.pacificos
+WHERE 
+    id = %s;
+
+-- ===============================================
+
+--          CONSULTAS INSTÂNCIAS DE MONSTRO
+
+-- ===============================================
+
+-- MOSTRAR DETALHES DE UMA INSTÂNCIA DE MONSTRO E ONDE ESTÁ
+SELECT
+    im.id AS id_instancia_monstro,
+    tm.tipo AS tipo_monstro_geral, -- Se você tiver uma tabela de tipos de monstro
+    COALESCE(ag.nome, pa.nome) AS nome_monstro_base,
+    COALESCE(ag.descricao, pa.descricao) AS descricao_monstro_base,
+    l.descricao AS localizacao,
+    l.tipo_local AS tipo_localizacao
+FROM
+    public.instancias_monstros im
+JOIN
+    public.local l ON im.id_local = l.id
+LEFT JOIN
+    public.agressivos ag ON im.id_monstro = ag.id AND (SELECT tipo FROM public.tipos_monstro WHERE id = ag.id_tipo_monstro) = &#39;agressivo&#39;
+LEFT JOIN
+    public.pacificos pa ON im.id_monstro = pa.id AND (SELECT tipo FROM public.tipos_monstro WHERE id = pa.id_tipo_monstro) = &#39;pacífico&#39;
+LEFT JOIN
+    public.tipos_monstro tm ON COALESCE(ag.id_tipo_monstro, pa.id_tipo_monstro) = tm.id
+WHERE
+    im.id = %s; -- ID da instância de monstro
+
+
+-- ===============================================
+
+--          CONSULTAS MISSÕES
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UMA MISSÃO
+SELECT
+    nome,
+    descricao,
+    tipo,
+    ordem,
+    n.nome AS npc_solicitante
+FROM
+    public.missoes m
+JOIN
+    public.npcs n ON m.id_npc = n.id
+WHERE 
+    m.id = %s;
+
+-- ===============================================
+
+--          CONSULTAS ITENS MÁGICOS
+
+-- ===============================================
+
+-- MOSTRA AS INFORMAÇÕES DE UM ITEM MÁGICO
+SELECT
+    i.nome,
+    i.descricao,
+    i.valor,
+    m.funcao,
+    m.qts_usos,
+    m.custo_sanidade
+FROM
+    public.magicos m
+JOIN 
+    public.itens i ON m.id = i.id
+WHERE 
+    m.id = %s;
+
+-- ===============================================
+
+--          CONSULTAS ITENS DE CURA
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM ITEM DE CURA
+SELECT
+    i.nome,
+    i.descricao,
+    i.valor,
+    c.funcao,
+    c.qts_usos,
+    c.qtd_pontos_sanidade_recupera,
+    c.qtd_pontos_vida_recupera
+FROM
+    public.curas c
+JOIN 
+    public.itens i ON c.id = i.id
+WHERE 
+    c.id = %s;
+
+-- ===============================================
+
+--          CONSULTAS ARMADURAS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UMA ARMADURA
+SELECT
+    i.nome,
+    i.descricao,
+    i.valor,
+    a.atributo_necessario,
+    a.durabilidade,
+    a.funcao,
+    a.qtd_atributo_necessario,
+    a.qtd_atributo_recebe,
+    a.qtd_dano_mitigado,
+    p.nome AS pericia_necessaria_nome
+FROM
+    public.armaduras a
+JOIN 
+    public.itens i ON a.id = i.id
+JOIN
+    public.pericias p ON a.id_pericia_necessaria = p.id
+WHERE 
+    a.id = %s;
+
+-- ===============================================
+
+--          CONSULTAS ARMAS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UMA ARMA
+SELECT
+    i.nome,
+    i.descricao,
+    i.valor,
+    a.atributo_necessario,
+    a.durabilidade,
+    a.funcao,
+    a.qtd_atributo_necessario,
+    a.alcance,
+    a.tipo_municao,
+    a.tipo_dano,
+    a.dano,
+    p.nome AS pericia_necessaria_nome
+FROM
+    public.armas a 
+JOIN 
+    public.itens i ON a.id = i.id
+JOIN
+    public.pericias p ON a.id_pericia_necessaria = p.id
+WHERE 
+    a.id = %s;
+
+-- ===============================================
+
+--          CONSULTAS FEITIÇOS DE STATUS
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM FEITIÇO DE STATUS
+SELECT
+    fs.nome, 
+    fs.descricao,
+    fs.qtd_pontos_de_magia,
+    fs.buff_debuff,
+    fs.qtd_buff_debuff,
+    fs.status_afetado,
+    tf.tipo AS tipo_feitico_geral -- Se você tiver uma FK para tipos_feitico aqui
+FROM
+    public.feiticos_status fs
+JOIN
+    public.tipos_feitico tf ON fs.id = tf.id -- Assumindo que id em feiticos_status é FK para tipos_feitico.id
+WHERE 
+    fs.id = %s;
+
+-- ===============================================
+
+--          CONSULTAS FEITIÇOS DE DANO
+
+-- ===============================================
+
+-- MOSTRAR AS INFORMAÇÕES DE UM FEITIÇO DE DANO
+SELECT
+    fd.nome, 
+    fd.descricao,
+    fd.qtd_pontos_de_magia,
+    fd.tipo_dano,
+    fd.qtd_dano,
+    tf.tipo AS tipo_feitico_geral -- Se você tiver uma FK para tipos_feitico aqui
+FROM
+    public.feiticos_dano fd
+JOIN
+    public.tipos_feitico tf ON fd.id = tf.id -- Assumindo que id em feiticos_dano é FK para tipos_feitico.id
+WHERE 
+    fd.id = %s;
+
+-- ===============================================
+
+--          CONSULTAS DE UM ITEM
+
+-- ===============================================
+
+-- MOSTRAR INFORMAÇÕES GERAIS DE UM ITEM
+SELECT
+    id,
+    tipo,
+    nome,
+    descricao,
+    valor
+FROM
+    public.itens
+WHERE
+    id = %s;
+</code></pre></div>
+
+</details>
+
+<hr />
+<h2 id="bibliografia">📚 Bibliografia</h2>
+<blockquote>
+<p><a id="REF1" href="#FRM1">[1]</a> ELMASRI, R.; NAVATHE, S. B. <em>Sistemas de Banco de Dados</em>. 7. ed. Pearson Education do Brasil, 2018.  </p>
+<p>DATE, C. J. <em>An Introduction to Database Systems</em>. 8. ed. Addison-Wesley, 2003.  </p>
+<p>SILBERSCHATZ, A.; KORTH, H. F.; SUDARSHAN, S. <em>Database System Concepts</em>. 7. ed. McGraw-Hill Education, 2019.</p>
+<p>Oracle Database SQL Language Reference. Disponível em: <a href="https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/index.html">https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/index.html</a> (Acesso em 28 de maio de 2025).</p>
+<p>PostgreSQL Documentation. Disponível em: <a href="https://www.postgresql.org/docs/">https://www.postgresql.org/docs/</a> (Acesso em 28 de maio de 2025).</p>
+<p>Microsoft SQL Server Documentation. Disponível em: <a href="https://docs.microsoft.com/en-us/sql/sql-server/sql-server-documentation">https://docs.microsoft.com/en-us/sql/sql-server/sql-server-documentation</a> (Acesso em 28 de maio de 2025).</p>
+</blockquote>
+<h2 id="historico-de-versoes">📑 Histórico de Versões</h2>
 <table>
 <thead>
 <tr>
 <th style="text-align: center;">Versão</th>
-<th style="text-align: left;">Descrição</th>
-<th style="text-align: left;">Autor(es)</th>
+<th>Descrição</th>
+<th>Autor(es)</th>
 <th style="text-align: center;">Data de Produção</th>
-<th style="text-align: left;">Revisor(es)</th>
+<th>Revisor(es)</th>
 <th style="text-align: center;">Data de Revisão</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;"><code>0.1</code></td>
-<td style="text-align: left;">Adicionando o modelo entidade relacionamento</td>
-<td style="text-align: left;">Equipe</td>
-<td style="text-align: center;">02/05/25</td>
-<td style="text-align: left;"><a href="https://github.com/wChrstphr">Christopher</a></td>
-<td style="text-align: center;">16/06/25</td>
-</tr>
-<tr>
-<td style="text-align: center;"><code>0.2</code></td>
-<td style="text-align: left;">Adicionando a entidade Diálogos</td>
-<td style="text-align: left;"><a href="https://github.com/luizfaria1989">Luiz Guilherme</a></td>
-<td style="text-align: center;">15/05/25</td>
-<td style="text-align: left;"><a href="https://github.com/wChrstphr">Christopher</a></td>
-<td style="text-align: center;">16/06/25</td>
-</tr>
-<tr>
 <td style="text-align: center;"><code>1.0</code></td>
-<td style="text-align: left;">Finaliza documento DER</td>
-<td style="text-align: left;"><a href="https://github.com/wChrstphr">Christopher</a></td>
+<td>Criação do documento</td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td style="text-align: center;">16/06/25</td>
+<td><a href="https://github.com/wChrstphr">Christopher</a></td>
+<td style="text-align: center;">16/06/25</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>1.1</code></td>
+<td>Corrige e adiciona o DQL</td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td style="text-align: center;">16/06/25</td>
+<td><a href="https://github.com/wChrstphr">Christopher</a></td>
+<td style="text-align: center;">16/06/25</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>1.2</code></td>
+<td>Adiciona consultas atuais do jogo</td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td style="text-align: center;">16/06/25</td>
+<td><a href="https://github.com/wChrstphr">Christopher</a></td>
+<td style="text-align: center;">16/06/25</td>
+</tr>
+<tr>
+<td style="text-align: center;"><code>2.0</code></td>
+<td>Finaliza documento DQL</td>
+<td><a href="https://github.com/wChrstphr">Christopher</a></td>
 <td style="text-align: center;">08/07/25</td>
-<td style="text-align: left;"><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
+<td><a href="https://github.com/JJOAOMARCOSS">João Marcos</a></td>
 <td style="text-align: center;">08/07/25</td>
 </tr>
 </tbody>
