@@ -2637,6 +2637,340 @@ SELECT public.sp_criar_item_cura(
     p_qtd_pontos_vida_recupera   => 1::SMALLINT
 );
 
+-- =================================================================================
+--         PARTE 2: DISTRIBUIÇÃO MANUAL E TEMÁTICA DE ITENS
+-- =================================================================================
+-- Este bloco de código cria uma instância para itens específicos e os
+-- insere diretamente no inventário de cada vendedor.
+
+WITH
+  -- ### INVENTÁRIO DO GAMBIREIRO (Itens baratos e improvisados) ###
+
+  -- Item 1: Pé de Cabra
+  instancia_gambireiro_pedecabra AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Pé de Cabra'
+      RETURNING id
+  ),
+  link_gambireiro_pedecabra AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Gambireiro' LIMIT 1), id FROM instancia_gambireiro_pedecabra
+  ),
+
+  -- Item 2: Bisturi Enferrujado
+  instancia_gambireiro_bisturi AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Bisturi Enferrujado'
+      RETURNING id
+  ),
+  link_gambireiro_bisturi AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Gambireiro' LIMIT 1), id FROM instancia_gambireiro_bisturi
+  ),
+
+  -- Item 3: Chave Inglesa Pesada
+  instancia_gambireiro_chave AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Chave Inglesa Pesada'
+      RETURNING id
+  ),
+  link_gambireiro_chave AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Gambireiro' LIMIT 1), id FROM instancia_gambireiro_chave
+  ),
+
+  -- Item 4: Galochas de Borracha
+  instancia_gambireiro_galochas AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Galochas de Borracha'
+      RETURNING id
+  ),
+  link_gambireiro_galochas AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Gambireiro' LIMIT 1), id FROM instancia_gambireiro_galochas
+  ),
+
+  -- ### INVENTÁRIO DA NEGOCIADORA (Itens elegantes e precisos) ###
+
+  -- Item 1: Pistola Luger P08
+  instancia_negociadora_luger AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Pistola Luger P08'
+      RETURNING id
+  ),
+  link_negociadora_luger AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_luger
+  ),
+
+  -- Item 2: Florete de Esgrima
+  instancia_negociadora_florete AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Florete de Esgrima'
+      RETURNING id
+  ),
+  link_negociadora_florete AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_florete
+  ),
+
+  -- Item 3: Sobretudo de Detetive
+  instancia_negociadora_sobretudo AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Sobretudo de Detetive'
+      RETURNING id
+  ),
+  link_negociadora_sobretudo AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_sobretudo
+  ),
+
+  -- Item 4: Sapatos Sociais Polidos
+  instancia_negociadora_sapatos AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Sapatos Sociais Polidos'
+      RETURNING id
+  ),
+  link_negociadora_sapatos AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_sapatos
+  ),
+
+  -- Item 5: Láudano
+  instancia_negociadora_laudano AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Láudano'
+      RETURNING id
+  ),
+  link_negociadora_laudano AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_laudano
+  ),
+  
+  -- ### INVENTÁRIO DO TRADDER (Itens ritualísticos e arriscados) ###
+
+  -- Item 1: Estilete Ritualístico
+  instancia_tradder_estilete AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Estilete Ritualístico'
+      RETURNING id
+  ),
+  link_tradder_estilete AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Tradder' LIMIT 1), id FROM instancia_tradder_estilete
+  ),
+
+  -- Item 2: Garrucha de Bolso
+  instancia_tradder_garrucha AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Garrucha de Bolso'
+      RETURNING id
+  ),
+  link_tradder_garrucha AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Tradder' LIMIT 1), id FROM instancia_tradder_garrucha
+  ),
+  
+  -- Item 3: Vestes Cerimoniais
+  instancia_tradder_vestes AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Vestes Cerimoniais'
+      RETURNING id
+  ),
+  link_tradder_vestes AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Tradder' LIMIT 1), id FROM instancia_tradder_vestes
+  ),
+  
+  -- Item 4: Absinto
+  instancia_tradder_absinto AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Absinto'
+      RETURNING id
+  ),
+  link_tradder_absinto AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Tradder' LIMIT 1), id FROM instancia_tradder_absinto
+  ),
+
+  -- ### INVENTÁRIO DA PRACISTA (Itens práticos de viagem e caça) ###
+
+  -- Item 1: Espingarda de Caça
+  instancia_pracista_espingarda AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Espingarda de Caça'
+      RETURNING id
+  ),
+  link_pracista_espingarda AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Pracista' LIMIT 1), id FROM instancia_pracista_espingarda
+  ),
+  
+  -- Item 2: Jaqueta de Couro de Aviador
+  instancia_pracista_jaqueta AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Jaqueta de Couro de Aviador'
+      RETURNING id
+  ),
+  link_pracista_jaqueta AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Pracista' LIMIT 1), id FROM instancia_pracista_jaqueta
+  ),
+  
+  -- Item 3: Bandagens Limpas
+  instancia_pracista_bandagens AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Bandagens Limpas'
+      RETURNING id
+  ),
+  link_pracista_bandagens AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Pracista' LIMIT 1), id FROM instancia_pracista_bandagens
+  ),
+
+  -- ### INVENTÁRIO DO REFUGIADO (Itens simples de sobrevivência) ###
+
+  -- Item 1: Faca de Açougueiro
+  instancia_refugiado_faca AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Faca de Açougueiro'
+      RETURNING id
+  ),
+  link_refugiado_faca AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Refugiado' LIMIT 1), id FROM instancia_refugiado_faca
+  ),
+  
+  -- Item 2: Cantil de Uísque Barato
+  instancia_refugiado_uisque AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Cantil de Uísque Barato'
+      RETURNING id
+  ),
+  link_refugiado_uisque AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Refugiado' LIMIT 1), id FROM instancia_refugiado_uisque
+  ),
+
+  -- ### INVENTÁRIO DA REFUGIADA (Itens simples e de conforto) ###
+
+  -- Item 1: Corrente de Ferro
+  instancia_refugiada_corrente AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Corrente de Ferro'
+      RETURNING id
+  ),
+  link_refugiada_corrente AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Refugiada' LIMIT 1), id FROM instancia_refugiada_corrente
+  ),
+  
+  -- Item 2: Chocolate Amargo
+  instancia_refugiada_chocolate AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Chocolate Amargo'
+      RETURNING id
+  ),
+  link_refugiada_chocolate AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Refugiada' LIMIT 1), id FROM instancia_refugiada_chocolate
+  ),
+
+  -- ### INVENTÁRIO DO MAURICIO O VENDEDOR (Itens poderosos e de guerra) ###
+
+  -- Item 1: Thompson M1928
+  instancia_mauricio_thompson AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Thompson M1928'
+      RETURNING id
+  ),
+  link_mauricio_thompson AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_thompson
+  ),
+
+  -- Item 2: Rifle de Caça .30-06
+  instancia_mauricio_rifle AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Rifle de Caça .30-06'
+      RETURNING id
+  ),
+  link_mauricio_rifle AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_rifle
+  ),
+  
+  -- Item 3: Elmo de Mergulhador de Escafandro
+  instancia_mauricio_elmo AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Elmo de Mergulhador de Escafandro'
+      RETURNING id
+  ),
+  link_mauricio_elmo AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_elmo
+  ),
+  
+  -- Item 4: Tatuagens Arcanas no Braço
+  instancia_mauricio_tatuagens AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Tatuagens Arcanas no Braço'
+      RETURNING id
+  ),
+  link_mauricio_tatuagens AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_tatuagens
+  ),
+  
+  -- Item 5: Kit de Primeiro Socorros Completo
+  instancia_mauricio_kit AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Kit de Primeiro Socorros Completo'
+      RETURNING id
+  ),
+  link_mauricio_kit AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_kit
+  ),
+  
+    -- Item 6: Seringa de Morfina
+  instancia_mauricio_morfina AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Seringa de Morfina'
+      RETURNING id
+  ),
+  link_mauricio_morfina AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_morfina
+  )
+
+SELECT 'Distribuição manual e temática de itens para vendedores concluída com sucesso.' AS resultado;
 -- Criação de Feitiços
 
 -- Feitiços de Status
@@ -2883,89 +3217,123 @@ SELECT public.sp_criar_item_magico(
 
 -- Criação de instâncias de item
 
-INSERT INTO public.instancias_de_itens (durabilidade, durabilidade_total, id_item, id_local, id_local_de_spawn)
-VALUES
-  (90, 90, (SELECT id FROM public.itens WHERE nome = 'Besta de Caça'), NULL, NULL),
-  (1, 1, (SELECT id FROM public.itens WHERE nome = 'Coquetel Molotov'), NULL, NULL),
-  (130, 130, (SELECT id FROM public.itens WHERE nome = 'Faca de Açougueiro'), NULL, NULL),
-  (110, 110, (SELECT id FROM public.itens WHERE nome = 'Revólver .38 Special'), NULL, NULL),
-  (150, 150, (SELECT id FROM public.itens WHERE nome = 'Botas de Trabalho Reforçadas'), NULL, NULL),
-  (80, 80, (SELECT id FROM public.itens WHERE nome = 'Vestes Cerimoniais'), NULL, NULL),
-  (1, 1, (SELECT id FROM public.itens WHERE nome = 'Sanguessugas Medicinais'), NULL, NULL),
-  (5, 5, (SELECT id FROM public.itens WHERE nome = 'Diário Pessoal'), NULL, NULL);
+-- =================================================================================
+--         CRIAÇÃO DE INSTÂNCIAS DE MONSTROS E SEUS ITENS (DROPS)
+-- =================================================================================
+-- Este bloco utiliza CTEs para criar instâncias de itens e, em seguida,
+-- criar instâncias de monstros que carregam esses itens em locais específicos.
 
--- Criação de instancias de monstro
+WITH
+  -- ### Instância de Monstro: Shoggoth (Sala de Observação) - Agressivo ###
+  -- Item: Botas de Trabalho Reforçadas
+  instancia_item_botas AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Botas de Trabalho Reforçadas'
+      RETURNING id
+  ),
+  instancia_monstro_shoggoth AS (
+      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+      SELECT
+          (SELECT id FROM public.agressivos WHERE nome = 'Shoggoth'),
+          (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação%'),
+          (SELECT id FROM instancia_item_botas)
+  ),
 
--- Instância de Cthulhu 1 na sala x (Labirinto de pilares)
-/*
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.agressivos WHERE nome = 'Cthulhu'),
-    (SELECT vida_total FROM public.agressivos WHERE nome = 'Cthulhu'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Vestes Cerimoniais')); 
-*/   
+  -- ### Instância de Monstro: Carniçal (Laboratório Abandonado) - Agressivo ###
+  -- Item: Revólver .38 Special
+  instancia_item_revolver AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Revólver .38 Special'
+      RETURNING id
+  ),
+  instancia_monstro_carnical AS (
+      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+      SELECT
+          (SELECT id FROM public.agressivos WHERE nome = 'Carniçal'),
+          (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com%'),
+          (SELECT id FROM instancia_item_revolver)
+  ),
 
--- Instância de Shoggoth 1 na sala x (Sala de observação)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.agressivos WHERE nome = 'Shoggoth'),
-    (SELECT vida_total FROM public.agressivos WHERE nome = 'Shoggoth'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Botas de Trabalho Reforçadas'));  
+  -- ### Instância de Monstro: Nodens (Cripta Úmida) - Pacífico ###
+  -- Item: Faca de Açougueiro
+  instancia_item_faca AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Faca de Açougueiro'
+      RETURNING id
+  ),
+  instancia_monstro_nodens AS (
+      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+      SELECT
+          (SELECT id FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
+          (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
+          (SELECT id FROM instancia_item_faca)
+  ),
 
--- Instância de Carniçal 1 na sala x (Cripta úmida)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.agressivos WHERE nome = 'Carniçal'),
-    (SELECT vida_total FROM public.agressivos WHERE nome = 'Carniçal'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Revólver .38 Special'));  
+  -- ### Instância de Monstro: Grande Raça de Yith (Biblioteca Submersa) - Pacífico ###
+  -- Item: Coquetel Molotov
+  instancia_item_molotov AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Coquetel Molotov'
+      RETURNING id
+  ),
+  instancia_monstro_yith AS (
+      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+      SELECT
+          (SELECT id FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
+          (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
+          (SELECT id FROM instancia_item_molotov)
+  ),
 
--- Instância de Nodens 1 na sala x (Cripta úmida)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Faca de Açougueiro'));  
+  -- ### Instância de Monstro: Gnoph-Keh Solitário (Anfiteatro Circular) - Pacífico ###
+  -- Item: Besta de Caça
+  instancia_item_besta AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Besta de Caça'
+      RETURNING id
+  ),
+  instancia_monstro_gnoph_keh AS (
+      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+      SELECT
+          (SELECT id FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
+          (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
+          (SELECT id FROM instancia_item_besta)
+  ),
 
--- Instância de Grande Raça de Yith 1 na sala x (Biblioteca submersa)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Coquetel Molotov'));     
+  -- ### Instância de Monstro: Shantak (Sala de Tesouros) - Pacífico ###
+  -- Item: Sanguessugas Medicinais
+  instancia_item_sanguessugas AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Sanguessugas Medicinais'
+      RETURNING id
+  ),
+  instancia_monstro_shantak AS (
+      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+      SELECT
+          (SELECT id FROM public.pacificos WHERE nome = 'Shantak'),
+          (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
+          (SELECT id FROM instancia_item_sanguessugas)
+  ),
 
--- Instância de Gnoph-Keh Solitário 1 na sala x (anfiteatro circular)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Besta de Caça'));     
+  -- ### Instância de Monstro: A Cor que Caiu do Espaço (Sala de Tesouros) - Pacífico ###
+  -- Item: Diário Pessoal
+  instancia_item_diario AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Diário Pessoal'
+      RETURNING id
+  ),
+  instancia_monstro_cor AS (
+      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+      SELECT
+          (SELECT id FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
+          (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
+          (SELECT id FROM instancia_item_diario)
+  )
 
--- Instância de Shantak 1 na sala x (sala de tesouros)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'Shantak'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'Shantak'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesourosa%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Sanguessugas Medicinais'));     
-
--- Instância de Cor que Caiu do Espaço 1 na sala x (sala de tesouros)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Diário Pessoal'));    
+SELECT 'Criação de instâncias de monstros e distribuição de itens concluída com sucesso.' AS resultado;
