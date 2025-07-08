@@ -547,10 +547,10 @@ VALUES
     ('Ho ho ho! Venha ver o que eu tenho em minha loja para te ajudar em sua jornada!', (SELECT id FROM public.npcs WHERE nome = 'Gambireiro')),
     ('Bom dia caro cliente! Veja o que tenho a oferecer em minha loja, quem sabe não te salve em alguma ocasião!', (SELECT id FROM public.npcs WHERE nome = 'Negociadora')),
     ('Olá caro amigo! Veja estes lindos produtos no precinho que tenho na minha loja e aproveite antes que acabe!', (SELECT id FROM public.npcs WHERE nome = 'Tradder')),
-    ('Olá querido, você por acaso encontrou um golpista chamado Tradder? Espero que não, este patífe roubou alguns itens meus e estava vendendo pelo dobro do preço, veja na minha loja os itens por um preço justo!', (SELECT id FROM public.npcs WHERE nome = 'Pracista')),
-    ('Bom dia viajante, será que você poderia comprar alguns dos meus itens? Estou morrendo de fome e os vendedores não aceitam troca-los por comida.', (SELECT id FROM public.npcs WHERE nome = 'Refugiado')),
-    ('Olá viajante, estou morrendo de fome e os vendedores não aceitam meus itens por comida, você poderia compra-los?', (SELECT id FROM public.npcs WHERE nome = 'Refugiada')),
-    ('Olá viajante, você já chegou muito longe e sinto que os caminhos estão começando a ficar intensos e perigosos, veja em minha loja itens mais fortes e que podem te ajudar!', (SELECT id FROM public.npcs WHERE nome = 'Mauricio o vendedor'))
+    ('Um patífe roubou alguns itens meus e estava vendendo pelo dobro do preço, veja na minha loja os itens por um preço justo!', (SELECT id FROM public.npcs WHERE nome = 'Pracista')),
+    ('Olá viajante, você poderia comprar alguns dos meus itens? Estou morrendo de fome e não aceitam troca-los por comida.', (SELECT id FROM public.npcs WHERE nome = 'Refugiado')),
+    ('Olá viajante, estou morrendo de fome e não aceitam meus itens por comida, você poderia compra-los?', (SELECT id FROM public.npcs WHERE nome = 'Refugiada')),
+    ('Olá viajante, você já chegou muito longe e sinto que os caminhos estão começando a ficar intensos e perigosos,' || CHR(10) || 'veja em minha loja itens mais fortes e que podem te ajudar!', (SELECT id FROM public.npcs WHERE nome = 'Mauricio o vendedor'))
     ;
     
 
@@ -730,7 +730,7 @@ SELECT public.sp_criar_armadura(
 -- Monstro Físico: Sombra Rastejante
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Sombra Rastejante'::public.nome,
-    p_descricao             := 'Uma massa de escuridão disforme com múltiplos apêndices afiados. Move-se com uma velocidade sobrenatural, atacando sem aviso.'::public.descricao,
+    p_descricao             := 'Uma massa de escuridão disforme com múltiplos apêndices afiados.' || CHR(10) || ' Move-se com uma velocidade sobrenatural, atacando sem aviso.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 12::SMALLINT,
     p_agressivo_vida        := 40::SMALLINT,
@@ -747,7 +747,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Psíquico: Sussurrante Insano
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Sussurrante Insano'::public.nome,
-    p_descricao             := 'Não possui forma física visível, mas sua presença é sentida como um zumbido na mente que se transforma em sussurros de verdades cósmicas terríveis.'::public.descricao,
+    p_descricao             := 'Não possui forma física visível,' || CHR(10) || 'mas sua presença é sentida como um zumbido na mente que se transforma em sussurros de verdades cósmicas terríveis.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 5::SMALLINT,
     p_agressivo_vida        := 60::SMALLINT,
@@ -764,7 +764,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Mágico: Cultista Abissal
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Cultista Abissal'::public.nome,
-    p_descricao             := 'Um humanoide envolto em mantos rasgados, entoando cânticos em uma língua gutural. Seus olhos brilham com uma luz maligna de outro mundo.'::public.descricao,
+    p_descricao             := 'Um humanoide envolto em mantos rasgados,' || CHR(10) || 'entoando cânticos em uma língua gutural. Seus olhos brilham com uma luz maligna de outro mundo.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 8::SMALLINT,
     p_agressivo_vida        := 35::SMALLINT,
@@ -781,7 +781,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Físico Fraco: Verme Cadavérico
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Verme Cadavérico'::public.nome,
-    p_descricao             := 'Uma larva pálida e segmentada do tamanho de um braço humano. Reage a qualquer movimento, atacando com suas mandíbulas quitinosas.'::public.descricao,
+    p_descricao             := 'Uma larva pálida e segmentada do tamanho de um braço humano. ' || CHR(10) || 'Reage a qualquer movimento, atacando com suas mandíbulas quitinosas.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 4::SMALLINT,
     p_agressivo_vida        := 15::SMALLINT,
@@ -831,7 +831,7 @@ SELECT public.sp_criar_arma(
 -- Item/Arma dropado pelo Cultista Abissal
 SELECT public.sp_criar_arma(
     p_nome                  := 'Tomo Proibido'::public.nome,
-    p_descricao             := 'Um livro pesado, encadernado no que parece ser pele humana. As páginas contêm diagramas insanos e escrituras que ferem os olhos.'::public.descricao,
+    p_descricao             := 'Um livro pesado, encadernado no que parece ser pele humana.' || CHR(10) || 'As páginas contêm diagramas insanos e escrituras que ferem os olhos.'::public.descricao,
     p_valor                 := 150::SMALLINT,
     p_atributo_necessario   := 'inteligencia'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario := 12::SMALLINT,
@@ -846,7 +846,7 @@ SELECT public.sp_criar_arma(
 -- Item/Arma dropado pelo Sussurrante Insano
 SELECT public.sp_criar_arma(
     p_nome                  := 'Ídolo Grotesco'::public.nome,
-    p_descricao             := 'Uma estatueta de pedra-sabão representando uma entidade cefalópode. Segurá-la causa tontura e sussurros na mente.'::public.descricao,
+    p_descricao             := 'Uma estatueta de pedra-sabão representando uma entidade cefalópode. ' || CHR(10) || 'Segurá-la causa tontura e sussurros na mente.'::public.descricao,
     p_valor                 := 80::SMALLINT,
     p_atributo_necessario   := 'poder'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario := 10::SMALLINT,
@@ -988,7 +988,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Físico: Shoggoth
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Shoggoth'::public.nome,
-    p_descricao             := 'Massa protoplásmica de terror absoluto, imitando e zombando de seus antigos mestres. Esmaga, devora e absorve. Seu grito soa como "Tekeli-li!".'::public.descricao,
+    p_descricao             := 'Massa protoplásmica de terror absoluto, imitando e zombando de seus antigos mestres.' || CHR(10) || 'Esmaga, devora e absorve. Seu grito soa como "Tekeli-li!".'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 40::SMALLINT,
     p_agressivo_vida        := 500::SMALLINT,
@@ -1005,7 +1005,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Mágico: Nyarlathotep
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Nyarlathotep'::public.nome,
-    p_descricao             := 'O Caos Rastejante. Mestre da manipulação e da loucura, ele caminha entre os homens em mil disfarces, semeando a discórdia e o desespero.'::public.descricao,
+    p_descricao             := 'O Caos Rastejante.' || CHR(10) || 'Mestre da manipulação e da loucura, ele caminha entre os homens em mil disfarces, semeando a discórdia e o desespero.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 80::SMALLINT,
     p_agressivo_vida        := 400::SMALLINT,
@@ -1039,7 +1039,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Psíquico: Mi-Go
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Mi-Go'::public.nome,
-    p_descricao             := 'Fungos de Yuggoth. Estes seres alados viajam pelo éter, extraindo cérebros humanos para mantê-los em cilindros e levá-los a outros mundos.'::public.descricao,
+    p_descricao             := 'Fungos de Yuggoth. ' || CHR(10) || 'Estes seres alados viajam pelo éter, extraindo cérebros humanos para mantê-los em cilindros e levá-los a outros mundos.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 35::SMALLINT,
     p_agressivo_vida        := 120::SMALLINT,
@@ -1056,7 +1056,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Físico: Povo do Abismo
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Povo do Abismo'::public.nome,
-    p_descricao             := 'Humanoides anfíbios com traços de peixe. Imortais, eles arrastam suas vítimas para cidades submarinas para se tornarem um deles.'::public.descricao,
+    p_descricao             := 'Humanoides anfíbios com traços de peixe. ' || CHR(10) || 'Imortais, eles arrastam suas vítimas para cidades submarinas para se tornarem um deles.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 20::SMALLINT,
     p_agressivo_vida        := 80::SMALLINT,
@@ -1073,7 +1073,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Físico: Carniçal
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Carniçal'::public.nome,
-    p_descricao             := 'Uma paródia da forma humana com garras para cavar e um apetite profano por carne morta. Movem-se rapidamente nas sombras.'::public.descricao,
+    p_descricao             := 'Uma paródia da forma humana com garras para cavar e um apetite profano por carne morta. ' || CHR(10) || 'Movem-se rapidamente nas sombras.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 15::SMALLINT,
     p_agressivo_vida        := 70::SMALLINT,
@@ -1090,7 +1090,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Mágico: Cão de Tindalos
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Cão de Tindalos'::public.nome,
-    p_descricao             := 'Caçadores que habitam os ângulos do tempo. Perseguem suas presas implacavelmente através do tempo e espaço, materializando-se em cantos.'::public.descricao,
+    p_descricao             := 'Caçadores que habitam os ângulos do tempo. ' || CHR(10) || 'Perseguem suas presas implacavelmente através do tempo e espaço, materializando-se em cantos.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 50::SMALLINT,
     p_agressivo_vida        := 180::SMALLINT,
@@ -1124,7 +1124,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Físico: Coisa Antiga
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Coisa Antiga'::public.nome,
-    p_descricao             := 'Os primeiros colonizadores da Terra. Cientistas e arquitetos de vastas cidades geladas. Indiferentes e alienígenas à vida humana.'::public.descricao,
+    p_descricao             := 'Os primeiros colonizadores da Terra. ' || CHR(10) || 'Cientistas e arquitetos de vastas cidades geladas. Indiferentes e alienígenas à vida humana.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 60::SMALLINT,
     p_agressivo_vida        := 250::SMALLINT,
@@ -1141,7 +1141,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Físico: Gug
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Gug'::public.nome,
-    p_descricao             := 'Um gigante de pesadelo com uma cabeça que se abre verticalmente em uma bocarra imensa e braços peludos separados nas articulações.'::public.descricao,
+    p_descricao             := 'Um gigante de pesadelo com uma cabeça que se abre verticalmente em uma bocarra imensa e ' || CHR(10) || 'braços peludos separados nas articulações.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 70::SMALLINT,
     p_agressivo_vida        := 800::SMALLINT,
@@ -1158,7 +1158,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Mágico: Pólipo Voador
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Pólipo Voador'::public.nome,
-    p_descricao             := 'Seres parcialmente invisíveis que manipulam o vento. Sua presença é anunciada por um som de assobio sinistro e pegadas colossais.'::public.descricao,
+    p_descricao             := 'Seres parcialmente invisíveis que manipulam o vento. ' || CHR(10) || 'Sua presença é anunciada por um som de assobio sinistro e pegadas colossais.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 90::SMALLINT,
     p_agressivo_vida        := 400::SMALLINT,
@@ -1175,7 +1175,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Mágico: Azathoth
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Azathoth'::public.nome,
-    p_descricao             := 'O horror supremo, um caos borbulhante no centro do universo. Não é agressivo por vontade, mas sua existência é aniquilação. Se acordar, tudo cessa.'::public.descricao,
+    p_descricao             := 'O horror supremo, um caos borbulhante no centro do universo. ' || CHR(10) || 'Não é agressivo por vontade, mas sua existência é aniquilação. Se acordar, tudo cessa.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 500::SMALLINT,
     p_agressivo_vida        := 5000::SMALLINT,
@@ -1192,7 +1192,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Psíquico: Cria Estelar de Cthulhu
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Cria Estelar de Cthulhu'::public.nome,
-    p_descricao             := 'Uma versão menor do próprio Grande Cthulhu. Compartilha a mesma malevolência e forma alienígena, um terror cósmico para qualquer mortal.'::public.descricao,
+    p_descricao             := 'Uma versão menor do próprio Grande Cthulhu. ' || CHR(10) || 'Compartilha a mesma malevolência e forma alienígena, um terror cósmico para qualquer mortal.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 90::SMALLINT,
     p_agressivo_vida        := 700::SMALLINT,
@@ -1209,7 +1209,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Físico: Magro Noturno
 SELECT public.sp_criar_monstro(
     p_nome                  := 'Magro Noturno'::public.nome,
-    p_descricao             := 'Silenciosos e sem rosto, eles caçam nos céus das Terras dos Sonhos. Submetem suas vítimas com cócegas enlouquecedoras antes de carregá-las.'::public.descricao,
+    p_descricao             := 'Silenciosos e sem rosto, eles caçam nos céus das Terras dos Sonhos. ' || CHR(10) || 'Submetem suas vítimas com cócegas enlouquecedoras antes de carregá-las.'::public.descricao,
     p_tipo                  := 'agressivo'::public.tipo_monstro,
     p_agressivo_defesa      := 30::SMALLINT,
     p_agressivo_vida        := 90::SMALLINT,
@@ -1226,7 +1226,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Sobrenatural: Grande Raça de Yith
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Grande Raça de Yith'::public.nome,
-    p_descricao                         := 'Uma mente ancestral que viaja pelo tempo. Busca apenas conhecimento, projetando sua consciência em outras espécies.'::public.descricao,
+    p_descricao                         := 'Uma mente ancestral que viaja pelo tempo. ' || CHR(10) || 'Busca apenas conhecimento, projetando sua consciência em outras espécies.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 80::SMALLINT,
     p_pacifico_vida                     := 300::SMALLINT,
@@ -1240,7 +1240,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Sobrenatural: Nodens
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Nodens, Senhor do Grande Abismo'::public.nome,
-    p_descricao                         := 'Um deus ancião que cavalga os céus em uma carruagem de conchas. Um caçador benevolente que protege a humanidade.'::public.descricao,
+    p_descricao                         := 'Um deus ancião que cavalga os céus em uma carruagem de conchas. ' || CHR(10) || 'Um caçador benevolente que protege a humanidade.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 120::SMALLINT,
     p_pacifico_vida                     := 800::SMALLINT,
@@ -1254,7 +1254,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Sobrenatural: Gatos de Ulthar
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Gatos de Ulthar'::public.nome,
-    p_descricao                         := 'Os gatos de Ulthar guardam segredos antigos e viajam para as Terras do Sonho. São pacíficos, mas vingativos se ameaçados.'::public.descricao,
+    p_descricao                         := 'Os gatos de Ulthar guardam segredos antigos e viajam para as Terras do Sonho. ' || CHR(10) || 'São pacíficos, mas vingativos se ameaçados.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 20::SMALLINT,
     p_pacifico_vida                     := 50::SMALLINT,
@@ -1282,7 +1282,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Sobrenatural: Shantak
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Shantak'::public.nome,
-    p_descricao                         := 'Enormes pássaros escamosos que servem de montaria no espaço. Não são malignos, apenas bestas leais aos seus cavaleiros.'::public.descricao,
+    p_descricao                         := 'Enormes pássaros escamosos que servem de montaria no espaço. ' || CHR(10) || 'Não são malignos, apenas bestas leais aos seus cavaleiros.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 40::SMALLINT,
     p_pacifico_vida                     := 250::SMALLINT,
@@ -1296,7 +1296,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Sobrenatural: Bastet
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Bastet'::public.nome,
-    p_descricao                         := 'A deusa dos gatos, que reside nas Terras do Sonho. Oferece sua bênção àqueles que respeitam seus filhos felinos.'::public.descricao,
+    p_descricao                         := 'A deusa dos gatos, que reside nas Terras do Sonho. ' || CHR(10) || 'Oferece sua bênção àqueles que respeitam seus filhos felinos.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 100::SMALLINT,
     p_pacifico_vida                     := 700::SMALLINT,
@@ -1310,7 +1310,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Humanoide: Zoog
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Zoog'::public.nome,
-    p_descricao                         := 'Pequenas criaturas furtivas que habitam florestas encantadas. Conhecem muitos segredos, mas são medrosos e desconfiados.'::public.descricao,
+    p_descricao                         := 'Pequenas criaturas furtivas que habitam florestas encantadas. ' || CHR(10) || 'Conhecem muitos segredos, mas são medrosos e desconfiados.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 15::SMALLINT,
     p_pacifico_vida                     := 40::SMALLINT,
@@ -1324,7 +1324,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Sobrenatural: Hypnos
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Hypnos, Senhor do Sono'::public.nome,
-    p_descricao                         := 'Um deus antigo que guarda os portões do sono. Pode conceder visões ou aprisionar a mente de um sonhador para sempre.'::public.descricao,
+    p_descricao                         := 'Um deus antigo que guarda os portões do sono. ' || CHR(10) || 'Pode conceder visões ou aprisionar a mente de um sonhador para sempre.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 90::SMALLINT,
     p_pacifico_vida                     := 600::SMALLINT,
@@ -1338,7 +1338,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Sobrenatural: A Cor que Caiu do Espaço
 SELECT public.sp_criar_monstro(
     p_nome                              := 'A Cor que Caiu do Espaço'::public.nome,
-    p_descricao                         := 'Uma entidade de cor indescritível que envenena a terra e drena a vida. Não age por malícia, mas por instinto.'::public.descricao,
+    p_descricao                         := 'Uma entidade de cor indescritível que envenena a terra e drena a vida. ' || CHR(10) || 'Não age por malícia, mas por instinto.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 50::SMALLINT,
     p_pacifico_vida                     := 150::SMALLINT,
@@ -1394,7 +1394,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Sobrenatural: Tulzscha
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Tulzscha'::public.nome,
-    p_descricao                         := 'A Chama Verdejante. Um pilar de fogo cósmico que dança no centro da corte de Azathoth. Sua presença é letal, mas desprovida de intenção.'::public.descricao,
+    p_descricao                         := 'A Chama Verdejante. Um pilar de fogo cósmico que dança no centro da corte de Azathoth. ' || CHR(10) || 'Sua presença é letal, mas desprovida de intenção.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 200::SMALLINT,
     p_pacifico_vida                     := 1000::SMALLINT,
@@ -1408,7 +1408,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Humanoide: Homem de Leng Eremita
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Homem de Leng Eremita'::public.nome,
-    p_descricao                         := 'Um exilado do Planalto de Leng que agora medita nas montanhas. Trocou sua flauta de osso por silêncio e observação.'::public.descricao,
+    p_descricao                         := 'Um exilado do Planalto de Leng que agora medita nas montanhas. ' || CHR(10) || 'rocou sua flauta de osso por silêncio e observação.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 45::SMALLINT,
     p_pacifico_vida                     := 150::SMALLINT,
@@ -1422,7 +1422,7 @@ SELECT public.sp_criar_monstro(
 -- Monstro Sobrenatural: Gato de Saturno
 SELECT public.sp_criar_monstro(
     p_nome                              := 'Gato de Saturno'::public.nome,
-    p_descricao                         := 'Grandes gatos falantes de Saturno, com listras e sem orelhas. São aliados dos gatos terrenos e hostis aos inimigos de Bastet.'::public.descricao,
+    p_descricao                         := 'Grandes gatos falantes de Saturno, com listras e sem orelhas. ' || CHR(10) || 'São aliados dos gatos terrenos e hostis aos inimigos de Bastet.'::public.descricao,
     p_tipo                              := 'pacífico'::public.tipo_monstro,
     p_pacifico_defesa                   := 30::SMALLINT,
     p_pacifico_vida                     := 100::SMALLINT,
@@ -1546,7 +1546,7 @@ SELECT 'Distribuição direta de itens concluída com sucesso.' AS resultado;
 -- Arma 1: Bisturi Enferrujado
 SELECT public.sp_criar_arma(
     p_nome                  => 'Bisturi Enferrujado'::public.nome,
-    p_descricao             => 'Um instrumento cirúrgico preciso, agora manchado com ferrugem e algo mais sinistro. Perfeito para ataques rápidos e silenciosos.'::public.descricao,
+    p_descricao             => 'Um instrumento cirúrgico preciso, agora manchado com ferrugem e algo mais sinistro. ' || CHR(10) || 'Perfeito para ataques rápidos e silenciosos.'::public.descricao,
     p_valor                 => 15::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 8::SMALLINT,
@@ -1561,7 +1561,7 @@ SELECT public.sp_criar_arma(
 -- Arma 2: Pé de Cabra
 SELECT public.sp_criar_arma(
     p_nome                  => 'Pé de Cabra'::public.nome,
-    p_descricao             => 'Ferramenta robusta, ideal para forçar portas e, em uma emergência, crânios. O peso do ferro oferece um impacto considerável.'::public.descricao,
+    p_descricao             => 'Ferramenta robusta, ideal para forçar portas e, em uma emergência, crânios. ' || CHR(10) || 'O peso do ferro oferece um impacto considerável.'::public.descricao,
     p_valor                 => 10::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 10::SMALLINT,
@@ -1576,7 +1576,7 @@ SELECT public.sp_criar_arma(
 -- Arma 3: Garrucha de Bolso
 SELECT public.sp_criar_arma(
     p_nome                  => 'Garrucha de Bolso'::public.nome,
-    p_descricao             => 'Uma pequena pistola de dois canos, fácil de esconder, mas lenta para recarregar. Seu poder de parada a curta distância é surpreendente.'::public.descricao,
+    p_descricao             => 'Uma pequena pistola de dois canos, fácil de esconder, mas lenta para recarregar. ' || CHR(10) || 'Seu poder de parada a curta distância é surpreendente.'::public.descricao,
     p_valor                 => 35::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 9::SMALLINT,
@@ -1591,7 +1591,7 @@ SELECT public.sp_criar_arma(
 -- Arma 4: Estilete Ritualístico
 SELECT public.sp_criar_arma(
     p_nome                  => 'Estilete Ritualístico'::public.nome,
-    p_descricao             => 'Uma adaga ornamentada com símbolos profanos. A lâmina parece vibrar com uma energia maligna, causando feridas que demoram a cicatrizar.'::public.descricao,
+    p_descricao             => 'Uma adaga ornamentada com símbolos profanos. ' || CHR(10) || 'A lâmina parece vibrar com uma energia maligna, causando feridas que demoram a cicatrizar.'::public.descricao,
     p_valor                 => 80::SMALLINT,
     p_atributo_necessario   => 'poder'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 12::SMALLINT,
@@ -1606,7 +1606,7 @@ SELECT public.sp_criar_arma(
 -- Arma 5: Lança Improvisada
 SELECT public.sp_criar_arma(
     p_nome                  => 'Lança Improvisada'::public.nome,
-    p_descricao             => 'Um cano de ferro afiado em uma das pontas. Rústica, mas eficaz para manter os horrores a uma distância segura.'::public.descricao,
+    p_descricao             => 'Um cano de ferro afiado em uma das pontas. ' || CHR(10) || 'Rústica, mas eficaz para manter os horrores a uma distância segura.'::public.descricao,
     p_valor                 => 5::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 9::SMALLINT,
@@ -1621,7 +1621,7 @@ SELECT public.sp_criar_arma(
 -- Arma 6: Frasco de Ácido
 SELECT public.sp_criar_arma(
     p_nome                  => 'Frasco de Ácido'::public.nome,
-    p_descricao             => 'Um frasco de vidro contendo um líquido corrosivo. Deve ser arremessado com cuidado para não se tornar a vítima.'::public.descricao,
+    p_descricao             => 'Um frasco de vidro contendo um líquido corrosivo. ' || CHR(10) || 'Deve ser arremessado com cuidado para não se tornar a vítima.'::public.descricao,
     p_valor                 => 25::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 7::SMALLINT,
@@ -1636,7 +1636,7 @@ SELECT public.sp_criar_arma(
 -- Arma 7: Espingarda de Caça
 SELECT public.sp_criar_arma(
     p_nome                  => 'Espingarda de Caça'::public.nome,
-    p_descricao             => 'Uma espingarda de cano duplo, confiável e devastadora a curta distância. O som de seu disparo ecoa como um trovão.'::public.descricao,
+    p_descricao             => 'Uma espingarda de cano duplo, confiável e devastadora a curta distância. ' || CHR(10) || 'O som de seu disparo ecoa como um trovão.'::public.descricao,
     p_valor                 => 60::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 11::SMALLINT,
@@ -1681,7 +1681,7 @@ SELECT public.sp_criar_arma(
 -- Arma 10: Thompson M1928 (Tommy Gun)
 SELECT public.sp_criar_arma(
     p_nome                  => 'Thompson M1928'::public.nome,
-    p_descricao             => 'Uma submetralhadora icônica, famosa por seu tambor característico e sua impressionante cadência de tiro. Controlá-la exige força e perícia.'::public.descricao,
+    p_descricao             => 'Uma submetralhadora icônica, famosa por seu tambor característico e sua impressionante cadência de tiro. ' || CHR(10) || 'Controlá-la exige força e perícia.'::public.descricao,
     p_valor                 => 250::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 13::SMALLINT,
@@ -1711,7 +1711,7 @@ SELECT public.sp_criar_arma(
 -- Arma 12: Besta de Caça
 SELECT public.sp_criar_arma(
     p_nome                  => 'Besta de Caça'::public.nome,
-    p_descricao             => 'Uma arma silenciosa e letal, que dispara virotes de aço capazes de perfurar couro grosso. A recarga, no entanto, é um processo lento e tenso.'::public.descricao,
+    p_descricao             => 'Uma arma silenciosa e letal, que dispara virotes de aço capazes de perfurar couro grosso. ' || CHR(10) || 'A recarga, no entanto, é um processo lento e tenso.'::public.descricao,
     p_valor                 => 75::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 11::SMALLINT,
@@ -1726,7 +1726,7 @@ SELECT public.sp_criar_arma(
 -- Arma 13: Coquetel Molotov
 SELECT public.sp_criar_arma(
     p_nome                  => 'Coquetel Molotov'::public.nome,
-    p_descricao             => 'Uma garrafa de vidro cheia de líquido inflamável, com um pano servindo de pavio. Uma arma de desespero que incendeia uma área, perigosa para o alvo e para o usuário.'::public.descricao,
+    p_descricao             => 'Uma garrafa de vidro cheia de líquido inflamável, com um pano servindo de pavio. ' || CHR(10) || 'Uma arma de desespero que incendeia uma área, perigosa para o alvo e para o usuário.'::public.descricao,
     p_valor                 => 10::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 6::SMALLINT,
@@ -1756,7 +1756,7 @@ SELECT public.sp_criar_arma(
 -- Arma 15: Revólver .38 Special
 SELECT public.sp_criar_arma(
     p_nome                  => 'Revólver .38 Special'::public.nome,
-    p_descricao             => 'Um revólver de seis tiros, confiável e comum entre detetives e policiais. Um companheiro fiel nas vielas escuras da cidade.'::public.descricao,
+    p_descricao             => 'Um revólver de seis tiros, confiável e comum entre detetives e policiais. ' || CHR(10) || 'Um companheiro fiel nas vielas escuras da cidade.'::public.descricao,
     p_valor                 => 50::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 8::SMALLINT,
@@ -1801,7 +1801,7 @@ SELECT public.sp_criar_arma(
 -- Arma 18: Seringa com Sedativo
 SELECT public.sp_criar_arma(
     p_nome                  => 'Seringa com Sedativo'::public.nome,
-    p_descricao             => 'Uma dose potente de tranquilizante. Pode neutralizar um alvo humanoide sem matá-lo, mas a dosagem exata para criaturas profanas é desconhecida.'::public.descricao,
+    p_descricao             => 'Uma dose potente de tranquilizante. ' || CHR(10) || 'Pode neutralizar um alvo humanoide sem matá-lo, mas a dosagem exata para criaturas profanas é desconhecida.'::public.descricao,
     p_valor                 => 40::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 9::SMALLINT,
@@ -1816,7 +1816,7 @@ SELECT public.sp_criar_arma(
 -- Arma 19: Bastão de Dinamite
 SELECT public.sp_criar_arma(
     p_nome                  => 'Bastão de Dinamite'::public.nome,
-    p_descricao             => 'Instável e poderoso. Ideal para demolições ou para eliminar ameaças agrupadas. Acender o pavio curto é um ato de fé... ou de loucura.'::public.descricao,
+    p_descricao             => 'Instável e poderoso. Ideal para demolições ou para eliminar ameaças agrupadas. ' || CHR(10) || 'Acender o pavio curto é um ato de fé... ou de loucura.'::public.descricao,
     p_valor                 => 100::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 7::SMALLINT,
@@ -1831,7 +1831,7 @@ SELECT public.sp_criar_arma(
 -- Arma 20: Rifle de Caça .30-06
 SELECT public.sp_criar_arma(
     p_nome                  => 'Rifle de Caça .30-06'::public.nome,
-    p_descricao             => 'Um rifle de ferrolho preciso e com grande poder de parada. Perfeito para abater alvos a longa distância, sejam eles cervos ou horrores indescritíveis.'::public.descricao,
+    p_descricao             => 'Um rifle de ferrolho preciso e com grande poder de parada. ' || CHR(10) || 'Perfeito para abater alvos a longa distância, sejam eles cervos ou horrores indescritíveis.'::public.descricao,
     p_valor                 => 120::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 12::SMALLINT,
@@ -1861,7 +1861,7 @@ SELECT public.sp_criar_arma(
 -- Arma 22: Sinalizador Marítimo
 SELECT public.sp_criar_arma(
     p_nome                  => 'Sinalizador Marítimo'::public.nome,
-    p_descricao             => 'Uma pistola que dispara um cartucho luminoso. Usada para sinalização, mas em uma emergência, o projétil incandescente pode causar queimaduras terríveis.'::public.descricao,
+    p_descricao             => 'Uma pistola que dispara um cartucho luminoso. ' || CHR(10) || 'Usada para sinalização, mas em uma emergência, o projétil incandescente pode causar queimaduras terríveis.'::public.descricao,
     p_valor                 => 30::SMALLINT,
     p_atributo_necessario   => 'destreza'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 6::SMALLINT,
@@ -1876,7 +1876,7 @@ SELECT public.sp_criar_arma(
 -- Arma 23: Arpão de Caça à Baleia
 SELECT public.sp_criar_arma(
     p_nome                  => 'Arpão de Caça à Baleia'::public.nome,
-    p_descricao             => 'Uma lança pesada com uma ponta farpada, projetada para penetrar a gordura espessa de leviatãs marinhos. Desajeitada, mas devastadora.'::public.descricao,
+    p_descricao             => 'Uma lança pesada com uma ponta farpada, projetada para penetrar a gordura espessa de leviatãs marinhos. ' || CHR(10) || 'Desajeitada, mas devastadora.'::public.descricao,
     p_valor                 => 55::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 14::SMALLINT,
@@ -1891,7 +1891,7 @@ SELECT public.sp_criar_arma(
 -- Arma 24: Garrafa Quebrada
 SELECT public.sp_criar_arma(
     p_nome                  => 'Garrafa Quebrada'::public.nome,
-    p_descricao             => 'O recurso final de uma briga de bar. Seus cacos de vidro podem rasgar a carne de forma cruel. Se estilhaça facilmente.'::public.descricao,
+    p_descricao             => 'O recurso final de uma briga de bar. ' || CHR(10) || 'Seus cacos de vidro podem rasgar a carne de forma cruel. Se estilhaça facilmente.'::public.descricao,
     p_valor                 => 1::SMALLINT,
     p_atributo_necessario   => NULL,
     p_qtd_atributo_necessario => 0::SMALLINT,
@@ -1936,7 +1936,7 @@ SELECT public.sp_criar_arma(
 -- Arma 27: Foice de Fazendeiro
 SELECT public.sp_criar_arma(
     p_nome                  => 'Foice de Fazendeiro'::public.nome,
-    p_descricao             => 'Uma longa lâmina curvada, feita para a colheita. Nas mãos erradas, torna-se uma arma assustadora com um alcance surpreendente.'::public.descricao,
+    p_descricao             => 'Uma longa lâmina curvada, feita para a colheita. ' || CHR(10) || 'Nas mãos erradas, torna-se uma arma assustadora com um alcance surpreendente.'::public.descricao,
     p_valor                 => 10::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 10::SMALLINT,
@@ -1951,7 +1951,7 @@ SELECT public.sp_criar_arma(
 -- Arma 28: Picareta de Mineração
 SELECT public.sp_criar_arma(
     p_nome                  => 'Picareta de Mineração'::public.nome,
-    p_descricao             => 'Pesada e robusta, com uma ponta afiada projetada para quebrar rochas. Um golpe bem colocado pode perfurar quase qualquer coisa.'::public.descricao,
+    p_descricao             => 'Pesada e robusta, com uma ponta afiada projetada para quebrar rochas. ' || CHR(10) || 'Um golpe bem colocado pode perfurar quase qualquer coisa.'::public.descricao,
     p_valor                 => 18::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 11::SMALLINT,
@@ -1966,7 +1966,7 @@ SELECT public.sp_criar_arma(
 -- Arma 29: Maça com Corrente (Mangual)
 SELECT public.sp_criar_arma(
     p_nome                  => 'Maça com Corrente (Mangual)'::public.nome,
-    p_descricao             => 'Uma relíquia brutal de tempos passados. Uma cabeça de metal com cravos, ligada a um cabo por uma corrente. Difícil de manusear, mas terrivelmente eficaz.'::public.descricao,
+    p_descricao             => 'Uma relíquia brutal de tempos passados. ' || CHR(10) || 'Uma cabeça de metal com cravos, ligada a um cabo por uma corrente. Difícil de manusear, mas terrivelmente eficaz.'::public.descricao,
     p_valor                 => 65::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_qtd_atributo_necessario => 13::SMALLINT,
@@ -1981,7 +1981,7 @@ SELECT public.sp_criar_arma(
 -- Arma 30: Livro Pesado
 SELECT public.sp_criar_arma(
     p_nome                  => 'Livro Pesado'::public.nome,
-    p_descricao             => 'Um tomo pesado, com capa de couro e possivelmente reforçado com metal. Inesperadamente eficaz como uma arma de contusão nas mãos de um estudioso desesperado.'::public.descricao,
+    p_descricao             => 'Um tomo pesado, com capa de couro e possivelmente reforçado com metal. ' || CHR(10) || 'Inesperadamente eficaz como uma arma de contusão nas mãos de um estudioso desesperado.'::public.descricao,
     p_valor                 => 5::SMALLINT,
     p_atributo_necessario   => NULL,
     p_qtd_atributo_necessario => 0::SMALLINT,
@@ -1998,7 +1998,7 @@ SELECT public.sp_criar_arma(
 -- Armadura 1: Sobretudo de Detetive
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Sobretudo de Detetive'::public.nome,
-    p_descricao             => 'Um sobretudo pesado de lã, gasto pelo tempo e pela chuva. Oferece alguma proteção contra os elementos e golpes fortuitos.'::public.descricao,
+    p_descricao             => 'Um sobretudo pesado de lã, gasto pelo tempo e pela chuva. ' || CHR(10) || 'Oferece alguma proteção contra os elementos e golpes fortuitos.'::public.descricao,
     p_valor                 => 40::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 100::SMALLINT,
@@ -2012,7 +2012,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 2: Chapéu Fedora
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Chapéu Fedora'::public.nome,
-    p_descricao             => 'Um chapéu de feltro elegante, mas manchado. Mais um item de estilo do que proteção, mas ajuda a manter a compostura.'::public.descricao,
+    p_descricao             => 'Um chapéu de feltro elegante, mas manchado. ' || CHR(10) || 'Mais um item de estilo do que proteção, mas ajuda a manter a compostura.'::public.descricao,
     p_valor                 => 15::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 40::SMALLINT,
@@ -2054,7 +2054,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 5: Máscara Ritualística de Madeira
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Máscara Ritualística de Madeira'::public.nome,
-    p_descricao             => 'Uma máscara grotesca, esculpida em madeira escura. Esconde o rosto e inspira medo, mas sua rigidez oferece alguma proteção.'::public.descricao,
+    p_descricao             => 'Uma máscara grotesca, esculpida em madeira escura. ' || CHR(10) || 'Esconde o rosto e inspira medo, mas sua rigidez oferece alguma proteção.'::public.descricao,
     p_valor                 => 75::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 70::SMALLINT,
@@ -2068,7 +2068,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 6: Luvas de Couro de Motorista
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Luvas de Couro de Motorista'::public.nome,
-    p_descricao             => 'Luvas de couro fino que melhoram a aderência. Não oferecem muita proteção, mas são essenciais para um trabalho preciso.'::public.descricao,
+    p_descricao             => 'Luvas de couro fino que melhoram a aderência. ' || CHR(10) || 'Não oferecem muita proteção, mas são essenciais para um trabalho preciso.'::public.descricao,
     p_valor                 => 20::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 50::SMALLINT,
@@ -2096,7 +2096,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 8: Colete Acolchoado
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Colete Acolchoado'::public.nome,
-    p_descricao             => 'Um colete grosso, preenchido com algodão e couro, usado por baixo das roupas. Limita os movimentos, mas absorve bem o impacto.'::public.descricao,
+    p_descricao             => 'Um colete grosso, preenchido com algodão e couro, usado por baixo das roupas. ' || CHR(10) || 'Limita os movimentos, mas absorve bem o impacto.'::public.descricao,
     p_valor                 => 60::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_durabilidade          => 130::SMALLINT,
@@ -2110,7 +2110,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 9: Braceletes de Osso Amarelado
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Braceletes de Osso Amarelado'::public.nome,
-    p_descricao             => 'Braceletes feitos com ossos de animais desconhecidos, unidos por tiras de couro. Parecem sussurrar segredos arcanos.'::public.descricao,
+    p_descricao             => 'Braceletes feitos com ossos de animais desconhecidos, unidos por tiras de couro. ' || CHR(10) || 'Parecem sussurrar segredos arcanos.'::public.descricao,
     p_valor                 => 85::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 60::SMALLINT,
@@ -2124,7 +2124,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 10: Traje de Paciente de Sanatório
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Traje de Paciente de Sanatório'::public.nome,
-    p_descricao             => 'Roupas simples de algodão branco. Não oferece proteção física, mas o trauma associado a ele fortaleceu a mente contra horrores maiores.'::public.descricao,
+    p_descricao             => 'Roupas simples de algodão branco. ' || CHR(10) || 'Não oferece proteção física, mas o trauma associado a ele fortaleceu a mente contra horrores maiores.'::public.descricao,
     p_valor                 => 5::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 20::SMALLINT,
@@ -2138,7 +2138,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 11: Jaqueta de Couro de Aviador
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Jaqueta de Couro de Aviador'::public.nome,
-    p_descricao             => 'Uma jaqueta de couro grossa, forrada com lã de ovelha. Oferece excelente proteção contra o frio e impactos moderados.'::public.descricao,
+    p_descricao             => 'Uma jaqueta de couro grossa, forrada com lã de ovelha. ' || CHR(10) || 'Oferece excelente proteção contra o frio e impactos moderados.'::public.descricao,
     p_valor                 => 70::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 140::SMALLINT,
@@ -2152,7 +2152,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 12: Ataduras de Múmia
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Ataduras de Múmia'::public.nome,
-    p_descricao             => 'Faixas de linho antigo, retiradas de um túmulo esquecido. Estão impregnadas com a poeira do tempo e sussurros do além.'::public.descricao,
+    p_descricao             => 'Faixas de linho antigo, retiradas de um túmulo esquecido. ' || CHR(10) || 'Estão impregnadas com a poeira do tempo e sussurros do além.'::public.descricao,
     p_valor                 => 150::SMALLINT,
     p_atributo_necessario   => 'poder'::public.tipo_atributo_personagem,
     p_durabilidade          => 75::SMALLINT,
@@ -2166,7 +2166,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 13: Capacete de Aço da Grande Guerra
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Capacete de Aço da Grande Guerra'::public.nome,
-    p_descricao             => 'Um capacete de aço pesado, marcado por estilhaços e pelo tempo. Um lembrete sombrio dos horrores da guerra... e uma proteção confiável para a cabeça.'::public.descricao,
+    p_descricao             => 'Um capacete de aço pesado, marcado por estilhaços e pelo tempo. ' || CHR(10) || 'Um lembrete sombrio dos horrores da guerra... e uma proteção confiável para a cabeça.'::public.descricao,
     p_valor                 => 50::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_durabilidade          => 180::SMALLINT,
@@ -2194,7 +2194,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 15: Sapatos Sociais Polidos
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Sapatos Sociais Polidos'::public.nome,
-    p_descricao             => 'Sapatos de couro caros, impecavelmente polidos. Essenciais para se misturar em eventos da alta sociedade e causar uma boa impressão.'::public.descricao,
+    p_descricao             => 'Sapatos de couro caros, impecavelmente polidos. ' || CHR(10) || 'Essenciais para se misturar em eventos da alta sociedade e causar uma boa impressão.'::public.descricao,
     p_valor                 => 22::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 45::SMALLINT,
@@ -2208,7 +2208,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 16: Grevas de Couro de Réptil
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Grevas de Couro de Réptil'::public.nome,
-    p_descricao             => 'Proteções para as pernas feitas de um couro escamoso e estranhamente resistente, de uma criatura que não pertence a este mundo.'::public.descricao,
+    p_descricao             => 'Proteções para as pernas feitas de um couro escamoso e estranhamente resistente, ' || CHR(10) || 'de uma criatura que não pertence a este mundo.'::public.descricao,
     p_valor                 => 120::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 130::SMALLINT,
@@ -2222,7 +2222,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 17: Relógio de Bolso Antigo
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Relógio de Bolso Antigo'::public.nome,
-    p_descricao             => 'Um relógio de prata ornamentado que não marca mais as horas. Trazê-lo no pulso parece aguçar os reflexos para o que está por vir.'::public.descricao,
+    p_descricao             => 'Um relógio de prata ornamentado que não marca mais as horas. ' || CHR(10) || 'Trazê-lo no pulso parece aguçar os reflexos para o que está por vir.'::public.descricao,
     p_valor                 => 65::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 30::SMALLINT,
@@ -2236,7 +2236,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 18: Óculos de Lentes Grossas
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Óculos de Lentes Grossas'::public.nome,
-    p_descricao             => 'Usados por um estudioso que leu demais à luz de velas. As lentes distorcem o mundo, mas ajudam a focar nos detalhes ocultos.'::public.descricao,
+    p_descricao             => 'Usados por um estudioso que leu demais à luz de velas. ' || CHR(10) || 'As lentes distorcem o mundo, mas ajudam a focar nos detalhes ocultos.'::public.descricao,
     p_valor                 => 45::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 35::SMALLINT,
@@ -2250,7 +2250,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 19: Calças de Lona Encerada
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Calças de Lona Encerada'::public.nome,
-    p_descricao             => 'Calças de trabalho resistentes, cobertas com cera para repelir a água. Ideais para explorar esgotos ou docas enevoadas.'::public.descricao,
+    p_descricao             => 'Calças de trabalho resistentes, cobertas com cera para repelir a água. ' || CHR(10) || 'Ideais para explorar esgotos ou docas enevoadas.'::public.descricao,
     p_valor                 => 18::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 90::SMALLINT,
@@ -2264,7 +2264,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 20: Amuleto de Proteção Falsa
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Amuleto de Proteção Falsa'::public.nome,
-    p_descricao             => 'Um amuleto barato vendido como um talismã de proteção. Não possui poder real, mas a crença do usuário nele pode, por vezes, fortalecer sua vontade.'::public.descricao,
+    p_descricao             => 'Um amuleto barato vendido como um talismã de proteção. ' || CHR(10) || 'Não possui poder real, mas a crença do usuário nele pode, por vezes, fortalecer sua vontade.'::public.descricao,
     p_valor                 => 10::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 15::SMALLINT,
@@ -2278,7 +2278,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 21: Gabardine de Lã
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Gabardine de Lã'::public.nome,
-    p_descricao             => 'Um casaco longo e pesado, excelente para noites frias e chuvosas. Seu tecido grosso oferece uma proteção surpreendente contra garras e pancadas.'::public.descricao,
+    p_descricao             => 'Um casaco longo e pesado, excelente para noites frias e chuvosas. ' || CHR(10) || 'Seu tecido grosso oferece uma proteção surpreendente contra garras e pancadas.'::public.descricao,
     p_valor                 => 45::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 120::SMALLINT,
@@ -2292,7 +2292,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 22: Elmo de Mergulhador de Escafandro
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Elmo de Mergulhador de Escafandro'::public.nome,
-    p_descricao             => 'Um elmo de bronze pesado e claustrofóbico, projetado para as profundezas. Protege a cabeça de forma excepcional, mas a visão e a audição são severamente limitadas.'::public.descricao,
+    p_descricao             => 'Um elmo de bronze pesado e claustrofóbico, projetado para as profundezas. ' || CHR(10) || 'Protege a cabeça de forma excepcional, mas a visão e a audição são severamente limitadas.'::public.descricao,
     p_valor                 => 100::SMALLINT,
     p_atributo_necessario   => 'forca'::public.tipo_atributo_personagem,
     p_durabilidade          => 250::SMALLINT,
@@ -2306,7 +2306,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 23: Tatuagens Arcanas no Braço
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Tatuagens Arcanas no Braço'::public.nome,
-    p_descricao             => 'Símbolos complexos tatuados na pele, que parecem se contorcer sob a luz fraca. Não oferecem proteção física, mas fortalecem a conexão do portador com o oculto.'::public.descricao,
+    p_descricao             => 'Símbolos complexos tatuados na pele, que parecem se contorcer sob a luz fraca. ' || CHR(10) || 'Não oferecem proteção física, mas fortalecem a conexão do portador com o oculto.'::public.descricao,
     p_valor                 => 200::SMALLINT,
     p_atributo_necessario   => 'poder'::public.tipo_atributo_personagem,
     p_durabilidade          => 999::SMALLINT,
@@ -2320,7 +2320,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 24: Calças de Tweed de Professor
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Calças de Tweed de Professor'::public.nome,
-    p_descricao             => 'Calças confortáveis, com cotoveleiras gastas, mais adequadas para uma biblioteca do que para um combate. Carregam o peso do conhecimento.'::public.descricao,
+    p_descricao             => 'Calças confortáveis, com cotoveleiras gastas, mais adequadas para uma biblioteca do que para um combate. ' || CHR(10) || 'Carregam o peso do conhecimento.'::public.descricao,
     p_valor                 => 12::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 35::SMALLINT,
@@ -2334,7 +2334,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 25: Botas de Explorador com Polainas
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Botas de Explorador com Polainas'::public.nome,
-    p_descricao             => 'Botas robustas de couro, acompanhadas de polainas que protegem contra lama e picadas de cobra. Feitas para longas jornadas em lugares selvagens.'::public.descricao,
+    p_descricao             => 'Botas robustas de couro, acompanhadas de polainas que protegem contra lama e picadas de cobra. ' || CHR(10) || 'Feitas para longas jornadas em lugares selvagens.'::public.descricao,
     p_valor                 => 30::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 160::SMALLINT,
@@ -2348,7 +2348,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 26: Colete de Força (Camisa de Força)
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Colete de Força'::public.nome,
-    p_descricao             => 'Uma camisa de lona resistente com tiras de couro, projetada para conter os loucos. Abraçar a própria insanidade pode ser uma forma de proteção.'::public.descricao,
+    p_descricao             => 'Uma camisa de lona resistente com tiras de couro, projetada para conter os loucos. ' || CHR(10) || 'Abraçar a própria insanidade pode ser uma forma de proteção.'::public.descricao,
     p_valor                 => 75::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 100::SMALLINT,
@@ -2362,7 +2362,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 27: Máscara de Gás da Guerra
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Máscara de Gás da Guerra'::public.nome,
-    p_descricao             => 'Uma máscara de borracha com um filtro de metal, um resquício da Grande Guerra. A respiração é difícil e a visão é limitada, mas protege o rosto e os pulmões.'::public.descricao,
+    p_descricao             => 'Uma máscara de borracha com um filtro de metal, um resquício da Grande Guerra. ' || CHR(10) || 'A respiração é difícil e a visão é limitada, mas protege o rosto e os pulmões.'::public.descricao,
     p_valor                 => 60::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 80::SMALLINT,
@@ -2376,7 +2376,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 28: Braceletes de Couro com Taxas
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Braceletes de Couro com Taxas'::public.nome,
-    p_descricao             => 'Braceletes de couro grosso, adornados com taxas de metal pontiagudas. Um acessório intimidador que pode aparar um golpe ou dois.'::public.descricao,
+    p_descricao             => 'Braceletes de couro grosso, adornados com taxas de metal pontiagudas. ' || CHR(10) || 'Um acessório intimidador que pode aparar um golpe ou dois.'::public.descricao,
     p_valor                 => 28::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 90::SMALLINT,
@@ -2390,7 +2390,7 @@ SELECT public.sp_criar_armadura(
 -- Armadura 29: Perneiras de Motociclista
 SELECT public.sp_criar_armadura(
     p_nome                  => 'Perneiras de Motociclista'::public.nome,
-    p_descricao             => 'Perneiras de couro endurecido, projetadas para proteger contra o cascalho da estrada. Igualmente eficazes contra outras formas de abrasão.'::public.descricao,
+    p_descricao             => 'Perneiras de couro endurecido, projetadas para proteger contra o cascalho da estrada. ' || CHR(10) || 'Igualmente eficazes contra outras formas de abrasão.'::public.descricao,
     p_valor                 => 40::SMALLINT,
     p_atributo_necessario   => NULL,
     p_durabilidade          => 125::SMALLINT,
@@ -2486,7 +2486,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 7: Ervas Calmantes
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Ervas Calmantes'::public.nome,
-    p_descricao                  => 'Um saquinho com uma mistura de ervas secas. Quando mastigadas, produzem um efeito relaxante que ajuda a afastar as sombras da mente.'::public.descricao,
+    p_descricao                  => 'Um saquinho com uma mistura de ervas secas. ' || CHR(10) || 'Quando mastigadas, produzem um efeito relaxante que ajuda a afastar as sombras da mente.'::public.descricao,
     p_valor                      => 20::SMALLINT,
     p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
     p_qts_usos                   => 4::SMALLINT,
@@ -2497,7 +2497,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 8: Incenso Purificador
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Incenso Purificador'::public.nome,
-    p_descricao                  => 'Um bastão de incenso com um aroma peculiar. Sua fumaça densa parece limpar o ar e a mente de influências malignas.'::public.descricao,
+    p_descricao                  => 'Um bastão de incenso com um aroma peculiar. ' || CHR(10) || 'Sua fumaça densa parece limpar o ar e a mente de influências malignas.'::public.descricao,
     p_valor                      => 50::SMALLINT,
     p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
     p_qts_usos                   => 1::SMALLINT,
@@ -2508,7 +2508,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 9: Adrenalina (Injetável)
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Adrenalina (Injetável)'::public.nome,
-    p_descricao                  => 'Uma injeção que estimula o coração e o corpo. Não cura feridas, mas pode trazer alguém de volta da beira da inconsciência.'::public.descricao,
+    p_descricao                  => 'Uma injeção que estimula o coração e o corpo. ' || CHR(10) || 'Não cura feridas, mas pode trazer alguém de volta da beira da inconsciência.'::public.descricao,
     p_valor                      => 45::SMALLINT,
     p_funcao                     => 'ambos'::public.funcao_cura,
     p_qts_usos                   => 1::SMALLINT,
@@ -2519,7 +2519,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 10: Kit de Primeiro Socorros Completo
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Kit de Primeiro Socorros Completo'::public.nome,
-    p_descricao                  => 'Uma maleta contendo bandagens, antissépticos, analgésicos e outros suprimentos médicos. Suficiente para vários tratamentos.'::public.descricao,
+    p_descricao                  => 'Uma maleta contendo bandagens, antissépticos, analgésicos e outros suprimentos médicos. ' || CHR(10) || 'Suficiente para vários tratamentos.'::public.descricao,
     p_valor                      => 100::SMALLINT,
     p_funcao                     => 'restaurar_vida'::public.funcao_cura,
     p_qts_usos                   => 5::SMALLINT,
@@ -2530,7 +2530,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 11: Chocolate Amargo
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Chocolate Amargo'::public.nome,
-    p_descricao                  => 'Uma barra de chocolate com alta concentração de cacau. Um pequeno luxo que ajuda a afastar o desespero.'::public.descricao,
+    p_descricao                  => 'Uma barra de chocolate com alta concentração de cacau. ' || CHR(10) || 'Um pequeno luxo que ajuda a afastar o desespero.'::public.descricao,
     p_valor                      => 8::SMALLINT,
     p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
     p_qts_usos                   => 2::SMALLINT,
@@ -2541,7 +2541,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 12: Cataplasma de Ervas
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Cataplasma de Ervas'::public.nome,
-    p_descricao                  => 'Uma pasta de ervas medicinais que é aplicada sobre ferimentos para reduzir o inchaço e acelerar a cicatrização. Cheira a terra úmida.'::public.descricao,
+    p_descricao                  => 'Uma pasta de ervas medicinais que é aplicada sobre ferimentos para reduzir o inchaço e acelerar a cicatrização. ' || CHR(10) || 'Cheira a terra úmida.'::public.descricao,
     p_valor                      => 22::SMALLINT,
     p_funcao                     => 'restaurar_vida'::public.funcao_cura,
     p_qts_usos                   => 2::SMALLINT,
@@ -2552,7 +2552,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 13: Absinto
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Absinto'::public.nome,
-    p_descricao                  => 'Uma dose da "Fada Verde". Este destilado potente é famoso por suas propriedades alucinógenas, mas pode conceder um perigoso alívio à mente atormentada.'::public.descricao,
+    p_descricao                  => 'Uma dose da "Fada Verde". ' || CHR(10) || 'Este destilado potente é famoso por suas propriedades alucinógenas, mas pode conceder um perigoso alívio à mente atormentada.'::public.descricao,
     p_valor                      => 30::SMALLINT,
     p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
     p_qts_usos                   => 3::SMALLINT,
@@ -2563,7 +2563,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 14: Sanguessugas Medicinais
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Sanguessugas Medicinais'::public.nome,
-    p_descricao                  => 'Um frasco de vidro contendo várias sanguessugas. Uma prática médica arcaica para "purificar" o sangue. Repulsivo, mas estranhamente revigorante.'::public.descricao,
+    p_descricao                  => 'Um frasco de vidro contendo várias sanguessugas. ' || CHR(10) || 'Uma prática médica arcaica para "purificar" o sangue. Repulsivo, mas estranhamente revigorante.'::public.descricao,
     p_valor                      => 18::SMALLINT,
     p_funcao                     => 'ambos'::public.funcao_cura,
     p_qts_usos                   => 1::SMALLINT,
@@ -2574,7 +2574,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 15: Pó de Osso de Santo
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Pó de Osso de Santo'::public.nome,
-    p_descricao                  => 'Um pequeno envelope contendo um pó fino, supostamente dos restos mortais de um mártir. A fé em seu poder pode realizar pequenos milagres pela mente.'::public.descricao,
+    p_descricao                  => 'Um pequeno envelope contendo um pó fino, supostamente dos restos mortais de um mártir. ' || CHR(10) || 'A fé em seu poder pode realizar pequenos milagres pela mente.'::public.descricao,
     p_valor                      => 70::SMALLINT,
     p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
     p_qts_usos                   => 1::SMALLINT,
@@ -2585,7 +2585,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 16: Remédio para Tosse com Heroína
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Remédio para Tosse com Heroína'::public.nome,
-    p_descricao                  => 'Um xarope comum na época, vendido livremente. Eficaz contra a tosse e a dor, com um efeito colateral de euforia e entorpecimento.'::public.descricao,
+    p_descricao                  => 'Um xarope comum na época, vendido livremente. ' || CHR(10) || 'Eficaz contra a tosse e a dor, com um efeito colateral de euforia e entorpecimento.'::public.descricao,
     p_valor                      => 25::SMALLINT,
     p_funcao                     => 'ambos'::public.funcao_cura,
     p_qts_usos                   => 4::SMALLINT,
@@ -2596,7 +2596,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 17: Diário Pessoal
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Diário Pessoal'::public.nome,
-    p_descricao                  => 'Um momento de introspecção, escrevendo ou relendo suas próprias experiências. Ajuda a organizar os pensamentos e a processar os horrores vividos.'::public.descricao,
+    p_descricao                  => 'Um momento de introspecção, escrevendo ou relendo suas próprias experiências. ' || CHR(10) || 'Ajuda a organizar os pensamentos e a processar os horrores vividos.'::public.descricao,
     p_valor                      => 5::SMALLINT,
     p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
     p_qts_usos                   => 5::SMALLINT,
@@ -2607,7 +2607,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 18: Fragmento de Meteorito
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Fragmento de Meteorito'::public.nome,
-    p_descricao                  => 'Uma pedra lisa e escura, anormalmente quente ao toque. Segurá-la transmite uma calma неестественная, silenciando os medos... e talvez outras coisas também.'::public.descricao,
+    p_descricao                  => 'Uma pedra lisa e escura, anormalmente quente ao toque. ' || CHR(10) || 'Segurá-la transmite uma calma неестественная, silenciando os medos... e talvez outras coisas também.'::public.descricao,
     p_valor                      => 120::SMALLINT,
     p_funcao                     => 'restaurar_sanidade'::public.funcao_cura,
     p_qts_usos                   => 3::SMALLINT,
@@ -2629,7 +2629,7 @@ SELECT public.sp_criar_item_cura(
 -- Item de Cura 20: Água Benta
 SELECT public.sp_criar_item_cura(
     p_nome                       => 'Água Benta'::public.nome,
-    p_descricao                  => 'Um frasco contendo água abençoada por um padre. Sua eficácia contra as criaturas da noite é incerta, mas fortalece a fé e a determinação de quem a usa.'::public.descricao,
+    p_descricao                  => 'Um frasco contendo água abençoada por um padre. ' || CHR(10) || 'Sua eficácia contra as criaturas da noite é incerta, mas fortalece a fé e a determinação de quem a usa.'::public.descricao,
     p_valor                      => 35::SMALLINT,
     p_funcao                     => 'ambos'::public.funcao_cura,
     p_qts_usos                   => 1::SMALLINT,
@@ -2637,6 +2637,340 @@ SELECT public.sp_criar_item_cura(
     p_qtd_pontos_vida_recupera   => 1::SMALLINT
 );
 
+-- =================================================================================
+--         PARTE 2: DISTRIBUIÇÃO MANUAL E TEMÁTICA DE ITENS
+-- =================================================================================
+-- Este bloco de código cria uma instância para itens específicos e os
+-- insere diretamente no inventário de cada vendedor.
+
+WITH
+  -- ### INVENTÁRIO DO GAMBIREIRO (Itens baratos e improvisados) ###
+
+  -- Item 1: Pé de Cabra
+  instancia_gambireiro_pedecabra AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Pé de Cabra'
+      RETURNING id
+  ),
+  link_gambireiro_pedecabra AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Gambireiro' LIMIT 1), id FROM instancia_gambireiro_pedecabra
+  ),
+
+  -- Item 2: Bisturi Enferrujado
+  instancia_gambireiro_bisturi AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Bisturi Enferrujado'
+      RETURNING id
+  ),
+  link_gambireiro_bisturi AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Gambireiro' LIMIT 1), id FROM instancia_gambireiro_bisturi
+  ),
+
+  -- Item 3: Chave Inglesa Pesada
+  instancia_gambireiro_chave AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Chave Inglesa Pesada'
+      RETURNING id
+  ),
+  link_gambireiro_chave AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Gambireiro' LIMIT 1), id FROM instancia_gambireiro_chave
+  ),
+
+  -- Item 4: Galochas de Borracha
+  instancia_gambireiro_galochas AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Galochas de Borracha'
+      RETURNING id
+  ),
+  link_gambireiro_galochas AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Gambireiro' LIMIT 1), id FROM instancia_gambireiro_galochas
+  ),
+
+  -- ### INVENTÁRIO DA NEGOCIADORA (Itens elegantes e precisos) ###
+
+  -- Item 1: Pistola Luger P08
+  instancia_negociadora_luger AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Pistola Luger P08'
+      RETURNING id
+  ),
+  link_negociadora_luger AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_luger
+  ),
+
+  -- Item 2: Florete de Esgrima
+  instancia_negociadora_florete AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Florete de Esgrima'
+      RETURNING id
+  ),
+  link_negociadora_florete AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_florete
+  ),
+
+  -- Item 3: Sobretudo de Detetive
+  instancia_negociadora_sobretudo AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Sobretudo de Detetive'
+      RETURNING id
+  ),
+  link_negociadora_sobretudo AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_sobretudo
+  ),
+
+  -- Item 4: Sapatos Sociais Polidos
+  instancia_negociadora_sapatos AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Sapatos Sociais Polidos'
+      RETURNING id
+  ),
+  link_negociadora_sapatos AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_sapatos
+  ),
+
+  -- Item 5: Láudano
+  instancia_negociadora_laudano AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Láudano'
+      RETURNING id
+  ),
+  link_negociadora_laudano AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Negociadora' LIMIT 1), id FROM instancia_negociadora_laudano
+  ),
+  
+  -- ### INVENTÁRIO DO TRADDER (Itens ritualísticos e arriscados) ###
+
+  -- Item 1: Estilete Ritualístico
+  instancia_tradder_estilete AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Estilete Ritualístico'
+      RETURNING id
+  ),
+  link_tradder_estilete AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Tradder' LIMIT 1), id FROM instancia_tradder_estilete
+  ),
+
+  -- Item 2: Garrucha de Bolso
+  instancia_tradder_garrucha AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Garrucha de Bolso'
+      RETURNING id
+  ),
+  link_tradder_garrucha AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Tradder' LIMIT 1), id FROM instancia_tradder_garrucha
+  ),
+  
+  -- Item 3: Vestes Cerimoniais
+  instancia_tradder_vestes AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Vestes Cerimoniais'
+      RETURNING id
+  ),
+  link_tradder_vestes AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Tradder' LIMIT 1), id FROM instancia_tradder_vestes
+  ),
+  
+  -- Item 4: Absinto
+  instancia_tradder_absinto AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Absinto'
+      RETURNING id
+  ),
+  link_tradder_absinto AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Tradder' LIMIT 1), id FROM instancia_tradder_absinto
+  ),
+
+  -- ### INVENTÁRIO DA PRACISTA (Itens práticos de viagem e caça) ###
+
+  -- Item 1: Espingarda de Caça
+  instancia_pracista_espingarda AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Espingarda de Caça'
+      RETURNING id
+  ),
+  link_pracista_espingarda AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Pracista' LIMIT 1), id FROM instancia_pracista_espingarda
+  ),
+  
+  -- Item 2: Jaqueta de Couro de Aviador
+  instancia_pracista_jaqueta AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Jaqueta de Couro de Aviador'
+      RETURNING id
+  ),
+  link_pracista_jaqueta AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Pracista' LIMIT 1), id FROM instancia_pracista_jaqueta
+  ),
+  
+  -- Item 3: Bandagens Limpas
+  instancia_pracista_bandagens AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Bandagens Limpas'
+      RETURNING id
+  ),
+  link_pracista_bandagens AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Pracista' LIMIT 1), id FROM instancia_pracista_bandagens
+  ),
+
+  -- ### INVENTÁRIO DO REFUGIADO (Itens simples de sobrevivência) ###
+
+  -- Item 1: Faca de Açougueiro
+  instancia_refugiado_faca AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Faca de Açougueiro'
+      RETURNING id
+  ),
+  link_refugiado_faca AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Refugiado' LIMIT 1), id FROM instancia_refugiado_faca
+  ),
+  
+  -- Item 2: Cantil de Uísque Barato
+  instancia_refugiado_uisque AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Cantil de Uísque Barato'
+      RETURNING id
+  ),
+  link_refugiado_uisque AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Refugiado' LIMIT 1), id FROM instancia_refugiado_uisque
+  ),
+
+  -- ### INVENTÁRIO DA REFUGIADA (Itens simples e de conforto) ###
+
+  -- Item 1: Corrente de Ferro
+  instancia_refugiada_corrente AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Corrente de Ferro'
+      RETURNING id
+  ),
+  link_refugiada_corrente AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Refugiada' LIMIT 1), id FROM instancia_refugiada_corrente
+  ),
+  
+  -- Item 2: Chocolate Amargo
+  instancia_refugiada_chocolate AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Chocolate Amargo'
+      RETURNING id
+  ),
+  link_refugiada_chocolate AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Refugiada' LIMIT 1), id FROM instancia_refugiada_chocolate
+  ),
+
+  -- ### INVENTÁRIO DO MAURICIO O VENDEDOR (Itens poderosos e de guerra) ###
+
+  -- Item 1: Thompson M1928
+  instancia_mauricio_thompson AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Thompson M1928'
+      RETURNING id
+  ),
+  link_mauricio_thompson AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_thompson
+  ),
+
+  -- Item 2: Rifle de Caça .30-06
+  instancia_mauricio_rifle AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Rifle de Caça .30-06'
+      RETURNING id
+  ),
+  link_mauricio_rifle AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_rifle
+  ),
+  
+  -- Item 3: Elmo de Mergulhador de Escafandro
+  instancia_mauricio_elmo AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Elmo de Mergulhador de Escafandro'
+      RETURNING id
+  ),
+  link_mauricio_elmo AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_elmo
+  ),
+  
+  -- Item 4: Tatuagens Arcanas no Braço
+  instancia_mauricio_tatuagens AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Tatuagens Arcanas no Braço'
+      RETURNING id
+  ),
+  link_mauricio_tatuagens AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_tatuagens
+  ),
+  
+  -- Item 5: Kit de Primeiro Socorros Completo
+  instancia_mauricio_kit AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Kit de Primeiro Socorros Completo'
+      RETURNING id
+  ),
+  link_mauricio_kit AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_kit
+  ),
+  
+    -- Item 6: Seringa de Morfina
+  instancia_mauricio_morfina AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Seringa de Morfina'
+      RETURNING id
+  ),
+  link_mauricio_morfina AS (
+      INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item)
+      SELECT (SELECT id_inventario FROM public.npcs WHERE nome = 'Mauricio o vendedor' LIMIT 1), id FROM instancia_mauricio_morfina
+  )
+
+SELECT 'Distribuição manual e temática de itens para vendedores concluída com sucesso.' AS resultado;
 -- Criação de Feitiços
 
 -- Feitiços de Status
@@ -2883,89 +3217,284 @@ SELECT public.sp_criar_item_magico(
 
 -- Criação de instâncias de item
 
-INSERT INTO public.instancias_de_itens (durabilidade, durabilidade_total, id_item, id_local, id_local_de_spawn)
-VALUES
-  (90, 90, (SELECT id FROM public.itens WHERE nome = 'Besta de Caça'), NULL, NULL),
-  (1, 1, (SELECT id FROM public.itens WHERE nome = 'Coquetel Molotov'), NULL, NULL),
-  (130, 130, (SELECT id FROM public.itens WHERE nome = 'Faca de Açougueiro'), NULL, NULL),
-  (110, 110, (SELECT id FROM public.itens WHERE nome = 'Revólver .38 Special'), NULL, NULL),
-  (150, 150, (SELECT id FROM public.itens WHERE nome = 'Botas de Trabalho Reforçadas'), NULL, NULL),
-  (80, 80, (SELECT id FROM public.itens WHERE nome = 'Vestes Cerimoniais'), NULL, NULL),
-  (1, 1, (SELECT id FROM public.itens WHERE nome = 'Sanguessugas Medicinais'), NULL, NULL),
-  (5, 5, (SELECT id FROM public.itens WHERE nome = 'Diário Pessoal'), NULL, NULL);
+-- =================================================================================
+--         CRIAÇÃO DE INSTÂNCIAS DE MONSTROS E SEUS ITENS (DROPS)
+-- =================================================================================
+-- Este bloco utiliza CTEs para criar instâncias de itens e, em seguida,
+-- criar instâncias de monstros que carregam esses itens em locais específicos.
 
--- Criação de instancias de monstro
+WITH
+  -- ### Instância de Monstro: Shoggoth (Sala de Observação) - Agressivo ###
+  -- Item: Botas de Trabalho Reforçadas
+  instancia_item_botas AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, ar.durabilidade, ar.durabilidade, NULL
+      FROM public.itens i JOIN public.armaduras ar ON i.id = ar.id WHERE i.nome = 'Botas de Trabalho Reforçadas'
+      RETURNING id
+  ),
+  instancia_monstro_shoggoth AS (
+      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+      SELECT
+          (SELECT id FROM public.agressivos WHERE nome = 'Shoggoth'),
+          (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação%'),
+          (SELECT id FROM instancia_item_botas)
+  ),
 
--- Instância de Cthulhu 1 na sala x (Labirinto de pilares)
-/*
+  -- ### Instância de Monstro: Carniçal (Laboratório Abandonado) - Agressivo ###
+  -- Item: Revólver .38 Special
+  instancia_item_revolver AS (
+      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Revólver .38 Special'
+      RETURNING id
+  ),
+  instancia_monstro_carnical AS (
+      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+      SELECT
+          (SELECT id FROM public.agressivos WHERE nome = 'Carniçal'),
+          (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com%'),
+          (SELECT id FROM instancia_item_revolver)
+  )
+
+--  -- ### Instância de Monstro: Nodens (Cripta Úmida) - Pacífico ###
+--  -- Item: Faca de Açougueiro
+--  instancia_item_faca AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+--      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Faca de Açougueiro'
+--      RETURNING id
+--  ),
+--  instancia_monstro_nodens AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
+--          (SELECT id FROM instancia_item_faca)
+--  ),
+--
+--  -- ### Instância de Monstro: Grande Raça de Yith (Biblioteca Submersa) - Pacífico ###
+--  -- Item: Coquetel Molotov
+--  instancia_item_molotov AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+--      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Coquetel Molotov'
+--      RETURNING id
+--  ),
+--  instancia_monstro_yith AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
+--          (SELECT id FROM instancia_item_molotov)
+--  ),
+--
+--  -- ### Instância de Monstro: Gnoph-Keh Solitário (Anfiteatro Circular) - Pacífico ###
+--  -- Item: Besta de Caça
+--  instancia_item_besta AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+--      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Besta de Caça'
+--      RETURNING id
+--  ),
+--  instancia_monstro_gnoph_keh AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
+--          (SELECT id FROM instancia_item_besta)
+--  ),
+--
+--  -- ### Instância de Monstro: Shantak (Sala de Tesouros) - Pacífico ###
+--  -- Item: Sanguessugas Medicinais
+--  instancia_item_sanguessugas AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+--      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Sanguessugas Medicinais'
+--      RETURNING id
+--  ),
+--  instancia_monstro_shantak AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'Shantak'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
+--          (SELECT id FROM instancia_item_sanguessugas)
+--  ),
+--
+--  -- ### Instância de Monstro: A Cor que Caiu do Espaço (Sala de Tesouros) - Pacífico ###
+--  -- Item: Diário Pessoal
+--  instancia_item_diario AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+--      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Diário Pessoal'
+--      RETURNING id
+--  ),
+--  instancia_monstro_cor AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
+--          (SELECT id FROM instancia_item_diario)
+--  )
+
+SELECT 'Criação de instâncias de monstros e distribuição de itens concluída com sucesso.' AS resultado;
+
+-- =================================================================================
+--         CRIAÇÃO DE INSTÂNCIAS DE MONSTROS NO MAPA
+--         (Resolvendo o problema de salas vazias e preparando para o Modo História)
+-- =================================================================================
+
+-- Instância do Povo do Abismo no Túnel Inundado (Corredor 9)
 INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
-    (SELECT id FROM public.agressivos WHERE nome = 'Cthulhu'),
-    (SELECT vida_total FROM public.agressivos WHERE nome = 'Cthulhu'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Esta sala é um labirinto de pilares%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Vestes Cerimoniais')); 
-*/   
+    (SELECT id FROM public.agressivos WHERE nome = 'Povo do Abismo'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Povo do Abismo'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
 
--- Instância de Shoggoth 1 na sala x (Sala de observação)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.agressivos WHERE nome = 'Shoggoth'),
-    (SELECT vida_total FROM public.agressivos WHERE nome = 'Shoggoth'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Esta é uma sala de observação%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Botas de Trabalho Reforçadas'));  
-
--- Instância de Carniçal 1 na sala x (Cripta úmida)
+-- Instância do Carniçal na Cripta (Sala 8)
 INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
 SELECT
     (SELECT id FROM public.agressivos WHERE nome = 'Carniçal'),
     (SELECT vida_total FROM public.agressivos WHERE nome = 'Carniçal'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Revólver .38 Special'));  
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Faca de Sacrifício'));
 
--- Instância de Nodens 1 na sala x (Cripta úmida)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+-- Instância de CTHULHU na Cripta (Sala 8) - O GUARDIÃO DO MODO HISTÓRIA!
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item, is_essencial_historia, id_missao_vinculada)
 SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Faca de Açougueiro'));  
+    (SELECT id FROM public.agressivos WHERE nome = 'Cthulhu'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Cthulhu'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Revólver Amaldiçoado')),
+    TRUE,
+    (SELECT id FROM public.missoes WHERE nome = 'O Guardião da Cripta');
 
--- Instância de Grande Raça de Yith 1 na sala x (Biblioteca submersa)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Coquetel Molotov'));     
 
--- Instância de Gnoph-Keh Solitário 1 na sala x (anfiteatro circular)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Besta de Caça'));     
+SELECT 'Instâncias de monstros foram adicionadas ao mundo.' AS resultado;
 
--- Instância de Shantak 1 na sala x (sala de tesouros)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
-SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'Shantak'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'Shantak'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesourosa%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Sanguessugas Medicinais'));     
+-- =================================================================================
+--         CONFIGURAÇÃO DO MODO HISTÓRIA
+-- =================================================================================
 
--- Instância de Cor que Caiu do Espaço 1 na sala x (sala de tesouros)
-INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+-- PASSO 1: Criar o local secreto que será desbloqueado.
+-- Ele não terá conexões iniciais. O caminho será criado pela aplicação ao completar a missão.
+WITH andar_id_cte AS (
+    SELECT andar AS id FROM public.local LIMIT 1
+)
+INSERT INTO public.local (descricao, tipo_local, status, andar)
+VALUES ('Uma passagem recém-revelada, o ar aqui é mais frio e antigo. O caminho leva para fora da cripta, em direção a uma liberdade incerta.', 'Corredor', FALSE, (SELECT id FROM andar_id_cte));
+
+
+-- PASSO 2: Criar a missão principal da história.
+-- Usamos a SP padrão e depois atualizamos com os campos específicos da história.
+-- O NPC é um placeholder, já que a missão será iniciada pelo menu.
+SELECT public.sp_criar_missao(
+    'O Guardião da Cripta'::public.nome, -- Nome da Missão
+    'O ar gelado e salgado queima seus pulmões. Você acorda sobre uma laje de pedra fria, no centro de uma cripta úmida cujas paredes parecem vivas, cobertas por um musgo bioluminescente que pulsa em um ritmo doentio. A única saída, um arco de pedra maciça, está bloqueada por uma forma montanhosa e blasfema. É Cthulhu, o Grande Antigo, sonhando em sua cidade morta. Sua presença esmaga sua sanidade, e você sabe, com uma certeza aterrorizante, que a única chance de escapar deste pesadelo é atacar a entidade adormecida e forçar uma passagem.'::CHARACTER(512), -- Descrição Imersiva
+    'principal'::public.tipo_missao,
+    'Ataque o Grande Cthulhu e liberte seu caminho para fora da cripta.'::CHARACTER(128), -- Objetivo
+    (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio')
+);
+
+-- PASSO 3: Atualizar a missão com os dados do modo história.
+-- Isso define onde a missão acontece e o que ela desbloqueia.
+UPDATE public.missoes
+SET
+    id_local_alvo = (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    id_local_desbloqueado = (SELECT id FROM public.local WHERE descricao LIKE 'Uma passagem recém-revelada%'),
+    direcao_desbloqueada = 'leste',
+    missao_sequencia_proxima = NULL -- É a primeira e única missão por enquanto
+WHERE nome = 'O Guardião da Cripta';
+
+
+-- PASSO 4: Definir o requisito para completar a missão.
+-- O requisito é derrotar a instância de Cthulhu que está na cripta.
+INSERT INTO public.requisitos_missao (id_missao, tipo_requisito, id_alvo_instancia, concluido)
 SELECT
-    (SELECT id FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
-    (SELECT vida_total FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
-    (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
-    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Diário Pessoal'));    
+    (SELECT id FROM public.missoes WHERE nome = 'O Guardião da Cripta'),
+    'ELIMINAR_MONSTRO'::public.tipo_requisito,
+    -- Pega o ID da instância do Cthulhu que acabamos de criar na Cripta Úmida
+    (SELECT im.id FROM public.instancias_monstros im
+     JOIN public.agressivos a ON im.id_monstro = a.id
+     WHERE a.nome = 'Cthulhu' AND im.id_local = (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%')),
+    FALSE;
+
+SELECT 'Configuração do Modo História concluída com sucesso.' AS resultado;
+
+-- =================================================================================
+--         CRIAÇÃO DE PERSONAGEM DE TESTE (SUPER PERSONAGEM)
+-- =================================================================================
+
+-- Cria o personagem de teste com valores padrão
+SELECT public.sp_criar_personagem_jogavel('Tester Supremo'::public.nome, 'Onipotente'::public.ocupacao, 'O Vazio'::public.residencia, 'Além do Tempo'::public.local_nascimento, 99::public.idade, 'masculino'::public.sexo);
+
+-- Atualiza os atributos para o máximo e recalcula os derivados
+UPDATE public.personagens_jogaveis
+SET
+    forca = 18,
+    constituicao = 18,
+    poder = 18,
+    destreza = 18,
+    aparencia = 18,
+    tamanho = 18,
+    inteligencia = 18,
+    educacao = 18,
+    ouro = 9999,
+    movimento = 9, -- Valor máximo baseado na fórmula
+    pm_base = 18,
+    pm_max = 18,
+    pontos_de_vida_atual = public.calcular_pts_de_vida(18, 18),
+    sanidade_atual = public.calcular_sanidade(18)
+WHERE nome = 'Tester Supremo';
+
+-- Adiciona todas as perícias com valor 99 para o Tester Supremo
+INSERT INTO public.personagens_possuem_pericias (id_personagem, id_pericia, valor_atual)
+SELECT
+    (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'),
+    p.id,
+    99
+FROM public.pericias p
+ON CONFLICT (id_personagem, id_pericia) DO UPDATE SET valor_atual = 99;
+
+-- Cria uma arma poderosa para o Tester
+SELECT public.sp_criar_arma(
+    'Lâmina do Testador'::public.nome,
+    'Uma arma que ignora as regras da realidade, para fins de teste.'::public.descricao,
+    999::SMALLINT, 'forca'::public.tipo_atributo_personagem, 1::SMALLINT, 999::SMALLINT,
+    'corpo_a_corpo_pesada'::public.funcao_arma, 5::SMALLINT, NULL, 'unico'::public.tipo_dano, 500::public.dano
+);
+
+-- Cria uma instância da arma e a equipa no Tester
+WITH instancia_arma_teste AS (
+    INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+    SELECT id, 999, 999, (SELECT id_local FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'), NULL
+    FROM public.itens WHERE nome = 'Lâmina do Testador'
+    RETURNING id
+)
+UPDATE public.personagens_jogaveis SET id_arma = (SELECT id FROM instancia_arma_teste) WHERE nome = 'Tester Supremo';
+
+-- Cria uma armadura superpoderosa para o Tester
+SELECT public.sp_criar_armadura(
+    'Carapaça da Realidade'::public.nome,
+    'Uma armadura forjada da própria estrutura do espaço-tempo. Indiferente a ataques mundanos.'::public.descricao,
+    999::SMALLINT,
+    'constituicao'::public.tipo_atributo_personagem,
+    9999::SMALLINT,
+    'peitoral'::funcao_armadura,
+    0::SMALLINT, 1::SMALLINT, NULL, 600::SMALLINT
+);
+
+-- Cria uma instância da armadura e a equipa no Tester
+WITH instancia_armadura_teste AS (
+    INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+    SELECT id, 9999, 9999, (SELECT id_local FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'), NULL
+    FROM public.itens WHERE nome = 'Carapaça da Realidade'
+    RETURNING id
+)
+UPDATE public.personagens_jogaveis SET id_armadura = (SELECT id FROM instancia_armadura_teste) WHERE nome = 'Tester Supremo';
+
+SELECT 'Personagem de teste "Tester Supremo" criado e maximizado.' AS resultado;
+SELECT 'Configuração do Modo História concluída com sucesso.' AS resultado;
