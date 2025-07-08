@@ -21,7 +21,7 @@ A construção das consultas deste trabalho seguiu as seguintes etapas:
 
 ## DQL - Linguagem de Consulta de Dados
 
-Para acessar o script completo, clique no link a seguir: [Visualizar DQL no GitHub](https://github.com/SBD1/2025.1-CallOfCthulhu/blob/main/docs/entregas/segunda/dql.sql)
+Para acessar o script completo, clique no link a seguir: [Visualizar DQL no GitHub](https://github.com/SBD1/2025.1-CallOfCthulhu/blob/main/src/sql-segunda/dql.sql)
 
 ```
 /*

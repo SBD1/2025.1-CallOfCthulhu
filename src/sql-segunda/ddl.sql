@@ -1,28 +1,3 @@
-# Linguagem de Definição de Dados (DDL)
-
-## Introdução
-
-A **Linguagem de Definição de Dados (DDL - *Data Definition Language*)** é um subconjunto essencial da linguagem SQL, sendo responsável pela **criação, modificação e exclusão da estrutura dos bancos de dados**, como tabelas, índices e relacionamentos. Segundo Elmasri e Navathe, "a DDL fornece comandos para definir esquemas, criar tabelas e estabelecer restrições de integridade" <a id="FRM1" href="#REF1">[1]</a>.  
-A correta definição da estrutura do banco de dados, por meio da DDL, é fundamental para assegurar a integridade dos dados, otimizar o desempenho e manter a organização lógica do sistema.
-
-Neste trabalho, apresentamos a modelagem e implementação das tabelas do banco de dados do projeto, utilizando o PostgreSQL como Sistema Gerenciador de Banco de Dados (SGBD). Ao longo do desenvolvimento, foram aplicados conceitos de normalização, integridade referencial e boas práticas de projeto, garantindo um banco de dados consistente, eficiente e alinhado aos objetivos da aplicação.
-
-## Metodologia
-
-A metodologia aplicada neste módulo seguiu as etapas descritas abaixo:
-
-- **Construção Inicial:** Criação das tabelas com base na modelagem elaborada na etapa anterior[Link](https://sbd1.github.io/2025.1-CallOfCthulhu/entregas/primeira/ML/).
-- **Definição de Domínios:** Desenvolvimento de tipos personalizados para as tabelas.
-- **Normalização:** Correção da estrutura e eliminação de redundâncias.
-- **Ajustes e Correções:** Solução de bugs, validação de integridade referencial e ajustes conforme o dicionário de dados.
-- **Geração de IDs:** Implementação de funções para geração automática de identificadores únicos.
-
-----
-
-## DDL - Linguagem de Definição de Dados
-Para acessar o script completo, clique no link a seguir: [Visualizar DDL no GitHub](https://github.com/SBD1/2025.1-CallOfCthulhu/blob/main/src/sql-segunda/ddl.sql).
-
-```
 /*
 
 HISTÓRICO DE VERSÕES
@@ -65,7 +40,7 @@ Autor: Luiz Guilherme
 Versão: 0.8
 Data: 11/06/2025
 Descrição: Ajustando as tabelas CREATE DOMAIN public.tipo_personagem AS CHARACTER e CREATE DOMAIN public.sexo AS CHARACTER para varying e comentando a ultima chave estrangeira que e tipo personagem pois estava dando erro verificar depois.
-AUTOR: Wanjo Christopher e João Marcos
+Autor: Christopher e João Marcos
 
 Versão: 0.9
 Data: 12/06/2025
@@ -1712,23 +1687,3 @@ ADD CONSTRAINT fk_tipos_personagem_npc
     FOREIGN KEY (id)
     REFERENCES public.npcs (id);
 */
-
-```
-
----
-
-## 📚 Bibliografia
-
-> <a id="REF1" href="#FRM1">[1]</a> ELMASRI, R.; NAVATHE, S. B. *Sistemas de Banco de Dados*. 7. ed. Pearson Education do Brasil, 2018.  
->
-> <a id="REF2" href="#FRM2">[2]</a> DATE, C. J. *An Introduction to Database Systems*. 8. ed. Addison-Wesley, 2003.  
->
-> <a id="REF3" href="#FRM3">[3]</a> SILBERSCHATZ, A.; KORTH, H. F.; SUDARSHAN, S. *Database System Concepts*. 7. ed. McGraw-Hill Education, 2019.
-
-
-## 📑 Histórico de Versões
-
-| Versão | Descrição            | Autor(es)                                      | Data de Produção | Revisor(es)                                    | Data de Revisão |
-| :----: | -------------------- | ---------------------------------------------- | :--------------: | ---------------------------------------------- | :-------------: |
-| `1.0`  | Criação do documento | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [Christopher](https://github.com/wChrstphr) |    16/06/25     |
-| `1.1`  | Corrigindo o documento e adicionado o DDL completo | [João Marcos](https://github.com/JJOAOMARCOSS) |     16/06/25     | [Christopher](https://github.com/wChrstphr) |    16/06/25     |

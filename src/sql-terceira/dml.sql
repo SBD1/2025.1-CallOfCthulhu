@@ -109,25 +109,20 @@ Data: 06/07/2025
 Autor: Luiz Guilherme
 Descrição: Adicionando novos monstros pacíficos e agressivos 
 
-Versão 1.9
+Versão 1.11
 Data: 05/07/2025
-Descrição: Adiciona novas armas e armaduras ao jogo usando as stored procedures correspondentes e as insere em locais específicos do mapa.
-Autor: Gemini
+Descrição: Adiciona novas armas e armaduras ao jogo usando as stored procedures.
+Autor: Wanjo Christopher
+
+Versão 1.12
+Data: 05/07/2025
+Descrição: Adiciona type casting explícito às chamadas de stored procedures de criação de itens.
+Autor: Wanjo Christopher
 
 Versão 2.0
 Data: 05/07/2025
-Descrição: Adiciona type casting explícito às chamadas de stored procedures de criação de itens para garantir a correta inferência de tipos.
-Autor: Gemini
-
-Versão 2.1
-Data: 05/07/2025
-Descrição: Substitui os itens por versões mais temáticas e sombrias, adequadas à estética de Cthulhu, e ajusta seus atributos e locais.
-Autor: Gemini
-
-Versão 2.2
-Data: 05/07/2025
 Descrição: Substitui as inserções diretas de personagens, NPCs e missões por chamadas aos seus respectivos stored procedures (sp_criar_personagem_jogavel, sp_criar_npc, sp_criar_missao).
-Autor: Gemini
+Autor: Wanjo Christopher
 */
 -- ===============================================
 
