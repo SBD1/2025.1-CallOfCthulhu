@@ -1824,7 +1824,8 @@ informações individuais de cada uma das instâncias de monstro.
 */
 
 CREATE OR REPLACE FUNCTION public.sp_encontrar_monstros_no_local(
-    p_local_id public.id_local
+    p_local_id public.id_local,
+    p_id_missao_ativa public.id_missao DEFAULT NULL
 )
 RETURNS TABLE (
     instancia_monstro_id public.id_instancia_de_monstro,
@@ -1858,7 +1859,11 @@ BEGIN
     LEFT JOIN
         public.pacificos p ON im.id_monstro = p.id AND tm.tipo = 'pacífico'
     WHERE
-        im.id_local = p_local_id;
+        im.id_local = p_local_id
+        AND (
+            im.id_missao_vinculada IS NULL OR -- O monstro é visível para todos
+            im.id_missao_vinculada = p_id_missao_ativa -- O monstro só é visível se o jogador estiver na missão correta
+        );
 
 EXCEPTION
     WHEN OTHERS THEN
@@ -1937,8 +1942,8 @@ BEGIN
         RETURN;
     END IF;
 
-    -- Iterar sobre cada instância de monstro
-    FOR r_monster IN SELECT id FROM public.instancias_monstros LOOP
+    -- Iterar sobre cada instância de monstro que NÃO é essencial para a história
+    FOR r_monster IN SELECT id FROM public.instancias_monstros WHERE is_essencial_historia = FALSE LOOP
         -- Selecionar um ID de sala aleatoriamente
         v_new_local_id := v_sala_ids[floor(random() * array_length(v_sala_ids, 1)) + 1];
 
@@ -3027,4 +3032,63 @@ BEGIN
         sanidade_atual = v_sanidade_max -- Opcional: resetar sanidade também
     WHERE id = p_id_jogador;
 END;
-$$; 
+$$;
+
+/*
+=================================================================================
+        19. LÓGICA DO MODO HISTÓRIA
+=================================================================================
+*/
+
+-- ---------------------------------------------------------------------------------
+--  19.1 STORED PROCEDURE: Iniciar o Modo História para um jogador
+--  Esta procedure ativa a missão inicial e move o jogador para o local de início.
+-- ---------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sp_iniciar_modo_historia(
+    p_id_jogador public.id_personagem_jogavel,
+    p_nome_missao_inicial public.nome
+)
+RETURNS TEXT -- Retorna uma mensagem de confirmação
+LANGUAGE plpgsql AS $$
+DECLARE
+    v_missao_info RECORD;
+BEGIN
+    -- 1. Encontrar a missão inicial, seu local e sua descrição
+    SELECT
+        m.id,
+        m.id_local_alvo,
+        m.descricao -- Adicionado para buscar a descrição
+    INTO v_missao_info
+    FROM public.missoes m
+    WHERE m.nome = p_nome_missao_inicial AND m.tipo = 'principal';
+
+    -- 2. Validações
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Modo História não pôde ser iniciado: Missão principal "%" não encontrada.', p_nome_missao_inicial;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM public.personagens_jogaveis WHERE id = p_id_jogador) THEN
+        RAISE EXCEPTION 'Modo História não pôde ser iniciado: Jogador com ID % não encontrado.', p_id_jogador;
+    END IF;
+
+    IF v_missao_info.id_local_alvo IS NULL THEN
+        RAISE EXCEPTION 'Modo História não pôde ser iniciado: A missão "%" não tem um local de início definido (id_local_alvo).', p_nome_missao_inicial;
+    END IF;
+
+    -- 3. Atualizar o estado do jogador para iniciar a missão
+    UPDATE public.personagens_jogaveis
+    SET
+        id_missao_historia_ativa = v_missao_info.id,
+        id_local = v_missao_info.id_local_alvo
+    WHERE id = p_id_jogador;
+
+    -- 4. Retornar a descrição da missão
+    RETURN v_missao_info.descricao;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Ocorreu um erro ao iniciar o Modo História: %', SQLERRM;
+        RAISE;
+END;
+$$;
+

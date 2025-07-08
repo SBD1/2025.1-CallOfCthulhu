@@ -105,7 +105,7 @@ class DataBase:
             pj.forca, pj.constituicao, pj.poder, pj.destreza, pj.aparencia, pj.tamanho, pj.inteligencia, pj.educacao,
             pj.movimento, pj.sanidade_atual, pj.insanidade_temporaria, pj.insanidade_indefinida,
             pj.pm_base, pj.pm_max, pj.pontos_de_vida_atual,
-            pj.id_local, -- AGORA EH APENAS id_local
+            pj.id_local, pj.id_missao_historia_ativa,
             pj.id_inventario, pj.id_armadura, pj.id_arma,
             v.ideia, v.conhecimento, v.sorte, v.pts_de_vida AS pts_de_vida_maximo, v.sanidade_maxima
         FROM
@@ -144,6 +144,7 @@ class DataBase:
                 PM_max=personagem_data['pm_max'],
                 pontos_de_vida_atual=personagem_data['pontos_de_vida_atual'],
                 id_local=personagem_data['id_local'], # ATUALIZADO
+                id_missao_historia_ativa=personagem_data['id_missao_historia_ativa'],
                 id_inventario=personagem_data['id_inventario'],
                 id_armadura=personagem_data['id_armadura'],
                 id_arma=personagem_data['id_arma'],
@@ -314,7 +315,7 @@ class DataBase:
         else:
             print(f"Nao foi possivel encontrar a ficha para o personagem com ID: {id_jogador}")
 
-    def get_local_details_and_exits(self, local_id):
+    def get_local_details_and_exits(self, local_id: int, player_id: int):
         # Retorna os detalhes de um local e suas saídas (baseado nas colunas sul, norte, etc.)
         query = """
         SELECT
@@ -342,6 +343,7 @@ class DataBase:
         if not local_data:
             return None
 
+        # 1. Pega as saídas padrão do mapa
         saidas_raw = []
         direcoes = ['sul', 'norte', 'leste', 'oeste', 'noroeste', 'nordeste', 'sudeste', 'sudoeste', 'cima', 'baixo']
         for direcao in direcoes:
@@ -349,17 +351,29 @@ class DataBase:
             if local_data[id_col]:
                 saidas_raw.append({'id_saida': local_data[id_col], 'direcao': direcao.capitalize()})
         
+        # 2. Pega as saídas desbloqueadas pelo jogador
+        player_exits_query = """
+            SELECT id_local_destino, direcao FROM public.jogador_caminhos_desbloqueados
+            WHERE id_jogador = %s AND id_local_origem = %s;
+        """
+        player_exits_data = self._execute_query(player_exits_query, (player_id, local_id), fetch_all=True)
+        if player_exits_data:
+            for p_exit in player_exits_data:
+                # Adiciona a saída desbloqueada à lista de saídas padrão
+                saidas_raw.append({'id_saida': p_exit['id_local_destino'], 'direcao': p_exit['direcao'].capitalize()})
+        
         full_saidas = []
         for saida in saidas_raw:
             # Pega a descricao e tipo_local do destino para exibir no jogo
-            dest_local_query = "SELECT descricao, tipo_local FROM public.local WHERE id = %s;"
+            dest_local_query = "SELECT descricao, tipo_local, status FROM public.local WHERE id = %s;"
             dest_local_data = self._execute_query(dest_local_query, (saida['id_saida'],), fetch_one=True)
             if dest_local_data:
                 full_saidas.append({
                     'id_saida': saida['id_saida'],
                     'direcao': saida['direcao'],
                     'desc_saida': dest_local_data['descricao'].strip(), # Garante que a descricao esteja limpa
-                    'tipo_destino': dest_local_data['tipo_local'].strip() # Garante que o tipo esteja limpo
+                    'tipo_destino': dest_local_data['tipo_local'].strip(), # Garante que o tipo esteja limpo
+                    'status_destino': dest_local_data['status'] # Adiciona o status do destino
                 })
 
         return {
@@ -407,13 +421,13 @@ class DataBase:
         print("A Lua de Sangue passou. Novos perigos aguardam!")
 
     
-    def get_monsters_in_location(self, local_id: int):
+    def get_monsters_in_location(self, local_id: int, active_mission_id: int = None):
         """
         Chama a stored procedure sp_encontrar_monstros_no_local para buscar e retornar
         todos os monstros presentes em um local específico.
         """
-        query = "SELECT * FROM public.sp_encontrar_monstros_no_local(%s);"
-        return self._execute_query(query, (local_id,), fetch_all=True)
+        query = "SELECT * FROM public.sp_encontrar_monstros_no_local(%s, %s);"
+        return self._execute_query(query, (local_id, active_mission_id), fetch_all=True)
     
     def kill_monsters_in_location(self, local_id: int):
         """
@@ -587,6 +601,79 @@ class DataBase:
             ORDER BY p.nome;
         """
         return self._execute_query(query, (player_id,), fetch_all=True)
+
+    def start_story_mode(self, player_id: int, mission_name: str):
+        """
+        Calls the stored procedure to start the story mode for a player.
+        This moves the player to the mission's starting location and activates the mission.
+        """
+        query = "SELECT public.sp_iniciar_modo_historia(%s, %s);"
+        params = (player_id, mission_name)
+        result = self._execute_query(query, params, fetch_one=True)
+        if result and result.get('sp_iniciar_modo_historia'):
+            return result['sp_iniciar_modo_historia']
+        return "Falha ao iniciar o Modo História. A escuridão resiste."
+
+    # --- MÉTODOS DE SUPORTE AO MODO HISTÓRIA ---
+
+    def get_active_mission_details(self, mission_id: int):
+        """Busca os detalhes da missão de história ativa."""
+        query = "SELECT * FROM public.missoes WHERE id = %s;"
+        return self._execute_query(query, (mission_id,), fetch_one=True)
+
+    def update_mission_requirement(self, mission_id: int, defeated_monster_instance_id: int):
+        """Marca um requisito de missão como concluído."""
+        query = """
+            UPDATE public.requisitos_missao
+            SET concluido = TRUE
+            WHERE id_missao = %s AND id_alvo_instancia = %s AND tipo_requisito = 'ELIMINAR_MONSTRO';
+        """
+        self._execute_query(query, (mission_id, defeated_monster_instance_id))
+        print(f"[DB] Requisito de missão {mission_id} (alvo: {defeated_monster_instance_id}) atualizado.")
+
+    def are_mission_requirements_complete(self, mission_id: int):
+        """Verifica se todos os requisitos de uma missão foram concluídos."""
+        query = """
+            SELECT NOT EXISTS (
+                SELECT 1 FROM public.requisitos_missao
+                WHERE id_missao = %s AND concluido = FALSE
+            ) AS is_complete;
+        """
+        result = self._execute_query(query, (mission_id,), fetch_one=True)
+        return result['is_complete'] if result else False
+
+    def unlock_story_path(self, player_id: int, current_local_id: int, direction: str, destination_local_id: int):
+        """Registra um caminho desbloqueado para um jogador específico."""
+        # Mapeia direções para suas opostas
+        opposite_directions = {
+            'norte': 'sul', 'sul': 'norte', 'leste': 'oeste', 'oeste': 'leste',
+            'nordeste': 'sudoeste', 'sudoeste': 'nordeste',
+            'noroeste': 'sudeste', 'sudeste': 'noroeste',
+            'cima': 'baixo', 'baixo': 'cima'
+        }
+
+        # Insere o caminho de ida
+        query_ida = "INSERT INTO public.jogador_caminhos_desbloqueados (id_jogador, id_local_origem, id_local_destino, direcao) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;"
+        self._execute_query(query_ida, (player_id, current_local_id, destination_local_id, direction.lower()))
+
+        # Insere o caminho de volta
+        opposite_direction = opposite_directions.get(direction.lower())
+        if opposite_direction:
+            query_volta = "INSERT INTO public.jogador_caminhos_desbloqueados (id_jogador, id_local_origem, id_local_destino, direcao) VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING;"
+            self._execute_query(query_volta, (player_id, destination_local_id, current_local_id, opposite_direction))
+
+        print(f"[DB] Caminho desbloqueado para o jogador {player_id}: Local {current_local_id} ({direction}) -> Local {destination_local_id}")
+
+    def advance_story_mission(self, player_id: int, next_mission_id: int):
+        """Atualiza a missão de história ativa do jogador para a próxima na sequência."""
+        # Se next_mission_id for None, significa que a campanha terminou.
+        query = "UPDATE public.personagens_jogaveis SET id_missao_historia_ativa = %s WHERE id = %s;"
+        self._execute_query(query, (next_mission_id, player_id))
+        if next_mission_id:
+            print(f"[DB] Jogador {player_id} avançou para a missão {next_mission_id}.")
+        else:
+            print(f"[DB] Jogador {player_id} concluiu a campanha.")
+
         
 
 # --- Bloco de Teste para o Modelo Básico ---

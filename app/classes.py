@@ -4,9 +4,9 @@ class Player:
     def __init__(self, id_jogador, nome, ocupacao, residencia, local_nascimento, idade, sexo, ouro,
                  forca, constituicao, poder, destreza, aparencia, tamanho, inteligencia, educacao, 
                  movimento, sanidade_atual, insanidade_temporaria, insanidade_indefinida, 
-                 PM_base, PM_max, pontos_de_vida_atual, 
-                 id_local, # AGORA EH APENAS id_local
-                 id_inventario, id_armadura=None, id_arma=None, # id_armadura e id_arma podem ser opcionais
+                 PM_base, PM_max, pontos_de_vida_atual,
+                 id_local,
+                 id_inventario, id_missao_historia_ativa=None, id_armadura=None, id_arma=None,
                  # Atributos calculados da view, se necessarios no objeto Player
                  ideia=None, conhecimento=None, sorte=None, pts_de_vida_maximo=None, sanidade_maxima=None):
         
@@ -34,7 +34,8 @@ class Player:
         self.PM_max = PM_max
         self.pontos_de_vida_atual = pontos_de_vida_atual  
         
-        self.id_local = id_local # Atualizado para ser apenas id_local
+        self.id_local = id_local
+        self.id_missao_historia_ativa = id_missao_historia_ativa
         # self.id_sala = id_sala # Removido
         # self.id_corredor = id_corredor # Removido
         
