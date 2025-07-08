@@ -8,59 +8,34 @@ Para acessar o script completo, clique no link a seguir: [Visualizar TSP no GitH
 
 ## Funções
 
-Funções programadas no próprio SQL para realizar atividades basicas do jogo como mover um jogador, pegar um item, realizar troca entre outros.(Arruma depois)
+Funções programadas no próprio SQL para realizar atividades basicas do jogo como mover um jogador, pegar um item, realizar troca entre outros.
+### Security Definer
 
-A figura 1 mostra a representação do Security Definer.
+Funções programadas no próprio SQL para realizar atividades basicas do jogo como mover um jogador, pegar um item, realizar troca entre outros.(Coloca a foto embaixo).
+
+### Triggers Normais
+
+Triggers comuns que não precisam de permissão de um superusuario para serem executados.
+
 
 <p align="center"><i>Figura 1:</i></p>
 
 <p align="center">
-  <img src="" width="600">
+  <img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/Documentando-triggers/docs/assets/Triggers_1.png" width="600">
 </p>
-
----
-
-## Security Definer
-
-Funções programadas no próprio SQL para realizar atividades basicas do jogo como mover um jogador, pegar um item, realizar troca entre outros.(Coloca a foto embaixo).
-
-A figura 2 mostra a representação do Security Definer.
 
 <p align="center"><i>Figura 2:</i></p>
 
 <p align="center">
-  <img src="" width="600">
+  <img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/Documentando-triggers/docs/assets/Triggers_2.png" width="600">
 </p>
-
----
-
-## Triggers Normais
-
-Triggers comuns que não precisam de permissão de um superusuario para serem executados.
-
-A figura 3 mostra a representação do Security Definer.
 
 <p align="center"><i>Figura 3:</i></p>
 
 <p align="center">
-  <img src="" width="600">
+  <img src="https://raw.githubusercontent.com/SBD1/2025.1-CallOfCthulhu/refs/heads/Documentando-triggers/docs/assets/Triggers_3.png" width="600">
 </p>
 
-## Permissões do prison_trading_user
-
-> Permissões que o usuário pode ou não fazer
-
-> Vermelho: Não pode alterar diretamente.
-
-> Azul: Não possui direito de update nesses campos.
-
-A figura 4 mostra a representação do Security Definer.
-
-<p align="center"><i>Figura 4:</i></p>
-
-<p align="center">
-  <img src="" width="600">
-</p>
 
 ---
 

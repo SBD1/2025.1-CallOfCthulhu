@@ -42,6 +42,6 @@ Até o momento, foram elaborados e entregues os seguintes artefatos de modelagem
 
 ## Módulo 3
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/LINK-DO-VIDEO" title="Entrega módulo 2 de SBD1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/VL6z5giL5TM" title="Entrega módulo 2 de SBD1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
-<p style="text-align: center"><a href="https://www.youtube.com/embed/LINK-DO-VIDEO" target="_blank">Clique aqui para assistir no YouTube</a></p>
+<p style="text-align: center"><a href="https://www.youtube.com/embed/VL6z5giL5TM" target="_blank">Clique aqui para assistir no YouTube</a></p>
