@@ -3423,73 +3423,73 @@ SELECT 'Configuração do Modo História concluída com sucesso.' AS resultado;
 --         CRIAÇÃO DE PERSONAGEM DE TESTE (SUPER PERSONAGEM)
 -- =================================================================================
 
--- Cria o personagem de teste com valores padrão
-SELECT public.sp_criar_personagem_jogavel('Tester Supremo'::public.nome, 'Onipotente'::public.ocupacao, 'O Vazio'::public.residencia, 'Além do Tempo'::public.local_nascimento, 99::public.idade, 'masculino'::public.sexo);
+-- -- Cria o personagem de teste com valores padrão
+-- SELECT public.sp_criar_personagem_jogavel('Tester Supremo'::public.nome, 'Onipotente'::public.ocupacao, 'O Vazio'::public.residencia, 'Além do Tempo'::public.local_nascimento, 99::public.idade, 'masculino'::public.sexo);
 
--- Atualiza os atributos para o máximo e recalcula os derivados
-UPDATE public.personagens_jogaveis
-SET
-    forca = 18,
-    constituicao = 18,
-    poder = 18,
-    destreza = 18,
-    aparencia = 18,
-    tamanho = 18,
-    inteligencia = 18,
-    educacao = 18,
-    ouro = 9999,
-    movimento = 9, -- Valor máximo baseado na fórmula
-    pm_base = 18,
-    pm_max = 18,
-    pontos_de_vida_atual = public.calcular_pts_de_vida(18, 18),
-    sanidade_atual = public.calcular_sanidade(18)
-WHERE nome = 'Tester Supremo';
+-- -- Atualiza os atributos para o máximo e recalcula os derivados
+-- UPDATE public.personagens_jogaveis
+-- SET
+--     forca = 18,
+--     constituicao = 18,
+--     poder = 18,
+--     destreza = 18,
+--     aparencia = 18,
+--     tamanho = 18,
+--     inteligencia = 18,
+--     educacao = 18,
+--     ouro = 9999,
+--     movimento = 9, -- Valor máximo baseado na fórmula
+--     pm_base = 18,
+--     pm_max = 18,
+--     pontos_de_vida_atual = public.calcular_pts_de_vida(18, 18),
+--     sanidade_atual = public.calcular_sanidade(18)
+-- WHERE nome = 'Tester Supremo';
 
--- Adiciona todas as perícias com valor 99 para o Tester Supremo
-INSERT INTO public.personagens_possuem_pericias (id_personagem, id_pericia, valor_atual)
-SELECT
-    (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'),
-    p.id,
-    99
-FROM public.pericias p
-ON CONFLICT (id_personagem, id_pericia) DO UPDATE SET valor_atual = 99;
+-- -- Adiciona todas as perícias com valor 99 para o Tester Supremo
+-- INSERT INTO public.personagens_possuem_pericias (id_personagem, id_pericia, valor_atual)
+-- SELECT
+--     (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'),
+--     p.id,
+--     99
+-- FROM public.pericias p
+-- ON CONFLICT (id_personagem, id_pericia) DO UPDATE SET valor_atual = 99;
 
--- Cria uma arma poderosa para o Tester
-SELECT public.sp_criar_arma(
-    'Lâmina do Testador'::public.nome,
-    'Uma arma que ignora as regras da realidade, para fins de teste.'::public.descricao,
-    999::SMALLINT, 'forca'::public.tipo_atributo_personagem, 1::SMALLINT, 999::SMALLINT,
-    'corpo_a_corpo_pesada'::public.funcao_arma, 5::SMALLINT, NULL, 'unico'::public.tipo_dano, 500::public.dano
-);
+-- -- Cria uma arma poderosa para o Tester
+-- SELECT public.sp_criar_arma(
+--     'Lâmina do Testador'::public.nome,
+--     'Uma arma que ignora as regras da realidade, para fins de teste.'::public.descricao,
+--     999::SMALLINT, 'forca'::public.tipo_atributo_personagem, 1::SMALLINT, 999::SMALLINT,
+--     'corpo_a_corpo_pesada'::public.funcao_arma, 5::SMALLINT, NULL, 'unico'::public.tipo_dano, 500::public.dano
+-- );
 
--- Cria uma instância da arma e a equipa no Tester
-WITH instancia_arma_teste AS (
-    INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
-    SELECT id, 999, 999, (SELECT id_local FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'), NULL
-    FROM public.itens WHERE nome = 'Lâmina do Testador'
-    RETURNING id
-)
-UPDATE public.personagens_jogaveis SET id_arma = (SELECT id FROM instancia_arma_teste) WHERE nome = 'Tester Supremo';
+-- -- Cria uma instância da arma e a equipa no Tester
+-- WITH instancia_arma_teste AS (
+--     INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+--     SELECT id, 999, 999, (SELECT id_local FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'), NULL
+--     FROM public.itens WHERE nome = 'Lâmina do Testador'
+--     RETURNING id
+-- )
+-- UPDATE public.personagens_jogaveis SET id_arma = (SELECT id FROM instancia_arma_teste) WHERE nome = 'Tester Supremo';
 
--- Cria uma armadura superpoderosa para o Tester
-SELECT public.sp_criar_armadura(
-    'Carapaça da Realidade'::public.nome,
-    'Uma armadura forjada da própria estrutura do espaço-tempo. Indiferente a ataques mundanos.'::public.descricao,
-    999::SMALLINT,
-    'constituicao'::public.tipo_atributo_personagem,
-    9999::SMALLINT,
-    'peitoral'::funcao_armadura,
-    0::SMALLINT, 1::SMALLINT, NULL, 600::SMALLINT
-);
+-- -- Cria uma armadura superpoderosa para o Tester
+-- SELECT public.sp_criar_armadura(
+--     'Carapaça da Realidade'::public.nome,
+--     'Uma armadura forjada da própria estrutura do espaço-tempo. Indiferente a ataques mundanos.'::public.descricao,
+--     999::SMALLINT,
+--     'constituicao'::public.tipo_atributo_personagem,
+--     9999::SMALLINT,
+--     'peitoral'::funcao_armadura,
+--     0::SMALLINT, 1::SMALLINT, NULL, 600::SMALLINT
+-- );
 
--- Cria uma instância da armadura e a equipa no Tester
-WITH instancia_armadura_teste AS (
-    INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
-    SELECT id, 9999, 9999, (SELECT id_local FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'), NULL
-    FROM public.itens WHERE nome = 'Carapaça da Realidade'
-    RETURNING id
-)
-UPDATE public.personagens_jogaveis SET id_armadura = (SELECT id FROM instancia_armadura_teste) WHERE nome = 'Tester Supremo';
+-- -- Cria uma instância da armadura e a equipa no Tester
+-- WITH instancia_armadura_teste AS (
+--     INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+--     SELECT id, 9999, 9999, (SELECT id_local FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'), NULL
+--     FROM public.itens WHERE nome = 'Carapaça da Realidade'
+--     RETURNING id
+-- )
+-- UPDATE public.personagens_jogaveis SET id_armadura = (SELECT id FROM instancia_armadura_teste) WHERE nome = 'Tester Supremo';
 
-SELECT 'Personagem de teste "Tester Supremo" criado e maximizado.' AS resultado;
-SELECT 'Configuração do Modo História concluída com sucesso.' AS resultado;
+-- SELECT 'Personagem de teste "Tester Supremo" criado e maximizado.' AS resultado;
+-- SELECT 'Configuração do Modo História concluída com sucesso.' AS resultado;
