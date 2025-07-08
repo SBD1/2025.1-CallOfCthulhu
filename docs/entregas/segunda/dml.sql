@@ -547,10 +547,10 @@ VALUES
     ('Ho ho ho! Venha ver o que eu tenho em minha loja para te ajudar em sua jornada!', (SELECT id FROM public.npcs WHERE nome = 'Gambireiro')),
     ('Bom dia caro cliente! Veja o que tenho a oferecer em minha loja, quem sabe não te salve em alguma ocasião!', (SELECT id FROM public.npcs WHERE nome = 'Negociadora')),
     ('Olá caro amigo! Veja estes lindos produtos no precinho que tenho na minha loja e aproveite antes que acabe!', (SELECT id FROM public.npcs WHERE nome = 'Tradder')),
-    ('Olá querido, você por acaso encontrou um golpista chamado Tradder? Espero que não, este patífe roubou alguns itens meus e estava vendendo pelo dobro do preço, veja na minha loja os itens por um preço justo!', (SELECT id FROM public.npcs WHERE nome = 'Pracista')),
-    ('Bom dia viajante, será que você poderia comprar alguns dos meus itens? Estou morrendo de fome e os vendedores não aceitam troca-los por comida.', (SELECT id FROM public.npcs WHERE nome = 'Refugiado')),
-    ('Olá viajante, estou morrendo de fome e os vendedores não aceitam meus itens por comida, você poderia compra-los?', (SELECT id FROM public.npcs WHERE nome = 'Refugiada')),
-    ('Olá viajante, você já chegou muito longe e sinto que os caminhos estão começando a ficar intensos e perigosos, veja em minha loja itens mais fortes e que podem te ajudar!', (SELECT id FROM public.npcs WHERE nome = 'Mauricio o vendedor'))
+    ('Um patífe roubou alguns itens meus e estava vendendo pelo dobro do preço, veja na minha loja os itens por um preço justo!', (SELECT id FROM public.npcs WHERE nome = 'Pracista')),
+    ('Olá viajante, você poderia comprar alguns dos meus itens? Estou morrendo de fome e não aceitam troca-los por comida.', (SELECT id FROM public.npcs WHERE nome = 'Refugiado')),
+    ('Olá viajante, estou morrendo de fome e não aceitam meus itens por comida, você poderia compra-los?', (SELECT id FROM public.npcs WHERE nome = 'Refugiada')),
+    ('Olá viajante, você já chegou muito longe e sinto que os caminhos estão começando a ficar intensos e perigosos,' || CHR(10) || 'veja em minha loja itens mais fortes e que podem te ajudar!', (SELECT id FROM public.npcs WHERE nome = 'Mauricio o vendedor'))
     ;
     
 

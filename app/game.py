@@ -852,6 +852,7 @@ class Game:
                     print(f"SUCESSO! Sua habilidade em {pericia} se provou útil.")
                 else:
                     print(f"FALHA. Seu conhecimento em {pericia} não foi suficiente desta vez.")
+                input("\nPressione Enter para continuar o combate...")
             else:
                 print("Escolha inválida.")
         except ValueError:
