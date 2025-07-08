@@ -123,12 +123,32 @@ VERSÃO: 0.24
 DATA: 06/07/2025
 AUTOR: João Marcos
 DESCRIÇÃO: Cria procedure para distribuição de pontos de perícia iniciais ao criar personagem jogável.
+
+VERSÃO: 0.25
+DATA: 07/07/2025
+AUTOR: João Marcos e Luiz Guilherme
+DESCRIÇÃO: Documentação do arquivo, organização e limpeza de código.
+
 */
 
 
 -- -- ===============================================================================
 -- --          0.1. DROP, CREATE, GRANK E REVOKE DE USUÁRIO PADRÃO DO BANCO 
 -- -- ===============================================================================
+/*
+Este bloco cria o role `usuario_padrao` e define permissões básicas para acesso ao banco de dados.
+
+*Atualmente este trecho está comentado e não está sendo utilizado pelo sistema.*
+
+Responsabilidades:
+- Criação de um usuário padrão com acesso restrito (sem superpoderes de banco);
+- Permite `SELECT`, `INSERT`, `UPDATE` e `DELETE` em todas as tabelas do schema `public`;
+- Revoga permissões de `INSERT`, `UPDATE` e `DELETE` na tabela `personagens_jogaveis`,
+  garantindo que somente funções e triggers controladas possam alterar seus dados.
+
+Este role é útil para limitar o que o jogador/usuário final pode modificar diretamente no banco.
+
+*/
 -- DROP ROLE IF EXISTS usuario_padrao;
 
 -- CREATE ROLE usuario_padrao
@@ -155,8 +175,20 @@ DESCRIÇÃO: Cria procedure para distribuição de pontos de perícia iniciais a
 --         0.2. DROP TRIGGER E DROP FUNCTIONS
 -- Para que a criação de triggers e funções não gere erros, é necessário remover as existentes
 -- =================================================================================
+/*
+Este bloco executa o **DROP** de todas as triggers e stored functions previamente criadas no banco de dados.
 
+Ele é utilizado no início da execução do script para garantir que as versões antigas das funções e triggers
+não causem conflitos ou erros de duplicidade durante o processo de desenvolvimento e reexecução.
+
+O bloco está organizado em duas partes:
+1. **DROP DE TRIGGERS:** remove todas as triggers vinculadas a tabelas como `personagens_jogaveis`, `npcs`, `missões`, `itens`, `armas`, `feitiços` e outras.
+   Essas triggers geralmente controlam validações, bloqueios ou ajustes automáticos.
+2. **DROP DE FUNÇÕES:** remove funções auxiliares e stored procedures relacionadas à criação e manipulação de dados
+   do jogo — como criação de personagens, monstros, itens, feitiços, execução de batalhas, entre outras.
+*/
 -- ======== DROP DE TRIGGERS ========
+/*
 DROP TRIGGER IF EXISTS trigger_valida_unicidade_personagem_jogavel ON public.personagens_jogaveis CASCADE;
 DROP TRIGGER IF EXISTS trigger_valida_unicidade_npc ON public.npcs CASCADE;
 DROP TRIGGER IF EXISTS trigger_validar_atributos_personagem ON public.personagens_jogaveis CASCADE;
@@ -240,11 +272,127 @@ DROP FUNCTION IF EXISTS public.sp_realizar_teste_pericia(public.id_personagem_jo
 DROP FUNCTION IF EXISTS public.sp_inspecionar_monstro(public.id_instancia_de_monstro) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_dialogar_com_npc(public.id_personagem_npc) CASCADE;
 DROP FUNCTION IF EXISTS public.sp_executar_turno_batalha(public.id_personagem_jogavel, public.id_instancia_de_monstro) CASCADE;
+*/
+
+-- =================================================================================
+--         DROP DE TRIGGERS
+-- =================================================================================
+
+-- Personagens e NPCs
+DROP TRIGGER IF EXISTS trigger_valida_unicidade_personagem_jogavel ON public.personagens_jogaveis CASCADE;
+DROP TRIGGER IF EXISTS trigger_valida_unicidade_npc ON public.npcs CASCADE;
+DROP TRIGGER IF EXISTS trigger_validar_atributos_personagem ON public.personagens_jogaveis CASCADE;
+DROP TRIGGER IF EXISTS trigger_ajustar_atributos_personagem ON public.personagens_jogaveis CASCADE;
+DROP TRIGGER IF EXISTS trigger_validar_atributos_npc ON public.npcs CASCADE;
+
+-- Monstros
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_monstros ON public.tipos_monstro CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_agressivos ON public.agressivos CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_pacificos ON public.pacificos CASCADE;
+
+-- Missões
+DROP TRIGGER IF EXISTS trigger_validar_dados_missao ON public.missoes CASCADE;
+
+-- Itens
+DROP TRIGGER IF EXISTS trigger_valida_atributos_item ON public.itens CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_itens ON public.itens CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_armas ON public.armas CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_armaduras ON public.armaduras CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_itens_curas ON public.curas CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_itens_magicos ON public.magicos CASCADE;
+DROP TRIGGER IF EXISTS trigger_valida_exclusividade_id_arma ON public.armas CASCADE;
+DROP TRIGGER IF EXISTS trigger_valida_exclusividade_id_armadura ON public.armaduras CASCADE;
+
+-- Feitiços
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_tipos_feitico ON public.tipos_feitico CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_feiticos_status ON public.feiticos_status CASCADE;
+DROP TRIGGER IF EXISTS trigger_bloqueia_insert_feiticos_dano ON public.feiticos_dano CASCADE;
+
+-- Mecânicas Avançadas
+DROP TRIGGER IF EXISTS trigger_checar_insanidade_personagem ON public.personagens_jogaveis CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_durabilidade_arma ON public.armas CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_durabilidade_armadura ON public.armaduras CASCADE;
+DROP TRIGGER IF EXISTS trigger_checar_usos_cura ON public.curas CASCADE;
+
+-- =================================================================================
+--         DROP DE FUNÇÕES
+-- =================================================================================
+
+-- Personagens e NPCs
+DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_pj() CASCADE;
+DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_npc() CASCADE;
+DROP FUNCTION IF EXISTS public.func_validar_atributos_personagem() CASCADE;
+DROP FUNCTION IF EXISTS public.func_ajustar_atributos_personagem() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_personagem_jogavel(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
+DROP FUNCTION IF EXISTS public.func_validar_atributos_npc() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_npc(public.nome, public.ocupacao, public.residencia, public.local_nascimento, public.idade, public.sexo) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_atribuir_pericias_iniciais(public.id_personagem_jogavel, public.ocupacao) CASCADE;
+
+-- Monstros
+DROP FUNCTION IF EXISTS public.sp_criar_monstro(public.nome, public.descricao, public.tipo_monstro, SMALLINT, SMALLINT, SMALLINT, public.gatilho_agressividade, SMALLINT, public.tipo_monstro_agressivo, SMALLINT, SMALLINT, SMALLINT, public.dano, SMALLINT, SMALLINT, SMALLINT, public.comportamento_pacifico, public.tipo_monstro_pacifico, CHARACTER, CHARACTER) CASCADE;
+DROP FUNCTION IF EXISTS public.func_bloquear_insert_direto_monstro() CASCADE;
+
+-- Missões
+DROP FUNCTION IF EXISTS public.sp_criar_missao(public.nome, CHARACTER, public.tipo_missao, CHARACTER, public.id_personagem_npc) CASCADE;
+DROP FUNCTION IF EXISTS public.func_validar_dados_missao() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_entregar_missao(public.id_personagem_jogavel, public.id_missao) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_verificar_e_entregar_missao(public.id_personagem_jogavel, public.id_missao) CASCADE;
+
+-- Itens
+DROP FUNCTION IF EXISTS public.func_valida_atributos_item() CASCADE;
+DROP FUNCTION IF EXISTS public.func_bloquear_insert_direto_itens() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_arma(public.nome, public.descricao, SMALLINT, public.tipo_atributo_personagem, SMALLINT, SMALLINT, public.funcao_arma, SMALLINT, public.tipo_municao, public.tipo_dano, public.dano) CASCADE;
+DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_arma() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_armadura(public.nome, public.descricao, SMALLINT, public.tipo_atributo_personagem, SMALLINT, public.funcao_armadura, SMALLINT, public.tipo_atributo_personagem, SMALLINT, SMALLINT) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_armadura(p_nome public.nome, p_descricao public.descricao, p_valor smallint, p_atributo_necessario public.tipo_atributo_personagem, p_durabilidade smallint, p_funcao public.funcao_armadura, p_qtd_atributo_recebe smallint, p_qtd_atributo_necessario smallint, p_tipo_atributo_recebe public.tipo_atributo_personagem, p_qtd_dano_mitigado smallint) CASCADE;
+DROP FUNCTION IF EXISTS public.func_valida_exclusividade_id_armadura() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_item_cura(public.nome, public.descricao, SMALLINT, public.funcao_cura, SMALLINT, SMALLINT, SMALLINT) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_criar_item_magico(public.nome, public.descricao, SMALLINT, public.funcao_magica, SMALLINT, SMALLINT, public.id_feitico) CASCADE;
+
+-- Feitiços
+DROP FUNCTION IF EXISTS public.sp_criar_feitico(public.nome, public.descricao, SMALLINT, public.funcao_feitico, BOOLEAN, SMALLINT, public.tipo_de_status, public.tipo_dano, public.dano) CASCADE;
+DROP FUNCTION IF EXISTS public.func_bloquear_insert_direto_feitico() CASCADE;
+
+-- Interação e Jogo
+DROP FUNCTION IF EXISTS public.lua_de_sangue() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_vasculhar_local(public.id_local) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_adicionar_item_ao_inventario(public.id_personagem, public.id_instancia_de_item) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_ver_inventario(public.id_personagem) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_encontrar_monstros_no_local(public.id_local) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_matar_monstros_no_local(public.id_local) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_executar_batalha(public.id_personagem_jogavel, public.id_instancia_de_monstro) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_mover_jogador(public.id_personagem_jogavel, public.id_local) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_equipar_item(public.id_personagem_jogavel, public.id_instancia_de_item) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_desequipar_item(public.id_personagem_jogavel, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_desequipar_item(public.id_personagem_jogavel, public.tipo_item) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_usar_item_cura(public.id_personagem_jogavel, public.id_instancia_de_item) CASCADE;
+DROP FUNCTION IF EXISTS public.func_gerenciar_durabilidade_item() CASCADE;
+
+-- Mecânicas Avançadas
+DROP FUNCTION IF EXISTS public.func_verificar_insanidade() CASCADE;
+DROP FUNCTION IF EXISTS public.sp_aplicar_dano_sanidade(public.id_personagem_jogavel, SMALLINT) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_realizar_teste_pericia(public.id_personagem_jogavel, public.nome) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_inspecionar_monstro(public.id_instancia_de_monstro) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_dialogar_com_npc(public.id_personagem_npc) CASCADE;
+DROP FUNCTION IF EXISTS public.sp_executar_turno_batalha(public.id_personagem_jogavel, public.id_instancia_de_monstro) CASCADE;
 
 -- =================================================================================
 --         1. REGRAS GERAIS DE PERSONAGENS
 --         Lógica para garantir a exclusividade entre PJ e NPC (Regra T,E)
 -- =================================================================================
+/*
+Este trecho implementa a **regra de exclusividade entre NPC e PJ**, também conhecida como **Regra T,E** (Totalidade e Exclusividade).
+
+O que ele faz:
+- Garante que um mesmo ID **não possa existir simultaneamente** nas tabelas `personagens_jogaveis` e `npcs`.
+- Se um PJ tentar ser criado com o mesmo ID de um NPC, a trigger dispara e bloqueia a inserção (e vice-versa).
+
+Esse controle é feito por meio de duas funções com triggers associadas:
+1. `func_valida_exclusividade_id_pj`: impede que um PJ use um ID já existente na tabela de NPCs.
+2. `func_valida_exclusividade_id_npc`: impede que um NPC use um ID já existente na tabela de PJs.
+
+Essas triggers são essenciais para manter a integridade da hierarquia e garantir que a especialização seja consistente com o modelo lógico do banco.
+*/
 -------------------------------------------------------------
 -- Função/Trigger: Garante que um PJ não possa ser um NPC
 -------------------------------------------------------------
@@ -287,10 +435,17 @@ CREATE TRIGGER trigger_valida_unicidade_npc
 -- =================================================================================
 --         1.2. REGRAS E PROCEDIMENTOS DE PERSONAGENS JOGÁVEIS (PJ)
 -- =================================================================================
+-- =================================================================================
+--    FUNÇÃO: Valida atributos obrigatórios de um novo PJ
+-- =================================================================================
+/*
+A função `func_validar_atributos_personagem` garante que os dados obrigatórios de um
+Personagem Jogável estejam preenchidos corretamente no momento da inserção.
 
--------------------------------------------------------------
--- Função/Trigger: Valida os dados de entrada de um novo PJ
--------------------------------------------------------------
+Ela verifica:
+- Se o nome não é nulo, vazio ou contém números;
+- Se os campos "ocupação", "residência" e "local de nascimento" estão preenchidos.
+*/
 CREATE OR REPLACE FUNCTION public.func_validar_atributos_personagem()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -308,13 +463,25 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- =================================================================================
+--    TRIGGER: Executa validação de atributos do PJ no INSERT
+-- =================================================================================
 CREATE TRIGGER trigger_validar_atributos_personagem
     BEFORE INSERT ON public.personagens_jogaveis
     FOR EACH ROW EXECUTE FUNCTION public.func_validar_atributos_personagem();
 
--------------------------------------------------------------
--- Função/Trigger: Ajusta atributos calculados de um novo PJ
--------------------------------------------------------------
+-- =================================================================================
+--    FUNÇÃO: Ajusta atributos calculados de um novo PJ
+-- =================================================================================
+/*
+A função `func_ajustar_atributos_personagem` define automaticamente valores derivados
+com base nos atributos principais do personagem.
+
+Ajustes feitos:
+- Cálculo do `movimento` baseado em força, destreza e tamanho;
+- Cálculo inicial de `sanidade_atual`, `pontos_de_vida_atual`, `pm_base`, `pm_max`;
+- Define estados iniciais booleanos de insanidade como FALSE.
+*/
 CREATE OR REPLACE FUNCTION public.func_ajustar_atributos_personagem()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -341,17 +508,26 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+-- =================================================================================
+--    TRIGGER: Executa o ajuste de atributos no INSERT do PJ
+-- =================================================================================
 CREATE TRIGGER trigger_ajustar_atributos_personagem
     BEFORE INSERT ON public.personagens_jogaveis
     FOR EACH ROW EXECUTE FUNCTION public.func_ajustar_atributos_personagem();
 
--------------------------------------------------------------
---  STORED PROCEDURE: Criação de PJs
--------------------------------------------------------------
+-- =================================================================================
+--    STORED PROCEDURE: Criação completa de um Personagem Jogável
+-- =================================================================================
 /*
-    Este procedimento encapsula a lógica de criação de um novo Personagem Jogável.
-    'p_' indica um parâmetro de entrada.
-    'v_' indica uma variável local.
+A stored procedure `sp_criar_personagem_jogavel` encapsula todo o processo de criação
+de um novo personagem no jogo.
+
+Etapas realizadas:
+1. Cria um inventário com tamanho padrão.
+2. Insere os dados na tabela `personagens_jogaveis` (triggers cuidarão dos ajustes).
+3. Atribui automaticamente as perícias iniciais com base na ocupação.
+4. Retorna o ID do personagem criado.
 */
 CREATE FUNCTION public.sp_criar_personagem_jogavel(
     p_nome public.nome,
@@ -392,10 +568,19 @@ $$ LANGUAGE plpgsql;
 -- =================================================================================
 --         1.3. REGRAS E PROCEDIMENTOS DE NPCs
 -- =================================================================================
+-- =================================================================================
+--    FUNÇÃO: Valida atributos obrigatórios de um novo NPC
+-- =================================================================================
+/*
+A função `func_validar_atributos_npc` é responsável por verificar os dados essenciais
+de um NPC no momento da inserção.
 
--------------------------------------------------------------
--- Função/Trigger: Valida os dados de entrada de um novo NPC
--------------------------------------------------------------
+Validações aplicadas:
+- O nome não pode ser nulo, vazio ou conter números;
+- Os campos `ocupacao`, `residencia` e `local_nascimento` devem estar preenchidos.
+
+Essas validações garantem que todo NPC inserido esteja com informações mínimas completas.
+*/
 CREATE OR REPLACE FUNCTION public.func_validar_atributos_npc()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -413,13 +598,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- =================================================================================
+--    TRIGGER: Executa a validação de atributos de NPCs no INSERT
+-- =================================================================================
 CREATE TRIGGER trigger_validar_atributos_npc
     BEFORE INSERT ON public.npcs
     FOR EACH ROW EXECUTE FUNCTION public.func_validar_atributos_npc();
 
--------------------------------------------------------------
--- STORED PROCEDURE: Criação de NPCs
--------------------------------------------------------------
+-- =================================================================================
+--    STORED PROCEDURE: Criação completa de um NPC
+-- =================================================================================
+/*
+A stored procedure `sp_criar_npc` encapsula o processo de criação de um personagem NPC.
+
+Etapas realizadas:
+1. Cria um inventário para o NPC com tamanho padrão de 32 espaços;
+2. Insere os dados na tabela `npcs`;
+3. Define a sala inicial padrão (caso o parâmetro `p_id_local` não seja informado, utiliza o ID 40300003);
+4. A trigger `trigger_validar_atributos_npc` será automaticamente chamada no momento do INSERT;
+5. Retorna o ID do NPC recém-criado.
+
+Essa procedure garante que todo NPC do sistema seja criado com os dados completos e consistentes.
+*/
 CREATE OR REPLACE FUNCTION public.sp_criar_npc(
     p_nome public.nome,
     p_ocupacao public.ocupacao,
@@ -452,7 +652,25 @@ $$ LANGUAGE plpgsql;
 --         1.4. STORED PROCEDURE PARA ATRIBUIR PERÍCIAS INICIAIS
 --         Esta procedure é chamada pela sp_criar_personagem_jogavel
 -- =================================================================================
+-- =================================================================================
+--    STORED PROCEDURE: Atribuição de perícias iniciais ao PJ
+-- =================================================================================
+/*
+A stored procedure `sp_atribuir_pericias_iniciais` é utilizada no momento da criação
+de um Personagem Jogável para atribuir automaticamente as perícias básicas relacionadas
+à ocupação escolhida pelo jogador.
 
+Funcionamento:
+- Consulta a tabela `ocupacoes_possuem_pericias`, que define as perícias associadas a cada ocupação;
+- Insere na tabela `personagens_possuem_pericias` os pares (id_personagem, id_pericia) que representam
+  o domínio inicial do personagem nas perícias correspondentes.
+
+Regras:
+- A procedure assume que a ocupação passada como parâmetro já está registrada no banco;
+- Pode ser chamada automaticamente após a criação do personagem para garantir consistência.
+
+Essa lógica evita que personagens iniciem sem ao menos as perícias mínimas esperadas de sua ocupação.
+*/
 CREATE OR REPLACE FUNCTION public.sp_atribuir_pericias_iniciais(p_id_jogador public.id_personagem_jogavel, p_ocupacao public.ocupacao) RETURNS VOID AS $$
 DECLARE
     -- Variáveis para os pontos de perícia
@@ -558,17 +776,29 @@ $$ LANGUAGE plpgsql;
         2. LÓGICA PARA MONSTROS
 =================================================================================
 */
+-- =================================================================================
+--    2.1 STORED PROCEDURE: Criação de Monstros (Agressivos e Pacíficos)
+-- =================================================================================
+/*
+A stored procedure `sp_criar_monstro` é o único ponto de entrada autorizado para criação de monstros,
+sendo responsável por garantir a integridade das regras de negócio do sistema, tais como:
 
--- ---------------------------------------------------------------------------------
---         2.1. STORED PROCEDURE PARA CRIAÇÃO DE MONSTROS
---         Este SP é o único ponto de entrada e garante as regras Total, Exclusiva e de Atributos.
--- ---------------------------------------------------------------------------------
+- **Regra de Totalidade e Exclusividade (T, E):** um monstro deve ser obrigatoriamente agressivo ou pacífico, nunca ambos.
+- **Validações obrigatórias por tipo:** atributos como "vida", "tipo", "dano", "poder", entre outros, variam conforme o subtipo.
+- **Prevenção de inconsistências:** evita inserção manual incorreta usando validações condicionais por `IF`.
 
+Funcionamento:
+- Recebe todos os parâmetros possíveis para ambos os tipos (agressivo e pacífico).
+- Verifica o tipo (`agressivo` ou `pacífico`) e aplica regras específicas.
+- Chama funções `gerar_id_monstro_*` para gerar IDs únicos e consistentes.
+- Realiza inserts nas tabelas `tipos_monstro` + `agressivos` ou `pacíficos`.
+
+Em caso de erro, captura a exceção e retorna mensagem para diagnóstico.
+*/
 CREATE FUNCTION public.sp_criar_monstro(
     -- Parâmetros padrão para ambas tabelas
     p_nome public.nome,
     p_descricao public.descricao,
-    -- Parâmetro para public.tipos_monstro
     p_tipo public.tipo_monstro,
 
     -- Parâmetros para monstro agressivo
@@ -653,9 +883,22 @@ EXCEPTION
         RAISE;
 END;
 $$;
+
 -- =================================================================================
---         2.2 STORED PROCEDURE: Inspecionar detalhes de um monstro (Versão Única e Corrigida)
+--    2.2 STORED PROCEDURE: Inspecionar detalhes de um monstro
 -- =================================================================================
+/*
+A stored procedure `sp_inspecionar_monstro` retorna os detalhes completos de uma instância de monstro,
+incluindo atributos genéricos e específicos de acordo com seu tipo (agressivo ou pacífico).
+
+Funcionamento:
+- Recebe o ID da instância (`instancias_monstros.id`);
+- Faz joins com `tipos_monstro`, `agressivos` e `pacificos`;
+- Usa `COALESCE` para preencher os dados genéricos e `json_build_object` para retornar os detalhes específicos;
+- Retorna os dados em formato de tabela com colunas nomeadas e um campo JSON com os atributos únicos.
+
+A consulta é segura mesmo que o monstro tenha sido removido de alguma das tabelas especializadas.
+*/
 CREATE OR REPLACE FUNCTION public.sp_inspecionar_monstro(
     p_id_instancia_monstro public.id_instancia_de_monstro
 )
@@ -710,11 +953,20 @@ $$;
 =================================================================================
 */
 -- =================================================================================
---         3.1. FUNÇÕES, TRIGGERS E STORED PROCEDURES PARA MISSÕES
+--    3.1 STORED PROCEDURE: Criação de Missões
 -- =================================================================================
--------------------------------------------------------------
--- STORED PROCEDURE: Facilita a criação de novas missões
--------------------------------------------------------------
+
+/*
+A stored procedure `sp_criar_missao` encapsula a lógica de criação de uma nova missão no jogo.
+
+Funcionalidades:
+- Recebe os dados essenciais de uma missão, como nome, descrição, tipo, ordem e o NPC associado.
+- Insere os dados na tabela `public.missoes`.
+- Ao inserir, a trigger `trigger_validar_dados_missao` é automaticamente executada para validar
+  as regras de negócio antes da confirmação da operação.
+
+Essa abordagem centraliza e protege o processo de criação de missões contra inconsistências.
+*/
 CREATE FUNCTION public.sp_criar_missao(
     p_nome public.nome,
     p_descricao CHARACTER(512),
@@ -747,9 +999,22 @@ BEGIN
 END;
 $$;
 
--------------------------------------------------------------
--- Função/Trigger: Valida os dados de uma nova Missão
--------------------------------------------------------------
+-- =================================================================================
+--    3.2 TRIGGER + FUNÇÃO: Validação de Dados da Missão
+-- =================================================================================
+
+/*
+A função `func_validar_dados_missao` garante que toda missão criada ou atualizada respeite
+as regras básicas de integridade.
+
+Validações realizadas:
+1. Campos obrigatórios `nome` e `descricao` não podem estar nulos ou vazios.
+2. O campo `tipo` da missão não pode ser nulo.
+3. A chave estrangeira `id_npc` deve referenciar um NPC existente na tabela `npcs`.
+
+Essa função é executada automaticamente por meio da trigger `trigger_validar_dados_missao`
+antes de qualquer `INSERT` ou `UPDATE` na tabela `public.missoes`.
+*/
 CREATE FUNCTION public.func_validar_dados_missao()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -778,6 +1043,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql ;
 
+-- Ja comentado acima, a trigger 'trigger_validar_dados_missao' é responsável por chamar a função
 CREATE TRIGGER trigger_validar_dados_missao
     BEFORE INSERT OR UPDATE ON public.missoes
     FOR EACH ROW EXECUTE FUNCTION public.func_validar_dados_missao();
@@ -787,9 +1053,21 @@ CREATE TRIGGER trigger_validar_dados_missao
         4. FUNÇÕES DE ITENS (GERAL)
 =================================================================================
 */
--- ---------------------------------------------------------------------------------
--- Função/Trigger: Valida os atributos de um item antes de inseri-lo ou atualizá-lo
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--    4.1 TRIGGER + FUNÇÃO: Validação de Atributos de Itens
+-- =================================================================================
+
+/*
+A função `func_valida_atributos_item` garante que os itens inseridos ou atualizados
+na tabela `itens` possuam valores válidos para seus principais atributos.
+
+Validações realizadas:
+- ID, nome e descrição não podem ser nulos.
+- O valor deve estar entre 0 e 999.
+- O tipo do item deve ser informado.
+
+Essa função é disparada pela trigger `trigger_valida_atributos_item`.
+*/
 CREATE FUNCTION public.func_valida_atributos_item()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -813,9 +1091,19 @@ CREATE TRIGGER trigger_valida_atributos_item
     FOR EACH ROW
     EXECUTE FUNCTION public.func_valida_atributos_item();
 
--- ---------------------------------------------------------------------------------
--- Função/Trigger: Bloqueia inserções diretas na tabela 'itens', 'armas', 'armaduras', 'curas' e 'magicos'
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--    4.2 TRIGGERS DE BLOQUEIO: Inserções diretas em tabelas de itens
+-- =================================================================================
+
+/*
+A função `func_bloquear_insert_direto_itens` impede que usuários insiram registros
+diretamente nas tabelas `itens`, `armas`, `armaduras`, `curas` e `magicos`.
+
+Ela obriga o uso das Stored Procedures oficiais do sistema para manter a integridade
+dos dados. O controle é feito por meio da variável de sessão `bd_cthulhu.inserir`.
+
+Essa função é usada por múltiplas triggers, uma para cada tabela sensível.
+*/
 CREATE FUNCTION public.func_bloquear_insert_direto_itens()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -852,8 +1140,17 @@ CREATE TRIGGER trigger_bloqueia_insert_itens_magicos
     EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
 
 -- =================================================================================
---         4.1.  FUNÇÕES, TRIGGERS E STORED PROCEDURES PARA ARMAS
+--    4.3 STORED PROCEDURE: Criação de Armas
 -- =================================================================================
+
+/*
+A procedure `sp_criar_arma` cria um novo item do tipo arma no sistema, incluindo:
+- Inserção no domínio pai `itens`.
+- Inserção na tabela específica `armas`, com todos os atributos especializados.
+- Validação da existência da perícia obrigatória "Briga".
+
+Ela depende da configuração de sessão `bd_cthulhu.inserir = 'true'` para habilitar a inserção.
+*/
 CREATE FUNCTION public.sp_criar_arma(
     p_nome public.nome,
     p_descricao public.descricao,
@@ -904,9 +1201,16 @@ EXCEPTION
 END;
 $$;
 
--- ---------------------------------------------------------------------------------
--- Função/Trigger: Garante que uma armadura não possa ser uma arma
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--    4.4 TRIGGER: Exclusividade entre Arma e Armadura
+-- =================================================================================
+
+/*
+A função `func_valida_exclusividade_id_arma` garante que um mesmo ID não esteja presente
+nas tabelas de `armas` e `armaduras` simultaneamente.
+
+Evita que um item tenha comportamento de múltiplos tipos físicos incompatíveis.
+*/
 CREATE FUNCTION public.func_valida_exclusividade_id_arma()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -922,9 +1226,19 @@ CREATE TRIGGER trigger_valida_exclusividade_id_arma
     FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_arma();
 
 -- =================================================================================
---         4.2.  FUNÇÕES, TRIGGERS E STORED PROCEDURE PARA ARMADURAS
+--    4.5 STORED PROCEDURE: Criação de Armaduras
 -- =================================================================================
 
+/*
+A procedure `sp_criar_armadura` permite a criação completa de um item do tipo armadura,
+realizando:
+
+- Inserção na tabela base `itens` com o tipo 'armadura'.
+- Inserção na tabela especializada `armaduras`, com atributos específicos.
+- Validação da existência da perícia obrigatória "Uso de Armadura".
+
+O bloqueio de inserção direta é evitado ao configurar `bd_cthulhu.inserir = 'true'`.
+*/
 CREATE OR REPLACE FUNCTION public.sp_criar_armadura(
     p_nome public.nome,
     p_descricao public.descricao,
@@ -971,9 +1285,16 @@ EXCEPTION
 END;
 $$;
 
--- ---------------------------------------------------------------------------------
--- Função/Trigger: Garante que uma arma não possa ser uma armadura
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--    4.6 TRIGGER: Exclusividade entre Armadura e Arma
+-- =================================================================================
+
+/*
+A função `func_valida_exclusividade_id_armadura` assegura que um mesmo item
+não seja classificado simultaneamente como arma e armadura.
+
+A trigger associada bloqueia inserções ou atualizações inválidas na tabela `armaduras`.
+*/
 CREATE FUNCTION public.func_valida_exclusividade_id_armadura()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -989,7 +1310,7 @@ CREATE TRIGGER trigger_valida_exclusividade_id_armadura
     FOR EACH ROW EXECUTE FUNCTION public.func_valida_exclusividade_id_armadura();
 
 -- =================================================================================
---         4.3.  STORED PROCEDURE PARA ITENS CONSUMÍVEIS DE CURA 
+--         4.7.  STORED PROCEDURE PARA ITENS CONSUMÍVEIS DE CURA 
 -- =================================================================================
 --  Atributos levados em consideração para min e max dos efeitos de cura e magia:
 --  ==== Sanidade Máxima (poder * 5) ====
@@ -1002,6 +1323,17 @@ CREATE TRIGGER trigger_valida_exclusividade_id_armadura
 --      Médio: (10+10)/2 = 10 PV
 --      Máximo: (18+18)/2 = 18 PV
 -- =================================================================================
+/*
+A procedure `sp_criar_item_cura` é responsável por inserir um novo item do tipo cura
+nas tabelas `itens` (base) e `curas` (especializada). Ela realiza:
+
+- Validação de atributos obrigatórios (função, usos, efeitos mínimos e máximos).
+- Geração de ID com a função `gerar_id_item_de_cura`.
+- Inserção protegida por `SET LOCAL bd_cthulhu.inserir = 'true'`.
+
+Esse procedimento assegura que todos os consumíveis de cura respeitem as regras
+mínimas de jogo em termos de equilíbrio e funcionalidade.
+*/
 CREATE FUNCTION public.sp_criar_item_cura(
     p_nome public.nome,
     p_descricao public.descricao,
@@ -1050,8 +1382,23 @@ EXCEPTION
 END $$;
 
 -- =================================================================================
---         4.4.  STORED PROCEDURE PARA ITENS CONSUMÍVEIS MÁGICOS
+--    4.8 STORED PROCEDURE: Criação de Itens Mágicos
 -- =================================================================================
+
+/*
+A procedure `sp_criar_item_magico` realiza a criação de um item mágico, inserindo
+dados nas tabelas `itens` (genérica) e `magicos` (especializada). 
+
+Ela verifica os seguintes critérios:
+
+- Função mágica não nula.
+- Quantidade de usos positiva.
+- Custo de sanidade entre 0 e 15.
+- Referência obrigatória a um feitiço válido.
+
+Além disso, garante a integridade ao usar o parâmetro `bd_cthulhu.inserir = 'true'`
+para contornar os bloqueios de trigger padrão.
+*/
 CREATE FUNCTION public.sp_criar_item_magico(
     p_nome public.nome,
     p_descricao public.descricao,
@@ -1102,9 +1449,23 @@ END $$;
         5. FUNÇÕES DE FEITIÇO (GERAL)
 =================================================================================
 */
--- =========================================================================
---        5.1. FUNÇÕES, TRIGGERS E STORED PROCEDURES PARA FEITIÇOS
--- =========================================================================
+-- =================================================================================
+--    5.1 STORED PROCEDURE: Criação de Feitiços
+-- =================================================================================
+
+/*
+A procedure `sp_criar_feitico` realiza a criação de um feitiço do tipo `status` ou `dano`,
+com base nos parâmetros fornecidos.
+
+Ela garante:
+
+- Inserção controlada nas tabelas `feiticos_status` ou `feiticos_dano`.
+- Registro do tipo no relacionamento `tipos_feitico`.
+- Validação completa dos campos obrigatórios conforme o tipo de feitiço.
+
+Essa procedure é a única forma permitida de inserir feitiços no sistema, pois
+a inserção direta nas tabelas está bloqueada por trigger.
+*/
 CREATE OR REPLACE FUNCTION public.sp_criar_feitico(
     -- Parâmetros comuns
     p_nome public.nome,
@@ -1162,9 +1523,17 @@ EXCEPTION
 END;
 $$;
 
--- ----------------------------------------------------------------
--- Função/Trigger: Bloqueia inserções diretas nas tabelas de feitiços
--- ----------------------------------------------------------------
+-- =================================================================================
+--    5.2 TRIGGER: Bloqueia Inserções Diretas nas Tabelas de Feitiços
+-- =================================================================================
+
+/*
+A função `func_bloquear_insert_direto_feitico` impede qualquer tentativa de inserção
+direta nas tabelas relacionadas a feitiços (`tipos_feitico`), exigindo o uso
+da procedure oficial `sp_criar_feitico`.
+
+A verificação é feita via variável de sessão `bd_cthulhu.inserir_feitico`.
+*/
 CREATE OR REPLACE FUNCTION public.func_bloquear_insert_direto_feitico()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -1184,9 +1553,21 @@ CREATE TRIGGER trigger_bloqueia_insert_magicos
     BEFORE INSERT ON public.magicos 
     FOR EACH ROW 
     EXECUTE FUNCTION public.func_bloquear_insert_direto_itens();
+
 -- =================================================================================
 --    6. STORED PROCEDURE PARA RESPAWN DE MONSTROS E ITENS (LUA DE SANGUE)
 --=================================================================================
+
+/*
+O stored procedure lua_de_sangue possibilita fazer o respawn de monstros e itens no jogo,
+para isso ele atualiza as instancias de monstro que não estão em um local
+(montros mortos possuem id_local = NULL), em seguida ele atualiza a vida das instâncias de monstro
+para o valor da vida total do respectivo monstro. Depois, ele atualiza os itens, adiciona a durabilidade
+dos itens para a durabilidade total daquele item, além de fazer uma verificação para não duplicar itens
+que estão no inventário do jogador.
+
+A periodicidade da lua de sangue é determinada através de funções em python que se baseiam na hora atual do jogador.
+*/
 
 CREATE FUNCTION public.lua_de_sangue()
 RETURNS VOID 
@@ -1226,6 +1607,13 @@ $$;
 --===============================================================================
 --        7. STORED PROCEDURE PARA VASCULHAR A SALA EM BUSCA DE ITENS 
 --===============================================================================
+
+/*
+O stored procedure sp_vasculhar_local é utilizado para poder vasculhar a sala em busca de itens 
+que estão presentes nela. Para isso, ele utiliza as tabelas de instâncias de itens e itens e utiliza a
+condição WHERE para pegar os itens do mesmo local do jogador. Ele retorna uma tabela com as informações de
+cada um dos itens.
+*/
 
 CREATE FUNCTION public.sp_vasculhar_local(
     p_local_id public.id_local
@@ -1278,6 +1666,13 @@ $$;
 --===============================================================================
 --        8. STORED PROCEDURE PARA ADICIONAR ITEM EM INVENTÁRIO
 --===============================================================================
+
+/*
+O stored procedure sp_adicionar_item_ao_inventario é utilizado para pegar um item que está na sala
+e adicioná-lo ao inventário do jogador. Primeiro, ele verifica se o jogador atual possui um inventário,
+em seguida, verifica o id_local da instância de item. Logo, ele realiza uma transação que adiciona o item da sala na tabela de 
+inventários_possuem_instancias_de_item.
+*/
 
 CREATE FUNCTION public.sp_adicionar_item_ao_inventario(
     p_jogador_id public.id_personagem,
@@ -1336,6 +1731,14 @@ $$;
 --===============================================================================
 --        9. STORED PROCEDURE PARA VER O INVENTÁRIO
 --===============================================================================
+
+/*
+O stored procedure sp_ver_inventario é utilizado para mostrar todos 
+os itens que estão presentes no inventário do jogador. Para isso ele
+seleciona todos tipos de itens (verificado se ele está equipado,
+caso necessário) utilizando junções com as tabelas de itens, armas, armaduras, instâncias _de_itens. O procedure retorna uma tabela 
+com as informações individuais de cada item.
+*/
 
     CREATE OR REPLACE FUNCTION public.sp_ver_inventario(
         p_jogador_id public.id_personagem
@@ -1411,6 +1814,15 @@ $$;
 --        10. STORED PROCEDURE PARA ENCONTRAR MONSTROS NO LOCAL
 --===============================================================================
 
+/*
+O stored procedure sp_encontrar_monstros_no_local tem a mesma ideia
+do procedure de encontrar itens no local do jogador,, só que neste
+caso ele procura por monstros. Para isso, ele faz uma pesquisa, 
+procurando todos os monstros agressivos e depois os pacíficos 
+daquele local que o jogador está. Ele retorna uma tabela com as 
+informações individuais de cada uma das instâncias de monstro.
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_encontrar_monstros_no_local(
     p_local_id public.id_local,
     p_id_missao_ativa public.id_missao DEFAULT NULL
@@ -1464,6 +1876,14 @@ $$;
 --===============================================================================
 --        11. STORED PROCEDURE PARA MATAR TODOS OS MONSTROS DO LOCAL
 --===============================================================================
+
+/*
+O stored procedure sp_matar_monstros_no_local é utilizado para fins
+de testes no jogo. Para isso, ele faz um UPDATE em todas as instancias
+de monstros que estão no mesmo local do jogador, assim, ele diminui
+a vida delas para zero, e configura o id_local para NULL.
+O procedure retorna quantos monstros foram mortos automaticamente.
+*/
 
 -- Somente para testes do banco
 
@@ -1535,7 +1955,9 @@ BEGIN
 
     RAISE NOTICE 'Monstros movimentados para novas salas.';
 END;
-$$ LANGUAGE plpgsql;/*
+$$ LANGUAGE plpgsql;
+
+/*
 =================================================================================
         12. LÓGICA PARA BATALHAS
 =================================================================================
@@ -1544,6 +1966,15 @@ $$ LANGUAGE plpgsql;/*
 -- ---------------------------------------------------------------------------------
 --  STORED PROCEDURE: Executa uma batalha completa entre um jogador e um monstro.
 -- ---------------------------------------------------------------------------------
+
+/*
+O stored procedura sp_executar_batalha cria a lógica de batalha do
+jogo. Ele seleciona atributos do jogador e seu inventário, além de 
+atributos do monstro e quais itens ele carrega. Em seguida cria
+um loop de combate, que só termina quando a vida do jogador ou a 
+do monstro chega em zero.
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_executar_batalha(
     p_id_jogador public.id_personagem_jogavel,
     p_id_instancia_monstro public.id_instancia_de_monstro
@@ -1653,6 +2084,16 @@ $$;
 -- ---------------------------------------------------------------------------------
 --  STORED PROCEDURE: Finaliza uma missão e entrega a recompensa ao jogador.
 -- ---------------------------------------------------------------------------------
+
+/*
+O stored procedura sp_entregar_missao é utilizado para entregar 
+missões de um NPC para o jogador. Para isso, ele verifica se a 
+missão existe e obtem o NPC que a possui, depois, encontra o item
+de recompensa. Quando o jogador completa a missão, o procedure
+adiciona a instância de item de recompensa no inventário do 
+jogador.
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_entregar_missao(
     p_id_jogador public.id_personagem_jogavel,
     p_id_missao public.id_missao
@@ -1719,6 +2160,15 @@ $$;
 -- ---------------------------------------------------------------------------------
 --  14.1 STORED PROCEDURE: Mover o jogador para um novo local
 -- ---------------------------------------------------------------------------------
+
+/*
+O stored procedure sp_mover_jogador é utilizado para realizar as 
+movimentações do jogador pelo mapa. Primeiro, ele seleciona a 
+localização atual do jogador, em seguida verifica se o novo local
+é adjacente ao local atual, se for ele atualiza a posição atual
+do jogador para o novo local.
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_mover_jogador(
     p_id_jogador public.id_personagem_jogavel,
     p_id_novo_local public.id_local
@@ -1765,6 +2215,18 @@ $$;
 -- ---------------------------------------------------------------------------------
 --  14.2 STORED PROCEDURE: Desequipar uma arma ou armadura
 -- ---------------------------------------------------------------------------------
+
+/*
+O stored procedure sp_desequipar_item é utilizado para poder 
+desequipar uma arma ou armadura do jogador. Para isso, ele primeiro
+identica qual item está no slot especificado, se o item for uma
+armadura ele reverte o bônus de atributo fazendo uma pesquisa
+para descobrir qual atributo deve ser revertido, depois, ele limpa
+o slot do item na tabela do jogador. Se for uma arma ele apenas 
+desequipa ela. Contudo, se não tiver nenhum item no slot selecionado
+ele não faz nada.
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_desequipar_item(
     p_id_jogador public.id_personagem_jogavel,
     p_tipo_slot public.tipo_item -- 'arma' ou 'armadura'
@@ -1831,6 +2293,17 @@ $$;
 -- ---------------------------------------------------------------------------------
 --  14.3 STORED PROCEDURE: Equipar uma arma ou armadura
 -- ---------------------------------------------------------------------------------
+
+/*
+O stored procedure sp_equipar_item é utilizado para equipar uma
+arma ou armadura no slot de arma/armadura do jogador. Para isso,
+ele primeiro verifica se o item está no inventário do jogador,
+em seguida ele faz uma consulta para descobrir o tipo do item e 
+suas propriedades, depois ele desequipa qualquer item que estiver 
+naquele slot, depois aplica o bônus do novo item e por último
+equipa o novo item no slot correspondente do jogador.
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_equipar_item(
     p_id_jogador public.id_personagem_jogavel,
     p_id_instancia_item public.id_instancia_de_item
@@ -1899,6 +2372,16 @@ $$;
 -- ---------------------------------------------------------------------------------
 --  14.4 STORED PROCEDURE: Usar um item de cura
 -- ---------------------------------------------------------------------------------
+
+/*
+O stored procedure sp_usar_item_de_cura é utilizado para aplicar
+a função de cura de vida/sanidade no jogador. Para isso, ele 
+primeiro verifica se aquele item selecionado é realmente de cura
+e se está no inventário do jogador, depois ele aplica os efeitos
+de cura e por último o procedure diminui 1 na quantidade de usos
+daquele item de cura.
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_usar_item_cura(
     p_id_jogador public.id_personagem_jogavel,
     p_id_instancia_item public.id_instancia_de_item
@@ -1944,6 +2427,16 @@ $$;
 -- ---------------------------------------------------------------------------------
 --  14.5 TRIGGER: Gerencia a durabilidade e quebra de itens
 -- ---------------------------------------------------------------------------------
+
+/*
+O procedure func_gerenciar_durabilidade_item é utilizado para 
+garantir que os itens quebrem conforme vão sendo utilizados
+pelo jogador. Para isso é usa um trigger que é ativado quando a 
+durabilidade de um item muda, toda vez que ela muda, ele 
+verifica se a durabilidade é igual a zero, se for ele indica que 
+o item quebrou.
+*/
+
 CREATE OR REPLACE FUNCTION public.func_gerenciar_durabilidade_item()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -1986,7 +2479,17 @@ CREATE TRIGGER trigger_checar_usos_cura
 --         15.1.  STORED PROCEDURE PARA TRANSFERIR ITEM DO NPC PARA O PJ
 -- =================================================================================
 
--- Cole isso no seu arquivo de Triggers/Procedures e execute no banco
+/*
+O stored procedure sp_comprar_item_do_npc é utilizado quando o 
+jogador faz compras de um NPC. Para isso ele primeiro verifica o 
+id do jogador, depois o id no NPC, depois ele verifica se o NPC
+possui o item que o jogador quer comprar. Em seguida, ele verifica
+se a quantidade de ouro do jogador é suficiente para comprar aquele 
+item. Feito tudo isso ele inicia uma transação: Remove o item do
+inventario do npc, adiciona o item no inventario do jogador
+e por último deduz o ouro do jogador.
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_comprar_item_do_npc(
     p_id_personagem_jogavel public.id_personagem_jogavel,
     p_id_npc public.id_personagem_npc,
@@ -2027,7 +2530,7 @@ BEGIN
     -- 2. Adiciona o item ao inventário do PJ
     INSERT INTO public.inventarios_possuem_instancias_item (id_inventario, id_instancias_de_item) VALUES (v_id_inventario_pj, p_id_instancia_item);
 
-    -- 3. Deduz o ouro do jogador (NOVO)
+    -- 3. Deduz o ouro do jogador
     UPDATE public.personagens_jogaveis SET ouro = ouro - v_valor_item WHERE id = p_id_personagem_jogavel;
 
     RETURN 'Item comprado com sucesso!';
@@ -2036,9 +2539,18 @@ EXCEPTION
         RETURN SQLERRM; -- Retorna a mensagem de erro do banco
 END;
 $$;
+
 --===============================================================================
---        10. STORED PROCEDURE PARA ENCONTRAR VENDEDOR NO LOCAL
+--        16. STORED PROCEDURE PARA ENCONTRAR VENDEDOR NO LOCAL
 --===============================================================================
+
+/*
+A procedure `sp_encontrar_vendedor_no_local` localiza os NPCs do tipo "Vendedor" que estejam
+no mesmo local que o jogador. Para cada NPC encontrado, a função retorna informações 
+pessoais e um de seus diálogos (se houver).
+
+Essa função é utilizada para detectar a possibilidade de interação comercial.
+*/
 
 CREATE OR REPLACE FUNCTION public.sp_encontrar_vendedor_no_local(p_id_local public.id_local)
 RETURNS TABLE (
@@ -2075,6 +2587,18 @@ BEGIN
         n.id_local = p_id_local AND n.ocupacao LIKE 'Vendedor%';
 END;
 $$;
+
+-- =================================================================================
+--   16.2 STORED PROCEDURE: Ver Inventário do NPC
+-- =================================================================================
+
+/*
+A procedure `sp_ver_inventario_npc` retorna todos os itens que estão no inventário de um NPC específico.
+Ela detalha não apenas o nome e tipo dos itens, mas também suas propriedades específicas conforme o tipo:
+- armas, armaduras, itens mágicos ou de cura.
+
+É usada quando o jogador deseja visualizar o que um NPC vendedor tem a oferecer.
+*/
 
 CREATE OR REPLACE FUNCTION public.sp_ver_inventario_npc(
         p_npc_id public.id_personagem_npc
@@ -2168,6 +2692,24 @@ EXCEPTION
 END;
 $$;
 
+-- =================================================================================
+--   16.3 STORED PROCEDURE: Jogador Vende Item para NPC
+-- =================================================================================
+ /*
+A procedure `sp_jogador_vende_item` permite que um jogador venda um item de seu inventário
+para um NPC vendedor.
+
+Validações incluídas:
+- Verifica se o jogador possui o item
+- Impede venda de itens equipados
+- Verifica se o NPC tem inventário
+
+A transação:
+1. Remove o item do inventário do jogador
+2. Adiciona o item ao inventário do NPC
+3. Credita o valor do item ao ouro do jogador
+*/
+
 CREATE OR REPLACE FUNCTION public.sp_jogador_vende_item(
     p_id_jogador public.id_personagem_jogavel,
     p_id_npc public.id_personagem_npc,
@@ -2222,14 +2764,20 @@ $$;
 
 /*
 =================================================================================
-        15. LÓGICA DE MECÂNICAS AVANÇADAS DE JOGO
+        17. LÓGICA DE MECÂNICAS AVANÇADAS DE JOGO
 =================================================================================
 */
 
--- ---------------------------------------------------------------------------------
---  15.1 FUNÇÃO E TRIGGER: Gerenciamento de Sanidade e Loucura
--- ---------------------------------------------------------------------------------
--- Função que é chamada por uma trigger sempre que a sanidade do jogador é alterada.
+-- =================================================================================
+--   17.1 TRIGGER + FUNÇÃO: Verificação de Insanidade
+-- =================================================================================
+ /*
+A função `func_verificar_insanidade` é chamada automaticamente por uma trigger
+sempre que a sanidade de um personagem jogável for atualizada.
+
+Se a sanidade chegar a 0 ou menos, o personagem entra em "insanidade indefinida",
+representando perda permanente de estabilidade mental.
+*/
 CREATE OR REPLACE FUNCTION public.func_verificar_insanidade()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -2250,7 +2798,14 @@ CREATE TRIGGER trigger_checar_insanidade_personagem
     WHEN (OLD.sanidade_atual IS DISTINCT FROM NEW.sanidade_atual)
     EXECUTE FUNCTION public.func_verificar_insanidade();
 
--- Procedure para aplicar dano à sanidade do jogador.
+-- =================================================================================
+--   17.2 STORED PROCEDURE: Aplicar Dano à Sanidade
+-- =================================================================================
+ /*
+A procedure `sp_aplicar_dano_sanidade` aplica dano à sanidade do personagem jogável.
+Ela atualiza a sanidade atual, acionando a trigger de verificação de loucura (se necessário),
+e retorna uma mensagem ao jogador com o novo valor de sanidade.
+*/
 CREATE OR REPLACE FUNCTION public.sp_aplicar_dano_sanidade(
     p_id_jogador public.id_personagem_jogavel,
     p_quantidade_dano SMALLINT
@@ -2273,9 +2828,19 @@ EXCEPTION
 END;
 $$;
 
--- ---------------------------------------------------------------------------------
---  15.2 STORED PROCEDURE: Realizar um teste de perícia
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--   17.3 STORED PROCEDURE: Teste de Perícia
+-- =================================================================================
+ /*
+A procedure `sp_realizar_teste_pericia` simula a rolagem de um teste de perícia para o personagem jogável.
+Ela obtém o valor da perícia, realiza uma rolagem d100 e compara com o valor.
+
+Retorna:
+- TRUE se a rolagem for menor ou igual ao valor da perícia
+- FALSE em caso contrário
+
+Mensagens são exibidas para debug ou feedback ao jogador.
+*/
 CREATE OR REPLACE FUNCTION public.sp_realizar_teste_pericia(
     p_id_jogador public.id_personagem_jogavel,
     p_nome_pericia public.nome
@@ -2321,12 +2886,16 @@ $$;
         18. LÓGICA DE BATALHA (NOVO - POR TURNO) E UTILITÁRIOS
 =================================================================================
 */
+-- =================================================================================
+--        18.1 STORED PROCEDURE: Executar um Turno de Batalha
+-- =================================================================================
+ /*
+A procedure `sp_executar_turno_batalha` executa a lógica de um turno completo de combate entre
+um personagem jogável e um monstro agressivo.
 
--- ---------------------------------------------------------------------------------
---  18.1 STORED PROCEDURE: Executa UM turno de batalha.
---  Esta função calcula o dano do jogador no monstro e do monstro no jogador,
---  atualiza a vida de ambos e retorna o resultado do turno.
--- ---------------------------------------------------------------------------------
+Ela calcula o dano com base em atributos e equipamentos, aplica os danos correspondentes
+e retorna um log textual com os eventos do turno, junto com a vida restante de ambos.
+*/
 CREATE OR REPLACE FUNCTION public.sp_executar_turno_batalha(
     p_id_jogador public.id_personagem_jogavel,
     p_id_instancia_monstro public.id_instancia_de_monstro
@@ -2399,9 +2968,15 @@ BEGIN
 END;
 $$;
 
--- ---------------------------------------------------------------------------------
---  18.2 STORED PROCEDURE: Ataque somente do monstro (para quando o jogador falha em uma ação)
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--        18.2 STORED PROCEDURE: Ataque somente do monstro
+-- =================================================================================
+ /*
+A procedure `sp_monstro_ataca_sozinho` simula uma situação em que o monstro ataca o jogador
+sem ser atacado, geralmente em casos de falha do jogador.
+
+Ela calcula e aplica o dano levando em conta a defesa atual do jogador e retorna uma mensagem de combate.
+*/
 CREATE OR REPLACE FUNCTION public.sp_monstro_ataca_sozinho(
     p_id_jogador public.id_personagem_jogavel,
     p_id_instancia_monstro public.id_instancia_de_monstro
@@ -2426,9 +3001,15 @@ BEGIN
 END;
 $$;
 
--- ---------------------------------------------------------------------------------
---  18.3 STORED PROCEDURE: Resetar o status do jogador após a morte
--- ---------------------------------------------------------------------------------
+-- =================================================================================
+--        18.3 STORED PROCEDURE: Resetar status do jogador após morte
+-- =================================================================================
+ /*
+A procedure `sp_resetar_status_jogador` redefine os pontos de vida e sanidade do jogador
+para seus valores máximos, com base nas funções auxiliares de cálculo.
+
+Ela é útil após eventos como "morte" ou retorno à base.
+*/
 CREATE OR REPLACE FUNCTION public.sp_resetar_status_jogador(
     p_id_jogador public.id_personagem_jogavel
 )
@@ -2510,3 +3091,4 @@ EXCEPTION
         RAISE;
 END;
 $$;
+
