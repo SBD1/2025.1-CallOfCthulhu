@@ -3254,86 +3254,247 @@ WITH
           (SELECT id FROM public.agressivos WHERE nome = 'Carniçal'),
           (SELECT id FROM public.local WHERE descricao LIKE 'Um laboratório abandonado, com%'),
           (SELECT id FROM instancia_item_revolver)
-  ),
-
-  -- ### Instância de Monstro: Nodens (Cripta Úmida) - Pacífico ###
-  -- Item: Faca de Açougueiro
-  instancia_item_faca AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
-      SELECT i.id, a.durabilidade, a.durabilidade, NULL
-      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Faca de Açougueiro'
-      RETURNING id
-  ),
-  instancia_monstro_nodens AS (
-      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
-      SELECT
-          (SELECT id FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
-          (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
-          (SELECT id FROM instancia_item_faca)
-  ),
-
-  -- ### Instância de Monstro: Grande Raça de Yith (Biblioteca Submersa) - Pacífico ###
-  -- Item: Coquetel Molotov
-  instancia_item_molotov AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
-      SELECT i.id, a.durabilidade, a.durabilidade, NULL
-      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Coquetel Molotov'
-      RETURNING id
-  ),
-  instancia_monstro_yith AS (
-      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
-      SELECT
-          (SELECT id FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
-          (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
-          (SELECT id FROM instancia_item_molotov)
-  ),
-
-  -- ### Instância de Monstro: Gnoph-Keh Solitário (Anfiteatro Circular) - Pacífico ###
-  -- Item: Besta de Caça
-  instancia_item_besta AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
-      SELECT i.id, a.durabilidade, a.durabilidade, NULL
-      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Besta de Caça'
-      RETURNING id
-  ),
-  instancia_monstro_gnoph_keh AS (
-      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
-      SELECT
-          (SELECT id FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
-          (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
-          (SELECT id FROM instancia_item_besta)
-  ),
-
-  -- ### Instância de Monstro: Shantak (Sala de Tesouros) - Pacífico ###
-  -- Item: Sanguessugas Medicinais
-  instancia_item_sanguessugas AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
-      SELECT i.id, c.qts_usos, c.qts_usos, NULL
-      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Sanguessugas Medicinais'
-      RETURNING id
-  ),
-  instancia_monstro_shantak AS (
-      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
-      SELECT
-          (SELECT id FROM public.pacificos WHERE nome = 'Shantak'),
-          (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
-          (SELECT id FROM instancia_item_sanguessugas)
-  ),
-
-  -- ### Instância de Monstro: A Cor que Caiu do Espaço (Sala de Tesouros) - Pacífico ###
-  -- Item: Diário Pessoal
-  instancia_item_diario AS (
-      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
-      SELECT i.id, c.qts_usos, c.qts_usos, NULL
-      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Diário Pessoal'
-      RETURNING id
-  ),
-  instancia_monstro_cor AS (
-      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
-      SELECT
-          (SELECT id FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
-          (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
-          (SELECT id FROM instancia_item_diario)
   )
 
+--  -- ### Instância de Monstro: Nodens (Cripta Úmida) - Pacífico ###
+--  -- Item: Faca de Açougueiro
+--  instancia_item_faca AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+--      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Faca de Açougueiro'
+--      RETURNING id
+--  ),
+--  instancia_monstro_nodens AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'Nodens, Senhor do Grande Abismo'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida, revestida%'),
+--          (SELECT id FROM instancia_item_faca)
+--  ),
+--
+--  -- ### Instância de Monstro: Grande Raça de Yith (Biblioteca Submersa) - Pacífico ###
+--  -- Item: Coquetel Molotov
+--  instancia_item_molotov AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+--      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Coquetel Molotov'
+--      RETURNING id
+--  ),
+--  instancia_monstro_yith AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'Grande Raça de Yith'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Uma biblioteca submersa, onde%'),
+--          (SELECT id FROM instancia_item_molotov)
+--  ),
+--
+--  -- ### Instância de Monstro: Gnoph-Keh Solitário (Anfiteatro Circular) - Pacífico ###
+--  -- Item: Besta de Caça
+--  instancia_item_besta AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, a.durabilidade, a.durabilidade, NULL
+--      FROM public.itens i JOIN public.armas a ON i.id = a.id WHERE i.nome = 'Besta de Caça'
+--      RETURNING id
+--  ),
+--  instancia_monstro_gnoph_keh AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'Gnoph-Keh Solitário'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Um anfiteatro circular com%'),
+--          (SELECT id FROM instancia_item_besta)
+--  ),
+--
+--  -- ### Instância de Monstro: Shantak (Sala de Tesouros) - Pacífico ###
+--  -- Item: Sanguessugas Medicinais
+--  instancia_item_sanguessugas AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+--      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Sanguessugas Medicinais'
+--      RETURNING id
+--  ),
+--  instancia_monstro_shantak AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'Shantak'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
+--          (SELECT id FROM instancia_item_sanguessugas)
+--  ),
+--
+--  -- ### Instância de Monstro: A Cor que Caiu do Espaço (Sala de Tesouros) - Pacífico ###
+--  -- Item: Diário Pessoal
+--  instancia_item_diario AS (
+--      INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local)
+--      SELECT i.id, c.qts_usos, c.qts_usos, NULL
+--      FROM public.itens i JOIN public.curas c ON i.id = c.id WHERE i.nome = 'Diário Pessoal'
+--      RETURNING id
+--  ),
+--  instancia_monstro_cor AS (
+--      INSERT INTO public.instancias_monstros (id_monstro, id_local, id_instancia_de_item)
+--      SELECT
+--          (SELECT id FROM public.pacificos WHERE nome = 'A Cor que Caiu do Espaço'),
+--          (SELECT id FROM public.local WHERE descricao LIKE 'Uma sala de tesouros%'),
+--          (SELECT id FROM instancia_item_diario)
+--  )
+
 SELECT 'Criação de instâncias de monstros e distribuição de itens concluída com sucesso.' AS resultado;
+
+-- =================================================================================
+--         CRIAÇÃO DE INSTÂNCIAS DE MONSTROS NO MAPA
+--         (Resolvendo o problema de salas vazias e preparando para o Modo História)
+-- =================================================================================
+
+-- Instância do Povo do Abismo no Túnel Inundado (Corredor 9)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Povo do Abismo'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Povo do Abismo'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Um túnel inundado%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Adaga Simples'));
+
+-- Instância do Carniçal na Cripta (Sala 8)
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Carniçal'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Carniçal'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Faca de Sacrifício'));
+
+-- Instância de CTHULHU na Cripta (Sala 8) - O GUARDIÃO DO MODO HISTÓRIA!
+INSERT INTO public.instancias_monstros (id_monstro, vida, id_local, id_local_de_spawn, id_instancia_de_item, is_essencial_historia, id_missao_vinculada)
+SELECT
+    (SELECT id FROM public.agressivos WHERE nome = 'Cthulhu'),
+    (SELECT vida_total FROM public.agressivos WHERE nome = 'Cthulhu'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    (SELECT id FROM public.instancias_de_itens WHERE id_item = (SELECT id FROM public.itens WHERE nome = 'Revólver Amaldiçoado')),
+    TRUE,
+    (SELECT id FROM public.missoes WHERE nome = 'O Guardião da Cripta');
+
+
+SELECT 'Instâncias de monstros foram adicionadas ao mundo.' AS resultado;
+
+-- =================================================================================
+--         CONFIGURAÇÃO DO MODO HISTÓRIA
+-- =================================================================================
+
+-- PASSO 1: Criar o local secreto que será desbloqueado.
+-- Ele não terá conexões iniciais. O caminho será criado pela aplicação ao completar a missão.
+WITH andar_id_cte AS (
+    SELECT andar AS id FROM public.local LIMIT 1
+)
+INSERT INTO public.local (descricao, tipo_local, status, andar)
+VALUES ('Uma passagem recém-revelada, o ar aqui é mais frio e antigo. O caminho leva para fora da cripta, em direção a uma liberdade incerta.', 'Corredor', FALSE, (SELECT id FROM andar_id_cte));
+
+
+-- PASSO 2: Criar a missão principal da história.
+-- Usamos a SP padrão e depois atualizamos com os campos específicos da história.
+-- O NPC é um placeholder, já que a missão será iniciada pelo menu.
+SELECT public.sp_criar_missao(
+    'O Guardião da Cripta'::public.nome, -- Nome da Missão
+    'O ar gelado e salgado queima seus pulmões. Você acorda sobre uma laje de pedra fria, no centro de uma cripta úmida cujas paredes parecem vivas, cobertas por um musgo bioluminescente que pulsa em um ritmo doentio. A única saída, um arco de pedra maciça, está bloqueada por uma forma montanhosa e blasfema. É Cthulhu, o Grande Antigo, sonhando em sua cidade morta. Sua presença esmaga sua sanidade, e você sabe, com uma certeza aterrorizante, que a única chance de escapar deste pesadelo é atacar a entidade adormecida e forçar uma passagem.'::CHARACTER(512), -- Descrição Imersiva
+    'principal'::public.tipo_missao,
+    'Ataque o Grande Cthulhu e liberte seu caminho para fora da cripta.'::CHARACTER(128), -- Objetivo
+    (SELECT id FROM public.npcs WHERE nome = 'Velho Sábio')
+);
+
+-- PASSO 3: Atualizar a missão com os dados do modo história.
+-- Isso define onde a missão acontece e o que ela desbloqueia.
+UPDATE public.missoes
+SET
+    id_local_alvo = (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%'),
+    id_local_desbloqueado = (SELECT id FROM public.local WHERE descricao LIKE 'Uma passagem recém-revelada%'),
+    direcao_desbloqueada = 'leste',
+    missao_sequencia_proxima = NULL -- É a primeira e única missão por enquanto
+WHERE nome = 'O Guardião da Cripta';
+
+
+-- PASSO 4: Definir o requisito para completar a missão.
+-- O requisito é derrotar a instância de Cthulhu que está na cripta.
+INSERT INTO public.requisitos_missao (id_missao, tipo_requisito, id_alvo_instancia, concluido)
+SELECT
+    (SELECT id FROM public.missoes WHERE nome = 'O Guardião da Cripta'),
+    'ELIMINAR_MONSTRO'::public.tipo_requisito,
+    -- Pega o ID da instância do Cthulhu que acabamos de criar na Cripta Úmida
+    (SELECT im.id FROM public.instancias_monstros im
+     JOIN public.agressivos a ON im.id_monstro = a.id
+     WHERE a.nome = 'Cthulhu' AND im.id_local = (SELECT id FROM public.local WHERE descricao LIKE 'Uma cripta úmida%')),
+    FALSE;
+
+SELECT 'Configuração do Modo História concluída com sucesso.' AS resultado;
+
+-- =================================================================================
+--         CRIAÇÃO DE PERSONAGEM DE TESTE (SUPER PERSONAGEM)
+-- =================================================================================
+
+-- Cria o personagem de teste com valores padrão
+SELECT public.sp_criar_personagem_jogavel('Tester Supremo'::public.nome, 'Onipotente'::public.ocupacao, 'O Vazio'::public.residencia, 'Além do Tempo'::public.local_nascimento, 99::public.idade, 'masculino'::public.sexo);
+
+-- Atualiza os atributos para o máximo e recalcula os derivados
+UPDATE public.personagens_jogaveis
+SET
+    forca = 18,
+    constituicao = 18,
+    poder = 18,
+    destreza = 18,
+    aparencia = 18,
+    tamanho = 18,
+    inteligencia = 18,
+    educacao = 18,
+    ouro = 9999,
+    movimento = 9, -- Valor máximo baseado na fórmula
+    pm_base = 18,
+    pm_max = 18,
+    pontos_de_vida_atual = public.calcular_pts_de_vida(18, 18),
+    sanidade_atual = public.calcular_sanidade(18)
+WHERE nome = 'Tester Supremo';
+
+-- Adiciona todas as perícias com valor 99 para o Tester Supremo
+INSERT INTO public.personagens_possuem_pericias (id_personagem, id_pericia, valor_atual)
+SELECT
+    (SELECT id FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'),
+    p.id,
+    99
+FROM public.pericias p
+ON CONFLICT (id_personagem, id_pericia) DO UPDATE SET valor_atual = 99;
+
+-- Cria uma arma poderosa para o Tester
+SELECT public.sp_criar_arma(
+    'Lâmina do Testador'::public.nome,
+    'Uma arma que ignora as regras da realidade, para fins de teste.'::public.descricao,
+    999::SMALLINT, 'forca'::public.tipo_atributo_personagem, 1::SMALLINT, 999::SMALLINT,
+    'corpo_a_corpo_pesada'::public.funcao_arma, 5::SMALLINT, NULL, 'unico'::public.tipo_dano, 500::public.dano
+);
+
+-- Cria uma instância da arma e a equipa no Tester
+WITH instancia_arma_teste AS (
+    INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+    SELECT id, 999, 999, (SELECT id_local FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'), NULL
+    FROM public.itens WHERE nome = 'Lâmina do Testador'
+    RETURNING id
+)
+UPDATE public.personagens_jogaveis SET id_arma = (SELECT id FROM instancia_arma_teste) WHERE nome = 'Tester Supremo';
+
+-- Cria uma armadura superpoderosa para o Tester
+SELECT public.sp_criar_armadura(
+    'Carapaça da Realidade'::public.nome,
+    'Uma armadura forjada da própria estrutura do espaço-tempo. Indiferente a ataques mundanos.'::public.descricao,
+    999::SMALLINT,
+    'constituicao'::public.tipo_atributo_personagem,
+    9999::SMALLINT,
+    'peitoral'::funcao_armadura,
+    0::SMALLINT, 1::SMALLINT, NULL, 600::SMALLINT
+);
+
+-- Cria uma instância da armadura e a equipa no Tester
+WITH instancia_armadura_teste AS (
+    INSERT INTO public.instancias_de_itens (id_item, durabilidade, durabilidade_total, id_local_de_spawn, id_local)
+    SELECT id, 9999, 9999, (SELECT id_local FROM public.personagens_jogaveis WHERE nome = 'Tester Supremo'), NULL
+    FROM public.itens WHERE nome = 'Carapaça da Realidade'
+    RETURNING id
+)
+UPDATE public.personagens_jogaveis SET id_armadura = (SELECT id FROM instancia_armadura_teste) WHERE nome = 'Tester Supremo';
+
+SELECT 'Personagem de teste "Tester Supremo" criado e maximizado.' AS resultado;
+SELECT 'Configuração do Modo História concluída com sucesso.' AS resultado;

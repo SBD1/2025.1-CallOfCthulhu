@@ -247,6 +247,42 @@ class Game:
             print("Falha na criacao do personagem. Verifique se o nome ja existe ou outros erros.")
             self.start()
 
+    def start_story_mode_flow(self):
+        """
+        Gerencia o fluxo para o jogador selecionar um personagem e iniciar a campanha.
+        """
+        clear()
+        print("--- MODO HISTÓRIA ---")
+        print("Você está prestes a embarcar em uma jornada roteirizada. Escolha seu investigador.")
+        
+        self.list_characters()
+        
+        nome_personagem = input('Digite o nome do personagem para iniciar a história (ou "sair"): ').strip()
+        
+        if nome_personagem.lower() == 'sair':
+            self.start()
+            return
+
+        player_obj = self.db.get_personagem(nome_personagem)
+
+        if player_obj:
+            self.player = player_obj
+            print(f"\nPersonagem '{self.player.nome}' selecionado para o Modo História.")
+            
+            # Nome da missão que você criou no DML
+            mission_name = "O Guardião da Cripta"
+            start_message = self.db.start_story_mode(self.player.id_jogador, mission_name)
+            
+            print(f"\n> {start_message}\n")
+            input("Pressione Enter para iniciar sua descida à loucura...")
+            
+            # Inicia o loop de gameplay. O jogador já estará no local correto.
+            self.player = self.db.get_personagem(self.player.nome) # Recarrega o jogador com a nova localização
+            self.gameplay()
+        else:
+            print("Falha na criacao do personagem. Verifique se o nome ja existe ou outros erros.")
+            self.start()
+
     def load_character(self):
         # clear()
         print("--- Carregar Personagem Existente ---")
@@ -301,9 +337,10 @@ class Game:
             print("\033[32m")
             print('Bem-vindo ao jogo!\n')
             print('Escolha uma das opcoes abaixo:')
-            print('1 - Criar Personagem')
-            print('2 - Listar Personagens') 
-            print('3 - Sair do Jogo')
+            print('1 - Criar Personagem (Modo Exploração)')
+            print('2 - Carregar Personagem (Modo Exploração)')
+            print('3 - Iniciar Modo História')
+            print('4 - Sair \n')
             print("\033[0m")
             print("\033[35m═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
 
@@ -313,10 +350,13 @@ class Game:
                 self.create_new_character_flow()
                 break 
             elif opcao == '2':
-                self.list_characters()
-                self.load_character()
-                break 
+                self.list_characters() # Mostra a lista
+                self.load_character()  # Pede para carregar um
+                break
             elif opcao == '3':
+                self.start_story_mode_flow()
+                break
+            elif opcao == '4':
                 print("Saindo do jogo. Ate mais!")
                 if self.db:
                     self.db.close()
@@ -597,7 +637,7 @@ class Game:
                 move_cursor_to(1, 1)
                 print("\033[35m════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
                 print("Voce se prepara para procurar por sinais de vida... nao-humana.")
-                monstros_no_local = self.db.get_monsters_in_location(self.player.id_local)
+                monstros_no_local = self.db.get_monsters_in_location(self.player.id_local, self.player.id_missao_historia_ativa)
 
                 if monstros_no_local:
                     print("\nVoce avista os seguintes seres horripilantes:")
@@ -605,50 +645,55 @@ class Game:
                         print(f"  [{i + 1}] {monstro['monstro_nome'].strip()} (Vida: {monstro['vida_atual']}/{monstro['vida_total']})")
                     
                     action = input("Seja cuidadoso! [a]tacar, [i]nspecionar, ou [r]ecuar (formato 'a1', 'i1'): ").strip().lower()
-                    
-                    try:
-                        command = action[0]
-                        num = int(action[1:]) - 1
 
-                        if 0 <= num < len(monstros_no_local):
-                            monstro_escolhido = monstros_no_local[num]
-                            if command == 'a':
-                                self.clear()
-                                move_cursor_to(1, 1)
-                                print("\033[35m" + "═" * 108 + "\033[0m")
-                                print("\033[32m" + " " * 108 + "\033[0m")
-                                print("\033[35m------------------------------------------- A BATALHA COMEÇA! ----------------------------------------------\033[0m")
-                                print("\033[32m" + " " * 108 + "\033[0m")
-                                print("\033[35m" + "═" * 108 + "\033[0m")
-                                self._handle_battle_loop(monstro_escolhido)
-                                #resultado_batalha = self.db.execute_battle(self.player.id_jogador, monstro_escolhido['instancia_monstro_id'])
-                                #print(resultado_batalha)
-                                self.clear()
-                                move_cursor_to(1, 1)
-                                print("\033[35m" + "═" * 108 + "\033[0m")
-                                print("\033[32m" + " " * 108 + "\033[0m")
-                                print("\033[35m------------------------------------------- A BATALHA TERMINA! ----------------------------------------------\033[0m")
-                                print("\033[32m" + " " * 108 + "\033[0m")
-                                print("\033[35m" + "═" * 108 + "\033[0m")
-                            elif command == 'i':
-                                self._display_monster_details(monstro_escolhido['instancia_monstro_id'])
-                            elif command == 'r':
-                                print("Você tenta usar sua Furtividade para recuar para as sombras...")
-                                if self.db.perform_skill_check(self.player.id_jogador, 'Furtividade'):
-                                    print("Você conseguiu se afastar sem ser notado.")
-                                    continue # Volta para o menu de exploração
-                                else:
-                                    print("Sua tentativa de fuga falhou! Você é forçado a lutar!")
-                                    # Força a batalha contra o primeiro monstro da lista
-                                    self._handle_battle_loop(monstros_no_local[0])
-                                    continue # Depois da batalha, volta ao menu de exploração
-                            else:
-                                print("Comando inválido. Use 'a' para atacar ou 'i' para inspecionar.")
+                    if action == 'r':
+                        print("Você tenta usar sua Furtividade para recuar para as sombras...")
+                        if self.db.perform_skill_check(self.player.id_jogador, 'Furtividade'):
+                            print("Você conseguiu se afastar sem ser notado.")
+                            continue
                         else:
-                            print("Número de monstro inválido.")
-                    
-                    except (ValueError, IndexError):
-                        print("Comando inválido. Use o formato 'a1', 'i1', ou 'r'.")
+                            print("Sua tentativa de fuga falhou! Você é forçado a lutar!")
+                            resultado_batalha = self._handle_battle_loop(monstros_no_local[0])
+                            if resultado_batalha == 'vitoria':
+                                progresso = self._check_and_progress_story()
+                                if progresso:
+                                    return progresso
+                            continue
+                    else:
+                        try:
+                            command = action[0]
+                            num = int(action[1:]) - 1
+
+                            if 0 <= num < len(monstros_no_local):
+                                monstro_escolhido = monstros_no_local[num]
+                                if command == 'a':
+                                    self.clear()
+                                    move_cursor_to(1, 1)
+                                    print("\033[35m" + "═" * 108 + "\033[0m")
+                                    print("\033[32m" + " " * 108 + "\033[0m")
+                                    print("\033[35m------------------------------------------- A BATALHA COMEÇA! ----------------------------------------------\033[0m")
+                                    print("\033[32m" + " " * 108 + "\033[0m")
+                                    print("\033[35m" + "═" * 108 + "\033[0m")
+                                    resultado_batalha = self._handle_battle_loop(monstro_escolhido)
+                                    self.clear()
+                                    move_cursor_to(1, 1)
+                                    print("\033[35m" + "═" * 108 + "\033[0m")
+                                    print("\033[32m" + " " * 108 + "\033[0m")
+                                    print("\033[35m------------------------------------------- A BATALHA TERMINA! ----------------------------------------------\033[0m")
+                                    print("\033[32m" + " " * 108 + "\033[0m")
+                                    print("\033[35m" + "═" * 108 + "\033[0m")
+                                    if resultado_batalha == 'vitoria':
+                                        progresso = self._check_and_progress_story()
+                                        if progresso:
+                                            return progresso
+                                elif command == 'i':
+                                    self._display_monster_details(monstro_escolhido['instancia_monstro_id'])
+                                else:
+                                    print("Comando inválido. Use 'a' para atacar ou 'i' para inspecionar.")
+                            else:
+                                print("Número de monstro inválido.")
+                        except (ValueError, IndexError):
+                            print("Comando inválido. Use o formato 'a1', 'i1', ou 'r'.")
 
                 else:
                     print("O local parece estar livre de ameacas... por enquanto.")
@@ -760,6 +805,59 @@ class Game:
                 return False # Sinaliza para o gameplay loop parar e voltar ao menu
             print("Opção inválida.")
     
+    def _show_final_screen(self):
+        """Exibe a tela de finalização da campanha."""
+        clear()
+        print("\n\n==================================================")
+        print("                   FIM DE JOGO")
+        print("==================================================")
+        print("\nO último eco se dissipa, e a câmara vasta se acalma.")
+        print("O cristal negro à sua frente se estilhaça em silêncio, revelando um portal cintilante.")
+        print("Você atravessa o limiar e, com uma lufada de ar fresco e são, se vê livre das paredes profanas do templo.")
+        print("\nVocê escapou. Por enquanto.")
+        print("\n==================================================")
+        input("\nPressione Enter para voltar ao menu principal...")
+
+    def _check_and_progress_story(self):
+        """
+        Verifica se os requisitos da missão de história ativa foram concluídos.
+        Se sim, desbloqueia o caminho, avança a missão e lida com as mudanças de estado do jogo.
+        Retorna 'progressed' se a história avançou, 'game_over' se o jogo terminou,
+        e None caso contrário.
+        """
+        if self.player.id_missao_historia_ativa:
+            mission_details = self.db.get_active_mission_details(self.player.id_missao_historia_ativa)
+            if not mission_details:
+                print("Erro: Não foi possível carregar os detalhes da sua missão. Retornando ao modo exploração.")
+                self.db.advance_story_mission(self.player.id_jogador, None)
+                self.player.id_missao_historia_ativa = None
+                return None
+
+            requirements_complete = self.db.are_mission_requirements_complete(self.player.id_missao_historia_ativa)
+            if requirements_complete:
+                print("\n>> EVENTO DE HISTÓRIA <<")
+                print("O ar ao seu redor vibra com energia. Um caminho se abre!")
+                
+                self.db.unlock_story_path(
+                    player_id=self.player.id_jogador,
+                    current_local_id=self.player.id_local,
+                    direction=mission_details['direcao_desbloqueada'],
+                    destination_local_id=mission_details['id_local_desbloqueado']
+                )
+                
+                next_mission_id = mission_details.get('missao_sequencia_proxima')
+                self.db.advance_story_mission(self.player.id_jogador, next_mission_id)
+                self.player.id_missao_historia_ativa = next_mission_id
+                
+                if not next_mission_id:
+                    # Ação para o final do jogo
+                    return 'game_over'
+                else:
+                    # Ação para continuar a campanha
+                    input("Pressione Enter para continuar...")
+                    return 'progressed'
+        return None
+
     def _handle_battle_loop(self, monstro):
         """Gerencia um loop de batalha turno a turno."""
         #clear()
@@ -776,6 +874,15 @@ class Game:
                     print("O monstro deixou cair um item! Você o pega.")
                     self.db.add_item_to_inventory(self.player.id_jogador, item_drop['id_instancia_de_item'])
                 self.db.kill_monster_instance(monstro['instancia_monstro_id'])
+
+                # --- VERIFICAÇÃO DE PROGRESSO DA HISTÓRIA (CORRIGIDO) ---
+                # A verificação agora acontece somente APÓS a confirmação da vitória.
+                if self.player.id_missao_historia_ativa:
+                    self.db.update_mission_requirement(
+                        mission_id=self.player.id_missao_historia_ativa,
+                        defeated_monster_instance_id=monstro['instancia_monstro_id']
+                    )
+                
                 return 'vitoria'
 
             if self.player.pontos_de_vida_atual <= 0:
@@ -886,13 +993,21 @@ class Game:
                     return self.start() # Volta para o menu principal
             # --- FIM DA VERIFICAÇÃO DE MORTE ---
 
+            # --- LÓGICA DO MODO HISTÓRIA (Refatorada) ---
+            progresso = self._check_and_progress_story()
+            if progresso == 'game_over':
+                self._show_final_screen()
+                break  # Sai do loop de gameplay para retornar ao menu principal
+            elif progresso == 'progressed':
+                continue # Reinicia o loop para recarregar os detalhes do local
+
             # LÓGICA DO TURNO (Lua de Sangue, Descrição do Local, etc.)
             current_time = time.time()
             if current_time - self.last_lua_de_sangue_time >= 30:
                 self.db.trigger_lua_de_sangue() 
                 self.last_lua_de_sangue_time = current_time 
 
-            detalhes_local = self.db.get_local_details_and_exits(self.player.id_local)
+            detalhes_local = self.db.get_local_details_and_exits(self.player.id_local, self.player.id_jogador)
 
             if not detalhes_local:
                 print(f"Erro: Nao foi possivel carregar os detalhes do local ID: {self.player.id_local}")
@@ -915,11 +1030,23 @@ class Game:
             print("\033[35m════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
             print("SAIDAS DISPONIVEIS:")
             
-            saidas = detalhes_local['saidas']
-            if not saidas:
+            todas_as_saidas = detalhes_local['saidas']
+            saidas_validas = []
+
+            # Se o jogador estiver em modo história, filtra as saídas para corredores inativos.
+            if self.player.id_missao_historia_ativa:
+                saidas_validas = [
+                    s for s in todas_as_saidas 
+                    if s['tipo_destino'] != 'Corredor' or s.get('status_destino') is True
+                ]
+            else:
+                # No modo exploração, todas as saídas são consideradas válidas.
+                saidas_validas = todas_as_saidas
+
+            if not saidas_validas:
                 print("Nao ha saidas visiveis daqui.")
             else:
-                for i, saida in enumerate(saidas):
+                for i, saida in enumerate(saidas_validas):
                     print(f"  [{i + 1}] Ir para {saida['direcao']} ({saida['tipo_destino']})")
             
             print("\033[35m════════════════════════════════════════════════════════════════════════════════════════════════════════════\033[0m")
@@ -934,7 +1061,12 @@ class Game:
             elif escolha == 'i':
                 self._handle_inventory_actions()
             elif escolha == 'e':
-                self._handle_explore_actions()
+                resultado_exploracao = self._handle_explore_actions()
+                if resultado_exploracao == 'game_over':
+                    self._show_final_screen()
+                    break
+                elif resultado_exploracao == 'progressed':
+                    continue
             
             elif escolha == 'kill': 
                 print("\nVoce decide usar forca letal para limpar o local de qualquer ameaca...")
@@ -950,8 +1082,8 @@ class Game:
             else:
                 try:
                     escolha_num = int(escolha) - 1
-                    if 0 <= escolha_num < len(saidas):
-                        saida_escolhida = saidas[escolha_num]
+                    if 0 <= escolha_num < len(saidas_validas):
+                        saida_escolhida = saidas_validas[escolha_num]
                         novo_local_id = saida_escolhida['id_saida']
                         self.db.update_localizacao_jogador(self.player.id_jogador, novo_local_id)
                         self.player.id_local = novo_local_id 

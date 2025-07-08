@@ -594,6 +594,12 @@ CREATE DOMAIN public.comportamento_pacifico AS CHARACTER(32)
         VALUE IN ('indiferente', 'medroso', 'amigavel', 'sob_controle_mental', 'adormecido', 'curioso', 'observador')
     );
 
+-- Domínio para os tipos de requisitos de missão
+CREATE DOMAIN public.tipo_requisito AS CHARACTER VARYING(32)
+    CONSTRAINT tipo_requisito_check CHECK (
+        VALUE IN ('ELIMINAR_MONSTRO', 'COLETAR_ITEM', 'FALAR_COM_NPC', 'CHEGAR_AO_LOCAL')
+    );
+
 
 CREATE DOMAIN public.nome AS CHARACTER VARYING(128);
 
@@ -1173,7 +1179,8 @@ CREATE TABLE public.personagens_jogaveis(
     -- FOREIGN KEYS
     id_local public.id_local,  
     id_inventario public.id_inventario NOT NULL, 
-    id_armadura public.id_instancia_de_item, 
+    id_armadura public.id_instancia_de_item,
+    id_missao_historia_ativa public.id_missao,
     id_arma public.id_instancia_de_item
     -- id_tipo_personagem public.id NOT NULL
 
@@ -1296,6 +1303,8 @@ CREATE TABLE public.pacificos(
 CREATE TABLE public.instancias_monstros(
     id public.id_instancia_de_monstro NOT NULL PRIMARY KEY DEFAULT public.gerar_id_instancia_de_monstro(),
     vida SMALLINT,
+    id_missao_vinculada public.id_missao,
+    is_essencial_historia BOOLEAN NOT NULL DEFAULT FALSE,
 
     -- FOREING KEYS
     id_instancia_de_item public.id_instancia_de_item NOT NULL,
@@ -1312,7 +1321,11 @@ CREATE TABLE public.missoes(
     ordem CHARACTER(128) NOT NULL,
 
     -- FOREIGN KEYS
-    id_npc public.id_personagem_npc NOT NULL 
+    id_npc public.id_personagem_npc NOT NULL,
+    id_local_alvo public.id_local,
+    id_local_desbloqueado public.id_local,
+    direcao_desbloqueada CHARACTER VARYING(10),
+    missao_sequencia_proxima public.id_missao
 );
 
 CREATE TABLE public.magicos(
@@ -1409,6 +1422,21 @@ CREATE TABLE public.instancias_de_itens(
     id_item public.id_item NOT NULL
 );
 
+CREATE TABLE public.requisitos_missao(
+    id SERIAL PRIMARY KEY,
+    id_missao public.id_missao NOT NULL,
+    tipo_requisito public.tipo_requisito NOT NULL,
+    id_alvo_instancia public.id_geral NOT NULL,
+    concluido BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE public.jogador_caminhos_desbloqueados(
+    id_jogador public.id_personagem_jogavel NOT NULL,
+    id_local_origem public.id_local NOT NULL,
+    id_local_destino public.id_local NOT NULL,
+    direcao CHARACTER VARYING(10) NOT NULL,
+    PRIMARY KEY (id_jogador, id_local_origem, direcao)
+);
 -- ===============================================
 
 --             TABELAS DE TIPOS
@@ -1531,6 +1559,11 @@ ALTER TABLE public.personagens_jogaveis
 ADD CONSTRAINT fk_pj_inventario_instancia_armadura 
     FOREIGN KEY (id_armadura) 
     REFERENCES public.instancias_de_itens(id);
+
+ALTER TABLE public.personagens_jogaveis
+ADD CONSTRAINT fk_pj_missao_historia_ativa
+    FOREIGN KEY (id_missao_historia_ativa)
+    REFERENCES public.missoes (id);
 
 /*
 
@@ -1712,6 +1745,11 @@ ADD CONSTRAINT fk_instancias_monstro_instancia_de_item
     FOREIGN KEY (id_instancia_de_item) 
     REFERENCES public.instancias_de_itens (id);
 
+ALTER TABLE public.instancias_monstros
+ADD CONSTRAINT fk_instancias_monstro_missao_vinculada
+    FOREIGN KEY (id_missao_vinculada)
+    REFERENCES public.missoes (id);
+
 -- ==============================
 --      MONSTROS PACÍFICOS
 -- ==============================
@@ -1752,6 +1790,39 @@ ALTER TABLE public.missoes
 ADD CONSTRAINT fk_missoes_npcs 
     FOREIGN KEY (id_npc) 
     REFERENCES public.npcs (id);
+
+ALTER TABLE public.missoes
+ADD CONSTRAINT fk_missoes_local_alvo
+    FOREIGN KEY (id_local_alvo)
+    REFERENCES public.local (id);
+
+ALTER TABLE public.missoes
+ADD CONSTRAINT fk_missoes_local_desbloqueado
+    FOREIGN KEY (id_local_desbloqueado)
+    REFERENCES public.local (id);
+
+ALTER TABLE public.missoes
+ADD CONSTRAINT fk_missoes_sequencia
+    FOREIGN KEY (missao_sequencia_proxima)
+    REFERENCES public.missoes (id);
+
+ALTER TABLE public.requisitos_missao
+ADD CONSTRAINT fk_requisitos_missao_missao
+    FOREIGN KEY (id_missao)
+    REFERENCES public.missoes (id);
+
+-- ==============================
+--    JOGADOR CAMINHOS DESBLOQUEADOS
+-- ==============================
+ALTER TABLE public.jogador_caminhos_desbloqueados
+ADD CONSTRAINT fk_caminhos_jogador
+    FOREIGN KEY (id_jogador)
+    REFERENCES public.personagens_jogaveis (id);
+
+ALTER TABLE public.jogador_caminhos_desbloqueados
+ADD CONSTRAINT fk_caminhos_local_origem
+    FOREIGN KEY (id_local_origem)
+    REFERENCES public.local (id);
 
 -- ==============================
 --    ENTREGAS DE MISSÕES
