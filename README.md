@@ -22,14 +22,17 @@ Com base no universo criado por HP Lovecraft, Call of Cthulhu busca contar a his
 - [Modelo entidade relacionamento](./src/sql-segunda/MER.md)
 - [Modelo lógico](./src/sql-segunda/ML.md)
 - [Dicionário de Dados](./src/sql-segunda/DD.md)
-- 
 
 ### Módulo 3
 
-- [Diagrama entidade relacionamento](./docs/entregas/primeira/DER.md)
-- [Modelo entidade relacionamento](./docs/entregas/primeira/MER.md)
-- [Modelo lógico](./docs/entregas/primeira/ML.md)
-- [Dicionário de Dados](./docs/entregas/primeira/DD.md)
+- [Diagrama Entidade Relacionamento](entregas/terceira/DER.md)
+- [Modelo Entidade Relacionamento](entregas/terceira/MER.md)
+- [Modelo Lógico](entregas/terceira/ML.md)
+- [Dicionário de Dados](entregas/terceira/DD.md)
+- [Data Definition Language](entregas/terceira/DDL.md)
+- [Data Modeling Language](entregas/terceira/DML.md)
+- [Data Query Language](entregas/terceira/DQL.md)
+- [Triggers e Stored Procedures](entregas/terceira/TSP.md)
 
 ## Integrantes
 
@@ -43,17 +46,21 @@ Com base no universo criado por HP Lovecraft, Call of Cthulhu busca contar a his
   </tr> 
 </table>
 
-## Como rodar o banco com o Docker
+## Rodando o Jogo
+###  Como rodar o banco com o Docker
 1. Tenha instalado o [Docker Engine](https://docs.docker.com/engine/install/)
 1. No terminal e com o Docker rodando, execute o seguinte comando para rodar o container em modo _detached_, em background:
     ````bash
-    docker compose up -d
+    docker compose up --build -d
     ```` 
-1. A estrutura segue o seguinte padrão: ``docker exec -it <container-name> psql -U <DB_user> <DB_name>``. Para acessar o banco pelo psql, rode:
-    ````bash
-    docker exec -it 20251-callofcthulhu-db-1 psql -U postgres call_of_chtulhu
-    ````
-**Obs**: caso o passo 3 não funcione, troque "20251-callofcthulhu-db-1", pelo nome criado pelo seu docker. Para isso, rode ``docker ps -a``, pegue o nome do container que está rodando e troque pelo comando do passo 3.
+### Rodando arquivos sql e game
+1. Rode os arquivos na seguinte sequência: 
+    1. [db.sql](src/sql-terceira/db.sql)
+    1. [ddl.sql](src/sql-terceira/ddl.sql)
+    1. [triggers-stored_procedures.sql](src/sql-terceira/triggers-stored_procedures.sql)
+    1. [dml.sql](src/sql-terceira/dml.sql)
+
+1. Após isso, rode o jogo [game.py](src/game.py) com o comando ``py game.py``
 
 ### Como rodar o banco com o DBBeaver
 O DBBeaver é uma plataforma gratuíta para trabalhar com bancos de dados, com suporte para múltiplos SQL databases, assim como o PostgreSQL.
