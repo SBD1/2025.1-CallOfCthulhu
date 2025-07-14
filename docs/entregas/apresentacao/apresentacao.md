@@ -34,6 +34,7 @@ Até o momento, foram elaborados e entregues os seguintes artefatos de modelagem
 
 ## Módulo 2
 
+<p style="text-align: center">
 <iframe width="560" height="315" src="https://www.youtube.com/embed/y3V--2PIbYU" title="Entrega módulo 2 de SBD1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 <p style="text-align: center"><a href="https://www.youtube.com/embed/y3V--2PIbYU" target="_blank">Clique aqui para assistir no YouTube</a></p>
@@ -42,6 +43,14 @@ Até o momento, foram elaborados e entregues os seguintes artefatos de modelagem
 
 ## Módulo 3
 
+<p style="text-align: center">
 <iframe width="560" height="315" src="https://www.youtube.com/embed/VL6z5giL5TM" title="Entrega módulo 2 de SBD1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 <p style="text-align: center"><a href="https://www.youtube.com/embed/VL6z5giL5TM" target="_blank">Clique aqui para assistir no YouTube</a></p>
+
+## Módulo 3,5 – Explicação Melhorada
+
+<p style="text-align: center">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/OvTNYiXnkLE" title="Entrega módulo 2 de SBD1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+<p style="text-align: center"><a href="https://youtu.be/OvTNYiXnkLE" target="_blank">Clique aqui para assistir no YouTube</a></p>
